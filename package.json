@@ -1,0 +1,23 @@
+{
+  "name": "area-mockups-monorepo",
+  "private": true,
+  "description": "Monorepo for area-mockups — interactive, GPU-accelerated 3D device mockups for React.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w area-mockups && npm run build -w docs",
+    "build:pkg": "npm run build -w area-mockups",
+    "build:docs": "npm run build -w docs",
+    "dev": "concurrently -n pkg,docs -c cyan,magenta \"npm run dev -w area-mockups\" \"npm run dev -w docs\"",
+    "start:docs": "npm run start -w docs",
+    "typecheck": "npm run typecheck -w area-mockups && npm run typecheck -w docs"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

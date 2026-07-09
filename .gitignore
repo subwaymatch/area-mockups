@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# tooling caches
+.turbo/
+.swc/
+
+# logs
+npm-debug.log*
+yarn-error.log*
+
+# env
+.env
+.env*.local
+
+# os
+.DS_Store
