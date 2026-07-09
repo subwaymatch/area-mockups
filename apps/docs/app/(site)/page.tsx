@@ -25,9 +25,10 @@ export default function HomePage() {
             Your app, on a phone, <span className="grad-text">in 3D.</span>
           </h1>
           <p className="lede">
-            <code>area-mockups</code> renders a GPU-accelerated, fully interactive Galaxy-style
-            3D device — and maps <em>real, live DOM</em> onto its screen. Buttons click, videos
-            play, iframes scroll. No 3D asset files, no screenshots.
+            <code>area-mockups</code> renders GPU-accelerated, fully interactive 3D devices —
+            Galaxy- and iPhone-style phones, a MacBook Air-style laptop — and maps{' '}
+            <em>real, live DOM</em> onto their screens. Buttons click, videos play, iframes
+            scroll. No 3D asset files, no screenshots.
           </p>
           <p className="install-line">$ npm install area-mockups</p>
           <div className="hero-actions">

@@ -1,23 +1,23 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
-import { Phone, type PhoneProps } from './devices/phone/phone'
-import { PHONE } from './devices/phone/dimensions'
+import { IPhone, type IPhoneProps } from './devices/iphone/iphone'
+import { IPHONE } from './devices/iphone/dimensions'
 import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
-  PhoneProps,
+  IPhoneProps,
   | 'color'
   | 'frameColor'
   | 'screenBackground'
   | 'resolution'
-  | 'punchHole'
+  | 'dynamicIsland'
   | 'interactive'
   | 'dragToRotate'
   | 'occlude'
   | 'screenStyle'
 >
 
-export interface PhoneMockupProps
+export interface IPhoneMockupProps
   extends Omit<MockupCanvasProps, 'children'>,
     InheritedDeviceProps {
   /** Screen content — any React node, an <iframe>, a <video>… */
@@ -25,25 +25,25 @@ export interface PhoneMockupProps
   /** Gentle floating idle animation. */
   float?: boolean
   /** Extra props forwarded to the device group (position, rotation, scale…). */
-  deviceProps?: Omit<PhoneProps, 'children'>
+  deviceProps?: Omit<IPhoneProps, 'children'>
 }
 
 /**
- * The one-liner: a complete, interactive 3D Phone mockup.
+ * The one-liner: a complete, interactive 3D iPhone mockup.
  *
  * ```tsx
- * <PhoneMockup autoRotate float>
+ * <IPhoneMockup autoRotate float>
  *   <YourApp />
- * </PhoneMockup>
+ * </IPhoneMockup>
  * ```
  */
-export function PhoneMockup({
+export function IPhoneMockup({
   children,
   color,
   frameColor,
   screenBackground,
   resolution,
-  punchHole,
+  dynamicIsland,
   interactive,
   dragToRotate,
   occlude,
@@ -51,14 +51,14 @@ export function PhoneMockup({
   float = false,
   deviceProps,
   ...canvasProps
-}: PhoneMockupProps) {
+}: IPhoneMockupProps) {
   const device = (
-    <Phone
+    <IPhone
       color={color}
       frameColor={frameColor}
       screenBackground={screenBackground}
       resolution={resolution}
-      punchHole={punchHole}
+      dynamicIsland={dynamicIsland}
       interactive={interactive}
       dragToRotate={dragToRotate}
       occlude={occlude}
@@ -66,13 +66,14 @@ export function PhoneMockup({
       {...deviceProps}
     >
       {children}
-    </Phone>
+    </IPhone>
   )
 
   // Grounded by default: the shadow plane kisses the bottom edge of the body.
   // A floating device keeps a visible hover gap below its bobbing range.
   const shadowY =
-    canvasProps.shadowY ?? (float ? -(PHONE.body.height / 2 + 0.3) : -(PHONE.body.height / 2 + 0.05))
+    canvasProps.shadowY ??
+    (float ? -(IPHONE.body.height / 2 + 0.3) : -(IPHONE.body.height / 2 + 0.05))
 
   return (
     <MockupCanvas {...canvasProps} shadowY={shadowY}>

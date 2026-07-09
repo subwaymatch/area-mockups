@@ -129,8 +129,12 @@ export default function DocsPage() {
         <p>
           The display is real DOM projected onto the 3D glass with CSS 3D transforms (via
           drei&apos;s <code>Html</code>), while the device itself is GPU-rendered WebGL. Your
-          content is laid out in a virtual <code>360×780</code> px viewport (configurable via{' '}
-          <code>resolution</code>) — style it with percentages or flex and it fills the panel.
+          content is laid out in a virtual viewport that matches the real device&apos;s logical
+          resolution — <code>360×780</code> on the Galaxy-style phone (its 2340×1080 panel at
+          ⅓ scale), <code>402×874</code> on the iPhone (the iPhone 17 point grid) and{' '}
+          <code>1280×832</code> on the MacBook Air (its default scaled resolution) — so
+          layouts and breakpoints behave exactly like on the real hardware. Change the width
+          via <code>resolution</code>; the aspect ratio always stays true to the panel.
         </p>
         <CodeBlock title="examples.tsx">{contentSnippet}</CodeBlock>
       </section>
@@ -289,7 +293,7 @@ export default function DocsPage() {
               type: 'number',
               defaultValue: '360',
               description:
-                'CSS pixel width of the virtual display; height follows the 19.5:9 panel (360 → 360×780).',
+                'CSS pixel width of the virtual display; height follows the panel aspect (360 → 360×780, the Galaxy S25 panel at one-third scale).',
             },
             {
               name: 'punchHole',
@@ -322,6 +326,75 @@ export default function DocsPage() {
               name: 'screenStyle',
               type: 'CSSProperties',
               description: 'Extra styles merged onto the screen wrapper.',
+            },
+          ]}
+        />
+
+        <h3>&lt;IPhone&gt; / &lt;IPhoneMockup&gt;</h3>
+        <p>
+          An iPhone 17-style device — flat aluminum frame, Dynamic Island, dual-lens camera
+          plateau, Action button and Camera Control. Same API as <code>&lt;Phone&gt;</code> /{' '}
+          <code>&lt;PhoneMockup&gt;</code>, except:
+        </p>
+        <PropsTable
+          rows={[
+            {
+              name: 'dynamicIsland',
+              type: 'boolean',
+              defaultValue: 'true',
+              description: 'Dynamic Island overlay (replaces punchHole).',
+            },
+            {
+              name: 'resolution',
+              type: 'number',
+              defaultValue: '402',
+              description:
+                'Virtual display width; 402 → 402×874, exactly the iPhone 17 logical point grid.',
+            },
+            {
+              name: 'color',
+              type: 'string',
+              defaultValue: "'#1a1c20'",
+              description:
+                'Back glass. Try the iPhone 17 finishes: White #f2f2f4, Mist Blue #b7c9dd, Sage #aebfae, Lavender #cfc4e6.',
+            },
+          ]}
+        />
+
+        <h3>&lt;Laptop&gt; / &lt;LaptopMockup&gt;</h3>
+        <p>
+          A MacBook Air 13&quot; (M5)-style laptop — unibody deck with Magic-Keyboard key grid
+          and trackpad, hinged notched display. Same screen/interaction API as the phones
+          (<code>interactive</code>, <code>dragToRotate</code>, <code>occlude</code>,{' '}
+          <code>screenStyle</code>), plus:
+        </p>
+        <PropsTable
+          rows={[
+            {
+              name: 'color',
+              type: 'string',
+              defaultValue: "'#e3e4e6'",
+              description:
+                'Aluminum finish. Try Sky Blue #aec6d9, Starlight #e8e0d4, Midnight #2e3642.',
+            },
+            {
+              name: 'notch',
+              type: 'boolean',
+              defaultValue: 'true',
+              description: 'Camera-notch overlay at the top of the display.',
+            },
+            {
+              name: 'openAngle',
+              type: 'number',
+              defaultValue: '110',
+              description: 'Lid angle in degrees between deck and screen (90 = upright).',
+            },
+            {
+              name: 'resolution',
+              type: 'number',
+              defaultValue: '1280',
+              description:
+                'Virtual display width; 1280 → 1280×832, exactly the MacBook Air default scaled resolution — desktop breakpoints apply.',
             },
           ]}
         />

@@ -919,6 +919,145 @@ code {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Screen: desktop (laptop mockup)                                    */
+/* ------------------------------------------------------------------ */
+
+.mac {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  letter-spacing: -0.011em;
+  color: #eef0f6;
+  user-select: none;
+  -webkit-user-select: none;
+  background:
+    radial-gradient(80% 90% at 12% 0%, rgba(139, 124, 248, 0.5) 0%, transparent 60%),
+    radial-gradient(90% 80% at 88% 100%, rgba(34, 211, 238, 0.4) 0%, transparent 60%),
+    radial-gradient(60% 60% at 70% 20%, rgba(244, 114, 182, 0.25) 0%, transparent 65%),
+    #0a0c14;
+}
+
+.mac-menubar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(238, 240, 246, 0.85);
+  background: rgba(10, 12, 20, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.mac-menubar-brand {
+  font-weight: 700;
+}
+
+.mac-window {
+  width: 420px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(18, 20, 30, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.mac-window-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mac-light {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+
+.mac-light-close { background: #ff5f57; }
+.mac-light-min { background: #febc2e; }
+.mac-light-max { background: #28c840; }
+
+.mac-window-title {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(238, 240, 246, 0.55);
+  /* keep the title optically centered despite the traffic lights */
+  margin-right: 55px;
+}
+
+.mac-window-body {
+  padding: 28px 24px 32px;
+  text-align: center;
+}
+
+.mac-count {
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 4px 0 20px;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.mac-window-body button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 32px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--grad);
+  color: #0b0c12;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.mac-window-body button:active {
+  transform: scale(0.95);
+}
+
+.mac-dock {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.mac-dock span {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Screen: embedded page (/embedded)                                  */
 /* ------------------------------------------------------------------ */
 
