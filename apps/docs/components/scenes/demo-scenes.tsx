@@ -29,8 +29,8 @@ export default function DemoScenes() {
         title="Bring your own UI"
         description={
           <>
-            Plain React state on the 3D screen — the button below really clicks. Drag the body
-            to spin the device.
+            Plain React state on the 3D screen — the button below really clicks. Drag anywhere,
+            even on the screen, to spin the device; taps still reach the UI.
           </>
         }
       >

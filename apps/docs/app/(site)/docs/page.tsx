@@ -117,9 +117,10 @@ export default function DocsPage() {
         </p>
         <CodeBlock title="hero.tsx">{quickstartSnippet}</CodeBlock>
         <p>
-          Drag the device body to orbit. Pointer events over the screen go to <em>your</em>{' '}
-          content, so buttons, links and scrolling work exactly like regular DOM — grab the
-          bezel or the space around the phone to rotate.
+          Drag anywhere — the body, the surrounding space, or the screen itself — to orbit.
+          Taps and clicks on the screen still go to <em>your</em> content, so buttons, links
+          and forms work exactly like regular DOM; only gestures that travel a few pixels are
+          treated as rotation.
         </p>
       </section>
 
@@ -301,7 +302,14 @@ export default function DocsPage() {
               type: 'boolean',
               defaultValue: 'true',
               description:
-                'Whether pointer events reach the screen. Set false to make drags over the screen rotate the device instead.',
+                'Whether pointer events (clicks, scrolling, typing) reach the screen content.',
+            },
+            {
+              name: 'dragToRotate',
+              type: 'boolean',
+              defaultValue: 'true',
+              description:
+                'Hand drags that start on the screen to the orbit controls after ~10px of travel; taps and clicks still reach your content. Disable when your content needs its own drag gestures.',
             },
             {
               name: 'occlude',
@@ -358,7 +366,7 @@ export default function DocsPage() {
         <ul>
           <li>
             <strong>2D mockups</strong> — CSS/SVG renderers sharing the same device dimensions
-            (exported today as <code>GALAXY</code>) and the same content API, for zero-WebGL
+            (exported today as <code>PHONE</code>) and the same content API, for zero-WebGL
             contexts like screenshots and emails.
           </li>
           <li>More devices: tablets, laptops, watches.</li>

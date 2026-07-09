@@ -1,11 +1,23 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import { Html, RoundedBox } from '@react-three/drei'
-import type { ThreeElements } from '@react-three/fiber'
+import { useThree, type ThreeElements } from '@react-three/fiber'
 import { PHONE, PHONE_DISPLAY_ASPECT } from './dimensions'
 
 type GroupProps = ThreeElements['group']
 import { roundedRectShape } from '../../utils/rounded-rect'
+
+/**
+ * Class applied to drei's `<Html transform>` portal root so we can promote it to
+ * its own compositor layer (see the `<style>` element rendered with the screen).
+ */
+const SCREEN_LAYER_CLASS = 'area-mockups-screen-layer'
+
+/**
+ * How far (in CSS px) a pointer must travel across the screen before the gesture
+ * stops being a tap for the content and becomes a drag for the orbit controls.
+ */
+const SCREEN_DRAG_THRESHOLD_PX = 10
 
 export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the phone screen: React components, an <iframe>, a <video>… */
@@ -27,6 +39,13 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Let pointer events (clicks, scrolling, typing) reach your screen content. */
   interactive?: boolean
   /**
+   * Drags that start on the screen spin the device too: once the pointer travels
+   * ~10px the gesture is handed off to the orbit controls, while plain taps and
+   * clicks keep reaching your content. Disable if your screen content needs its
+   * own drag gestures (sliders, drawing, touch scrolling).
+   */
+  dragToRotate?: boolean
+  /**
    * How screen content hides when the device faces away from the camera.
    * `true` raycasts against the phone body (fast, interactive). `'blending'`
    * uses per-pixel depth blending (prettier at grazing angles, but the canvas
@@ -38,7 +57,7 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
 }
 
 /**
- * A procedurally built Samsung Phone-style phone. No 3D asset files are
+ * A procedurally built Samsung Galaxy S25-style phone. No 3D asset files are
  * loaded — the whole device is generated from geometry at runtime, so it
  * tree-shakes, ships in a few KB and never pops in.
  *
@@ -52,13 +71,18 @@ export function Phone({
   resolution = 360,
   punchHole = true,
   interactive = true,
+  dragToRotate = true,
   occlude = true,
   screenStyle,
   ...groupProps
 }: PhoneProps) {
   const { body, glass, display, punchHole: hole } = PHONE
+  const gl = useThree((state) => state.gl)
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const screenDrag = React.useRef<{ id: number; cancel: () => void } | null>(null)
+
+  React.useEffect(() => () => screenDrag.current?.cancel(), [])
 
   // Chassis: an extruded rounded-rect with beveled edges. The shape is inset by
   // the bevel size so the final silhouette lands exactly on PHONE.body.
@@ -107,8 +131,59 @@ export function Phone({
   const pxPerUnit = resolution / display.width
   const px = (units: number) => units * pxPerUnit
 
-  const lensX = -body.width / 2 + 0.3
+  // Rear camera module, Galaxy S25 style: three individually "floating" lens
+  // rings stacked vertically in the top corner, LED flash beside the stack.
+  // Coordinates are front-view; on the back panel they mirror, putting the
+  // lenses top-left and the flash to their right — matching the real device.
+  const lensX = body.width / 2 - 0.3
   const lensYs = [1.5, 1.14, 0.78]
+  const flashPosition = [lensX - 0.27, 1.32] as const
+
+  const beginScreenDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    // Never let the initial press reach the orbit controls — taps and clicks
+    // belong to the screen content. Real drags are handed off below.
+    event.stopPropagation()
+    if (!dragToRotate || event.button !== 0 || screenDrag.current) return
+
+    const start = { id: event.pointerId, x: event.clientX, y: event.clientY }
+    const canvas = gl.domElement
+
+    const cancel = () => {
+      if (screenDrag.current?.id === start.id) screenDrag.current = null
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', cancel)
+      window.removeEventListener('pointercancel', cancel)
+    }
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerId !== start.id) return
+      if (Math.hypot(e.clientX - start.x, e.clientY - start.y) < SCREEN_DRAG_THRESHOLD_PX) return
+      cancel()
+      // Replay the press on the canvas: the orbit controls (attached to the
+      // canvas or an ancestor) pick it up and capture the pointer, so the rest
+      // of the gesture orbits the device — and the content, having lost the
+      // pointer, never receives a click for this gesture.
+      canvas.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: e.pointerId,
+          pointerType: e.pointerType,
+          isPrimary: e.isPrimary,
+          button: 0,
+          buttons: 1,
+          clientX: e.clientX,
+          clientY: e.clientY,
+          screenX: e.screenX,
+          screenY: e.screenY,
+        })
+      )
+    }
+
+    screenDrag.current = { id: start.id, cancel }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', cancel)
+    window.addEventListener('pointercancel', cancel)
+  }
 
   return (
     <group {...groupProps}>
@@ -152,7 +227,7 @@ export function Phone({
       ))}
       <mesh
         rotation-x={Math.PI / 2}
-        position={[lensX + 0.27, lensYs[0] ?? 1.5, -body.depth / 2 - 0.008]}
+        position={[flashPosition[0], flashPosition[1], -body.depth / 2 - 0.008]}
       >
         <cylinderGeometry args={[0.05, 0.05, 0.016, 32]} />
         <meshPhysicalMaterial
@@ -178,9 +253,19 @@ export function Phone({
         distanceFactor={(400 * display.width) / resolution}
         position={[0, 0, body.depth / 2 + 0.006]}
         zIndexRange={[10, 0]}
+        wrapperClass={SCREEN_LAYER_CLASS}
       >
+        {/*
+          Promote the portal root (the element carrying the CSS `perspective`) to
+          its own compositor layer. Without this, Chromium can rasterize the
+          perspective → preserve-3d → matrix3d chain against a pixel-snapped
+          origin when the canvas lands on a fractional page offset (e.g. an odd
+          window width centering a max-width layout), painting the screen
+          visibly detached from the glass.
+        */}
+        <style>{`.${SCREEN_LAYER_CLASS}{will-change:transform}`}</style>
         <div
-          onPointerDown={(event) => event.stopPropagation()}
+          onPointerDown={beginScreenDrag}
           style={{
             position: 'relative',
             width: resolution,
@@ -189,6 +274,9 @@ export function Phone({
             overflow: 'hidden',
             background: screenBackground,
             pointerEvents: interactive ? 'auto' : 'none',
+            // With drag-to-rotate the browser must not claim touch gestures for
+            // scrolling — moves past the threshold become orbit input instead.
+            touchAction: dragToRotate ? 'none' : undefined,
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             WebkitFontSmoothing: 'antialiased',

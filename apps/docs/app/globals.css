@@ -743,6 +743,13 @@ code {
   color: #fff;
 }
 
+/* The button is the hit target, never its glyph: keeps every pixel of the
+   control clickable, even in engines that hit-test SVGs inside 3D-transformed
+   layers unreliably. */
+.mp-controls button svg {
+  pointer-events: none;
+}
+
 .mp-controls button:active {
   transform: scale(0.92);
 }

@@ -40,8 +40,9 @@ export function Hero() {
 }
 ```
 
-Drag the device body to orbit; pointer events over the screen go to your content. In Next.js,
-load it client-side only (`dynamic(() => import('./mockup'), { ssr: false })`).
+Drag anywhere — body, background, or the screen itself — to orbit; taps and clicks on the
+screen still go to your content. In Next.js, load it client-side only
+(`dynamic(() => import('./mockup'), { ssr: false })`).
 
 ## Components
 
@@ -59,6 +60,7 @@ animation) and `deviceProps` (position/rotation/scale forwarded to the device).
 | `autoRotateSpeed` | `number` | `1` | Orbit speed |
 | `zoom` | `boolean` | `false` | Scroll/pinch zoom (off so pages don't lose scroll) |
 | `shadows` | `boolean` | `true` | Soft contact shadow |
+| `shadowY` | `number` | `-2.05` | Y of the shadow plane (grounds the device) |
 | `environment` | `boolean` | `true` | Procedural studio lighting (no HDR downloads) |
 | `background` | `string` | — | CSS background of the canvas |
 | `camera` | r3f camera | `[0, 0.5, 7.4]`, fov 40 | Camera override |
@@ -77,10 +79,11 @@ Render inside any r3f `<Canvas>`. Accepts all group props (`position`, `rotation
 | `resolution` | `number` | `360` | Virtual display width in CSS px (360 → 360×780) |
 | `punchHole` | `boolean` | `true` | Front-camera punch hole overlay |
 | `interactive` | `boolean` | `true` | Let pointer events reach the screen |
+| `dragToRotate` | `boolean` | `true` | Drags starting on the screen spin the device (taps still click) |
 | `occlude` | `boolean \| 'blending'` | `true` | Hide content when the device faces away |
 | `screenStyle` | `CSSProperties` | — | Extra styles for the screen wrapper |
 
-Renderer-agnostic device dimensions are exported as `GALAXY` — the same data will drive the
+Renderer-agnostic device dimensions are exported as `PHONE` — the same data will drive the
 planned 2D (CSS/SVG) renderers.
 
 ## Docs & demos

@@ -14,6 +14,12 @@ export interface MockupCanvasProps {
   zoom?: boolean
   /** Soft contact shadow under the device. */
   shadows?: boolean
+  /**
+   * Y position (world units) of the contact-shadow plane. The default sits just
+   * under the bundled phone (body height 4, centered on the origin), grounding
+   * the device on its shadow instead of leaving it floating in mid-air.
+   */
+  shadowY?: number
   /** Procedural studio lighting + reflections. No HDR downloads — works offline. */
   environment?: boolean
   /** CSS background of the canvas (any CSS color/gradient/image value). */
@@ -38,6 +44,7 @@ export function MockupCanvas({
   autoRotateSpeed = 1,
   zoom = false,
   shadows = true,
+  shadowY = -2.05,
   environment = true,
   background,
   camera,
@@ -88,7 +95,7 @@ export function MockupCanvas({
       {children}
 
       {shadows && (
-        <ContactShadows position={[0, -2.5, 0]} opacity={0.45} scale={13} blur={2.6} far={4.5} />
+        <ContactShadows position={[0, shadowY, 0]} opacity={0.45} scale={13} blur={2.6} far={4.5} />
       )}
 
       {controls && (
