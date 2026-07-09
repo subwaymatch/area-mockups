@@ -28,6 +28,13 @@ export interface DeviceScreenProps {
   resolution: number
   /** Where the display plane sits within the parent device group. */
   position: [number, number, number]
+  /**
+   * Rotation of the display plane within the device group. Used for landscape
+   * orientation: the device body is laid on its side while the screen plane
+   * counter-rotates, so the DOM content renders upright with swapped
+   * dimensions — exactly like a real device rotating into landscape.
+   */
+  rotation?: [number, number, number]
   /** CSS background painted behind the content. */
   background?: string
   /** Let pointer events (clicks, scrolling, typing) reach the content. */
@@ -64,6 +71,7 @@ export function DeviceScreen({
   radius,
   resolution,
   position,
+  rotation,
   background = '#000000',
   interactive = true,
   dragToRotate = true,
@@ -136,6 +144,7 @@ export function DeviceScreen({
       occlude={occlude}
       distanceFactor={(400 * width) / resolution}
       position={position}
+      rotation={rotation}
       zIndexRange={[10, 0]}
       wrapperClass={SCREEN_LAYER_CLASS}
     >

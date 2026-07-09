@@ -1,11 +1,13 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Phone, type PhoneProps } from './devices/phone/phone'
-import { PHONE } from './devices/phone/dimensions'
+import { GALAXY_VARIANTS } from './devices/phone/dimensions'
 import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
   PhoneProps,
+  | 'variant'
+  | 'orientation'
   | 'color'
   | 'frameColor'
   | 'screenBackground'
@@ -39,6 +41,8 @@ export interface PhoneMockupProps
  */
 export function PhoneMockup({
   children,
+  variant = 's25',
+  orientation = 'portrait',
   color,
   frameColor,
   screenBackground,
@@ -54,6 +58,8 @@ export function PhoneMockup({
 }: PhoneMockupProps) {
   const device = (
     <Phone
+      variant={variant}
+      orientation={orientation}
       color={color}
       frameColor={frameColor}
       screenBackground={screenBackground}
@@ -69,10 +75,11 @@ export function PhoneMockup({
     </Phone>
   )
 
-  // Grounded by default: the shadow plane kisses the bottom edge of the body.
-  // A floating device keeps a visible hover gap below its bobbing range.
-  const shadowY =
-    canvasProps.shadowY ?? (float ? -(PHONE.body.height / 2 + 0.3) : -(PHONE.body.height / 2 + 0.05))
+  // Grounded by default: the shadow plane kisses the bottom edge of the body
+  // (its width when lying in landscape). Floating keeps a visible hover gap.
+  const body = GALAXY_VARIANTS[variant].body
+  const extent = orientation === 'landscape' ? body.width : body.height
+  const shadowY = canvasProps.shadowY ?? (float ? -(extent / 2 + 0.3) : -(extent / 2 + 0.05))
 
   return (
     <MockupCanvas {...canvasProps} shadowY={shadowY}>

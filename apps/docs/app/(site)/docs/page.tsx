@@ -129,14 +129,45 @@ export default function DocsPage() {
         <p>
           The display is real DOM projected onto the 3D glass with CSS 3D transforms (via
           drei&apos;s <code>Html</code>), while the device itself is GPU-rendered WebGL. Your
-          content is laid out in a virtual viewport that matches the real device&apos;s logical
-          resolution — <code>360×780</code> on the Galaxy-style phone (its 2340×1080 panel at
-          ⅓ scale), <code>402×874</code> on the iPhone (the iPhone 17 point grid) and{' '}
-          <code>1280×832</code> on the MacBook Air (its default scaled resolution) — so
-          layouts and breakpoints behave exactly like on the real hardware. Change the width
-          via <code>resolution</code>; the aspect ratio always stays true to the panel.
+          content is laid out in a virtual viewport that matches the real device&apos;s
+          logical resolution, so layouts and breakpoints behave exactly like on the real
+          hardware. Change the width via <code>resolution</code>; the aspect ratio always
+          stays true to the panel.
         </p>
         <CodeBlock title="examples.tsx">{contentSnippet}</CodeBlock>
+
+        <h3>Device resolutions</h3>
+        <p>
+          Every variant&apos;s virtual screen defaults to the device&apos;s logical
+          resolution (CSS px), in both orientations:
+        </p>
+        <table className="props-table">
+          <thead>
+            <tr>
+              <th>Device</th>
+              <th>Variant prop</th>
+              <th>Portrait</th>
+              <th>Landscape</th>
+              <th>Basis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Galaxy S25</td><td><code>variant=&quot;s25&quot;</code></td><td className="type">360×780</td><td className="type">780×360</td><td>2340×1080 panel at ⅓ (3x)</td></tr>
+            <tr><td>Galaxy S25+</td><td><code>variant=&quot;s25plus&quot;</code></td><td className="type">384×832</td><td className="type">832×384</td><td>One UI default FHD+ render at 450 dpi</td></tr>
+            <tr><td>Galaxy S25 Ultra</td><td><code>variant=&quot;s25ultra&quot;</code></td><td className="type">384×832</td><td className="type">832×384</td><td>One UI default FHD+ render at 450 dpi</td></tr>
+            <tr><td>Galaxy S25 Edge</td><td><code>variant=&quot;s25edge&quot;</code></td><td className="type">384×832</td><td className="type">832×384</td><td>One UI default FHD+ render at 450 dpi</td></tr>
+            <tr><td>iPhone 17</td><td><code>variant=&quot;17&quot;</code></td><td className="type">402×874</td><td className="type">874×402</td><td>2622×1206 at 3x (point grid)</td></tr>
+            <tr><td>iPhone 17 Air</td><td><code>variant=&quot;air&quot;</code></td><td className="type">420×912</td><td className="type">912×420</td><td>2736×1260 at 3x (point grid)</td></tr>
+            <tr><td>iPhone 17 Pro</td><td><code>variant=&quot;pro&quot;</code></td><td className="type">402×874</td><td className="type">874×402</td><td>2622×1206 at 3x (point grid)</td></tr>
+            <tr><td>iPhone 17 Pro Max</td><td><code>variant=&quot;promax&quot;</code></td><td className="type">440×956</td><td className="type">956×440</td><td>2868×1320 at 3x (point grid)</td></tr>
+            <tr><td>MacBook Air 13&quot; (M5)</td><td>—</td><td className="type">—</td><td className="type">1280×832</td><td>2560×1664 at 2x (default scaled)</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Pass <code>orientation=&quot;landscape&quot;</code> on a phone to lay the device on
+          its side: the virtual viewport swaps to the landscape resolution and your content
+          renders upright, exactly like rotating the real phone.
+        </p>
       </section>
 
       <section>
@@ -271,6 +302,20 @@ export default function DocsPage() {
               description: 'Screen content.',
             },
             {
+              name: 'variant',
+              type: "'s25' | 's25plus' | 's25ultra' | 's25edge'",
+              defaultValue: "'s25'",
+              description:
+                'Which Galaxy S25-family device to render — true relative sizes, per-model cameras (Ultra five-element array, Edge pill island) and logical resolutions.',
+            },
+            {
+              name: 'orientation',
+              type: "'portrait' | 'landscape'",
+              defaultValue: "'portrait'",
+              description:
+                'landscape lays the device on its side and swaps the virtual display (e.g. 780×360 on the S25) with upright content.',
+            },
+            {
               name: 'color',
               type: 'string',
               defaultValue: "'#101216'",
@@ -332,12 +377,26 @@ export default function DocsPage() {
 
         <h3>&lt;IPhone&gt; / &lt;IPhoneMockup&gt;</h3>
         <p>
-          An iPhone 17-style device — flat aluminum frame, Dynamic Island, dual-lens camera
-          plateau, Action button and Camera Control. Same API as <code>&lt;Phone&gt;</code> /{' '}
-          <code>&lt;PhoneMockup&gt;</code>, except:
+          An iPhone 17-family device — flat frame, Dynamic Island, per-model rear camera
+          architecture, Action button and Camera Control. Same API as{' '}
+          <code>&lt;Phone&gt;</code> / <code>&lt;PhoneMockup&gt;</code>, except:
         </p>
         <PropsTable
           rows={[
+            {
+              name: 'variant',
+              type: "'17' | 'air' | 'pro' | 'promax'",
+              defaultValue: "'17'",
+              description:
+                'Which iPhone 17-family device: 17 (two-lens pill), air (ultra-thin, single-lens bar), pro / promax (full-width triple-lens plateau, flash + LiDAR).',
+            },
+            {
+              name: 'orientation',
+              type: "'portrait' | 'landscape'",
+              defaultValue: "'portrait'",
+              description:
+                'landscape lays the device on its side and swaps the virtual display (e.g. 874×402 on the 17) with upright content.',
+            },
             {
               name: 'dynamicIsland',
               type: 'boolean',
@@ -347,16 +406,16 @@ export default function DocsPage() {
             {
               name: 'resolution',
               type: 'number',
-              defaultValue: '402',
+              defaultValue: 'per variant',
               description:
-                'Virtual display width; 402 → 402×874, exactly the iPhone 17 logical point grid.',
+                'Virtual display width; defaults to the variant point grid — 402×874 (17/pro), 420×912 (air), 440×956 (promax).',
             },
             {
               name: 'color',
               type: 'string',
               defaultValue: "'#1a1c20'",
               description:
-                'Back glass. Try the iPhone 17 finishes: White #f2f2f4, Mist Blue #b7c9dd, Sage #aebfae, Lavender #cfc4e6.',
+                'Back colorway. 17: Lavender #cfc4e6, Mist Blue #b7c9dd, Sage #aebfae · Air: Sky Blue #bfd4e6, Light Gold #e6d9c0 · Pro: Cosmic Orange #c96b34, Deep Blue #2b3a55, Silver #dfe0e2.',
             },
           ]}
         />

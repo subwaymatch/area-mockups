@@ -1,11 +1,13 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { IPhone, type IPhoneProps } from './devices/iphone/iphone'
-import { IPHONE } from './devices/iphone/dimensions'
+import { IPHONE_VARIANTS } from './devices/iphone/dimensions'
 import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
   IPhoneProps,
+  | 'variant'
+  | 'orientation'
   | 'color'
   | 'frameColor'
   | 'screenBackground'
@@ -32,13 +34,15 @@ export interface IPhoneMockupProps
  * The one-liner: a complete, interactive 3D iPhone mockup.
  *
  * ```tsx
- * <IPhoneMockup autoRotate float>
+ * <IPhoneMockup variant="promax" autoRotate float>
  *   <YourApp />
  * </IPhoneMockup>
  * ```
  */
 export function IPhoneMockup({
   children,
+  variant = '17',
+  orientation = 'portrait',
   color,
   frameColor,
   screenBackground,
@@ -54,6 +58,8 @@ export function IPhoneMockup({
 }: IPhoneMockupProps) {
   const device = (
     <IPhone
+      variant={variant}
+      orientation={orientation}
       color={color}
       frameColor={frameColor}
       screenBackground={screenBackground}
@@ -69,11 +75,11 @@ export function IPhoneMockup({
     </IPhone>
   )
 
-  // Grounded by default: the shadow plane kisses the bottom edge of the body.
-  // A floating device keeps a visible hover gap below its bobbing range.
-  const shadowY =
-    canvasProps.shadowY ??
-    (float ? -(IPHONE.body.height / 2 + 0.3) : -(IPHONE.body.height / 2 + 0.05))
+  // Grounded by default: the shadow plane kisses the bottom edge of the body
+  // (its width when lying in landscape). Floating keeps a visible hover gap.
+  const body = IPHONE_VARIANTS[variant].body
+  const extent = orientation === 'landscape' ? body.width : body.height
+  const shadowY = canvasProps.shadowY ?? (float ? -(extent / 2 + 0.3) : -(extent / 2 + 0.05))
 
   return (
     <MockupCanvas {...canvasProps} shadowY={shadowY}>

@@ -511,6 +511,40 @@ code {
   margin: 0;
 }
 
+.variant-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.variant-picker button {
+  border: 1px solid var(--border-strong);
+  background: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.variant-picker button:hover {
+  color: var(--text);
+}
+
+.variant-picker button[data-active='true'] {
+  background: rgba(139, 124, 248, 0.16);
+  border-color: rgba(139, 124, 248, 0.6);
+  color: var(--text);
+}
+
+.variant-orientation {
+  margin-left: auto;
+}
+
 .demo-card h3 {
   margin: 20px 0 8px;
   font-size: 16px;
@@ -541,6 +575,8 @@ code {
   letter-spacing: -0.011em;
   user-select: none;
   -webkit-user-select: none;
+  /* screens live in fixed-size virtual viewports; let them adapt to landscape */
+  container-type: size;
 }
 
 .screen-statusbar {
@@ -761,6 +797,49 @@ code {
   background: var(--grad) !important;
   color: #0b0c12 !important;
   box-shadow: 0 12px 26px -10px rgba(139, 124, 248, 0.7);
+}
+
+/* compact layout when the panel is short (landscape orientation) */
+@container (max-height: 520px) {
+  .mp {
+    gap: 10px;
+    padding: 40px 30px 44px;
+  }
+
+  .mp-art {
+    width: 132px;
+    height: 132px;
+    border-radius: 18px;
+  }
+
+  .mp-art-disc {
+    width: 60px;
+    height: 60px;
+    background:
+      radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 6px, rgba(10, 12, 18, 0.9) 7px 22px, rgba(255, 255, 255, 0.24) 23px 25px, rgba(10, 12, 18, 0.85) 26px);
+  }
+
+  .mp-eq {
+    display: none;
+  }
+
+  .mp-title {
+    font-size: 17px;
+    margin-bottom: 2px;
+  }
+
+  .mp-artist {
+    font-size: 12.5px;
+  }
+
+  .mp-play {
+    width: 48px;
+    height: 48px;
+  }
+
+  .mp-controls {
+    gap: 18px;
+  }
 }
 
 /* ------------------------------------------------------------------ */

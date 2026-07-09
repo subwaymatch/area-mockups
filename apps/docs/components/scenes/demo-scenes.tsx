@@ -1,10 +1,10 @@
 'use client'
 
-import { IPhoneMockup, LaptopMockup, PhoneMockup } from 'area-mockups'
+import { LaptopMockup, PhoneMockup } from 'area-mockups'
 import { TapCounter } from '../screens/tap-counter'
 import { LockScreen } from '../screens/lock-screen'
-import { MusicPlayer } from '../screens/music-player'
 import { DesktopScreen } from '../screens/desktop-screen'
+import { VariantExplorer } from './variant-explorer'
 
 function DemoCard({
   title,
@@ -93,24 +93,15 @@ export default function DemoScenes() {
         </LaptopMockup>
       </DemoCard>
 
-      <DemoCard
-        title="iPhone 17"
-        description={
-          <>
-            <code>&lt;IPhoneMockup&gt;</code> — Dynamic Island, dual-lens plateau, Action
-            button and Camera Control, here in Lavender.
-          </>
-        }
-      >
-        <IPhoneMockup
-          float
-          color="#cfc4e6"
-          frameColor="#b9aed3"
-          deviceProps={{ rotation: [0, 0.3, 0] }}
-        >
-          <MusicPlayer />
-        </IPhoneMockup>
-      </DemoCard>
+      <article className="demo-card">
+        <VariantExplorer />
+        <h3>Every variant, one prop</h3>
+        <p>
+          The full Galaxy S25 and iPhone 17 families — true relative sizes, per-model camera
+          architecture, and <code>orientation=&quot;landscape&quot;</code> with a
+          device-accurate virtual resolution (e.g. 780×360 on the S25, 874×402 on the 17).
+        </p>
+      </article>
 
       <DemoCard
         title="Transparent background"

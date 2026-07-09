@@ -10,6 +10,18 @@ export { IPhone, type IPhoneProps } from './devices/iphone/iphone'
 export { Laptop, type LaptopProps } from './devices/laptop/laptop'
 
 // Renderer-agnostic device data (shared with the planned 2D renderers).
-export { PHONE, PHONE_DISPLAY_ASPECT } from './devices/phone/dimensions'
-export { IPHONE, IPHONE_DISPLAY_ASPECT } from './devices/iphone/dimensions'
+export {
+  PHONE,
+  PHONE_DISPLAY_ASPECT,
+  GALAXY_VARIANTS,
+  type GalaxyVariant,
+  type GalaxyPhoneSpec,
+} from './devices/phone/dimensions'
+export {
+  IPHONE,
+  IPHONE_DISPLAY_ASPECT,
+  IPHONE_VARIANTS,
+  type IPhoneVariant,
+  type IPhoneSpec,
+} from './devices/iphone/dimensions'
 export { LAPTOP, LAPTOP_DISPLAY_ASPECT } from './devices/laptop/dimensions'
