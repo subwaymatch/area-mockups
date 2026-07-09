@@ -119,13 +119,37 @@ export function IPhone({
   const pxPerUnit = resolution / display.width
   const px = (units: number) => units * pxPerUnit
 
-  // Rear camera plateau, iPhone 17 style: two large lenses stacked vertically
-  // on a rounded pedestal. Coordinates are front-view; mirrored on the back
-  // this puts the plateau top-left with the flash to its right — matching the
-  // real device.
-  const plateau = { width: 0.7, height: 1.34, x: body.width / 2 - 0.49, y: body.height / 2 - 0.81 }
-  const lensYs = [plateau.y + 0.3, plateau.y - 0.3]
-  const flash = { x: plateau.x - 0.52, y: plateau.y + 0.3 }
+  // Rear camera bump, iPhone 16/17 style: a vertical PILL (fully rounded ends,
+  // iPhone X lineage) hugging two large stacked lenses; flash and mic sit on
+  // the back panel outside the pill. Coordinates are front-view; mirrored on
+  // the back this puts the pill top-left with the flash to its right —
+  // matching the real device.
+  const pill = { width: 0.58, height: 1.2, x: body.width / 2 - 0.41, y: body.height / 2 - 0.72 }
+  const lensYs = [pill.y + 0.3, pill.y - 0.3]
+  const flash = { x: pill.x - 0.45, y: pill.y + 0.3 }
+  const mic = { x: pill.x - 0.45, y: pill.y + 0.08 }
+
+  // The pill itself: an extruded rounded shape with a soft edge bevel, so the
+  // face corners are truly semicircular (a RoundedBox can't round a flat face).
+  const pillGeometry = React.useMemo(() => {
+    const bevel = 0.018
+    const shape = roundedRectShape(
+      pill.width - bevel * 2,
+      pill.height - bevel * 2,
+      (pill.width - bevel * 2) / 2
+    )
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.03,
+      bevelEnabled: true,
+      bevelThickness: bevel,
+      bevelSize: bevel,
+      bevelSegments: 3,
+      curveSegments: 24,
+    })
+    return geometry
+    // depends only on constant device dimensions
+  }, [pill.width, pill.height])
+  React.useEffect(() => () => pillGeometry.dispose(), [pillGeometry])
 
   return (
     <group {...groupProps}>
@@ -150,31 +174,32 @@ export function IPhone({
         <meshPhysicalMaterial color="#020205" metalness={0.1} roughness={0.08} clearcoat={1} />
       </mesh>
 
-      {/* rear camera plateau with two vertically stacked lenses */}
-      <RoundedBox
-        args={[plateau.width, plateau.height, 0.05]}
-        radius={0.02}
-        position={[plateau.x, plateau.y, -body.depth / 2 - 0.02]}
-      >
-        <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.3} clearcoat={0.8} />
-      </RoundedBox>
+      {/* rear camera pill with two vertically stacked lenses */}
+      <mesh geometry={pillGeometry} rotation-y={Math.PI} position={[pill.x, pill.y, -body.depth / 2 - 0.002]}>
+        <meshPhysicalMaterial color={color} metalness={0.35} roughness={0.28} clearcoat={1} clearcoatRoughness={0.2} />
+      </mesh>
       {lensYs.map((y, i) => (
-        <group key={i} position={[plateau.x, y, -body.depth / 2 - 0.045]}>
+        <group key={i} position={[pill.x, y, -body.depth / 2 - 0.05]}>
           <mesh rotation-x={Math.PI / 2}>
-            <cylinderGeometry args={[0.23, 0.23, 0.05, 40]} />
+            <cylinderGeometry args={[0.225, 0.225, 0.045, 48]} />
             <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
           </mesh>
-          <mesh rotation-x={Math.PI / 2} position-z={-0.028}>
-            <cylinderGeometry args={[0.17, 0.17, 0.008, 40]} />
-            <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
+          <mesh rotation-x={Math.PI / 2} position-z={-0.026}>
+            <cylinderGeometry args={[0.175, 0.175, 0.008, 48]} />
+            <meshPhysicalMaterial color="#04060a" metalness={0.2} roughness={0.12} clearcoat={1} envMapIntensity={0.4} />
           </mesh>
-          <mesh rotation-x={Math.PI / 2} position-z={-0.034}>
-            <cylinderGeometry args={[0.08, 0.08, 0.008, 32]} />
-            <meshPhysicalMaterial color="#101a30" metalness={0.4} roughness={0.1} clearcoat={1} />
+          <mesh rotation-x={Math.PI / 2} position-z={-0.032}>
+            <cylinderGeometry args={[0.085, 0.085, 0.008, 32]} />
+            <meshPhysicalMaterial color="#0c1526" metalness={0.4} roughness={0.15} clearcoat={1} envMapIntensity={0.5} />
+          </mesh>
+          {/* specular glint on the lens glass */}
+          <mesh rotation-x={Math.PI / 2} position={[0.045, 0.045, -0.037]}>
+            <cylinderGeometry args={[0.018, 0.018, 0.004, 16]} />
+            <meshPhysicalMaterial color="#3c4c6e" metalness={0.6} roughness={0.15} clearcoat={1} />
           </mesh>
         </group>
       ))}
-      {/* flash beside the plateau */}
+      {/* flash + mic on the back panel, outside the pill */}
       <mesh rotation-x={Math.PI / 2} position={[flash.x, flash.y, -body.depth / 2 - 0.008]}>
         <cylinderGeometry args={[0.06, 0.06, 0.016, 32]} />
         <meshPhysicalMaterial
@@ -184,6 +209,15 @@ export function IPhone({
           roughness={0.4}
         />
       </mesh>
+      <mesh rotation-x={Math.PI / 2} position={[mic.x, mic.y, -body.depth / 2 - 0.006]}>
+        <cylinderGeometry args={[0.018, 0.018, 0.012, 16]} />
+        <meshPhysicalMaterial color="#07080c" metalness={0.3} roughness={0.5} />
+      </mesh>
+
+      {/* USB-C slot on the bottom edge */}
+      <RoundedBox args={[0.15, 0.016, 0.052]} radius={0.007} position={[0, -body.height / 2 - 0.002, 0]}>
+        <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
+      </RoundedBox>
 
       {/* left side (front view): Action button above the volume keys */}
       <RoundedBox args={[0.04, 0.2, 0.1]} radius={0.015} position={[-body.width / 2 - 0.005, 1.12, 0]}>

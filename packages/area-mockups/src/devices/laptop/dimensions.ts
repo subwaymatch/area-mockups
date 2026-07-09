@@ -14,7 +14,7 @@ export const LAPTOP = {
   /** Footprint shared by the base and the lid. `radius` is the corner radius. */
   footprint: { width: 4.2, depth: 2.97, radius: 0.16 },
   /** Bottom half: main chassis with the keyboard deck. */
-  base: { thickness: 0.1, bevel: 0.012 },
+  base: { thickness: 0.1, bevel: 0.02 },
   /** Top half: the display lid. When open it stands `footprint.depth` tall. */
   lid: { thickness: 0.05, bevel: 0.008 },
   /**
@@ -22,7 +22,7 @@ export const LAPTOP = {
    * the lid's vertical center to the display center — the chin below the panel
    * is deeper than the top bezel, so the panel sits slightly high.
    */
-  display: { width: 4.0, height: 2.6, radius: [0.09, 0.09, 0, 0] as const, offsetY: 0.085 },
+  display: { width: 4.0, height: 2.6, radius: [0.09, 0.09, 0, 0] as const, offsetY: 0.05 },
   /** Camera notch: sits at the top-center of the display, menu-bar deep. */
   notch: { width: 0.48, height: 0.095, radius: 0.045 },
   /** Keyboard well (recessed area) and key grid on the deck, hinge side. */
