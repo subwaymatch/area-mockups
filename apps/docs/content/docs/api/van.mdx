@@ -18,23 +18,38 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `streetSide` | `ReactNode` | - | Livery for the street-side (−Z) wrap panel. |
+| `rear` | `ReactNode` | - | Livery for the rear-door panel, between the taillight clusters. |
 | `color` | `string` | `'#eef0f2'` | Body paint. Wrap fleets are usually white. |
 | `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
-| `resolution` | `number` | `900` | Virtual wrap width in CSS px; height follows the panel aspect. |
+| `resolution` | `number` | `900` | Virtual side-wrap width in CSS px; the rear panel shares its dpi. |
 
-The wrap panel faces +Z (the curb side) and sits clear of the wheel arches
-and cab glass. Rotate the group to pose the van; the panel content stays
-live at any angle.
+`children` is the curb-side (+Z) panel; all three panels sit clear of the
+wheel arches, lights and cab glass. Rotate the group to pose the van; the
+panels stay live at any angle.
 
 ## Examples
 
-### A fleet livery on white
+### A fleet livery, wrapped on three panels
 
 <ObjectDemo demo="van-basic" />
 
 ```tsx
-<VanMockup deviceProps={{ rotation: [0, -0.5, 0] }}>
-  <YourLivery />
+<VanMockup streetSide={<Livery />} rear={<RearDoors />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+  <Livery />
+</VanMockup>
+```
+
+### The rear three-quarter
+
+Same van from behind: rear-door panel between the brake/turn/reverse
+clusters, street-side wrap beyond.
+
+<ObjectDemo demo="van-rear" />
+
+```tsx
+<VanMockup streetSide={<Livery />} rear={<RearDoors />} deviceProps={{ rotation: [0, 2.25, 0] }}>
+  <Livery />
 </VanMockup>
 ```
 

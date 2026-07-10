@@ -42,7 +42,8 @@ export const VAN = {
     noseX: 2.81,
     tailX: -2.81,
     bumperTopY: -0.28,
-    hoodX: 2.68,
+    /** Top of the near-vertical nose/grille face — the clamshell hood's front edge. */
+    hoodX: 2.79,
     hoodY: 0.02,
     cowlX: 2.32,
     cowlY: 0.2,
@@ -51,9 +52,11 @@ export const VAN = {
     roofStartX: 1.3,
     roofY: 1.19,
   },
-  /** Live vinyl-wrap panel on the cargo side (+Z), clear of the arches and door glass. */
+  /** Live vinyl-wrap panels on both cargo sides, clear of the arches and door glass. */
   wrap: { width: 3.72, height: 1.52, x: -0.86, y: 0.34, radius: 0.02 },
-  /** Default CSS px width of the virtual wrap panel. */
+  /** Live wrap panel on the rear doors, between the taillight clusters. */
+  rear: { width: 1.42, height: 1.62, y: 0.14, radius: 0.02 },
+  /** Default CSS px width of the virtual side wrap panel. */
   resolution: 900,
 } as const
 

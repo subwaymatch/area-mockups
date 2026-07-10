@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { inter, jetbrainsMono } from '@/lib/fonts'
 import '../globals.css'
+import '../screens.css'
 
 export const metadata: Metadata = {
   title: 'area-mockups: interactive 3D device mockups for React',

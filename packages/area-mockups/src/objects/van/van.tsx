@@ -8,8 +8,12 @@ import { DeviceScreen } from '../../screen/device-screen'
 type GroupProps = ThreeElements['group']
 
 export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
-  /** Livery for the cargo-side wrap panel — any React node, full bleed. */
+  /** Livery for the curb-side (+Z) wrap panel — any React node, full bleed. */
   children?: React.ReactNode
+  /** Livery for the street-side (−Z) wrap panel. */
+  streetSide?: React.ReactNode
+  /** Livery for the rear-door panel, between the taillight clusters. */
+  rear?: React.ReactNode
   /** Body paint. Wrap fleets are usually white. */
   color?: string
   /** CSS background painted behind your wrap content. */
@@ -44,6 +48,8 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
  */
 export function Van({
   children,
+  streetSide,
+  rear,
   color = '#eef0f2',
   wrapBackground = '#ffffff',
   resolution = VAN.resolution,
@@ -53,7 +59,7 @@ export function Van({
   screenStyle,
   ...groupProps
 }: VanProps) {
-  const { body, rockerY, wheels, profile, wrap } = VAN
+  const { body, rockerY, wheels, profile, wrap, rear: rearSpec } = VAN
   const shellRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [shellRef], [])
 
@@ -87,7 +93,9 @@ export function Van({
       depth,
       bevelEnabled: true,
       bevelThickness: body.bevel,
-      bevelSize: body.bevel,
+      // a small in-plane bevel keeps the profile within ~15mm of its nominal
+      // outline, so glass planes and lamps placed on it stay visible
+      bevelSize: 0.015,
       bevelSegments: 3,
       curveSegments: 24,
     })
@@ -104,8 +112,8 @@ export function Van({
       tilt: Math.atan2(-dx / length, dy / length),
       length,
       mid: [
-        (profile.cowlX + profile.windshieldTopX) / 2 + (dy / length) * 0.012,
-        (profile.cowlY + profile.windshieldTopY) / 2 + (-dx / length) * 0.012,
+        (profile.cowlX + profile.windshieldTopX) / 2 + (dy / length) * 0.035,
+        (profile.cowlY + profile.windshieldTopY) / 2 + (-dx / length) * 0.035,
       ] as const,
     }
   }, [profile])
@@ -173,6 +181,26 @@ export function Van({
         </mesh>
       ))}
 
+      {/* running gear: dark wheel-well liners fill the arch openings, axles
+          tie each wheel pair together, and an underbody pan closes the gap
+          between the rockers — so the wheels read as attached, not floating */}
+      {([wheels.frontX, wheels.rearX] as const).map((x) => (
+        <group key={x}>
+          <mesh position={[x, rockerY + (wheels.archRadius + 0.02) / 2, 0]}>
+            <boxGeometry args={[wheels.archRadius * 2 - 0.04, wheels.archRadius + 0.02, body.width - 0.08]} />
+            <meshPhysicalMaterial color="#0c0d10" metalness={0} roughness={1} />
+          </mesh>
+          <mesh rotation-x={Math.PI / 2} position={[x, wheels.centerY, 0]}>
+            <cylinderGeometry args={[0.055, 0.055, body.width - 0.34, 12]} />
+            <meshPhysicalMaterial color="#191b1f" metalness={0.5} roughness={0.7} />
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0, rockerY - 0.075, 0]}>
+        <boxGeometry args={[body.length - 0.9, 0.15, body.width - 0.4]} />
+        <meshPhysicalMaterial color="#0d0e11" metalness={0.1} roughness={0.95} />
+      </mesh>
+
       {/* wheels: tire, rim, hub — four corners */}
       {([wheels.frontX, wheels.rearX] as const).map((x) =>
         [1, -1].map((side) => (
@@ -193,46 +221,61 @@ export function Van({
         ))
       )}
 
-      {/* main grille, high on the nose between the headlights */}
-      <RoundedBox args={[0.04, 0.4, 1.0]} radius={0.015} position={[2.79, -0.1, 0]}>
+      {/* main grille on the vertical nose face, just under the hood edge */}
+      <RoundedBox args={[0.05, 0.2, 1.0]} radius={0.02} position={[2.81, -0.09, 0]}>
         <meshPhysicalMaterial color="#1d2025" metalness={0.3} roughness={0.6} />
       </RoundedBox>
       {/* slim lower intake in the bumper mass */}
-      <RoundedBox args={[0.04, 0.14, 1.2]} radius={0.015} position={[2.83, -0.62, 0]}>
+      <RoundedBox args={[0.05, 0.14, 1.2]} radius={0.02} position={[2.86, -0.62, 0]}>
         <meshPhysicalMaterial color="#141619" metalness={0.3} roughness={0.65} />
       </RoundedBox>
-      {/* headlights, swept toward the corners at hood height */}
+      {/* headlights swept toward the corners at hood height, with the amber
+          turn-signal segment wrapping the outboard end */}
       {[1, -1].map((side) => (
-        <RoundedBox key={side} args={[0.06, 0.18, 0.5]} radius={0.03} position={[2.78, -0.08, side * 0.66]}>
-          <meshPhysicalMaterial
-            color="#e8edf4"
-            emissive="#dfe9f5"
-            emissiveIntensity={0.25}
-            metalness={0.3}
-            roughness={0.2}
-            clearcoat={1}
-          />
-        </RoundedBox>
+        <group key={side}>
+          <RoundedBox args={[0.06, 0.18, 0.36]} radius={0.03} position={[2.81, -0.1, side * 0.68]}>
+            <meshPhysicalMaterial
+              color="#e8edf4"
+              emissive="#dfe9f5"
+              emissiveIntensity={0.25}
+              metalness={0.3}
+              roughness={0.2}
+              clearcoat={1}
+            />
+          </RoundedBox>
+          <RoundedBox args={[0.055, 0.14, 0.09]} radius={0.025} position={[2.8, -0.11, side * 0.9]}>
+            <meshPhysicalMaterial
+              color="#f2a33c"
+              emissive="#ffb340"
+              emissiveIntensity={0.4}
+              roughness={0.25}
+              clearcoat={1}
+            />
+          </RoundedBox>
+        </group>
       ))}
 
       {/* black plastic nose mass below the headlights, wrapping the corners */}
-      <RoundedBox args={[0.16, 0.5, body.width + 0.02]} radius={0.05} position={[2.76, -0.6, 0]}>
+      <RoundedBox args={[0.16, 0.5, body.width + 0.02]} radius={0.05} position={[2.8, -0.6, 0]}>
         {trimMaterial}
       </RoundedBox>
       <RoundedBox args={[0.1, 0.16, body.width + 0.02]} radius={0.04} position={[-2.77, -0.82, 0]}>
         {trimMaterial}
       </RoundedBox>
-      {/* taillights at hand height on the rear corners */}
+      {/* taillight clusters: brake (red) / turn (amber) / reverse (white),
+          stacked at hand height on the rear corners like real van lamps */}
       {[1, -1].map((side) => (
-        <RoundedBox key={side} args={[0.05, 0.46, 0.12]} radius={0.02} position={[-2.8, -0.07, side * 0.82]}>
-          <meshPhysicalMaterial
-            color="#8c1524"
-            emissive="#b01a2e"
-            emissiveIntensity={0.35}
-            roughness={0.25}
-            clearcoat={1}
-          />
-        </RoundedBox>
+        <group key={side} position={[-2.8, 0, side * 0.84]}>
+          <RoundedBox args={[0.05, 0.2, 0.12]} radius={0.02} position={[0, 0.08, 0]}>
+            <meshPhysicalMaterial color="#8c1524" emissive="#c11a30" emissiveIntensity={0.45} roughness={0.25} clearcoat={1} />
+          </RoundedBox>
+          <RoundedBox args={[0.05, 0.13, 0.12]} radius={0.02} position={[0, -0.11, 0]}>
+            <meshPhysicalMaterial color="#f2a33c" emissive="#ffb340" emissiveIntensity={0.4} roughness={0.25} clearcoat={1} />
+          </RoundedBox>
+          <RoundedBox args={[0.05, 0.11, 0.12]} radius={0.02} position={[0, -0.25, 0]}>
+            <meshPhysicalMaterial color="#e9ecef" emissive="#f2f5f8" emissiveIntensity={0.2} roughness={0.25} clearcoat={1} />
+          </RoundedBox>
+        </group>
       ))}
 
       {/* door mirrors on long arms, standing well outboard */}
@@ -248,7 +291,7 @@ export function Van({
         </group>
       ))}
 
-      {/* the live wrap: real DOM, CSS3D-transformed onto the cargo side */}
+      {/* the live wraps: real DOM on the curb side, street side and rear doors */}
       <DeviceScreen
         width={wrap.width}
         height={wrap.height}
@@ -263,6 +306,40 @@ export function Van({
       >
         {children}
       </DeviceScreen>
+      {streetSide != null && (
+        <DeviceScreen
+          width={wrap.width}
+          height={wrap.height}
+          radius={wrap.radius}
+          resolution={resolution}
+          position={[wrap.x, wrap.y, -body.width / 2 - 0.008]}
+          rotation={[0, Math.PI, 0]}
+          background={wrapBackground}
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+        >
+          {streetSide}
+        </DeviceScreen>
+      )}
+      {rear != null && (
+        <DeviceScreen
+          width={rearSpec.width}
+          height={rearSpec.height}
+          radius={rearSpec.radius}
+          resolution={Math.round(resolution * (rearSpec.width / wrap.width))}
+          position={[-body.length / 2 - 0.026, rearSpec.y, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+          background={wrapBackground}
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+        >
+          {rear}
+        </DeviceScreen>
+      )}
     </group>
   )
 }

@@ -10,13 +10,20 @@ import {
   BusinessCardMockup,
   BusMockup,
   IDCardMockup,
+  IPhone,
+  IPhoneMockup,
+  LaptopMockup,
   MagazineMockup,
   MockupCanvas,
+  MonitorMockup,
+  Phone,
+  PhoneMockup,
   PosterFrame,
   PosterFrameMockup,
   ProductBoxMockup,
   RollupBanner,
   RollupBannerMockup,
+  TabletMockup,
   VanMockup,
   WatchMockup,
 } from 'area-mockups'
@@ -40,8 +47,13 @@ import {
   MagazineCoverArt,
   PosterArt,
   VanLiveryArt,
+  VanRearArt,
 } from './screens/print-art'
 import { GalaxyWatchFace, WatchFace } from './screens/watch-face'
+import { TapCounter } from './screens/tap-counter'
+import { LockScreen } from './screens/lock-screen'
+import { DesktopScreen } from './screens/desktop-screen'
+import { MusicPlayer } from './screens/music-player'
 
 /** Minimal typographic cover for composition demos — one prop, one accent. */
 function MiniCover({ title, from, to }: { title: string; from: string; to: string }) {
@@ -73,6 +85,81 @@ function MiniCover({ title, from, to }: { title: string; from: string; to: strin
  * exceeds the browser's WebGL context budget.
  */
 const DEMOS: Record<string, React.ReactNode> = {
+  // ---- Phone (Galaxy) -----------------------------------------------------
+  'phone-basic': (
+    <PhoneMockup color="#15171d" frameColor="#4d5260" deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <TapCounter />
+    </PhoneMockup>
+  ),
+  'phone-lock': (
+    <PhoneMockup autoRotate float color="#d3d6dd" frameColor="#b6bac4" screenBackground="#000">
+      <LockScreen />
+    </PhoneMockup>
+  ),
+  'phone-landscape': (
+    <PhoneMockup variant="s25ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
+      <MusicPlayer />
+    </PhoneMockup>
+  ),
+
+  // ---- IPhone ---------------------------------------------------------------
+  'iphone-pro': (
+    <IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
+      <MusicPlayer />
+    </IPhoneMockup>
+  ),
+  'iphone-air': (
+    <IPhoneMockup variant="air" autoRotate float color="#bfd4e6" frameColor="#a9c0d4" screenBackground="#000">
+      <LockScreen />
+    </IPhoneMockup>
+  ),
+  'phone-duo': (
+    <MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
+      <Phone variant="s25ultra" color="#2e3238" frameColor="#565b64" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
+        <TapCounter />
+      </Phone>
+      <IPhone variant="promax" color="#2b3a55" frameColor="#3d4d6b" position={[1.6, 0, 0]} rotation={[0, -0.3, 0]}>
+        <MusicPlayer />
+      </IPhone>
+    </MockupCanvas>
+  ),
+
+  // ---- Laptop -----------------------------------------------------------------
+  'laptop-basic': (
+    <LaptopMockup color="#aec6d9" deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
+  'laptop-midnight': (
+    <LaptopMockup color="#2e3642" openAngle={100} float deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
+
+  // ---- Tablet -------------------------------------------------------------------
+  'tablet-landscape': (
+    <TabletMockup orientation="landscape" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ultra': (
+    <TabletMockup variant="tabs11ultra" color="#2e3136" float deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <MusicPlayer />
+    </TabletMockup>
+  ),
+
+  // ---- Monitor --------------------------------------------------------------------
+  'monitor-basic': (
+    <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <DesktopScreen />
+    </MonitorMockup>
+  ),
+  'monitor-silver': (
+    <MonitorMockup color="#e2e4e8" autoRotate autoRotateSpeed={0.8}>
+      <DesktopScreen />
+    </MonitorMockup>
+  ),
+
   // ---- Book -------------------------------------------------------------
   'book-basic': (
     <BookMockup color="#16324a" deviceProps={{ rotation: [0, 0.35, 0] }}>
@@ -194,7 +281,12 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Van -------------------------------------------------------------------
   'van-basic': (
-    <VanMockup deviceProps={{ rotation: [0, -0.5, 0] }}>
+    <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+      <VanLiveryArt />
+    </VanMockup>
+  ),
+  'van-rear': (
+    <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} deviceProps={{ rotation: [0, 2.25, 0] }}>
       <VanLiveryArt />
     </VanMockup>
   ),
@@ -233,7 +325,17 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Bus --------------------------------------------------------------------
   'bus-basic': (
-    <BusMockup destinationSign={<DestinationArt />} deviceProps={{ rotation: [0, -0.4, 0] }}>
+    <BusMockup destinationSign={<DestinationArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+      <BusAdArt />
+    </BusMockup>
+  ),
+  'bus-rear': (
+    <BusMockup
+      streetSideAd={<BusAdArt />}
+      rearAd={<BusAdArt />}
+      destinationSign={<DestinationArt />}
+      deviceProps={{ rotation: [0, 2.35, 0] }}
+    >
       <BusAdArt />
     </BusMockup>
   ),

@@ -411,7 +411,10 @@ export function BusAdArt() {
   )
 }
 
-/** Amber LED destination sign. */
+/**
+ * Amber LED destination marquee: the route number holds steady while the
+ * destination scrolls past, behind a dot-matrix mask — like a real bus sign.
+ */
 export function DestinationArt() {
   return (
     <div
@@ -422,17 +425,39 @@ export function DestinationArt() {
         color: '#ffb424',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 18px',
         fontFamily: '"JetBrains Mono", ui-monospace, monospace',
         fontWeight: 700,
         letterSpacing: 2,
         textShadow: '0 0 6px rgba(255,180,36,0.8)',
         boxSizing: 'border-box',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <span style={{ fontSize: 34 }}>42</span>
-      <span style={{ fontSize: 24 }}>DOWNTOWN VIA 5TH AVE</span>
+      <style>{`
+        @keyframes led-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+      `}</style>
+      <span style={{ fontSize: 36, padding: '0 16px', borderRight: '2px solid rgba(255,180,36,0.35)' }}>42</span>
+      <div style={{ flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'inline-block', animation: 'led-marquee 9s linear infinite' }}>
+          {[0, 1].map((i) => (
+            <span key={i} style={{ fontSize: 26, paddingLeft: 24, paddingRight: 120 }}>
+              DOWNTOWN VIA 5TH AVE · NEXT STOP CANAL ST
+            </span>
+          ))}
+        </div>
+      </div>
+      {/* LED dot-matrix mask over the whole sign */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background: 'radial-gradient(circle at center, transparent 34%, #0a0a08 72%)',
+          backgroundSize: '5px 5px',
+        }}
+      />
     </div>
   )
 }
@@ -548,6 +573,35 @@ export function BannerArt() {
       <div style={{ marginTop: 22, background: '#e8b64c', color: '#173229', fontWeight: 800, fontSize: 16, padding: '12px 30px', borderRadius: 999 }}>
         BOOK AT BOOTH 214
       </div>
+    </div>
+  )
+}
+
+/** Rear-door panel for the van. */
+export function VanRearArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: '#ffffff',
+        color: '#173229',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        textAlign: 'center',
+        padding: 24,
+      }}
+    >
+      <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>
+        BLOOM<span style={{ color: '#2a8f68' }}>&amp;CO.</span>
+      </div>
+      <div style={{ fontSize: 15, letterSpacing: 3 }}>HOW&apos;S MY DRIVING?</div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: '#2a8f68' }}>(555) 010-7788</div>
+      <div style={{ marginTop: 12, width: '70%', height: 8, background: '#7fd6b2', borderRadius: 4 }} />
     </div>
   )
 }

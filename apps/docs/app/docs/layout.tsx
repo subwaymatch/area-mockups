@@ -6,6 +6,7 @@ import { source } from '@/lib/source'
 import { baseOptions } from '@/lib/layout.shared'
 import { inter, jetbrainsMono } from '@/lib/fonts'
 import './docs.css'
+import '../screens.css'
 
 export const metadata: Metadata = {
   title: {

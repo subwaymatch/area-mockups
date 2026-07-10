@@ -61,10 +61,14 @@ export const BUS = {
   /** Roof HVAC pod over the rear half. */
   hvac: { length: 1.579, height: 0.184, width: 1.079, x: -0.632 },
   /**
-   * Live king-size ad panel (30" x 144" = 762 x 3658 mm) on the curb side,
+   * Live king-size ad panels (30" x 144" = 762 x 3658 mm) on both sides,
    * between the wheel arches, top edge tucked under the window sill.
    */
   ad: { width: 1.925, height: 0.401, x: 0.2, y: -0.47, radius: 0.012 },
+  /** Live tail ad (21" x 70" = 533 x 1778 mm) on the engine door. */
+  rearAd: { width: 0.936, height: 0.281, y: -0.28, radius: 0.012 },
+  /** Rear window above the engine bay. */
+  rearWindow: { width: 0.95, height: 0.44, y: 0.5 },
   /** Live LED destination sign inside the dark upper fascia band. */
   destination: { width: 1.105, height: 0.174, y: 0.56 },
   /** Default CSS px width of the virtual ad panel. */

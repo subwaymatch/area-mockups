@@ -21,20 +21,38 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `destinationSign` | `ReactNode` | - | Live LED sign content (480×76 virtual px, dark background). |
+| `streetSideAd` | `ReactNode` | - | Creative for the street-side (−Z) king-size panel. |
+| `rearAd` | `ReactNode` | - | Creative for the 21"×70" tail ad on the engine door. |
+| `destinationSign` | `ReactNode` | - | Live LED sign content (480×76 virtual px, dark background) — try a scrolling marquee. |
 | `color` | `string` | `'#eef0f2'` | Body paint. Transit fleets are usually white or silver. |
 | `adBackground` | `string` | `'#ffffff'` | CSS background behind your ad content. |
-| `resolution` | `number` | `960` | Virtual ad width in CSS px; height follows the 30×144 king size. |
+| `resolution` | `number` | `960` | Virtual king-size width in CSS px; the tail ad shares its dpi. |
 
 ## Examples
 
-### King-size ad + live destination sign
+### King-size ad + scrolling LED marquee
+
+The destination sign is live DOM, so a CSS keyframe animation gives you a
+real scrolling marquee behind a dot-matrix mask.
 
 <ObjectDemo demo="bus-basic" />
 
 ```tsx
-<BusMockup destinationSign={<Route42 />} deviceProps={{ rotation: [0, -0.4, 0] }}>
+<BusMockup destinationSign={<Route42Marquee />} deviceProps={{ rotation: [0, 0.35, 0] }}>
   <YourCreative />
+</BusMockup>
+```
+
+### Rear three-quarter with the tail ad
+
+Rear window, stacked brake/turn lamps, engine louvers — and the 21"×70"
+tail ad between them.
+
+<ObjectDemo demo="bus-rear" />
+
+```tsx
+<BusMockup streetSideAd={<Creative />} rearAd={<TailAd />} deviceProps={{ rotation: [0, 2.35, 0] }}>
+  <Creative />
 </BusMockup>
 ```
 

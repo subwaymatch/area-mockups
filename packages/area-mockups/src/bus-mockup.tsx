@@ -6,6 +6,8 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   BusProps,
+  | 'streetSideAd'
+  | 'rearAd'
   | 'destinationSign'
   | 'color'
   | 'adBackground'
@@ -37,6 +39,8 @@ export interface BusMockupProps extends Omit<MockupCanvasProps, 'children'>, Inh
  */
 export function BusMockup({
   children,
+  streetSideAd,
+  rearAd,
   destinationSign,
   color,
   adBackground,
@@ -51,6 +55,8 @@ export function BusMockup({
 }: BusMockupProps) {
   const object = (
     <Bus
+      streetSideAd={streetSideAd}
+      rearAd={rearAd}
       destinationSign={destinationSign}
       color={color}
       adBackground={adBackground}
