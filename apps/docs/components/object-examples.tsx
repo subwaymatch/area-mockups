@@ -8,11 +8,15 @@ import {
   BrochureMockup,
   BusinessCard,
   BusinessCardMockup,
+  BusMockup,
   IDCardMockup,
   MagazineMockup,
   MockupCanvas,
   PosterFrame,
   PosterFrameMockup,
+  ProductBoxMockup,
+  RollupBanner,
+  RollupBannerMockup,
   VanMockup,
   WatchMockup,
 } from 'area-mockups'
@@ -20,13 +24,19 @@ import { LazyScene } from './lazy-scene'
 import {
   BadgeBackArt,
   BadgeFrontArt,
+  BannerArt,
   BillboardAdArt,
   BookCoverArt,
+  BoxFrontArt,
+  BoxSideArt,
+  BoxTopArt,
   BrochureFrontArt,
   BrochureTrailsArt,
   BrochureVisitArt,
+  BusAdArt,
   CardBackArt,
   CardFrontArt,
+  DestinationArt,
   MagazineCoverArt,
   PosterArt,
   VanLiveryArt,
@@ -219,6 +229,49 @@ const DEMOS: Record<string, React.ReactNode> = {
     <IDCardMockup autoRotate autoRotateSpeed={2} lanyardColor="#1d4ed8" back={<BadgeBackArt />}>
       <BadgeFrontArt />
     </IDCardMockup>
+  ),
+
+  // ---- Bus --------------------------------------------------------------------
+  'bus-basic': (
+    <BusMockup destinationSign={<DestinationArt />} deviceProps={{ rotation: [0, -0.4, 0] }}>
+      <BusAdArt />
+    </BusMockup>
+  ),
+  'bus-livery': (
+    <BusMockup color="#1d4433" adBackground="#f4c534" autoRotate autoRotateSpeed={0.6} destinationSign={<DestinationArt />}>
+      <BusAdArt />
+    </BusMockup>
+  ),
+
+  // ---- Product box ---------------------------------------------------------------
+  'box-basic': (
+    <ProductBoxMockup side={<BoxSideArt />} top={<BoxTopArt />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+      <BoxFrontArt />
+    </ProductBoxMockup>
+  ),
+  'box-kraft': (
+    <ProductBoxMockup color="#c9a877" float autoRotate autoRotateSpeed={1.2}>
+      <BoxFrontArt />
+    </ProductBoxMockup>
+  ),
+
+  // ---- Roll-up banner ---------------------------------------------------------------
+  'banner-basic': (
+    <RollupBannerMockup deviceProps={{ rotation: [0, 0.18, 0] }}>
+      <BannerArt />
+    </RollupBannerMockup>
+  ),
+  'banner-pair': (
+    <MockupCanvas camera={{ position: [0, 0.4, 9.8], fov: 40 }} shadowY={-2.05}>
+      <group position={[0, 0.14, 0]}>
+        <RollupBanner position={[-1.55, 0, -0.4]} rotation={[0, 0.3, 0]}>
+          <BannerArt />
+        </RollupBanner>
+        <RollupBanner color="#31343a" position={[1.55, 0, 0]} rotation={[0, -0.15, 0]}>
+          <BannerArt />
+        </RollupBanner>
+      </group>
+    </MockupCanvas>
   ),
 
   // ---- Watch ------------------------------------------------------------------

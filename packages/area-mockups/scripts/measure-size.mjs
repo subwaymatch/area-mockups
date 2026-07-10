@@ -20,6 +20,9 @@ const ENTRIES = {
   'BillboardMockup (14x48 bulletin)': "export { BillboardMockup } from './src/index'",
   'VanMockup (cargo van)': "export { VanMockup } from './src/index'",
   'IDCardMockup (badge + lanyard)': "export { IDCardMockup } from './src/index'",
+  'BusMockup (transit bus)': "export { BusMockup } from './src/index'",
+  'ProductBoxMockup (retail carton)': "export { ProductBoxMockup } from './src/index'",
+  'RollupBannerMockup (850x2000 stand)': "export { RollupBannerMockup } from './src/index'",
   'everything (full library)': "export * from './src/index'",
 }
 

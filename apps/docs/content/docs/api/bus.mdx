@@ -1,0 +1,52 @@
+---
+title: Bus (city transit)
+description: A 40 ft low-floor transit bus with a live king-size ad and LED destination sign.
+---
+
+`<Bus>` and `<BusMockup>` render a generic 40 ft / 12 m low-floor city
+transit bus (Xcelsior/LFS/Citaro-class silhouette, no brand): a one-box
+shell with no hood, a lightly-raked two-piece windshield under the dark sign
+fascia, a window band covering nearly half the body height, two full-glass
+curb-side doors, flat roof with HVAC pod, stacked round taillights and rear
+louvers. Two live surfaces:
+
+- the classic **king-size ad panel** (30"×144") between the wheels, a
+  960×200 DOM surface, and
+- optionally the **LED destination sign** above the windshield via
+  `destinationSign`.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `destinationSign` | `ReactNode` | - | Live LED sign content (480×76 virtual px, dark background). |
+| `color` | `string` | `'#eef0f2'` | Body paint. Transit fleets are usually white or silver. |
+| `adBackground` | `string` | `'#ffffff'` | CSS background behind your ad content. |
+| `resolution` | `number` | `960` | Virtual ad width in CSS px; height follows the 30×144 king size. |
+
+## Examples
+
+### King-size ad + live destination sign
+
+<ObjectDemo demo="bus-basic" />
+
+```tsx
+<BusMockup destinationSign={<Route42 />} deviceProps={{ rotation: [0, -0.4, 0] }}>
+  <YourCreative />
+</BusMockup>
+```
+
+### A liveried fleet bus
+
+`color` paints the shell; match `adBackground` to the creative for a
+wrapped look.
+
+<ObjectDemo demo="bus-livery" />
+
+```tsx
+<BusMockup color="#1d4433" adBackground="#f4c534" autoRotate destinationSign={<Route42 />}>
+  <YourCreative />
+</BusMockup>
+```

@@ -384,6 +384,174 @@ export function BadgeBackArt() {
   )
 }
 
+/** King-size bus ad — one message, big type, 4.8:1. */
+export function BusAdArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 36px',
+        background: '#f4c534',
+        color: '#171614',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 28,
+      }}
+    >
+      <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1, whiteSpace: 'nowrap' }}>
+        Fresh flowers, city-wide.
+      </div>
+      <div style={{ flex: 1 }} />
+      <div style={{ fontSize: 22, fontWeight: 700, whiteSpace: 'nowrap' }}>
+        BLOOM<span style={{ color: '#2a8f68' }}>&amp;CO.</span> · bloomand.co
+      </div>
+    </div>
+  )
+}
+
+/** Amber LED destination sign. */
+export function DestinationArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: '#0a0a08',
+        color: '#ffb424',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 18px',
+        fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+        fontWeight: 700,
+        letterSpacing: 2,
+        textShadow: '0 0 6px rgba(255,180,36,0.8)',
+        boxSizing: 'border-box',
+      }}
+    >
+      <span style={{ fontSize: 34 }}>42</span>
+      <span style={{ fontSize: 24 }}>DOWNTOWN VIA 5TH AVE</span>
+    </div>
+  )
+}
+
+/** Product box front panel. */
+export function BoxFrontArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 26,
+        background: 'linear-gradient(175deg, #2b5c8f 0%, #17385c 100%)',
+        color: '#f2f6fb',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 12, letterSpacing: 4, color: '#8fb4d9' }}>AREA LABS</div>
+      <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: -0.5, marginTop: 6 }}>Deep Focus</div>
+      <div style={{ fontSize: 12.5, color: '#b9cfe4', marginTop: 4 }}>single-origin whole bean · 340 g</div>
+      <svg viewBox="0 0 80 80" style={{ width: 150, margin: 'auto 0' }} aria-hidden>
+        <circle cx="40" cy="40" r="30" fill="none" stroke="#8fb4d9" strokeWidth="2" />
+        <path d="M40 14 v52 M14 40 h52" stroke="#8fb4d9" strokeWidth="1" />
+        <circle cx="40" cy="40" r="10" fill="#f4c534" />
+      </svg>
+      <div style={{ fontSize: 12, color: '#8fb4d9' }}>DARK ROAST · NOTES OF CHERRY &amp; COCOA</div>
+    </div>
+  )
+}
+
+/** Product box side panel. */
+export function BoxSideArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '26px 12px',
+        background: '#17385c',
+        color: '#b9cfe4',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: 10,
+      }}
+    >
+      <div style={{ fontSize: 10, letterSpacing: 2, writingMode: 'vertical-rl', margin: 'auto', transform: 'rotate(180deg)' }}>
+        DEEP FOCUS · SINGLE ORIGIN · 340 G
+      </div>
+      <div style={{ width: 34, height: 34, borderRadius: 10, background: '#f4c534' }} />
+    </div>
+  )
+}
+
+/** Product box top panel. */
+export function BoxTopArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: '#17385c',
+        color: '#f2f6fb',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 22,
+        fontWeight: 800,
+        letterSpacing: 1,
+      }}
+    >
+      DEEP FOCUS
+    </div>
+  )
+}
+
+/** Roll-up banner graphic. */
+export function BannerArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 32,
+        background: 'linear-gradient(200deg, #1d4433 0%, #0e241c 78%)',
+        color: '#f0ead6',
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ fontSize: 13, letterSpacing: 4, color: '#e8b64c' }}>RIDGELINE TOURS</div>
+      <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1.05, marginTop: 14 }}>
+        Walk the ridge.
+        <br />
+        We handle the rest.
+      </div>
+      <svg viewBox="0 0 100 40" aria-hidden style={{ width: '100%', margin: 'auto 0' }}>
+        <path d="M0 36 L20 12 L32 24 L52 4 L72 28 L84 16 L100 36" fill="none" stroke="#e8b64c" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+      <div style={{ display: 'grid', gap: 6, fontSize: 15 }}>
+        <div style={{ fontWeight: 700 }}>Guided day hikes · Apr–Oct</div>
+        <div style={{ color: '#c9d6c2' }}>ridgeline.example/tours</div>
+      </div>
+      <div style={{ marginTop: 22, background: '#e8b64c', color: '#173229', fontWeight: 800, fontSize: 16, padding: '12px 30px', borderRadius: 999 }}>
+        BOOK AT BOOTH 214
+      </div>
+    </div>
+  )
+}
+
 /** Cargo-van wrap livery. */
 export function VanLiveryArt() {
   return (

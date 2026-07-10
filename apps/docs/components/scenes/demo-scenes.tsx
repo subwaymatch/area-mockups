@@ -5,8 +5,11 @@ import {
   BookMockup,
   BrochureMockup,
   BusinessCardMockup,
+  BusMockup,
   IDCardMockup,
   LaptopMockup,
+  ProductBoxMockup,
+  RollupBannerMockup,
   MagazineMockup,
   MonitorMockup,
   PhoneMockup,
@@ -21,8 +24,14 @@ import { GalaxyWatchFace, WatchFace } from '../screens/watch-face'
 import {
   BadgeBackArt,
   BadgeFrontArt,
+  BannerArt,
   BillboardAdArt,
   BookCoverArt,
+  BoxFrontArt,
+  BoxSideArt,
+  BoxTopArt,
+  BusAdArt,
+  DestinationArt,
   BrochureFrontArt,
   BrochureTrailsArt,
   BrochureVisitArt,
@@ -292,6 +301,48 @@ export default function DemoScenes() {
         <BillboardMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
           <BillboardAdArt />
         </BillboardMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="City transit bus"
+        description={
+          <>
+            <code>&lt;BusMockup&gt;</code>: a 40′ low-floor transit bus with a live king-size
+            (30″×144″) ad panel — and the LED destination sign is live DOM too.
+          </>
+        }
+      >
+        <BusMockup destinationSign={<DestinationArt />} deviceProps={{ rotation: [0, -0.4, 0] }}>
+          <BusAdArt />
+        </BusMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Product box"
+        description={
+          <>
+            <code>&lt;ProductBoxMockup&gt;</code>: a retail carton with live front, side and
+            top panels sharing one dpi — three printed faces in a single 3/4 pose.
+          </>
+        }
+      >
+        <ProductBoxMockup side={<BoxSideArt />} top={<BoxTopArt />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+          <BoxFrontArt />
+        </ProductBoxMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Roll-up banner"
+        description={
+          <>
+            <code>&lt;RollupBannerMockup&gt;</code>: the 850×2000 trade-show stand — cassette
+            base, swivel feet, top rail — with a live 420×988 graphic.
+          </>
+        }
+      >
+        <RollupBannerMockup deviceProps={{ rotation: [0, 0.18, 0] }}>
+          <BannerArt />
+        </RollupBannerMockup>
       </DemoCard>
 
       <DemoCard

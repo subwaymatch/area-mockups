@@ -20,7 +20,10 @@ product dimensions — no GLB files, no hosting, no pop-in.
 | Business card | `BusinessCard` | 89×51 mm, 32 pt stock | front + back | 520×298 each |
 | ID card (lanyard) | `IDCard` | 54×85.6 mm CR80 badge | front + back below the punch strip | 420×556 each |
 | Poster frame | `PosterFrame` | 18"×24" sheet, 22 mm molding | visible opening (optional mat) | 540×721 |
+| Product box | `ProductBox` | 190×265×55 mm retail carton | front + side + top + back | 480×669 front |
+| Roll-up banner | `RollupBanner` | 850×2000 mm stand | banner graphic | 420×988 |
 | Billboard | `Billboard` | 14'×48' highway bulletin | vinyl face | 1200×350 |
+| City bus | `Bus` | 12.2×3.2×2.6 m transit bus | king-size ad + LED destination sign | 960×200 ad |
 | Cargo van | `Van` | 5.9×2.55×2.05 m panel van | side wrap panel | 900×368 |
 
 Each object also has a one-liner `*Mockup` wrapper (`BookMockup`,
@@ -54,6 +57,10 @@ Several objects host more than one surface:
   with `backPanels`. `foldAngle={0}` lays the sheet flat.
 - **`BusinessCard`** and **`IDCard`** take `children` for the front and
   `back` for the reverse — spin them around to see it.
+- **`ProductBox`** prints up to four panels: `children` (front), `side`,
+  `top` and `back`, all sharing one dpi.
+- **`Bus`** pairs the king-size ad panel with an optional live LED
+  `destinationSign` above the windshield.
 
 ## Ground planes
 

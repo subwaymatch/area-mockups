@@ -1,0 +1,53 @@
+---
+title: Roll-up banner
+description: An 850x2000 retractable banner stand with a live graphic.
+---
+
+`<RollupBanner>` and `<RollupBannerMockup>` render the trade-show standard
+850×2000 mm retractable banner: an aluminum cassette base with rounded ends,
+end caps and swivel feet, the graphic rising out of the cassette slot to a
+slim top clamp rail, with the support pole hidden behind. The graphic is a
+live 420×988 DOM surface. The mockup grounds the cassette on a virtual
+floor.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#b9bdc4'` | Hardware color: cassette, feet, pole, top rail. |
+| `graphicBackground` | `string` | `'#ffffff'` | CSS background behind your graphic content. |
+| `resolution` | `number` | `420` | Virtual graphic width in CSS px; height follows the 850×2000 sheet. |
+
+## Examples
+
+### A booth banner
+
+<ObjectDemo demo="banner-basic" />
+
+```tsx
+<RollupBannerMockup deviceProps={{ rotation: [0, 0.18, 0] }}>
+  <YourBannerArt />
+</RollupBannerMockup>
+```
+
+### A pair flanking a booth
+
+Bare `<RollupBanner>` objects in one
+[`MockupCanvas`](/docs/api/mockup-canvas); the second in black hardware.
+
+<ObjectDemo demo="banner-pair" />
+
+```tsx
+<MockupCanvas camera={{ position: [0, 0.4, 9.8], fov: 40 }} shadowY={-2.05}>
+  <group position={[0, 0.14, 0]}>
+    <RollupBanner position={[-1.55, 0, -0.4]} rotation={[0, 0.3, 0]}>
+      <LeftBanner />
+    </RollupBanner>
+    <RollupBanner color="#31343a" position={[1.55, 0, 0]} rotation={[0, -0.15, 0]}>
+      <RightBanner />
+    </RollupBanner>
+  </group>
+</MockupCanvas>
+```

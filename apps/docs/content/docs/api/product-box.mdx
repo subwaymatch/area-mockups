@@ -1,0 +1,49 @@
+---
+title: Product box
+description: A retail carton with live front, side, top and back panels.
+---
+
+`<ProductBox>` and `<ProductBoxMockup>` render a standing retail carton
+(190×265×55 mm — the classic cereal/software hero proportion) in satin
+coated stock with crisp fold edges and the tuck-flap seam on top. Up to four
+panels are live DOM — front (`children`), `side`, `top` and `back` — so a
+standard 3/4 pose shows three printed faces at once, all sharing one dpi.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `side` | `ReactNode` | - | Right side panel (the one visible in a 3/4 pose). |
+| `top` | `ReactNode` | - | Top panel, reading from the front. |
+| `back` | `ReactNode` | - | Back panel. |
+| `color` | `string` | `'#f4f1ea'` | Carton stock: unprinted panels and fold edges. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed panel. |
+| `resolution` | `number` | `480` | Virtual front-panel width in CSS px; other panels share its dpi. |
+
+## Examples
+
+### The three-quarter hero
+
+Front, side and top, each its own live surface.
+
+<ObjectDemo demo="box-basic" />
+
+```tsx
+<ProductBoxMockup side={<SidePanel />} top={<TopPanel />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+  <FrontPanel />
+</ProductBoxMockup>
+```
+
+### Kraft stock
+
+Unprinted faces show the stock — `color` turns it into kraft board.
+
+<ObjectDemo demo="box-kraft" />
+
+```tsx
+<ProductBoxMockup color="#c9a877" float autoRotate>
+  <FrontPanel />
+</ProductBoxMockup>
+```

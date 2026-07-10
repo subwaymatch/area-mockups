@@ -15,7 +15,10 @@
     "business-card",
     "id-card",
     "poster-frame",
+    "product-box",
+    "rollup-banner",
     "billboard",
+    "bus",
     "van"
   ]
 }

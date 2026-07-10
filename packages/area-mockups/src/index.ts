@@ -15,6 +15,9 @@ export { PosterFrameMockup, type PosterFrameMockupProps } from './poster-frame-m
 export { BillboardMockup, type BillboardMockupProps } from './billboard-mockup'
 export { VanMockup, type VanMockupProps } from './van-mockup'
 export { IDCardMockup, type IDCardMockupProps } from './id-card-mockup'
+export { BusMockup, type BusMockupProps } from './bus-mockup'
+export { ProductBoxMockup, type ProductBoxMockupProps } from './product-box-mockup'
+export { RollupBannerMockup, type RollupBannerMockupProps } from './rollup-banner-mockup'
 
 // Composable pieces: bring your own scene, or drop a device into an existing one.
 export { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
@@ -32,6 +35,9 @@ export { PosterFrame, type PosterFrameProps } from './objects/poster-frame/poste
 export { Billboard, type BillboardProps } from './objects/billboard/billboard'
 export { Van, type VanProps } from './objects/van/van'
 export { IDCard, type IDCardProps } from './objects/id-card/id-card'
+export { Bus, type BusProps } from './objects/bus/bus'
+export { ProductBox, type ProductBoxProps } from './objects/product-box/product-box'
+export { RollupBanner, type RollupBannerProps } from './objects/rollup-banner/rollup-banner'
 
 // Renderer-agnostic device data (shared with the planned 2D renderers).
 export {
@@ -74,3 +80,6 @@ export { POSTER_FRAME, POSTER_FRAME_ASPECT } from './objects/poster-frame/dimens
 export { BILLBOARD, BILLBOARD_FACE_ASPECT } from './objects/billboard/dimensions'
 export { VAN, VAN_WRAP_ASPECT } from './objects/van/dimensions'
 export { ID_CARD, ID_CARD_FACE_ASPECT } from './objects/id-card/dimensions'
+export { BUS, BUS_AD_ASPECT } from './objects/bus/dimensions'
+export { PRODUCT_BOX, PRODUCT_BOX_FRONT_ASPECT } from './objects/product-box/dimensions'
+export { ROLLUP_BANNER, ROLLUP_BANNER_ASPECT } from './objects/rollup-banner/dimensions'

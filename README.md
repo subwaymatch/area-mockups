@@ -7,8 +7,9 @@ Built on [three.js](https://threejs.org) and
 [react-three-fiber](https://github.com/pmndrs/react-three-fiber). The starter device is a
 procedurally generated Galaxy-style phone — no 3D asset files to load. Beyond devices,
 the same live-surface API covers everyday objects: a hardcover book, magazine, tri-fold
-brochure, business card, ID badge on a lanyard, poster frame, billboard, and a
-wrap-ready cargo van. 2D (CSS/SVG) mockups sharing the same API are on the roadmap.
+brochure, business card, ID badge on a lanyard, poster frame, product box, roll-up
+banner, billboard, city transit bus, and a wrap-ready cargo van. 2D (CSS/SVG) mockups
+sharing the same API are on the roadmap.
 
 ```tsx
 'use client'
