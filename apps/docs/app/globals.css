@@ -32,6 +32,8 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
+  /* final guard: sections manage their own horizontal scroll (code, tables) */
+  overflow-x: clip;
   font-family: var(--font-sans);
   font-optical-sizing: auto;
   font-weight: 400;
@@ -251,7 +253,8 @@ code {
 
 .hero {
   display: grid;
-  grid-template-columns: 1.02fr 1fr;
+  /* minmax(0, …) so long unbreakable content (code lines) can't widen the page */
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
   gap: 56px;
   align-items: center;
   padding-top: 72px;
@@ -331,7 +334,7 @@ code {
 
 .quickstart {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: 48px;
   padding-top: 88px;
   align-items: start;
@@ -430,11 +433,20 @@ code {
   font-size: inherit;
 }
 
+/* wide tables scroll inside their own container, never the page */
+.table-scroll {
+  overflow-x: auto;
+  margin: 14px 0 8px;
+}
+
 .props-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  margin: 14px 0 8px;
+}
+
+.table-scroll .props-table {
+  min-width: 560px;
 }
 
 .props-table th {
@@ -478,6 +490,7 @@ code {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 56px 48px;
 }
+
 
 /* classic alpha checkerboard — proves the canvas itself is transparent */
 .alpha-checker {
@@ -1286,7 +1299,8 @@ code {
 
 @media (max-width: 900px) {
   .hero {
-    grid-template-columns: 1fr;
+    /* minmax(0, …) so long unbreakable content can't widen the page */
+    grid-template-columns: minmax(0, 1fr);
     gap: 36px;
     padding-top: 48px;
   }
@@ -1296,7 +1310,7 @@ code {
   }
 
   .quickstart {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
   }
 }

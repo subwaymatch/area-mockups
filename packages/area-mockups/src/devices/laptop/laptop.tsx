@@ -33,7 +33,7 @@ export interface LaptopProps extends Omit<GroupProps, 'children' | 'color'> {
    * Drags that start on the screen spin the device too: once the pointer travels
    * ~10px the gesture is handed off to the orbit controls, while plain taps and
    * clicks keep reaching your content. Disable if your screen content needs its
-   * own drag gestures (sliders, drawing, touch scrolling).
+   * own drag gestures (sliders, drawing, horizontal swipes).
    */
   dragToRotate?: boolean
   /**

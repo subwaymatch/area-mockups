@@ -1,6 +1,23 @@
 import * as React from 'react'
-import { Canvas, type CanvasProps } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, type CanvasProps } from '@react-three/fiber'
 import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei'
+
+/**
+ * react-three-fiber stamps `touch-action: none` on its event target when it
+ * connects, which traps page scrolling on touch devices. Pin it to `pan-y`
+ * instead: vertical swipes scroll past the mockup, horizontal drags orbit.
+ * (Checked per frame because r3f can reconnect and re-stamp.)
+ */
+function TouchScrollFix() {
+  const get = useThree((state) => state.get)
+  useFrame(() => {
+    const connected = get().events.connected as HTMLElement | undefined
+    if (connected?.style && connected.style.touchAction !== 'pan-y') {
+      connected.style.touchAction = 'pan-y'
+    }
+  })
+  return null
+}
 
 export interface MockupCanvasProps {
   /** Your scene — typically a device such as `<Phone>`. */
@@ -55,11 +72,14 @@ export function MockupCanvas({
   return (
     <Canvas
       className={className}
-      style={{ touchAction: 'none', background, ...style }}
+      // pan-y keeps pages scrollable on touch: vertical swipes scroll past the
+      // mockup, horizontal drags (and mouse) orbit the device.
+      style={{ touchAction: 'pan-y', background, ...style }}
       dpr={dpr}
       camera={camera ?? { position: [0, 0.5, 7.4], fov: 40 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
     >
+      <TouchScrollFix />
       <ambientLight intensity={0.4} />
       <directionalLight position={[6, 8, 6]} intensity={0.6} />
 

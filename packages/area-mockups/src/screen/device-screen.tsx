@@ -109,8 +109,13 @@ export function DeviceScreen({
     }
     const onMove = (e: PointerEvent) => {
       if (e.pointerId !== start.id) return
-      if (Math.hypot(e.clientX - start.x, e.clientY - start.y) < SCREEN_DRAG_THRESHOLD_PX) return
+      const dx = e.clientX - start.x
+      const dy = e.clientY - start.y
+      if (Math.hypot(dx, dy) < SCREEN_DRAG_THRESHOLD_PX) return
       cancel()
+      // On touch, vertical gestures belong to the browser (page scrolling, per
+      // the pan-y touch-action) — only predominantly horizontal drags rotate.
+      if (e.pointerType === 'touch' && Math.abs(dy) > Math.abs(dx)) return
       // Replay the press on the canvas: the orbit controls (attached to the
       // canvas or an ancestor) pick it up and capture the pointer, so the rest
       // of the gesture orbits the device — and the content, having lost the
@@ -146,9 +151,15 @@ export function DeviceScreen({
       position={position}
       rotation={rotation}
       zIndexRange={[10, 0]}
-      wrapperClass={SCREEN_LAYER_CLASS}
+      wrapperClass={dragToRotate ? `${SCREEN_LAYER_CLASS} ${SCREEN_LAYER_CLASS}--pan` : SCREEN_LAYER_CLASS}
     >
-      <style>{`.${SCREEN_LAYER_CLASS}{will-change:transform}`}</style>
+      {/*
+        will-change: compositor-layer promotion (see component doc above).
+        touch-action pan-y must cover drei's whole transformed div chain — the
+        3D layers are compositor boundaries, and Chromium ignores a pan-y set
+        only on the content inside them, which would trap page scrolling.
+      */}
+      <style>{`.${SCREEN_LAYER_CLASS}{will-change:transform}.${SCREEN_LAYER_CLASS}--pan,.${SCREEN_LAYER_CLASS}--pan>div,.${SCREEN_LAYER_CLASS}--pan>div>div,.${SCREEN_LAYER_CLASS}--pan>div>div>div{touch-action:pan-y}`}</style>
       <div
         onPointerDown={beginScreenDrag}
         style={{
@@ -159,9 +170,10 @@ export function DeviceScreen({
           overflow: 'hidden',
           background,
           pointerEvents: interactive ? 'auto' : 'none',
-          // With drag-to-rotate the browser must not claim touch gestures for
-          // scrolling — moves past the threshold become orbit input instead.
-          touchAction: dragToRotate ? 'none' : undefined,
+          // pan-y mirrors the canvas: on touch, vertical swipes over the screen
+          // scroll the page; horizontal drags past the threshold rotate the
+          // device; taps still click content.
+          touchAction: dragToRotate ? 'pan-y' : undefined,
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           WebkitFontSmoothing: 'antialiased',

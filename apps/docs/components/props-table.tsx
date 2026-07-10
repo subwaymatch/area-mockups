@@ -7,7 +7,8 @@ export type PropRow = {
 
 export function PropsTable({ rows }: { rows: PropRow[] }) {
   return (
-    <table className="props-table">
+    <div className="table-scroll">
+      <table className="props-table">
       <thead>
         <tr>
           <th>Prop</th>
@@ -32,6 +33,7 @@ export function PropsTable({ rows }: { rows: PropRow[] }) {
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   )
 }

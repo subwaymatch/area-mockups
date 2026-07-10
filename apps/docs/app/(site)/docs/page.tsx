@@ -141,6 +141,7 @@ export default function DocsPage() {
           Every variant&apos;s virtual screen defaults to the device&apos;s logical
           resolution (CSS px), in both orientations:
         </p>
+        <div className="table-scroll">
         <table className="props-table">
           <thead>
             <tr>
@@ -163,6 +164,7 @@ export default function DocsPage() {
             <tr><td>MacBook Air 13&quot; (M5)</td><td>—</td><td className="type">—</td><td className="type">1280×832</td><td>2560×1664 at 2x (default scaled)</td></tr>
           </tbody>
         </table>
+        </div>
         <p>
           Pass <code>orientation=&quot;landscape&quot;</code> on a phone to lay the device on
           its side: the virtual viewport swaps to the landscape resolution and your content
