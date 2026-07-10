@@ -11,7 +11,8 @@
 .lock,
 .mac,
 .wf,
-.embed {
+.embed,
+.std {
   --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --grad: linear-gradient(135deg, #8b7cf8 0%, #22d3ee 100%);
 }
@@ -725,3 +726,262 @@
   background: rgba(255, 255, 255, 0.09);
 }
 
+
+/* ------------------------------------------------------------------ */
+/*  Screen: Stride (step tracker on /examples/hero-phone)             */
+/* ------------------------------------------------------------------ */
+
+.std {
+  --std-accent: #34d399;
+  --std-ink-muted: rgba(238, 240, 246, 0.58);
+  background:
+    radial-gradient(88% 42% at 50% -8%, rgba(52, 211, 153, 0.16) 0%, transparent 70%),
+    radial-gradient(70% 34% at 50% 112%, rgba(34, 211, 238, 0.12) 0%, transparent 70%),
+    #070a0f;
+  padding: 58px 22px 74px;
+  gap: 14px;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.std-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.std-date {
+  margin: 0 0 2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--std-ink-muted);
+}
+
+.std-greeting {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.std-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #06251b;
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+}
+
+.std-ring-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 16px 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.std-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.std-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.std-count {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.std-goal {
+  font-size: 12.5px;
+  color: var(--std-ink-muted);
+}
+
+.std-log {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 26px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #06251b;
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.std-log:active {
+  transform: scale(0.94);
+}
+
+.std-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.std-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.std-tile-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--std-ink-muted);
+}
+
+.std-tile-value {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.std-tile-value em {
+  font-style: normal;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--std-ink-muted);
+}
+
+.std-week {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px 14px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.std-week-readout {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--std-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.std-week-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  background: var(--std-accent);
+}
+
+/* Single-series week bars: one hue, thin marks with rounded data ends;
+   today is an emphasis step of the same hue, selection is an outline
+   (identity never rides on color alone — weekday letters label each bar). */
+.std-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  height: 92px;
+}
+
+.std-bar-hit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 2px 2px 0;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.std-bar {
+  width: 100%;
+  max-width: 26px;
+  border-radius: 4px 4px 2px 2px;
+  background: rgba(52, 211, 153, 0.34);
+  transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.std-bar-hit[data-today] .std-bar {
+  background: var(--std-accent);
+}
+
+.std-bar-hit[data-selected] .std-bar {
+  box-shadow: 0 0 0 2px #070a0f, 0 0 0 3.5px rgba(238, 240, 246, 0.75);
+}
+
+.std-bar-day {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--std-ink-muted);
+}
+
+.std-bar-hit[data-today] .std-bar-day {
+  color: #eef0f6;
+}
+
+.std-tabs {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.std-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px 7px;
+  border: 0;
+  border-radius: 15px;
+  background: none;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--std-ink-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.std-tabs button[data-active] {
+  color: #07100c;
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+}

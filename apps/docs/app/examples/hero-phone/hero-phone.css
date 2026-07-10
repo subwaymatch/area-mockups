@@ -1,0 +1,203 @@
+/* ------------------------------------------------------------------ */
+/*  /examples/hero-phone — an isolated product-hero example page.      */
+/*                                                                     */
+/*  The layout trick this page exists to demonstrate: `.xh-phone` is   */
+/*  a huge absolutely positioned box (taller than the viewport), and   */
+/*  the hero section crops it with `overflow: clip`. The camera in     */
+/*  hero-phone-scene.tsx sizes the device to ~113vh, so it towers      */
+/*  past the fold like a classic product-page hero.                    */
+/* ------------------------------------------------------------------ */
+
+.xh {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow: clip;
+}
+
+.xh-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(52% 44% at 74% 42%, rgba(52, 211, 153, 0.13) 0%, transparent 70%),
+    radial-gradient(40% 34% at 16% 6%, rgba(34, 211, 238, 0.09) 0%, transparent 70%);
+}
+
+/* ---- top bar --------------------------------------------------------- */
+
+.xh-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 26px 32px 0;
+}
+
+.xh-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.xh-brand-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+}
+
+.xh-badge {
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 13px;
+  background: rgba(13, 15, 21, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.xh-badge:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+/* ---- copy column ------------------------------------------------------ */
+
+.xh-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(48px, 13vh, 128px) 32px 48px;
+}
+
+.xh-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.xh-eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+}
+
+.xh-copy h1 {
+  max-width: 560px;
+  font-size: clamp(42px, 4.6vw, 66px);
+  margin-bottom: 18px;
+}
+
+.xh-grad {
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.xh-lede {
+  max-width: 470px;
+  font-size: 18px;
+  color: var(--muted);
+  margin: 0 0 30px;
+}
+
+.xh-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.xh-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 30px;
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #06251b;
+  background: linear-gradient(135deg, #34d399 0%, #22d3ee 100%);
+  cursor: pointer;
+  box-shadow: 0 14px 34px -14px rgba(52, 211, 153, 0.55);
+  transition: transform 0.1s ease;
+}
+
+.xh-btn:active {
+  transform: scale(0.96);
+}
+
+.xh-link {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+
+.xh-link:hover {
+  color: var(--text);
+}
+
+.xh-hint {
+  margin: 22px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  opacity: 0.85;
+  max-width: 420px;
+}
+
+/* ---- the huge phone --------------------------------------------------- */
+
+/* Taller than the viewport on purpose: the section's `overflow: clip`
+   crops the device at the fold. The width floor keeps the canvas wide
+   enough that the floating, slightly rotated phone never touches the
+   canvas edges (the crop must come from the page, not the canvas). */
+.xh-phone {
+  position: absolute;
+  z-index: 1;
+  top: -4vh;
+  right: clamp(-140px, 6vw - 60px, 120px);
+  width: clamp(480px, 46vw, 760px);
+  height: 128vh;
+}
+
+/* Stacked layout: copy on top, then the phone rising past the page bottom.
+   In-flow (so it can never collide with the copy) with a negative bottom
+   margin, which pulls the page end up into the canvas — `overflow: clip`
+   on the section then crops the phone exactly like the desktop layout. */
+@media (max-width: 1060px) {
+  .xh-copy {
+    padding-top: 64px;
+    padding-bottom: 0;
+  }
+
+  .xh-phone {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: min(96vw, 460px);
+    height: 100vh;
+    margin: 8px auto -34vh;
+  }
+}
