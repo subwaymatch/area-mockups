@@ -20,3 +20,19 @@
   margin: 1.25rem 0;
   touch-action: pan-y;
 }
+
+/*
+ * Transparency checkerboard behind each page's hero example. The WebGL canvas
+ * is alpha-transparent, so the checker stays visible everywhere the scene
+ * doesn't paint — the classic way to show the mockup (and its contact shadow)
+ * composites onto whatever the page puts behind it. Checks are tinted from
+ * the foreground color so the pattern adapts to light and dark themes.
+ */
+.object-demo--checker {
+  background:
+    repeating-conic-gradient(
+      color-mix(in oklab, var(--color-fd-foreground) 6.5%, transparent) 0% 25%,
+      transparent 0% 50%
+    )
+    top left / 24px 24px;
+}

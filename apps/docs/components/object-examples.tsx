@@ -614,12 +614,23 @@ const DEMOS: Record<string, React.ReactNode> = {
 /**
  * A live, draggable mockup embedded in a docs page. `demo` picks a scene from
  * the registry above; the code block next to it in the MDX shows the source.
+ * `checker` puts the classic transparency checkerboard behind the scene —
+ * used on each page's hero example to show that the canvas is transparent
+ * and the mockup composites onto whatever the page puts behind it.
  */
-export function ObjectDemo({ demo, height = 440 }: { demo: string; height?: number }) {
+export function ObjectDemo({
+  demo,
+  height = 440,
+  checker = false,
+}: {
+  demo: string
+  height?: number
+  checker?: boolean
+}) {
   const scene = DEMOS[demo]
   if (!scene) return <p>Unknown demo: {demo}</p>
   return (
-    <div className="object-demo" style={{ height }}>
+    <div className={`object-demo${checker ? ' object-demo--checker' : ''}`} style={{ height }}>
       <LazyScene>{scene}</LazyScene>
     </div>
   )
