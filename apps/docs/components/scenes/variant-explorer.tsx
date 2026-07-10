@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { IPhoneMockup, PhoneMockup, type GalaxyVariant, type IPhoneVariant } from 'area-mockups'
 import { MusicPlayer } from '../screens/music-player'
+import { LazyScene } from '../lazy-scene'
 
 type DeviceId =
   | { family: 'galaxy'; variant: GalaxyVariant }
@@ -86,7 +87,9 @@ export function VariantExplorer() {
           ⟳ landscape
         </button>
       </div>
-      <div className="mockup-viewport demo-viewport">{mockup}</div>
+      <div className="mockup-viewport demo-viewport">
+        <LazyScene>{mockup}</LazyScene>
+      </div>
     </div>
   )
 }

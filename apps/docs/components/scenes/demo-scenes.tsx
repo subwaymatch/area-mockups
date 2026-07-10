@@ -31,6 +31,7 @@ import {
 } from '../screens/print-art'
 import { VariantExplorer } from './variant-explorer'
 import { TabletExplorer } from './tablet-explorer'
+import { LazyScene } from '../lazy-scene'
 
 function DemoCard({
   title,
@@ -43,7 +44,9 @@ function DemoCard({
 }) {
   return (
     <article className="demo-card">
-      <div className="mockup-viewport demo-viewport">{children}</div>
+      <div className="mockup-viewport demo-viewport">
+        <LazyScene>{children}</LazyScene>
+      </div>
       <h3>{title}</h3>
       <p>{description}</p>
     </article>

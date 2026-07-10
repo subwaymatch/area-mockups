@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TabletMockup, type TabletVariant } from 'area-mockups'
 import { DesktopScreen } from '../screens/desktop-screen'
+import { LazyScene } from '../lazy-scene'
 
 const TABLETS: { label: string; variant: TabletVariant; color: string }[] = [
   { label: 'iPad Pro 13″', variant: 'ipadpro13', color: '#3a3c40' }, // Space Black
@@ -43,14 +44,16 @@ export function TabletExplorer() {
         </button>
       </div>
       <div className="mockup-viewport demo-viewport">
-        <TabletMockup
-          variant={tablet.variant}
-          orientation={landscape ? 'landscape' : 'portrait'}
-          color={tablet.color}
-          deviceProps={{ rotation: [0, -0.3, 0] }}
-        >
-          <DesktopScreen />
-        </TabletMockup>
+        <LazyScene>
+          <TabletMockup
+            variant={tablet.variant}
+            orientation={landscape ? 'landscape' : 'portrait'}
+            color={tablet.color}
+            deviceProps={{ rotation: [0, -0.3, 0] }}
+          >
+            <DesktopScreen />
+          </TabletMockup>
+        </LazyScene>
       </div>
     </div>
   )
