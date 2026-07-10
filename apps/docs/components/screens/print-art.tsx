@@ -1078,3 +1078,173 @@ export function BagArt() {
     </div>
   )
 }
+
+/** Coffee cup sleeve wrap — printed-on-kraft roastery band (full unroll). */
+export function CupSleeveArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        color: '#3b2a1c',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      {[0, 1].map((half) => (
+        <div
+          key={half}
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            borderRight: '2px dotted rgba(59,42,28,0.45)',
+          }}
+        >
+          {half === 0 ? (
+            <>
+              <svg viewBox="0 0 40 24" aria-hidden style={{ width: 44 }}>
+                <path d="M6 4 h22 a6 6 0 0 1 0 12 h-2 M6 4 v8 a8 8 0 0 0 16 0 V4 Z" fill="none" stroke="#3b2a1c" strokeWidth="2.4" />
+                <path d="M2 22 h30" stroke="#3b2a1c" strokeWidth="2.4" strokeLinecap="round" />
+              </svg>
+              <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: 5 }}>RIDGE ROAST</div>
+              <div style={{ fontSize: 10, letterSpacing: 4 }}>SMALL-BATCH COFFEE</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>CAUTION: GOOD COFFEE IS HOT</div>
+              <div style={{ fontSize: 10, letterSpacing: 2, color: '#6b5138' }}>
+                double-walled · compostable · ridge.example
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                {[0, 1, 2].map((b) => (
+                  <svg key={b} viewBox="0 0 12 16" aria-hidden style={{ width: 10 }}>
+                    <ellipse cx="6" cy="8" rx="5" ry="7" fill="none" stroke="#3b2a1c" strokeWidth="1.6" />
+                    <path d="M6 2 C 4 6, 8 10, 6 14" fill="none" stroke="#3b2a1c" strokeWidth="1.6" />
+                  </svg>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Pizza box lid — pizzeria badge with a checkered border. */
+export function PizzaLidArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        // checkered frame: the checkerboard fills the edge, the cream panel
+        // floats 14px inset over it
+        background: 'repeating-conic-gradient(#b22318 0% 25%, #f5efdf 25% 50%) 0 0 / 28px 28px',
+        color: '#b22318',
+        padding: 14,
+        display: 'flex',
+      }}
+    >
+      <div
+        style={{
+          flex: 1,
+          background: '#f5efdf',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          gap: 8,
+        }}
+      >
+      <div style={{ fontSize: 12, letterSpacing: 4 }}>EST. 1979 · BROOKLYN</div>
+      <div style={{ fontFamily: serif, fontSize: 52, lineHeight: 1, color: '#2c2318' }}>
+        Tony&apos;s
+      </div>
+      <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: 6 }}>SLICE HOUSE</div>
+      <svg viewBox="0 0 60 30" aria-hidden style={{ width: 90, marginTop: 4 }}>
+        <path d="M30 28 L10 4 a30 30 0 0 1 40 0 Z" fill="#e8a33c" stroke="#b22318" strokeWidth="2" />
+        <circle cx="26" cy="12" r="3" fill="#b22318" />
+        <circle cx="36" cy="16" r="3" fill="#b22318" />
+        <circle cx="29" cy="20" r="3" fill="#b22318" />
+      </svg>
+      <div style={{ fontSize: 11, letterSpacing: 2, color: '#6b5a45' }}>
+        HAND-TOSSED · WOOD-FIRED · NO SHORTCUTS
+      </div>
+      </div>
+    </div>
+  )
+}
+
+/** Pizza box front flap strip. */
+export function PizzaFrontArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 24px',
+        background: '#b22318',
+        color: '#f5efdf',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 14,
+      }}
+    >
+      <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>HOT &amp; FRESH</div>
+      <div style={{ fontFamily: serif, fontSize: 22 }}>Tony&apos;s Slice House</div>
+      <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>555-0134</div>
+    </div>
+  )
+}
+
+/** Pizza box inside-lid coupon. */
+export function PizzaInsideArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 30,
+        background: '#f7f2e5',
+        color: '#2c2318',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 10,
+      }}
+    >
+      <div style={{ fontFamily: serif, fontSize: 34 }}>Grazie!</div>
+      <div style={{ fontSize: 13, letterSpacing: 2, color: '#6b5a45' }}>
+        RATE US &amp; THE NEXT PIE IS
+      </div>
+      <div
+        style={{
+          border: '3px dashed #b22318',
+          color: '#b22318',
+          fontSize: 30,
+          fontWeight: 800,
+          padding: '10px 34px',
+          borderRadius: 10,
+        }}
+      >
+        $5 OFF
+      </div>
+      <div style={{ fontSize: 11, letterSpacing: 2, color: '#6b5a45' }}>
+        CODE: LID-FIVE · TONYS.EXAMPLE
+      </div>
+    </div>
+  )
+}

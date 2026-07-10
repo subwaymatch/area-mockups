@@ -1,0 +1,46 @@
+---
+title: Pizza box
+description: A corrugated pizza box — closed or open, with a procedural pizza inside.
+---
+
+`<PizzaBox>` and `<PizzaBoxMockup>` render a 14" corrugated pizza box in
+the glue-free "Michigan" style: a hollow tray with 45° chamfered front
+corners and a lid hinged along the back wall, whose flap tucks inside the
+base — flush walls, no shoebox overhang. The lid top (`children`), the
+front wall strip and the inside of the lid are live DOM — and flipping
+`open` leans the lid back on its hinge and serves a procedural
+pepperoni-and-basil pizza in the tray.
+
+<ObjectDemo demo="pizza-basic" />
+
+```tsx
+<PizzaBoxMockup front={<YourFrontStrip />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+  <YourLidArt />
+</PizzaBoxMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `front` | `ReactNode` | - | Front wall strip — the rim you see when boxes are stacked. |
+| `insideLid` | `ReactNode` | - | Inside-of-lid print (menu, coupon…). Rendered only when `open`. |
+| `open` | `boolean` | `false` | Flip the lid back against its hinge. |
+| `pizza` | `boolean` | `true` | Serve the procedural pizza when open. |
+| `color` | `string` | `'#d9c6a2'` | Corrugated stock color. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed face. |
+| `resolution` | `number` | `560` | Virtual lid width in CSS px; other faces share its dpi. |
+
+## More examples
+
+### Open, all three surfaces live
+
+<ObjectDemo demo="pizza-open" />
+
+```tsx
+<PizzaBoxMockup open front={<YourFrontStrip />} insideLid={<YourCoupon />}>
+  <YourLidArt />
+</PizzaBoxMockup>
+```

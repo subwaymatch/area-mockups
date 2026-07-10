@@ -26,9 +26,11 @@ import { GalaxyWatchFace, WatchFace } from '../screens/watch-face'
 import {
   AFrameSignMockup,
   BusShelterMockup,
+  CoffeeCupMockup,
   DOOHTotemMockup,
   GreetingCardMockup,
   MailerBoxMockup,
+  PizzaBoxMockup,
   SemiTrailerMockup,
   ShoppingBagMockup,
   StorefrontMockup,
@@ -43,7 +45,11 @@ import {
   BannerArt,
   BoxLidArt,
   BoxPanelArt,
+  CupSleeveArt,
   GigPosterArt,
+  PizzaFrontArt,
+  PizzaInsideArt,
+  PizzaLidArt,
   StorePosterArt,
   StoreSignArt,
   TrailerWrapArt,
@@ -707,6 +713,49 @@ export default function DemoScenes() {
         <ShoppingBagMockup back={<BagArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
           <BagArt />
         </ShoppingBagMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Coffee cup — curved wrap"
+        description={
+          <>
+            <code>&lt;CoffeeCupMockup&gt;</code>: the first CURVED live surface — one
+            unrolled artwork tiled around the kraft sleeve from 16 flat strips that hide
+            themselves as they turn away.
+          </>
+        }
+      >
+        <CoffeeCupMockup autoRotate autoRotateSpeed={1.6} deviceProps={{ rotation: [0, -0.4, 0] }}>
+          <CupSleeveArt />
+        </CoffeeCupMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Pizza box"
+        description={
+          <>
+            <code>&lt;PizzaBoxMockup&gt;</code> with <code>open</code>: lid top, front flap
+            and inside-lid coupon are all live — and the pizza is procedural geometry.
+          </>
+        }
+      >
+        <PizzaBoxMockup open front={<PizzaFrontArt />} insideLid={<PizzaInsideArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+          <PizzaLidArt />
+        </PizzaBoxMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Pinch & scroll zoom"
+        description={
+          <>
+            <code>zoom</code>: pinch on touch, scroll wheel on desktop, and the overlay
+            +/− buttons — clamped to the same range as the orbit controls.
+          </>
+        }
+      >
+        <BookMockup zoom float color="#4a2c3f" deviceProps={{ rotation: [0, 0.35, 0] }}>
+          <BookCoverArt />
+        </BookMockup>
       </DemoCard>
 
       <DemoCard

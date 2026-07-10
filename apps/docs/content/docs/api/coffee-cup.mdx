@@ -1,0 +1,63 @@
+---
+title: Coffee cup
+description: A paper hot cup whose curved kraft-sleeve wrap is live DOM.
+---
+
+`<CoffeeCup>` and `<CoffeeCupMockup>` render a disposable hot cup — tapered
+body with a rolled lip, sip lid, and a kraft sleeve — where the sleeve wrap
+is the library's first **curved** live surface. You supply ONE artwork laid
+out at the full unrolled wrap size; the cup tiles it around the curve from
+16 flat strips, each clipping its own slice, and each strip hides itself as
+it turns away from the camera. Spin the cup and the wrap reads continuous,
+seam and all.
+
+<ObjectDemo demo="cup-basic" />
+
+```tsx
+<CoffeeCupMockup autoRotate>
+  <YourSleeveWrap />
+</CoffeeCupMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'12oz' \| '16oz'` | `'12oz'` | Cup size. Both share lip/base diameters; the 16 oz is taller. |
+| `lid` | `boolean` | `true` | Show the sip lid. Turn off to reveal the coffee. |
+| `color` | `string` | `'#f4f3ef'` | Paper cup color. |
+| `sleeveColor` | `string` | `'#c9a97c'` | Kraft sleeve — also shows through transparent wrap areas. |
+| `lidColor` | `string` | `'#f6f5f2'` | Lid plastic. Try `'#2b2b2e'` for black. |
+| `wrapBackground` | `string` | `'transparent'` | CSS background behind the wrap. |
+| `resolution` | `number` | `1024` | CSS px width of the FULL unrolled wrap. |
+| `interactive` | `boolean` | `false` | See the caveat below. |
+
+**The curved-surface caveat:** the wrap artwork is duplicated into every
+strip, so stateful or interactive content will not stay in sync across the
+curve — curved surfaces want artwork, not apps. That's also why
+`interactive` defaults off here. Size your art against
+`COFFEE_CUP_WRAP_ASPECT` (height ≈ 0.22 × the unrolled width).
+
+## More examples
+
+### 16 oz, black lid
+
+<ObjectDemo demo="cup-tall" />
+
+```tsx
+<CoffeeCupMockup variant="16oz" lidColor="#2b2b2e" deviceProps={{ rotation: [0, -1.57, 0] }}>
+  <YourSleeveWrap />
+</CoffeeCupMockup>
+```
+
+### No lid — coffee's ready
+
+<ObjectDemo demo="cup-nolid" />
+
+```tsx
+<CoffeeCupMockup lid={false} float camera={{ position: [0, 3.4, 5.6], fov: 40 }}>
+  <YourSleeveWrap />
+</CoffeeCupMockup>
+```

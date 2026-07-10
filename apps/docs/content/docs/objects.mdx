@@ -36,6 +36,8 @@ product dimensions — no GLB files, no hosting, no pop-in.
 | Wheatpaste wall | `WheatpasteWall` | ~4.5×3 m brick wall | up to 3 one-sheet posters | 440×623 each |
 | Mailer box | `MailerBox` | 350×120×250 mm shipper | top + front + end panels | 520×371 top |
 | Shopping bag | `ShoppingBag` | 320×420×140 mm carrier | front + back below the cuff | 460×526 each |
+| Coffee cup | `CoffeeCup` | 12/16 oz hot cup + sleeve | **curved** sleeve wrap (16 strips) | 1024×223 unrolled |
+| Pizza box | `PizzaBox` | 356×356×45 mm 14" box | lid top + front flap + inside lid | 560×560 top |
 
 Each object also has a one-liner `*Mockup` wrapper (`BookMockup`,
 `VanMockup`, …) that bundles the stage, camera, and grounded shadow — the same
@@ -80,6 +82,18 @@ Several objects host more than one surface:
   tape overlaid on your print.
 - **`Storefront`** pairs the fascia sign (`children`) with a `windowPoster`
   in the display glazing.
+- **`PizzaBox`** prints the lid top, the front flap, and — when `open` —
+  the inside of the lid.
+
+## Curved surfaces
+
+**`CoffeeCup`** is the first curved live surface: you pass ONE artwork at
+the full unrolled wrap size, and the cup tiles it around the kraft sleeve
+from 16 flat strips, each clipping its slice of the same DOM. Strips hide
+themselves as they turn away, so the wrap reads continuous while spinning.
+The trade-off: the artwork is duplicated per strip, so interactive/stateful
+content won't stay in sync across the curve — curved wraps want art. The
+same technique will carry future curved objects (bottles, cans, mugs).
 
 ## Ground planes
 

@@ -1,22 +1,47 @@
 import * as React from 'react'
 import { Canvas, useFrame, useThree, type CanvasProps } from '@react-three/fiber'
 import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 /**
  * react-three-fiber stamps `touch-action: none` on its event target when it
  * connects, which traps page scrolling on touch devices. Pin it to `pan-y`
  * instead: vertical swipes scroll past the mockup, horizontal drags orbit.
  * (Checked per frame because r3f can reconnect and re-stamp.)
+ *
+ * With `zoom` on, the trade flips: pinch must reach the controls, so the
+ * canvas keeps `touch-action: none` — the mockup owns two-finger gestures
+ * and vertical page scrolling starts outside it.
  */
-function TouchScrollFix() {
+function TouchScrollFix({ zoom }: { zoom: boolean }) {
   const get = useThree((state) => state.get)
+  const touchAction = zoom ? 'none' : 'pan-y'
   useFrame(() => {
     const connected = get().events.connected as HTMLElement | undefined
-    if (connected?.style && connected.style.touchAction !== 'pan-y') {
-      connected.style.touchAction = 'pan-y'
+    if (connected?.style && connected.style.touchAction !== touchAction) {
+      connected.style.touchAction = touchAction
     }
   })
   return null
+}
+
+/** Shared look for the overlay zoom buttons — self-contained, no page CSS. */
+const ZOOM_BUTTON_STYLE: React.CSSProperties = {
+  width: 32,
+  height: 32,
+  borderRadius: '50%',
+  border: '1px solid rgba(255,255,255,0.3)',
+  background: 'rgba(22,24,29,0.55)',
+  color: '#f2f4f8',
+  font: '600 18px/1 system-ui, sans-serif',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  userSelect: 'none',
+  WebkitBackdropFilter: 'blur(4px)',
+  backdropFilter: 'blur(4px)',
+  padding: 0,
 }
 
 export interface MockupCanvasProps {
@@ -27,7 +52,12 @@ export interface MockupCanvasProps {
   /** Slowly orbit the camera around the device. */
   autoRotate?: boolean
   autoRotateSpeed?: number
-  /** Scroll / pinch zoom. Off by default so an embedded mockup never hijacks page scroll. */
+  /**
+   * Zoom controls: pinch on touch, scroll wheel on desktop, plus overlay
+   * +/− buttons. Off by default so an embedded mockup never hijacks page
+   * scroll — turning it on gives the canvas the two-finger gesture (vertical
+   * page scrolling then starts outside the mockup).
+   */
   zoom?: boolean
   /** Soft contact shadow under the device. */
   shadows?: boolean
@@ -76,17 +106,31 @@ export function MockupCanvas({
   const cameraDistance = cameraPosition
     ? Math.hypot(cameraPosition[0], cameraPosition[1], cameraPosition[2])
     : 7.4
-  return (
+
+  const controlsRef = React.useRef<OrbitControlsImpl>(null)
+  const zoomBy = (factor: number) => {
+    const c = controlsRef.current
+    if (!c) return
+    const cam = c.object
+    const offset = cam.position.clone().sub(c.target)
+    const length = Math.min(Math.max(offset.length() * factor, c.minDistance), c.maxDistance)
+    offset.setLength(length)
+    cam.position.copy(c.target).add(offset)
+    c.update()
+  }
+
+  const canvas = (
     <Canvas
       className={className}
       // pan-y keeps pages scrollable on touch: vertical swipes scroll past the
-      // mockup, horizontal drags (and mouse) orbit the device.
-      style={{ touchAction: 'pan-y', background, ...style }}
+      // mockup, horizontal drags (and mouse) orbit the device. With zoom on,
+      // the canvas owns the pinch instead (touch-action none).
+      style={{ touchAction: zoom ? 'none' : 'pan-y', background, ...style }}
       dpr={dpr}
       camera={camera ?? { position: [0, 0.5, 7.4], fov: 40 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
     >
-      <TouchScrollFix />
+      <TouchScrollFix zoom={zoom} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[6, 8, 6]} intensity={0.6} />
 
@@ -127,6 +171,7 @@ export function MockupCanvas({
 
       {controls && (
         <OrbitControls
+          ref={controlsRef}
           makeDefault
           enablePan={false}
           enableZoom={zoom}
@@ -141,5 +186,33 @@ export function MockupCanvas({
         />
       )}
     </Canvas>
+  )
+
+  if (!zoom || !controls) return canvas
+
+  // Overlay +/− buttons: the visible zoom affordance on desktop, and a
+  // fallback for touch. Wrapped so the buttons anchor to the canvas box.
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {canvas}
+      <div
+        style={{
+          position: 'absolute',
+          right: 10,
+          bottom: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          zIndex: 30,
+        }}
+      >
+        <button type="button" aria-label="Zoom in" style={ZOOM_BUTTON_STYLE} onClick={() => zoomBy(0.8)}>
+          +
+        </button>
+        <button type="button" aria-label="Zoom out" style={ZOOM_BUTTON_STYLE} onClick={() => zoomBy(1.25)}>
+          −
+        </button>
+      </div>
+    </div>
   )
 }

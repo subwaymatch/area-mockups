@@ -11,6 +11,7 @@ import {
   BusinessCardMockup,
   BusMockup,
   BusShelterMockup,
+  CoffeeCupMockup,
   DOOHTotemMockup,
   GreetingCardMockup,
   IDCardMockup,
@@ -23,6 +24,7 @@ import {
   MonitorMockup,
   Phone,
   PhoneMockup,
+  PizzaBoxMockup,
   PosterFrame,
   PosterFrameMockup,
   ProductBoxMockup,
@@ -59,11 +61,15 @@ import {
   CardBackArt,
   ChalkMenuArt,
   CardFrontArt,
+  CupSleeveArt,
   DestinationArt,
   GigPosterArt,
   GreetingCoverArt,
   GreetingInsideArt,
   MagazineCoverArt,
+  PizzaFrontArt,
+  PizzaInsideArt,
+  PizzaLidArt,
   PosterArt,
   StorePosterArt,
   StoreSignArt,
@@ -544,6 +550,42 @@ const DEMOS: Record<string, React.ReactNode> = {
     >
       <BagArt />
     </ShoppingBagMockup>
+  ),
+
+  // ---- MockupCanvas features ------------------------------------------------------------
+  'canvas-zoom': (
+    <BookMockup zoom float color="#4a2c3f">
+      <BookCoverArt />
+    </BookMockup>
+  ),
+
+  // ---- Coffee cup ---------------------------------------------------------------------
+  'cup-basic': (
+    <CoffeeCupMockup autoRotate autoRotateSpeed={1.6} deviceProps={{ rotation: [0, -0.4, 0] }}>
+      <CupSleeveArt />
+    </CoffeeCupMockup>
+  ),
+  'cup-tall': (
+    <CoffeeCupMockup variant="16oz" lidColor="#2b2b2e" deviceProps={{ rotation: [0, -1.57, 0] }}>
+      <CupSleeveArt />
+    </CoffeeCupMockup>
+  ),
+  'cup-nolid': (
+    <CoffeeCupMockup lid={false} float camera={{ position: [0, 3.4, 5.6], fov: 40 }} deviceProps={{ rotation: [0, -1.57, 0] }}>
+      <CupSleeveArt />
+    </CoffeeCupMockup>
+  ),
+
+  // ---- Pizza box ---------------------------------------------------------------------
+  'pizza-basic': (
+    <PizzaBoxMockup front={<PizzaFrontArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+      <PizzaLidArt />
+    </PizzaBoxMockup>
+  ),
+  'pizza-open': (
+    <PizzaBoxMockup open front={<PizzaFrontArt />} insideLid={<PizzaInsideArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <PizzaLidArt />
+    </PizzaBoxMockup>
   ),
 
   // ---- Watch ------------------------------------------------------------------
