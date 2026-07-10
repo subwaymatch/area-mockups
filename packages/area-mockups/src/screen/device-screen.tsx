@@ -33,6 +33,9 @@ export interface DeviceScreenProps {
    * orientation: the device body is laid on its side while the screen plane
    * counter-rotates, so the DOM content renders upright with swapped
    * dimensions — exactly like a real device rotating into landscape.
+   * Always applied explicitly (never undefined) — react-three-fiber does not
+   * reset a property when a prop is simply omitted, which would leave a stale
+   * rotation behind when toggling back to portrait.
    */
   rotation?: [number, number, number]
   /** CSS background painted behind the content. */
@@ -71,7 +74,7 @@ export function DeviceScreen({
   radius,
   resolution,
   position,
-  rotation,
+  rotation = [0, 0, 0],
   background = '#000000',
   interactive = true,
   dragToRotate = true,

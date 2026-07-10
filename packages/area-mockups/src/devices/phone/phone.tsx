@@ -238,20 +238,21 @@ export function Phone({
           </mesh>
         ))}
 
-        {/* side buttons: volume rocker + power on the right edge */}
+        {/* side buttons: volume rocker + power on the right edge — machined
+            pills seated in the frame, protruding ~0.7mm like the real keys */}
         <RoundedBox
-          args={[0.04, 0.52, 0.1]}
-          radius={0.015}
-          position={[body.width / 2 + 0.005, body.height * 0.2125, 0]}
+          args={[0.06, 0.52, 0.082]}
+          radius={0.026}
+          position={[body.width / 2 - 0.012, body.height * 0.2125, 0]}
         >
-          <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
         </RoundedBox>
         <RoundedBox
-          args={[0.04, 0.3, 0.1]}
-          radius={0.015}
-          position={[body.width / 2 + 0.005, body.height * 0.08, 0]}
+          args={[0.06, 0.3, 0.082]}
+          radius={0.026}
+          position={[body.width / 2 - 0.012, body.height * 0.08, 0]}
         >
-          <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
         </RoundedBox>
 
         {/* the live screen: real DOM, CSS3D-transformed onto the display */}
@@ -261,7 +262,7 @@ export function Phone({
           radius={display.radius}
           resolution={res}
           position={[0, 0, body.depth / 2 + 0.006]}
-          rotation={landscape ? [0, 0, -Math.PI / 2] : undefined}
+          rotation={landscape ? [0, 0, -Math.PI / 2] : [0, 0, 0]}
           background={screenBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}

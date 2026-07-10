@@ -281,23 +281,24 @@ export function IPhone({
           </mesh>
         ))}
 
-        {/* left side (front view): Action button above the volume keys */}
-        <RoundedBox args={[0.04, 0.2, 0.1]} radius={0.015} position={[-body.width / 2 - 0.005, body.height * 0.278, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+        {/* left side (front view): Action button above the volume keys — machined
+            pills seated in the frame, protruding ~0.7mm like the real keys */}
+        <RoundedBox args={[0.06, 0.2, 0.082]} radius={0.026} position={[-body.width / 2 + 0.012, body.height * 0.278, 0]}>
+          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
         </RoundedBox>
-        <RoundedBox args={[0.04, 0.3, 0.1]} radius={0.015} position={[-body.width / 2 - 0.005, body.height * 0.174, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+        <RoundedBox args={[0.06, 0.3, 0.082]} radius={0.026} position={[-body.width / 2 + 0.012, body.height * 0.174, 0]}>
+          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
         </RoundedBox>
-        <RoundedBox args={[0.04, 0.3, 0.1]} radius={0.015} position={[-body.width / 2 - 0.005, body.height * 0.0745, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+        <RoundedBox args={[0.06, 0.3, 0.082]} radius={0.026} position={[-body.width / 2 + 0.012, body.height * 0.0745, 0]}>
+          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
         </RoundedBox>
 
-        {/* right side (front view): side button + Camera Control */}
-        <RoundedBox args={[0.04, 0.42, 0.1]} radius={0.015} position={[body.width / 2 + 0.005, body.height * 0.179, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+        {/* right side (front view): side button + the flatter, flush Camera Control */}
+        <RoundedBox args={[0.06, 0.42, 0.082]} radius={0.026} position={[body.width / 2 - 0.012, body.height * 0.179, 0]}>
+          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
         </RoundedBox>
-        <RoundedBox args={[0.03, 0.3, 0.09]} radius={0.012} position={[body.width / 2 + 0.002, -body.height * 0.124, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.2} />
+        <RoundedBox args={[0.05, 0.3, 0.07]} radius={0.02} position={[body.width / 2 - 0.015, -body.height * 0.124, 0]}>
+          <meshPhysicalMaterial color={frameColor} metalness={0.92} roughness={0.18} />
         </RoundedBox>
 
         {/* USB-C slot on the bottom edge */}
@@ -312,7 +313,7 @@ export function IPhone({
           radius={display.radius}
           resolution={res}
           position={[0, 0, body.depth / 2 + 0.006]}
-          rotation={landscape ? [0, 0, -Math.PI / 2] : undefined}
+          rotation={landscape ? [0, 0, -Math.PI / 2] : [0, 0, 0]}
           background={screenBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}

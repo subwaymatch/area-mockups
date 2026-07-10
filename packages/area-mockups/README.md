@@ -6,8 +6,8 @@ videos play, iframes scroll.
 
 - **Nine devices** — the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge), the full
   iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max) and a MacBook Air 13" (M5) laptop, all
-  procedurally generated at runtime. No GLB files, no hosting, no pop-in; tree-shakes to a
-  few kilobytes.
+  procedurally generated at runtime. No GLB files, no hosting, no pop-in — importing one
+  device family costs 3.7–4.7 KB gzipped (whole library: 7.8 KB), peers excluded.
 - **True-to-device screens** — each virtual display matches the real device's logical
   resolution in portrait *and* landscape (table below), so your layouts and breakpoints
   behave exactly like on the hardware.

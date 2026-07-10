@@ -136,38 +136,47 @@ export default function DocsPage() {
         </p>
         <CodeBlock title="examples.tsx">{contentSnippet}</CodeBlock>
 
-        <h3>Device resolutions</h3>
+        <h3>Device specifications</h3>
         <p>
-          Every variant&apos;s virtual screen defaults to the device&apos;s logical
-          resolution (CSS px), in both orientations:
+          Every device the library models, with its real-hardware basis and what it costs to
+          ship. Virtual screens default to the device&apos;s logical resolution (CSS px) in
+          both orientations; import cost is the tree-shaken, minified size of that family
+          (gzip), with three/react-three-fiber/drei as peers — measured by{' '}
+          <code>scripts/measure-size.mjs</code>.
         </p>
         <div className="table-scroll">
         <table className="props-table">
           <thead>
             <tr>
               <th>Device</th>
-              <th>Variant prop</th>
+              <th>Component</th>
+              <th>Body (mm)</th>
+              <th>Display</th>
               <th>Portrait</th>
               <th>Landscape</th>
-              <th>Basis</th>
+              <th>Import cost</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td>Galaxy S25</td><td><code>variant=&quot;s25&quot;</code></td><td className="type">360×780</td><td className="type">780×360</td><td>2340×1080 panel at ⅓ (3x)</td></tr>
-            <tr><td>Galaxy S25+</td><td><code>variant=&quot;s25plus&quot;</code></td><td className="type">384×832</td><td className="type">832×384</td><td>One UI default FHD+ render at 450 dpi</td></tr>
-            <tr><td>Galaxy S25 Ultra</td><td><code>variant=&quot;s25ultra&quot;</code></td><td className="type">384×832</td><td className="type">832×384</td><td>One UI default FHD+ render at 450 dpi</td></tr>
-            <tr><td>Galaxy S25 Edge</td><td><code>variant=&quot;s25edge&quot;</code></td><td className="type">384×832</td><td className="type">832×384</td><td>One UI default FHD+ render at 450 dpi</td></tr>
-            <tr><td>iPhone 17</td><td><code>variant=&quot;17&quot;</code></td><td className="type">402×874</td><td className="type">874×402</td><td>2622×1206 at 3x (point grid)</td></tr>
-            <tr><td>iPhone 17 Air</td><td><code>variant=&quot;air&quot;</code></td><td className="type">420×912</td><td className="type">912×420</td><td>2736×1260 at 3x (point grid)</td></tr>
-            <tr><td>iPhone 17 Pro</td><td><code>variant=&quot;pro&quot;</code></td><td className="type">402×874</td><td className="type">874×402</td><td>2622×1206 at 3x (point grid)</td></tr>
-            <tr><td>iPhone 17 Pro Max</td><td><code>variant=&quot;promax&quot;</code></td><td className="type">440×956</td><td className="type">956×440</td><td>2868×1320 at 3x (point grid)</td></tr>
-            <tr><td>MacBook Air 13&quot; (M5)</td><td>—</td><td className="type">—</td><td className="type">1280×832</td><td>2560×1664 at 2x (default scaled)</td></tr>
+            <tr><td>Samsung Galaxy S25</td><td><code>PhoneMockup · s25</code></td><td className="type">146.9×70.5×7.2</td><td className="type">6.2&quot; 2340×1080</td><td className="type">360×780</td><td className="type">780×360</td><td className="type" rowSpan={4}>10.4 KB min<br />3.7 KB gzip</td></tr>
+            <tr><td>Samsung Galaxy S25+</td><td><code>PhoneMockup · s25plus</code></td><td className="type">158.4×75.8×7.3</td><td className="type">6.7&quot; 3120×1440</td><td className="type">384×832</td><td className="type">832×384</td></tr>
+            <tr><td>Samsung Galaxy S25 Ultra</td><td><code>PhoneMockup · s25ultra</code></td><td className="type">162.8×77.6×8.2</td><td className="type">6.9&quot; 3120×1440</td><td className="type">384×832</td><td className="type">832×384</td></tr>
+            <tr><td>Samsung Galaxy S25 Edge</td><td><code>PhoneMockup · s25edge</code></td><td className="type">158.2×75.6×5.8</td><td className="type">6.7&quot; 3120×1440</td><td className="type">384×832</td><td className="type">832×384</td></tr>
+            <tr><td>Apple iPhone 17</td><td><code>IPhoneMockup · 17</code></td><td className="type">149.6×71.5×7.95</td><td className="type">6.3&quot; 2622×1206</td><td className="type">402×874</td><td className="type">874×402</td><td className="type" rowSpan={4}>12.4 KB min<br />4.1 KB gzip</td></tr>
+            <tr><td>Apple iPhone 17 Air</td><td><code>IPhoneMockup · air</code></td><td className="type">156.2×74.7×5.64</td><td className="type">6.5&quot; 2736×1260</td><td className="type">420×912</td><td className="type">912×420</td></tr>
+            <tr><td>Apple iPhone 17 Pro</td><td><code>IPhoneMockup · pro</code></td><td className="type">150.0×71.9×8.75</td><td className="type">6.3&quot; 2622×1206</td><td className="type">402×874</td><td className="type">874×402</td></tr>
+            <tr><td>Apple iPhone 17 Pro Max</td><td><code>IPhoneMockup · promax</code></td><td className="type">163.4×78.0×8.75</td><td className="type">6.9&quot; 2868×1320</td><td className="type">440×956</td><td className="type">956×440</td></tr>
+            <tr><td>Apple MacBook Air 13&quot; (M5)</td><td><code>LaptopMockup</code></td><td className="type">304.1×215×11.3</td><td className="type">13.6&quot; 2560×1664</td><td className="type">—</td><td className="type">1280×832</td><td className="type">12.5 KB min<br />4.7 KB gzip</td></tr>
           </tbody>
         </table>
         </div>
         <p>
-          Pass <code>orientation=&quot;landscape&quot;</code> on a phone to lay the device on
-          its side: the virtual viewport swaps to the landscape resolution and your content
+          Resolution basis: Galaxy S25 is its panel at ⅓ scale; the QHD+ Galaxys use One
+          UI&apos;s default FHD+ render at 450 dpi (build.prop-confirmed on the Ultra);
+          iPhones use their exact 3x point grids; the MacBook uses its default scaled
+          resolution. Importing the whole library costs 27.1 KB min / 7.8 KB gzip. Pass{' '}
+          <code>orientation=&quot;landscape&quot;</code> on a phone to lay the device on its
+          side: the virtual viewport swaps to the landscape resolution and your content
           renders upright, exactly like rotating the real phone.
         </p>
       </section>
