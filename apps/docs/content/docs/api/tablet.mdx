@@ -1,0 +1,29 @@
+---
+title: Tablet (iPad Pro and Galaxy Tab)
+description: Both tablet families behind one variant prop, with per-family hardware details.
+---
+
+`<Tablet>` and `<TabletMockup>` cover the iPad Pro (M5) and Galaxy Tab S11
+families at true relative sizes. Each family gets its real hardware: camera
+pod with LiDAR and an Apple Pencil strip on the iPads; protruding camera
+rings, a side-mounted octagonal S Pen, and keyboard pogo pins on the Galaxy
+Tabs, plus the Ultra's droplet display notch. Every non-notch tablet carries
+its front camera in the bezel on the landscape-top edge, like the real
+devices.
+
+```tsx
+<TabletMockup variant="tabs11ultra" orientation="landscape">
+  <YourApp />
+</TabletMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'ipadpro13' \| 'ipadpro11' \| 'tabs11' \| 'tabs11ultra'` | `'ipadpro13'` | Which tablet: iPad Pro 13" or 11" (camera pod, Pencil strip), Galaxy Tab S11 (single camera ring, S Pen side mount, pogo pins), or Tab S11 Ultra (dual rings and the droplet notch). |
+| `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the tablet on its side and swaps the virtual display (for example 1376×1032 on the 13" iPad) with upright content. |
+| `resolution` | `number` | per variant | Defaults to the variant's logical grid: 1032×1376 (ipadpro13), 834×1210 (ipadpro11), 800×1280 (tabs11), 924×1480 (tabs11ultra). |
+| `color` | `string` | `'#3a3c40'` | Body colorway. iPad: Space Black `#3a3c40`, Silver `#e3e4e6`. Tab: Gray `#4b4f56`, Silver `#dcdee1`. |

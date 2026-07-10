@@ -1,0 +1,34 @@
+---
+title: IPhone (iPhone 17 family)
+description: The iPhone 17 family device with Dynamic Island and per-model camera architecture.
+---
+
+`<IPhone>` and `<IPhoneMockup>` render an iPhone 17 family device: flat frame,
+Dynamic Island, Action button, Camera Control, and per-model rear cameras. The
+camera architecture follows the real devices: two-lens pill (17), ultra-thin
+single-lens bar (Air), full-width triple-lens plateau with flash and LiDAR
+(Pro and Pro Max).
+
+```tsx
+<IPhoneMockup variant="pro" color="#c96b34">
+  <YourApp />
+</IPhoneMockup>
+```
+
+## Props
+
+Same API as [`Phone`](/docs/api/phone), except:
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'17' \| 'air' \| 'pro' \| 'promax'` | `'17'` | Which iPhone 17 family device: 17 (two-lens pill), air (ultra-thin, single-lens bar), pro and promax (full-width plateau, flash + LiDAR). |
+| `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display (for example 874×402 on the 17) with upright content. |
+| `dynamicIsland` | `boolean` | `true` | Dynamic Island overlay (replaces `punchHole`). |
+| `resolution` | `number` | per variant | Defaults to the variant's point grid: 402×874 (17, pro), 420×912 (air), 440×956 (promax). |
+| `color` | `string` | `'#1a1c20'` | Back colorway. |
+
+## Colorways
+
+17: Lavender `#cfc4e6`, Mist Blue `#b7c9dd`, Sage `#aebfae`. Air: Sky Blue
+`#bfd4e6`, Light Gold `#e6d9c0`. Pro: Cosmic Orange `#c96b34`, Deep Blue
+`#2b3a55`, Silver `#dfe0e2`.

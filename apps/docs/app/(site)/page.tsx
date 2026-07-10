@@ -25,9 +25,9 @@ export default function HomePage() {
             Your app, on a phone, <span className="grad-text">in 3D.</span>
           </h1>
           <p className="lede">
-            <code>area-mockups</code> renders GPU-accelerated, fully interactive 3D devices —
-            Galaxy and iPhone families, iPad Pro and Galaxy Tab tablets, a MacBook Air, an
-            Apple Watch and a Studio Display-style monitor — and maps <em>real, live DOM</em>{' '}
+            <code>area-mockups</code> renders GPU-accelerated, fully interactive 3D devices
+            (Galaxy and iPhone families, iPad Pro and Galaxy Tab tablets, a MacBook Air, an
+            Apple Watch and a Studio Display-style monitor) and maps <em>real, live DOM</em>{' '}
             onto their screens. Buttons click, videos play, iframes scroll. No 3D asset
             files, no screenshots.
           </p>
@@ -46,7 +46,7 @@ export default function HomePage() {
             <HeroMockup />
           </div>
           <p className="viewport-hint">
-            Drag to spin — the screen is a live React tree. Try the play button.
+            Drag to spin. The screen is a live React tree, so try the play button.
           </p>
         </div>
       </section>
@@ -65,13 +65,13 @@ export default function HomePage() {
           <p>
             The display is a real DOM layer, CSS3D-transformed onto the glass. Pass React
             components, an <code>&lt;iframe&gt;</code> or a <code>&lt;video&gt;</code> as
-            children — state, scrolling and clicks keep working.
+            children: state, scrolling and clicks keep working.
           </p>
         </div>
         <div className="feature">
           <h3>Procedural device</h3>
           <p>
-            The device is generated from geometry at runtime — no GLB downloads, nothing to
+            The device is generated from geometry at runtime: no GLB downloads, nothing to
             host, no loading pop-in. The whole package tree-shakes to a few kilobytes.
           </p>
         </div>

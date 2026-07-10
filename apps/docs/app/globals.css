@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------ */
-/*  area-mockups docs — global styles                                  */
+/*  area-mockups docs: global styles                                  */
 /* ------------------------------------------------------------------ */
 
 :root {
@@ -283,7 +283,7 @@ code {
 
 .hero-viewport {
   height: 600px;
-  /* an edgeless glow behind the device — lighting, not a card */
+  /* an edgeless glow behind the device: lighting, not a card */
   background: radial-gradient(
     58% 48% at 50% 46%,
     rgba(139, 124, 248, 0.13) 0%,
@@ -492,7 +492,7 @@ code {
 }
 
 
-/* classic alpha checkerboard — proves the canvas itself is transparent */
+/* classic alpha checkerboard: proves the canvas itself is transparent */
 .alpha-checker {
   position: absolute;
   inset: 0;
@@ -573,7 +573,7 @@ code {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Phone screens — shared                                             */
+/*  Phone screens: shared                                             */
 /* ------------------------------------------------------------------ */
 
 .screen {

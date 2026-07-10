@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "index",
+    "quick-start",
+    "---Guides---",
+    "screen-content",
+    "devices",
+    "composing",
+    "nextjs",
+    "performance",
+    "roadmap",
+    "---API reference---",
+    "...api"
+  ]
+}

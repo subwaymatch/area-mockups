@@ -33,7 +33,7 @@ export default function DemoScenes() {
         title="Bring your own UI"
         description={
           <>
-            Plain React state on the 3D screen — the button below really clicks. Drag anywhere,
+            Plain React state on the 3D screen, and the button below really clicks. Drag anywhere,
             even on the screen, to spin the device; taps still reach the UI.
           </>
         }
@@ -67,7 +67,7 @@ export default function DemoScenes() {
         title="Embed a whole page"
         description={
           <>
-            An <code>&lt;iframe&gt;</code> pointed at <code>/embedded</code> — a real route of
+            An <code>&lt;iframe&gt;</code> pointed at <code>/embedded</code>, a real route of
             this site, scrolling and clicking inside the glass.
           </>
         }
@@ -85,7 +85,7 @@ export default function DemoScenes() {
         title="MacBook Air (M5)"
         description={
           <>
-            <code>&lt;LaptopMockup&gt;</code> — a procedural MacBook Air-style laptop in Sky
+            <code>&lt;LaptopMockup&gt;</code>: a procedural MacBook Air-style laptop in Sky
             Blue. The desktop is live DOM too: click the window, drag to orbit.
           </>
         }
@@ -99,7 +99,7 @@ export default function DemoScenes() {
         <VariantExplorer />
         <h3>Every variant, one prop</h3>
         <p>
-          The full Galaxy S25 and iPhone 17 families — true relative sizes, per-model camera
+          The full Galaxy S25 and iPhone 17 families: true relative sizes, per-model camera
           architecture, and <code>orientation=&quot;landscape&quot;</code> with a
           device-accurate virtual resolution (e.g. 780×360 on the S25, 874×402 on the 17).
         </p>
@@ -109,7 +109,7 @@ export default function DemoScenes() {
         <TabletExplorer />
         <h3>Tablets, both families</h3>
         <p>
-          <code>&lt;TabletMockup&gt;</code> — iPad Pro 13″/11″ (M5) and Galaxy Tab S11 /
+          <code>&lt;TabletMockup&gt;</code>: iPad Pro 13″/11″ (M5) and Galaxy Tab S11 /
           S11 Ultra at true relative sizes, with per-family camera pods, stylus mounts and
           the Ultra&apos;s display notch. Orientation swaps the exact logical resolution.
         </p>
@@ -119,7 +119,7 @@ export default function DemoScenes() {
         title="Studio Display"
         description={
           <>
-            <code>&lt;MonitorMockup&gt;</code> — the 27″ 5K panel on its tilt stand with a
+            <code>&lt;MonitorMockup&gt;</code>: the 27″ 5K panel on its tilt stand with a
             2560×1440 virtual screen (and, faithfully, no power button).
           </>
         }
@@ -133,7 +133,7 @@ export default function DemoScenes() {
         title="Apple Watch Series 11"
         description={
           <>
-            <code>&lt;WatchMockup&gt;</code> — squircle case, Digital Crown, Sport Band, and
+            <code>&lt;WatchMockup&gt;</code>: squircle case, Digital Crown, Sport Band, and
             a live 208×248 face. The complication really taps.
           </>
         }
@@ -147,7 +147,7 @@ export default function DemoScenes() {
         title="Transparent background"
         description={
           <>
-            The WebGL canvas is transparent by default (alpha context, no scene background) —
+            The WebGL canvas is transparent by default (alpha context, no scene background), so
             the checkerboard behind this phone is plain page CSS showing through.
           </>
         }

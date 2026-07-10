@@ -1,0 +1,41 @@
+---
+title: Quick start
+description: Render your first interactive 3D phone with a single component.
+---
+
+Drop a `PhoneMockup` anywhere in a client component and give it a height. Your
+content becomes the phone's screen.
+
+```tsx title="hero.tsx"
+'use client'
+
+import { PhoneMockup } from 'area-mockups'
+
+export function Hero() {
+  return (
+    <div style={{ height: 560 }}>
+      <PhoneMockup autoRotate float>
+        <YourApp /> {/* any React node */}
+      </PhoneMockup>
+    </div>
+  )
+}
+```
+
+The mockup fills its parent, so size the wrapper, not the component.
+
+## What you get out of the box
+
+- **Drag to orbit** from anywhere: the body, the background, or the screen
+  itself. Drags that start on the screen hand off to the orbit controls after
+  about 10 px of travel, while plain taps and clicks still reach your content.
+- **A live screen**: the content is real DOM projected onto the glass, so state,
+  focus, scrolling, and media playback all keep working.
+- **Studio lighting and soft shadows**, generated on the GPU with no HDR file
+  downloads.
+- **A transparent canvas** by default, so your page background shows through.
+
+## Next.js note
+
+WebGL only exists in the browser. In the App Router, load the mockup client
+side only. See [Next.js and SSR](/docs/nextjs) for the pattern.

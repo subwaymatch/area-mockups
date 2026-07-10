@@ -21,3 +21,6 @@ yarn-error.log*
 
 # os
 .DS_Store
+
+# fumadocs generated
+.source/

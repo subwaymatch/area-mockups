@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { DemoGallery } from '@/components/demo-gallery'
 
 export const metadata: Metadata = {
-  title: 'Demos — area-mockups',
+  title: 'Demos | area-mockups',
   description: 'Live, interactive demos of area-mockups 3D device mockups.',
 }
 

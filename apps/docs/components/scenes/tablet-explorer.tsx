@@ -11,7 +11,7 @@ const TABLETS: { label: string; variant: TabletVariant; color: string }[] = [
   { label: 'Tab S11 Ultra', variant: 'tabs11ultra', color: '#2e3136' }, // Graphite
 ]
 
-/** All tablet variants on one canvas — switch device and orientation live. */
+/** All tablet variants on one canvas. Switch device and orientation live. */
 export function TabletExplorer() {
   const [selected, setSelected] = useState(0)
   const [landscape, setLandscape] = useState(true)

@@ -1,0 +1,50 @@
+---
+title: Introduction
+description: Interactive, GPU-accelerated 3D device mockups for React, with real live DOM on every screen.
+---
+
+`area-mockups` renders procedurally generated 3D devices with WebGL and maps
+real, live DOM onto their screens. Buttons click, videos play, iframes scroll.
+There are no 3D asset files to host and nothing to download at runtime.
+
+## Highlights
+
+- **Fifteen devices**: the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge),
+  the full iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max), a MacBook Air 13"
+  (M5), iPad Pro 13" and 11" (M5), Galaxy Tab S11 and S11 Ultra, an Apple Watch
+  Series 11, and a Studio Display style 27" monitor.
+- **True-to-device screens**: each virtual display defaults to the real device's
+  logical resolution in portrait and landscape, so your layouts and breakpoints
+  behave exactly like on the hardware.
+- **Real GPU rendering**: three.js and react-three-fiber, physically based
+  materials, studio lighting, soft shadows, clamped device pixel ratio.
+- **Any content on screen**: pass React components, an `<iframe>`, or a
+  `<video>` as children. Pointer events, state, and scrolling keep working.
+- **Composable**: use the one-liner mockup components, or drop the bare devices
+  into your own react-three-fiber scene.
+
+## Installation
+
+```bash
+npm install area-mockups three @react-three/fiber @react-three/drei
+```
+
+React 18 or newer (19 recommended). `three`, `@react-three/fiber`, and
+`@react-three/drei` are peer dependencies.
+
+## Explore
+
+<Cards>
+  <Card title="Quick start" href="/docs/quick-start">
+    Your first interactive mockup in one component.
+  </Card>
+  <Card title="Screen content" href="/docs/screen-content">
+    Put components, iframes, and video on the glass.
+  </Card>
+  <Card title="Devices and resolutions" href="/docs/devices">
+    Every device, body size, and logical resolution.
+  </Card>
+  <Card title="API reference" href="/docs/api">
+    Props for every component in the library.
+  </Card>
+</Cards>

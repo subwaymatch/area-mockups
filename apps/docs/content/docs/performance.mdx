@@ -1,0 +1,17 @@
+---
+title: GPU and performance
+description: How the rendering pipeline stays fast and predictable.
+---
+
+- Rendering is WebGL 2 via three.js with
+  `powerPreference: 'high-performance'`, so the browser prefers the discrete
+  GPU where available.
+- Screen content is composited by the browser as a CSS 3D layer. Text stays
+  vector crisp at every angle and zoom, and never burns GPU texture memory.
+- The device is procedural geometry (a few thousand triangles): no GLB parsing,
+  no texture decoding, no network requests. Lighting comes from a tiny
+  environment map rendered once on the GPU.
+- `dpr` is clamped to `[1, 2]` by default; lower the maximum on constrained
+  devices for guaranteed frame rates.
+- The MacBook's 78 keycap legends render as one instanced draw call plus a
+  single canvas texture, so the keyboard costs almost nothing.

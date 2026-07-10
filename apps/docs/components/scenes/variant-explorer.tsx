@@ -33,7 +33,7 @@ const IPHONE_COLORS: Record<IPhoneVariant, { color: string; frameColor: string }
   promax: { color: '#2b3a55', frameColor: '#3d4d6b' }, // Deep Blue
 }
 
-/** Every phone variant on one canvas — switch device and orientation live. */
+/** Every phone variant on one canvas. Switch device and orientation live. */
 export function VariantExplorer() {
   const [selected, setSelected] = useState(6) // 17 Pro
   const [landscape, setLandscape] = useState(false)

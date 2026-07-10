@@ -1,0 +1,27 @@
+---
+title: Monitor (Studio Display)
+description: A 27 inch 5K monitor on its tilt stand with a 2560x1440 live desktop.
+---
+
+`<Monitor>` and `<MonitorMockup>` render an Apple Studio Display style 27"
+monitor: all-aluminum enclosure, uniform black bezel with a centered camera,
+rear Thunderbolt and USB-C port row, captive power inlet, the L-shaped tilt
+stand, and (faithfully) no power button. The mockup grounds the stand on a
+virtual desk plane.
+
+```tsx
+<MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+  <YourDesktopApp />
+</MonitorMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#c8cbd0'` | Aluminum colorway (enclosure and stand). |
+| `resolution` | `number` | `2560` | Virtual display width; 2560 gives 2560×1440, the Studio Display's logical desktop, so real desktop layouts apply. |
+
+There is no `orientation` prop; it lives on a desk.
