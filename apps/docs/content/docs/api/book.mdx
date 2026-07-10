@@ -8,6 +8,17 @@ binder's boards with a rounded flush spine and case-binding joint groove, a
 cream page block recessed behind the board overhang on the three open edges,
 and the whole front cover as a live 480×720 DOM surface.
 
+Any React node fills the front board, full bleed. Match `color` to the
+jacket's palette so the spine and back board feel like the same book.
+
+<ObjectDemo demo="book-basic" />
+
+```tsx
+<BookMockup color="#16324a" deviceProps={{ rotation: [0, 0.35, 0] }}>
+  <YourCoverArt />
+</BookMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -22,20 +33,7 @@ Beyond the [shared screen props](/docs/screen-content):
 The screen-background prop is named `coverBackground` here — on a book it
 paints paper, not glass. Every example below is live: drag to spin it.
 
-## Examples
-
-### A jacket design
-
-Any React node fills the front board, full bleed. Match `color` to the
-jacket's palette so the spine and back board feel like the same book.
-
-<ObjectDemo demo="book-basic" />
-
-```tsx
-<BookMockup color="#16324a" deviceProps={{ rotation: [0, 0.35, 0] }}>
-  <YourCoverArt />
-</BookMockup>
-```
+## More examples
 
 ### Floating and auto-orbiting
 

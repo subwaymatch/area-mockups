@@ -9,9 +9,11 @@ camera architecture follows the real devices: two-lens pill (17), ultra-thin
 single-lens bar (Air), full-width triple-lens plateau with flash and LiDAR
 (Pro and Pro Max).
 
+<ObjectDemo demo="iphone-pro" />
+
 ```tsx
-<IPhoneMockup variant="pro" color="#c96b34">
-  <YourApp />
+<IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
+  <MusicPlayer />
 </IPhoneMockup>
 ```
 
@@ -33,17 +35,7 @@ Same API as [`Phone`](/docs/api/phone), except:
 `#bfd4e6`, Light Gold `#e6d9c0`. Pro: Cosmic Orange `#c96b34`, Deep Blue
 `#2b3a55`, Silver `#dfe0e2`.
 
-## Examples
-
-### iPhone 17 Pro in Cosmic Orange
-
-<ObjectDemo demo="iphone-pro" />
-
-```tsx
-<IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
-  <MusicPlayer />
-</IPhoneMockup>
-```
+## More examples
 
 ### iPhone 17 Air, floating
 

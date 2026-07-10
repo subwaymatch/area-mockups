@@ -8,6 +8,14 @@ zig-zag (Z-fold) accordion. Each of the three 93×216 mm panels is its own
 live 360×835 DOM surface — and the reverse faces can be printed too. Panels
 shade gently toward the folds, like paper actually bowing.
 
+Pass an array — left to right. Each panel is independent live DOM.
+
+<ObjectDemo demo="brochure-panels" />
+
+```tsx
+<BrochureMockup panels={[<Front />, <Middle />, <Back />]} />
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -24,17 +32,7 @@ Beyond the [shared screen props](/docs/screen-content):
 The fold keeps every panel centered on the group origin, so the brochure
 orbits about its own visual center at any `foldAngle`.
 
-## Examples
-
-### All three panels
-
-Pass an array — left to right. Each panel is independent live DOM.
-
-<ObjectDemo demo="brochure-panels" />
-
-```tsx
-<BrochureMockup panels={[<Front />, <Middle />, <Back />]} />
-```
+## More examples
 
 ### Flat, before folding
 

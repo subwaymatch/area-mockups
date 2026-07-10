@@ -18,13 +18,18 @@
     "greeting-card",
     "poster-frame",
     "product-box",
+    "mailer-box",
+    "shopping-bag",
     "vinyl-record",
     "rollup-banner",
     "a-frame-sign",
     "bus-shelter",
     "dooh-totem",
     "billboard",
+    "storefront",
+    "wheatpaste-wall",
     "bus",
-    "van"
+    "van",
+    "semi-trailer"
   ]
 }

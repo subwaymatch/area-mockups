@@ -8,6 +8,14 @@ chalkboard-class sidewalk sign: two wood-framed panels hinged at the top,
 legs splayed ~15° (measured from street photos), with both faces live DOM —
 chalk menus, sale boards, open/closed signs.
 
+<ObjectDemo demo="aframe-basic" />
+
+```tsx
+<AFrameSignMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+  <MenuBoard />
+</AFrameSignMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -19,17 +27,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `faceBackground` | `string` | `'#20241f'` | CSS background behind each panel (chalkboard black). |
 | `resolution` | `number` | `420` | Virtual face width in CSS px; height follows the panel. |
 
-## Examples
-
-### A café menu board
-
-<ObjectDemo demo="aframe-basic" />
-
-```tsx
-<AFrameSignMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
-  <MenuBoard />
-</AFrameSignMockup>
-```
+## More examples
 
 ### Painted frame, both sides
 

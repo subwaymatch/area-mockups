@@ -10,6 +10,14 @@ front lip, a soft acrylic glazing sheen over the art, an optional 2.5"
 gallery matboard, and a kraft dust cover on the back. The visible opening is
 a live 540×721 DOM surface.
 
+<ObjectDemo demo="poster-basic" />
+
+```tsx
+<PosterFrameMockup deviceProps={{ rotation: [0, 0.25, 0] }}>
+  <YourPosterArt />
+</PosterFrameMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -23,17 +31,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `posterBackground` | `string` | `'#ffffff'` | CSS background behind your poster content. |
 | `resolution` | `number` | `540` | Virtual art width in CSS px; height follows its aspect. |
 
-## Examples
-
-### A gig poster in a black frame
-
-<ObjectDemo demo="poster-basic" />
-
-```tsx
-<PosterFrameMockup deviceProps={{ rotation: [0, 0.25, 0] }}>
-  <YourPosterArt />
-</PosterFrameMockup>
-```
+## More examples
 
 ### Oak molding
 

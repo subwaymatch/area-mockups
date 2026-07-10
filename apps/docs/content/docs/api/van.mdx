@@ -12,6 +12,14 @@ long arms and hand-height taillights added on. The flat cargo side carries a
 live 900×368 vinyl-wrap panel for your livery. The mockup grounds the wheels
 on a virtual road plane.
 
+<ObjectDemo demo="van-basic" />
+
+```tsx
+<VanMockup streetSide={<Livery />} rear={<RearDoors />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+  <Livery />
+</VanMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -28,17 +36,7 @@ Beyond the [shared screen props](/docs/screen-content):
 wheel arches, lights and cab glass. Rotate the group to pose the van; the
 panels stay live at any angle.
 
-## Examples
-
-### A fleet livery, wrapped on three panels
-
-<ObjectDemo demo="van-basic" />
-
-```tsx
-<VanMockup streetSide={<Livery />} rear={<RearDoors />} deviceProps={{ rotation: [0, -0.5, 0] }}>
-  <Livery />
-</VanMockup>
-```
+## More examples
 
 ### The rear three-quarter
 

@@ -7,9 +7,11 @@ description: The Galaxy S25 family device and its all-in-one mockup.
 all-in-one version. All four variants keep true relative sizes and per-model
 camera architecture.
 
+<ObjectDemo demo="phone-basic" />
+
 ```tsx
-<PhoneMockup variant="s25ultra" orientation="landscape" color="#1a1c20">
-  <YourApp />
+<PhoneMockup color="#15171d" frameColor="#4d5260" deviceProps={{ rotation: [0, -0.25, 0] }}>
+  <TapCounter />
 </PhoneMockup>
 ```
 
@@ -32,19 +34,9 @@ Beyond the [shared screen props](/docs/screen-content) and, on the mockup, the
 Try Icy Blue `#c9d6e8`, Navy `#2c3344`, Mint `#c8e6d2`, or Marble Gray
 `#d3d6dd` with `frameColor="#b6bac4"`.
 
-## Examples
+## More examples
 
 Every example is live: drag to spin it, and the screens really work.
-
-### Interactive React state on the screen
-
-<ObjectDemo demo="phone-basic" />
-
-```tsx
-<PhoneMockup color="#15171d" frameColor="#4d5260" deviceProps={{ rotation: [0, -0.25, 0] }}>
-  <TapCounter />
-</PhoneMockup>
-```
 
 ### Colorways with float and auto-orbit
 

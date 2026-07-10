@@ -1,0 +1,48 @@
+---
+title: Semi trailer
+description: A 53 ft dry-van trailer with live wraps on both sides and the rear doors.
+---
+
+`<SemiTrailer>` and `<SemiTrailerMockup>` render a US-standard 53 ft dry van
+parked on its landing gear: smooth wrap-ready sides, tandem rear axles with
+dual wheels and mudflaps, side skirts, ICC bumper, lock-rod rear doors, amber
+front markers and DOT reflective tape along the bottom rails. The biggest
+canvas in the library — both 15.2×2.6 m sides plus the rear doors are live.
+
+<ObjectDemo demo="trailer-basic" />
+
+```tsx
+<SemiTrailerMockup deviceProps={{ rotation: [0, -0.35, 0] }}>
+  <YourWrap />
+</SemiTrailerMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `streetSide` | `ReactNode` | - | Wrap for the street-side (−Z) panel. |
+| `rear` | `ReactNode` | - | Panel on the rear doors — the lock rods overlay it like real hardware. |
+| `color` | `string` | `'#eef0f2'` | Box paint. Wrap trailers are usually white. |
+| `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
+| `resolution` | `number` | `1100` | Virtual side panel width in CSS px; the rear shares its dpi. |
+
+The road sits `SEMI_TRAILER.groundY` below the origin — the mockup grounds
+the shadow there automatically.
+
+## More examples
+
+### All three panels, auto-rotating
+
+The rear doors carry your panel *under* the lock rods — a DOM overlay draws
+the four rods over the print, the way a real wrap is applied around them.
+
+<ObjectDemo demo="trailer-rear" />
+
+```tsx
+<SemiTrailerMockup autoRotate streetSide={<YourWrap />} rear={<YourRearPanel />}>
+  <YourWrap />
+</SemiTrailerMockup>
+```

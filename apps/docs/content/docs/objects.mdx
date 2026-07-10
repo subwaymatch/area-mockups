@@ -31,6 +31,11 @@ product dimensions — no GLB files, no hosting, no pop-in.
 | TV | `TVSet` | 65" 16:9 on blade feet | screen | 1920×1080 |
 | A-frame sign | `AFrameSign` | 600×900 mm sandwich board | both panels | 420×635 each |
 | DOOH totem | `DOOHTotem` | ~1.3×2.8×0.35 m street totem | portrait display | 540×960 |
+| Storefront | `Storefront` | 6×4.2 m shop façade | fascia sign + window poster | 800×90 sign |
+| Semi trailer | `SemiTrailer` | 16.2×2.6×2.9 m 53 ft dry van | wraps both sides + rear doors | 1100×189 side |
+| Wheatpaste wall | `WheatpasteWall` | ~4.5×3 m brick wall | up to 3 one-sheet posters | 440×623 each |
+| Mailer box | `MailerBox` | 350×120×250 mm shipper | top + front + end panels | 520×371 top |
+| Shopping bag | `ShoppingBag` | 320×420×140 mm carrier | front + back below the cuff | 460×526 each |
 
 Each object also has a one-liner `*Mockup` wrapper (`BookMockup`,
 `VanMockup`, …) that bundles the stage, camera, and grounded shadow — the same
@@ -67,6 +72,14 @@ Several objects host more than one surface:
   `top` and `back`, all sharing one dpi.
 - **`Bus`** pairs the king-size ad panel with an optional live LED
   `destinationSign` above the windshield.
+- **`SemiTrailer`** wraps both 53 ft sides plus the rear doors — the door
+  panel sits under a lock-rod overlay like a real wrap.
+- **`WheatpasteWall`** pastes up to three overlapping posters via
+  `posters={[...]}`.
+- **`MailerBox`** prints the top, front and end panels, with the packing
+  tape overlaid on your print.
+- **`Storefront`** pairs the fascia sign (`children`) with a `windowPoster`
+  in the display glazing.
 
 ## Ground planes
 

@@ -24,6 +24,11 @@ export { VinylRecordMockup, type VinylRecordMockupProps } from './vinyl-record-m
 export { TVSetMockup, type TVSetMockupProps } from './tv-mockup'
 export { AFrameSignMockup, type AFrameSignMockupProps } from './a-frame-sign-mockup'
 export { DOOHTotemMockup, type DOOHTotemMockupProps } from './dooh-totem-mockup'
+export { StorefrontMockup, type StorefrontMockupProps } from './storefront-mockup'
+export { SemiTrailerMockup, type SemiTrailerMockupProps } from './semi-trailer-mockup'
+export { WheatpasteWallMockup, type WheatpasteWallMockupProps } from './wheatpaste-wall-mockup'
+export { MailerBoxMockup, type MailerBoxMockupProps } from './mailer-box-mockup'
+export { ShoppingBagMockup, type ShoppingBagMockupProps } from './shopping-bag-mockup'
 
 // Composable pieces: bring your own scene, or drop a device into an existing one.
 export { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
@@ -50,6 +55,11 @@ export { VinylRecord, type VinylRecordProps } from './objects/vinyl-record/vinyl
 export { TVSet, type TVProps } from './objects/tv/tv'
 export { AFrameSign, type AFrameSignProps } from './objects/a-frame-sign/a-frame-sign'
 export { DOOHTotem, type DOOHTotemProps } from './objects/dooh-totem/dooh-totem'
+export { Storefront, type StorefrontProps } from './objects/storefront/storefront'
+export { SemiTrailer, type SemiTrailerProps } from './objects/semi-trailer/semi-trailer'
+export { WheatpasteWall, type WheatpasteWallProps } from './objects/wheatpaste-wall/wheatpaste-wall'
+export { MailerBox, type MailerBoxProps } from './objects/mailer-box/mailer-box'
+export { ShoppingBag, type ShoppingBagProps } from './objects/shopping-bag/shopping-bag'
 
 // Renderer-agnostic device data (shared with the planned 2D renderers).
 export {
@@ -101,3 +111,8 @@ export { VINYL_RECORD, VINYL_RECORD_ASPECT } from './objects/vinyl-record/dimens
 export { TV, TV_DISPLAY_ASPECT } from './objects/tv/dimensions'
 export { A_FRAME_SIGN, A_FRAME_SIGN_ASPECT } from './objects/a-frame-sign/dimensions'
 export { DOOH_TOTEM, DOOH_TOTEM_ASPECT } from './objects/dooh-totem/dimensions'
+export { STOREFRONT, STOREFRONT_SIGN_ASPECT } from './objects/storefront/dimensions'
+export { SEMI_TRAILER, SEMI_TRAILER_SIDE_ASPECT } from './objects/semi-trailer/dimensions'
+export { WHEATPASTE_WALL, WHEATPASTE_WALL_ASPECT } from './objects/wheatpaste-wall/dimensions'
+export { MAILER_BOX, MAILER_BOX_TOP_ASPECT } from './objects/mailer-box/dimensions'
+export { SHOPPING_BAG, SHOPPING_BAG_ASPECT } from './objects/shopping-bag/dimensions'

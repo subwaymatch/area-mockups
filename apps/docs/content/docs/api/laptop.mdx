@@ -8,6 +8,10 @@ unibody deck with the real 78-key Magic Keyboard layout (printed legends,
 rendered as a single instanced draw call), trackpad, hinge band, ports, and a
 notched display.
 
+The window on screen is real DOM — click it, drag the mockup.
+
+<ObjectDemo demo="laptop-basic" />
+
 ```tsx
 <LaptopMockup color="#aec6d9" deviceProps={{ rotation: [0, -0.35, 0] }}>
   <YourDesktopApp />
@@ -27,19 +31,7 @@ Beyond the [shared screen props](/docs/screen-content):
 
 There is no `orientation` prop; laptops only have one pose.
 
-## Examples
-
-### Sky Blue, live desktop
-
-The window on screen is real DOM — click it, drag the mockup.
-
-<ObjectDemo demo="laptop-basic" />
-
-```tsx
-<LaptopMockup color="#aec6d9" deviceProps={{ rotation: [0, -0.35, 0] }}>
-  <YourDesktopApp />
-</LaptopMockup>
-```
+## More examples
 
 ### Midnight, tighter lid angle
 

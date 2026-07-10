@@ -9,6 +9,8 @@ rear Thunderbolt and USB-C port row, captive power inlet, the L-shaped tilt
 stand, and (faithfully) no power button. The mockup grounds the stand on a
 virtual desk plane.
 
+<ObjectDemo demo="monitor-basic" />
+
 ```tsx
 <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
   <YourDesktopApp />
@@ -26,17 +28,7 @@ Beyond the [shared screen props](/docs/screen-content):
 
 There is no `orientation` prop; it lives on a desk.
 
-## Examples
-
-### The desk shot
-
-<ObjectDemo demo="monitor-basic" />
-
-```tsx
-<MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
-  <YourDesktopApp />
-</MonitorMockup>
-```
+## More examples
 
 ### Silver, slow orbit
 

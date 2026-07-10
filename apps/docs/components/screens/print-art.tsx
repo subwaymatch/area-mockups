@@ -826,3 +826,255 @@ export function VanLiveryArt() {
     </div>
   )
 }
+
+/** Storefront fascia sign — traditional gilded shop lettering. */
+export function StoreSignArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 34px',
+        background: 'linear-gradient(180deg, #223a2e 0%, #1a2d24 100%)',
+        color: '#e8c476',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 18,
+      }}
+    >
+      <div style={{ fontSize: 12, letterSpacing: 3, color: '#a8b8a0', whiteSpace: 'nowrap' }}>EST. 1987</div>
+      <div style={{ fontFamily: serif, fontSize: 34, letterSpacing: 6, whiteSpace: 'nowrap' }}>
+        PARCEL &amp; PINE
+      </div>
+      <div style={{ fontSize: 12, letterSpacing: 3, color: '#a8b8a0', whiteSpace: 'nowrap' }}>GENERAL GOODS</div>
+    </div>
+  )
+}
+
+/** Storefront window poster — seasonal sale card. */
+export function StorePosterArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 18,
+        background: '#f3ead9',
+        color: '#223a2e',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 9, letterSpacing: 3, marginTop: 6 }}>THIS WEEK ONLY</div>
+      <div style={{ fontFamily: serif, fontSize: 44, lineHeight: 1, marginTop: 'auto' }}>
+        Winter
+        <br />
+        Sale
+      </div>
+      <div style={{ fontSize: 26, fontWeight: 800, color: '#b0532f', margin: '10px 0 auto' }}>30% off</div>
+      <div style={{ fontSize: 9, letterSpacing: 2, marginBottom: 4 }}>EVERYTHING IN STORE</div>
+    </div>
+  )
+}
+
+/** Semi-trailer side wrap — coast-to-coast freight brand. */
+export function TrailerWrapArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: '#ffffff',
+        color: '#10263c',
+        display: 'flex',
+        alignItems: 'stretch',
+      }}
+    >
+      <div
+        style={{
+          width: '31%',
+          background: '#10263c',
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          paddingLeft: 36,
+          gap: 6,
+          clipPath: 'polygon(0 0, 100% 0, 88% 100%, 0 100%)',
+        }}
+      >
+        <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: 1, lineHeight: 1 }}>NORTHWIND</div>
+        <div style={{ fontSize: 15, letterSpacing: 6, color: '#7fc4e8' }}>FREIGHT CO.</div>
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 36, padding: '0 44px' }}>
+        <div style={{ flex: 1, display: 'grid', gap: 10 }}>
+          <svg viewBox="0 0 200 22" aria-hidden style={{ width: '100%' }}>
+            <path d="M4 16 C 50 2, 150 24, 196 8" fill="none" stroke="#7fc4e8" strokeWidth="2" strokeDasharray="5 4" />
+            <circle cx="4" cy="16" r="3" fill="#10263c" />
+            <circle cx="196" cy="8" r="3" fill="#b0532f" />
+          </svg>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>Coast to coast, carbon neutral.</div>
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#b0532f', whiteSpace: 'nowrap' }}>northwind.example</div>
+      </div>
+    </div>
+  )
+}
+
+/** Semi-trailer rear doors — brand mark between the lock rods. */
+export function TrailerRearArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 24,
+        background: '#ffffff',
+        color: '#10263c',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 10,
+      }}
+    >
+      <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>NORTHWIND</div>
+      <div style={{ fontSize: 11, letterSpacing: 5, color: '#4a7ea6' }}>FREIGHT CO.</div>
+      <div style={{ width: 46, height: 3, background: '#b0532f', margin: '6px 0' }} />
+      <div style={{ fontSize: 12, fontWeight: 700 }}>How&apos;s our driving?</div>
+      <div style={{ fontSize: 12, color: '#4a7ea6' }}>800-555-0177 · unit 4482</div>
+    </div>
+  )
+}
+
+/** Gig poster for the wheatpaste wall — loud typographic show bill. */
+export function GigPosterArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 20,
+        background: '#12100e',
+        color: '#f2e3c2',
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ fontSize: 10, letterSpacing: 4, color: '#d7823a' }}>ONE NIGHT ONLY</div>
+      <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 0.95, marginTop: 14, textTransform: 'uppercase' }}>
+        The
+        <br />
+        Paper
+        <br />
+        Tigers
+      </div>
+      <svg viewBox="0 0 80 26" aria-hidden style={{ width: '80%', margin: 'auto 0' }}>
+        <path d="M2 20 q 10 -18 20 0 t 20 0 t 20 0 t 16 0" fill="none" stroke="#d7823a" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      <div style={{ fontSize: 13, fontWeight: 700 }}>FRI OCT 24 · THE ECHO ROOM</div>
+      <div style={{ fontSize: 11, color: '#b7a98a', marginTop: 6 }}>doors 8pm · tickets at the door</div>
+    </div>
+  )
+}
+
+/** Mailer box lid — kraft-print seed club brand. */
+export function BoxLidArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 26,
+        background: '#a9805a',
+        color: '#2e2013',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 8,
+      }}
+    >
+      <svg viewBox="0 0 60 30" aria-hidden style={{ width: 90 }}>
+        <path d="M30 28 C 30 12, 18 8, 8 6 C 12 20, 20 26, 30 28 Z" fill="#2e2013" />
+        <path d="M30 28 C 30 14, 42 9, 52 8 C 48 20, 40 26, 30 28 Z" fill="none" stroke="#2e2013" strokeWidth="2" />
+      </svg>
+      <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: 3 }}>LOAM</div>
+      <div style={{ fontSize: 11, letterSpacing: 4 }}>SEED CLUB · NO. 08</div>
+      <div style={{ fontSize: 11, color: '#5b4630', marginTop: 8 }}>sow within 12 months · loam.example</div>
+    </div>
+  )
+}
+
+/** Mailer box front panel — wide brand strip. */
+export function BoxPanelArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 30px',
+        background: '#a9805a',
+        color: '#2e2013',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+      }}
+    >
+      <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: 3 }}>LOAM</div>
+      <div style={{ fontSize: 12, letterSpacing: 2, color: '#5b4630' }}>GROW SOMETHING GOOD</div>
+      <div style={{ fontSize: 12, fontWeight: 700 }}>loam.example</div>
+    </div>
+  )
+}
+
+/** Shopping bag face — boutique monogram. */
+export function BagArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 24,
+        background: 'linear-gradient(180deg, #f6f1e8 0%, #efe6d6 100%)',
+        color: '#3c3128',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 10, letterSpacing: 5, marginTop: 18 }}>ATELIER</div>
+      <div
+        style={{
+          fontFamily: serif,
+          fontSize: 84,
+          lineHeight: 1,
+          margin: 'auto 0',
+          borderTop: '2px solid #b0532f',
+          borderBottom: '2px solid #b0532f',
+          padding: '18px 26px',
+        }}
+      >
+        M
+      </div>
+      <div style={{ fontSize: 11, letterSpacing: 4, marginBottom: 14 }}>MARROW &amp; CO · SINCE 2009</div>
+    </div>
+  )
+}

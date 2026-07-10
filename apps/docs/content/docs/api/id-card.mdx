@@ -13,6 +13,14 @@ The printable face is live DOM on the front and, optionally, the back. Like
 a real badge, the design keeps clear of the punch strip: the live area is
 the card minus the top 14 mm, which stays bare stock around the slot.
 
+<ObjectDemo demo="idcard-basic" />
+
+```tsx
+<IDCardMockup float deviceProps={{ rotation: [0, -0.25, 0.04] }}>
+  <BadgeFront />
+</IDCardMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -25,17 +33,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
 | `resolution` | `number` | `420` | Virtual face width in CSS px (~300 dpi); height follows the printable area. |
 
-## Examples
-
-### A staff badge
-
-<ObjectDemo demo="idcard-basic" />
-
-```tsx
-<IDCardMockup float deviceProps={{ rotation: [0, -0.25, 0.04] }}>
-  <BadgeFront />
-</IDCardMockup>
-```
+## More examples
 
 ### Both sides, on a corporate lanyard
 

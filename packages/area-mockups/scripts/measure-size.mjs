@@ -29,6 +29,11 @@ const ENTRIES = {
   'TVSetMockup (65in TV)': "export { TVSetMockup } from './src/index'",
   'AFrameSignMockup (sandwich board)': "export { AFrameSignMockup } from './src/index'",
   'DOOHTotemMockup (digital totem)': "export { DOOHTotemMockup } from './src/index'",
+  'StorefrontMockup (shop facade)': "export { StorefrontMockup } from './src/index'",
+  'SemiTrailerMockup (53ft dry van)': "export { SemiTrailerMockup } from './src/index'",
+  'WheatpasteWallMockup (poster wall)': "export { WheatpasteWallMockup } from './src/index'",
+  'MailerBoxMockup (shipper box)': "export { MailerBoxMockup } from './src/index'",
+  'ShoppingBagMockup (kraft carrier)': "export { ShoppingBagMockup } from './src/index'",
   'everything (full library)': "export * from './src/index'",
 }
 

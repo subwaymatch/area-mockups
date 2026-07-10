@@ -9,6 +9,14 @@ jacket with live front (and optional back) cover art, and a glossy grooved
 annulus, spindle hole, and the 100 mm center label as a live **circular**
 DOM area.
 
+<ObjectDemo demo="vinyl-basic" />
+
+```tsx
+<VinylRecordMockup label={<Label />} deviceProps={{ rotation: [0, -0.2, 0] }}>
+  <CoverArt />
+</VinylRecordMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -22,17 +30,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind cover, back and label. |
 | `resolution` | `number` | `520` | Virtual cover width in CSS px; the label shares its dpi. |
 
-## Examples
-
-### The record-store shot
-
-<ObjectDemo demo="vinyl-basic" />
-
-```tsx
-<VinylRecordMockup label={<Label />} deviceProps={{ rotation: [0, -0.2, 0] }}>
-  <CoverArt />
-</VinylRecordMockup>
-```
+## More examples
 
 ### A colored pressing
 

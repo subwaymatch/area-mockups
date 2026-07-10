@@ -9,6 +9,16 @@ coated stock with crisp fold edges and the tuck-flap seam on top. Up to four
 panels are live DOM — front (`children`), `side`, `top` and `back` — so a
 standard 3/4 pose shows three printed faces at once, all sharing one dpi.
 
+Front, side and top, each its own live surface.
+
+<ObjectDemo demo="box-basic" />
+
+```tsx
+<ProductBoxMockup side={<SidePanel />} top={<TopPanel />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+  <FrontPanel />
+</ProductBoxMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -22,19 +32,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed panel. |
 | `resolution` | `number` | `480` | Virtual front-panel width in CSS px; other panels share its dpi. |
 
-## Examples
-
-### The three-quarter hero
-
-Front, side and top, each its own live surface.
-
-<ObjectDemo demo="box-basic" />
-
-```tsx
-<ProductBoxMockup side={<SidePanel />} top={<TopPanel />} deviceProps={{ rotation: [0, -0.5, 0] }}>
-  <FrontPanel />
-</ProductBoxMockup>
-```
+## More examples
 
 ### Kraft stock
 

@@ -1,0 +1,42 @@
+---
+title: Shopping bag
+description: A kraft carrier bag with live front and back faces.
+---
+
+`<ShoppingBag>` and `<ShoppingBagMockup>` render a standing retail carrier
+(320×420×140 mm): gusseted sides with a center crease, a fold-over cuff at
+the opening, a dark kraft interior visible through the mouth, and
+twisted-paper handles arcing over the top. The front and back faces below
+the cuff are live.
+
+<ObjectDemo demo="bag-basic" />
+
+```tsx
+<ShoppingBagMockup deviceProps={{ rotation: [0, 0.35, 0] }}>
+  <YourBagFace />
+</ShoppingBagMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back face design. |
+| `color` | `string` | `'#c19a6b'` | Bag stock. Kraft by default; try gloss white or a brand dip. |
+| `handleColor` | `string` | `'#7d6142'` | Rope handle color. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed face. |
+| `resolution` | `number` | `460` | Virtual front face width in CSS px; height follows the bag. |
+
+## More examples
+
+### Black boutique bag, both faces
+
+<ObjectDemo demo="bag-dark" />
+
+```tsx
+<ShoppingBagMockup autoRotate color="#1e2126" handleColor="#d8d4cc" back={<YourBagFace />}>
+  <YourBagFace />
+</ShoppingBagMockup>
+```

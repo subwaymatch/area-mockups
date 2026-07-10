@@ -1,0 +1,43 @@
+---
+title: Wheatpaste wall
+description: A city brick wall with up to three wheatpasted live posters.
+---
+
+`<WheatpasteWall>` and `<WheatpasteWallMockup>` render a street-culture
+staple: a brick wall with mortar courses, ghosts of older paste-ups and torn
+filler paper — and up to three one-sheet posters (1200×1700 mm) pasted flush
+against the brick, each slightly tilted and overlapping the way a paste crew
+actually lays them. A wet-paste gradient overlay ripples each poster.
+
+<ObjectDemo demo="wall-basic" />
+
+```tsx
+<WheatpasteWallMockup posters={[<PosterA />, <PosterB />, <PosterC />]} />
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `posters` | `[ReactNode?, ReactNode?, ReactNode?]` | - | Posters for the three slots; the middle one overlaps its neighbors. |
+| `color` | `string` | `'#96543f'` | Brick color. |
+| `mortarColor` | `string` | `'#9a9186'` | Mortar course color. |
+| `posterBackground` | `string` | `'#f4f1ea'` | CSS background behind each poster. |
+| `resolution` | `number` | `440` | Virtual poster width in CSS px; height follows the one-sheet. |
+
+`children` fills the first slot when you only need one poster — `posters`
+takes over when you want the full spread.
+
+## More examples
+
+### Painted brick, single paste-up
+
+<ObjectDemo demo="wall-single" />
+
+```tsx
+<WheatpasteWallMockup color="#4d5158" mortarColor="#3a3d42" deviceProps={{ rotation: [0, 0.25, 0] }}>
+  <YourPoster />
+</WheatpasteWallMockup>
+```

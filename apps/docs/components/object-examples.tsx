@@ -18,6 +18,7 @@ import {
   IPhoneMockup,
   LaptopMockup,
   MagazineMockup,
+  MailerBoxMockup,
   MockupCanvas,
   MonitorMockup,
   Phone,
@@ -27,21 +28,28 @@ import {
   ProductBoxMockup,
   RollupBanner,
   RollupBannerMockup,
+  SemiTrailerMockup,
+  ShoppingBagMockup,
+  StorefrontMockup,
   TabletMockup,
   TVSetMockup,
   VanMockup,
   VinylRecord,
   VinylRecordMockup,
   WatchMockup,
+  WheatpasteWallMockup,
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import {
   BadgeBackArt,
   BadgeFrontArt,
+  BagArt,
   BannerArt,
   BillboardAdArt,
   BookCoverArt,
   BoxFrontArt,
+  BoxLidArt,
+  BoxPanelArt,
   BoxSideArt,
   BoxTopArt,
   BrochureFrontArt,
@@ -52,10 +60,15 @@ import {
   ChalkMenuArt,
   CardFrontArt,
   DestinationArt,
+  GigPosterArt,
   GreetingCoverArt,
   GreetingInsideArt,
   MagazineCoverArt,
   PosterArt,
+  StorePosterArt,
+  StoreSignArt,
+  TrailerRearArt,
+  TrailerWrapArt,
   TVShowArt,
   VanLiveryArt,
   VanRearArt,
@@ -455,6 +468,82 @@ const DEMOS: Record<string, React.ReactNode> = {
     <DOOHTotemMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
       <BannerArt />
     </DOOHTotemMockup>
+  ),
+
+  // ---- Storefront ---------------------------------------------------------------------
+  'storefront-basic': (
+    <StorefrontMockup windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <StoreSignArt />
+    </StorefrontMockup>
+  ),
+  'storefront-paint': (
+    <StorefrontMockup color="#5c2330" wallColor="#6d6258" windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <StoreSignArt />
+    </StorefrontMockup>
+  ),
+
+  // ---- Semi trailer ---------------------------------------------------------------------
+  'trailer-basic': (
+    <SemiTrailerMockup deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <TrailerWrapArt />
+    </SemiTrailerMockup>
+  ),
+  'trailer-rear': (
+    <SemiTrailerMockup
+      autoRotate
+      autoRotateSpeed={1.2}
+      streetSide={<TrailerWrapArt />}
+      rear={<TrailerRearArt />}
+    >
+      <TrailerWrapArt />
+    </SemiTrailerMockup>
+  ),
+
+  // ---- Wheatpaste wall ------------------------------------------------------------------
+  'wall-basic': (
+    <WheatpasteWallMockup
+      posters={[<PosterArt key="a" />, <GigPosterArt key="b" />, <BannerArt key="c" />]}
+      deviceProps={{ rotation: [0, -0.2, 0] }}
+    />
+  ),
+  'wall-single': (
+    <WheatpasteWallMockup color="#4d5158" mortarColor="#3a3d42" deviceProps={{ rotation: [0, 0.25, 0] }}>
+      <GigPosterArt />
+    </WheatpasteWallMockup>
+  ),
+
+  // ---- Mailer box ---------------------------------------------------------------------
+  'mailer-basic': (
+    <MailerBoxMockup front={<BoxPanelArt />} deviceProps={{ rotation: [0, 0.5, 0] }}>
+      <BoxLidArt />
+    </MailerBoxMockup>
+  ),
+  'mailer-blank': (
+    <MailerBoxMockup
+      float
+      color="#e8e4dd"
+      tapeColor="rgba(210, 205, 196, 0.9)"
+      camera={{ position: [0, 3.2, 6.6], fov: 40 }}
+      deviceProps={{ rotation: [0, -0.4, 0] }}
+    />
+  ),
+
+  // ---- Shopping bag ---------------------------------------------------------------------
+  'bag-basic': (
+    <ShoppingBagMockup deviceProps={{ rotation: [0, 0.35, 0] }}>
+      <BagArt />
+    </ShoppingBagMockup>
+  ),
+  'bag-dark': (
+    <ShoppingBagMockup
+      autoRotate
+      autoRotateSpeed={1.4}
+      color="#1e2126"
+      handleColor="#d8d4cc"
+      back={<BagArt />}
+    >
+      <BagArt />
+    </ShoppingBagMockup>
   ),
 
   // ---- Watch ------------------------------------------------------------------

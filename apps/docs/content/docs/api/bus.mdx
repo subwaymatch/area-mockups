@@ -15,6 +15,17 @@ louvers. Two live surfaces:
 - optionally the **LED destination sign** above the windshield via
   `destinationSign`.
 
+The destination sign is live DOM, so a CSS keyframe animation gives you a
+real scrolling marquee behind a dot-matrix mask.
+
+<ObjectDemo demo="bus-basic" />
+
+```tsx
+<BusMockup destinationSign={<Route42Marquee />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+  <YourCreative />
+</BusMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -28,20 +39,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `adBackground` | `string` | `'#ffffff'` | CSS background behind your ad content. |
 | `resolution` | `number` | `960` | Virtual king-size width in CSS px; the tail ad shares its dpi. |
 
-## Examples
-
-### King-size ad + scrolling LED marquee
-
-The destination sign is live DOM, so a CSS keyframe animation gives you a
-real scrolling marquee behind a dot-matrix mask.
-
-<ObjectDemo demo="bus-basic" />
-
-```tsx
-<BusMockup destinationSign={<Route42Marquee />} deviceProps={{ rotation: [0, 0.35, 0] }}>
-  <YourCreative />
-</BusMockup>
-```
+## More examples
 
 ### Rear three-quarter with the tail ad
 

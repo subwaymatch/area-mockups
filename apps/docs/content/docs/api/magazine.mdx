@@ -9,6 +9,16 @@ the three open sides, the glossy cover stock wrapping the bound spine, a
 glossier back cover, and the whole front cover as a live 480×620 DOM surface
 with a soft cover-gloss sheen.
 
+Real editorial CSS lays out exactly as it would in a browser at 480×620.
+
+<ObjectDemo demo="magazine-basic" />
+
+```tsx
+<MagazineMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+  <YourCoverArt />
+</MagazineMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -21,19 +31,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `coverBackground` | `string` | `'#ffffff'` | CSS background behind your cover content. |
 | `resolution` | `number` | `480` | Virtual cover width in CSS px; height follows the trim aspect. |
 
-## Examples
-
-### A cover design
-
-Real editorial CSS lays out exactly as it would in a browser at 480×620.
-
-<ObjectDemo demo="magazine-basic" />
-
-```tsx
-<MagazineMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
-  <YourCoverArt />
-</MagazineMockup>
-```
+## More examples
 
 ### Matching the stock to the issue
 

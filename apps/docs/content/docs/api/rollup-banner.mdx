@@ -10,6 +10,14 @@ slim top clamp rail, with the support pole hidden behind. The graphic is a
 live 420×988 DOM surface. The mockup grounds the cassette on a virtual
 floor.
 
+<ObjectDemo demo="banner-basic" />
+
+```tsx
+<RollupBannerMockup deviceProps={{ rotation: [0, 0.18, 0] }}>
+  <YourBannerArt />
+</RollupBannerMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -20,17 +28,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `graphicBackground` | `string` | `'#ffffff'` | CSS background behind your graphic content. |
 | `resolution` | `number` | `420` | Virtual graphic width in CSS px; height follows the 850×2000 sheet. |
 
-## Examples
-
-### A booth banner
-
-<ObjectDemo demo="banner-basic" />
-
-```tsx
-<RollupBannerMockup deviceProps={{ rotation: [0, 0.18, 0] }}>
-  <YourBannerArt />
-</RollupBannerMockup>
-```
+## More examples
 
 ### A pair flanking a booth
 

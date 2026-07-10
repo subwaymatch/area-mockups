@@ -8,6 +8,14 @@ business card on premium 32 pt stock: square die-cut corners (the standard
 for thick stock), an optional painted edge, and a live 520×298 DOM surface
 on the front — and, optionally, the back.
 
+<ObjectDemo demo="card-basic" />
+
+```tsx
+<BusinessCardMockup float deviceProps={{ rotation: [-0.1, -0.35, 0] }}>
+  <CardFront />
+</BusinessCardMockup>
+```
+
 ## Props
 
 Beyond the [shared screen props](/docs/screen-content):
@@ -20,17 +28,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
 | `resolution` | `number` | `520` | Virtual face width in CSS px (~150 dpi); height follows the card aspect. |
 
-## Examples
-
-### The front
-
-<ObjectDemo demo="card-basic" />
-
-```tsx
-<BusinessCardMockup float deviceProps={{ rotation: [-0.1, -0.35, 0] }}>
-  <CardFront />
-</BusinessCardMockup>
-```
+## More examples
 
 ### Front and back
 
