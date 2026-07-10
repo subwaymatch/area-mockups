@@ -1,0 +1,24 @@
+---
+title: Next.js and SSR
+description: Load mockups client side, since WebGL only exists in the browser.
+---
+
+The components ship with a `'use client'` banner, but WebGL itself only exists
+in the browser. In the App Router, load your mockup with `ssr: false` from
+inside a client component:
+
+```tsx title="hero-client.tsx"
+'use client'
+
+import dynamic from 'next/dynamic'
+
+// WebGL only exists in the browser: load the scene client side only.
+const Mockup = dynamic(() => import('./mockup'), { ssr: false })
+
+export function Hero() {
+  return <Mockup />
+}
+```
+
+Reserve the layout space (a fixed height on the wrapper) so the page does not
+shift when the canvas mounts.

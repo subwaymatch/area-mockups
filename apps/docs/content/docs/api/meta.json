@@ -1,0 +1,13 @@
+{
+  "title": "API reference",
+  "pages": [
+    "index",
+    "mockup-canvas",
+    "phone",
+    "iphone",
+    "laptop",
+    "tablet",
+    "watch",
+    "monitor"
+  ]
+}

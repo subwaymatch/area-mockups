@@ -1,16 +1,20 @@
 import * as React from 'react'
-import { Float } from '@react-three/drei'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Phone, type PhoneProps } from './devices/phone/phone'
+import { GALAXY_VARIANTS } from './devices/phone/dimensions'
+import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
   PhoneProps,
+  | 'variant'
+  | 'orientation'
   | 'color'
   | 'frameColor'
   | 'screenBackground'
   | 'resolution'
   | 'punchHole'
   | 'interactive'
+  | 'dragToRotate'
   | 'occlude'
   | 'screenStyle'
 >
@@ -37,12 +41,15 @@ export interface PhoneMockupProps
  */
 export function PhoneMockup({
   children,
+  variant = 's25',
+  orientation = 'portrait',
   color,
   frameColor,
   screenBackground,
   resolution,
   punchHole,
   interactive,
+  dragToRotate,
   occlude,
   screenStyle,
   float = false,
@@ -51,12 +58,15 @@ export function PhoneMockup({
 }: PhoneMockupProps) {
   const device = (
     <Phone
+      variant={variant}
+      orientation={orientation}
       color={color}
       frameColor={frameColor}
       screenBackground={screenBackground}
       resolution={resolution}
       punchHole={punchHole}
       interactive={interactive}
+      dragToRotate={dragToRotate}
       occlude={occlude}
       screenStyle={screenStyle}
       {...deviceProps}
@@ -65,15 +75,15 @@ export function PhoneMockup({
     </Phone>
   )
 
+  // Grounded by default: the shadow plane kisses the bottom edge of the body
+  // (its width when lying in landscape). Floating keeps a visible hover gap.
+  const body = GALAXY_VARIANTS[variant].body
+  const extent = orientation === 'landscape' ? body.width : body.height
+  const shadowY = canvasProps.shadowY ?? (float ? -(extent / 2 + 0.3) : -(extent / 2 + 0.05))
+
   return (
-    <MockupCanvas {...canvasProps}>
-      {float ? (
-        <Float speed={1.6} rotationIntensity={0.2} floatIntensity={0.5}>
-          {device}
-        </Float>
-      ) : (
-        device
-      )}
+    <MockupCanvas {...canvasProps} shadowY={shadowY}>
+      {float ? <FloatGroup>{device}</FloatGroup> : device}
     </MockupCanvas>
   )
 }

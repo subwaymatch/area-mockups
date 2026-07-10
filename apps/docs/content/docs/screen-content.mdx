@@ -1,0 +1,55 @@
+---
+title: Screen content
+description: Put components, whole pages, or video on the glass, and control how the screen behaves.
+---
+
+Anything the browser can render can live on a device screen. The screen is a
+real DOM layer composited in 3D by CSS transforms, not a texture, so text stays
+vector crisp at every angle and your content stays fully interactive.
+
+```tsx
+// React components: state, effects, and events all keep working
+<PhoneMockup>
+  <SignupForm />
+</PhoneMockup>
+
+// A whole page via iframe
+<PhoneMockup>
+  <iframe src="https://example.com" style={{ width: '100%', height: '100%', border: 0 }} />
+</PhoneMockup>
+
+// Video, images, anything the browser can render
+<PhoneMockup>
+  <video src="/demo.mp4" autoPlay muted loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+</PhoneMockup>
+```
+
+## The virtual display
+
+Your content renders into a viewport that defaults to the device's logical
+resolution, for example 360×780 CSS px on the Galaxy S25 and 1032×1376 on the
+13" iPad Pro. Media queries, breakpoints, and `vh`/`vw` units inside the screen
+behave exactly like on the real device. Pass `resolution` (the CSS pixel width
+of the display) to override it; height always follows the panel's aspect ratio,
+so the graphic stays true to the panel.
+
+The full table of defaults per device is in
+[Devices and resolutions](/docs/devices).
+
+## Interaction props
+
+Every device accepts the same screen behavior props:
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `interactive` | `boolean` | `true` | Let pointer events (clicks, scrolling, typing) reach the screen content. |
+| `dragToRotate` | `boolean` | `true` | Drags that start on the screen spin the device after about 10 px of travel; taps still click. Disable when your content needs its own drag gestures (sliders, drawing, horizontal swipes). |
+| `occlude` | `boolean \| 'blending'` | `true` | Hide content when the device faces away. `true` raycasts against the body and keeps content clickable; `'blending'` is per-pixel but disables screen interactivity. |
+| `screenBackground` | `string` | `'#000000'` | CSS background painted behind your content. |
+| `screenStyle` | `CSSProperties` | - | Extra styles merged onto the screen wrapper (for example a custom `fontFamily`). |
+
+## Touch behavior
+
+On touch devices the mockup never traps page scrolling: vertical swipes over
+the canvas or the screen scroll the page natively, horizontal drags rotate the
+device, and taps click your content.

@@ -1,0 +1,33 @@
+---
+title: Phone (Galaxy S25 family)
+description: The Galaxy S25 family device and its all-in-one mockup.
+---
+
+`<Phone>` renders a Galaxy S25 family device; `<PhoneMockup>` is the
+all-in-one version. All four variants keep true relative sizes and per-model
+camera architecture.
+
+```tsx
+<PhoneMockup variant="s25ultra" orientation="landscape" color="#1a1c20">
+  <YourApp />
+</PhoneMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content) and, on the mockup, the
+[shared mockup props](/docs/api):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'s25' \| 's25plus' \| 's25ultra' \| 's25edge'` | `'s25'` | Which Galaxy S25 family device: true relative sizes, per-model cameras (Ultra five-element array, Edge pill island), and logical resolutions. |
+| `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display (for example 780×360 on the S25) with upright content. |
+| `color` | `string` | `'#101216'` | Back panel colorway. |
+| `frameColor` | `string` | `'#4a4f59'` | Metal frame, buttons, and camera rings. |
+| `punchHole` | `boolean` | `true` | Front camera punch hole overlay. |
+| `resolution` | `number` | per variant | CSS pixel width of the virtual display; height follows the panel aspect (360 gives 360×780 on the S25). |
+
+## Colorways
+
+Try Icy Blue `#c9d6e8`, Navy `#2c3344`, Mint `#c8e6d2`, or Marble Gray
+`#d3d6dd` with `frameColor="#b6bac4"`.

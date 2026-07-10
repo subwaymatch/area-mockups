@@ -1,0 +1,53 @@
+---
+title: Composing scenes
+description: Use the ready-made stage with your own arrangement, or drop devices into an existing canvas.
+---
+
+Each `*Mockup` component is a convenience wrapper around two composable parts:
+`MockupCanvas` (the stage: canvas, lighting, shadows, controls) and a device
+model such as `Phone`. Compose them yourself when you want more control.
+
+```tsx title="scenes.tsx"
+'use client'
+
+import { Canvas } from '@react-three/fiber'
+import { Float } from '@react-three/drei'
+import { MockupCanvas, Phone } from 'area-mockups'
+
+// Option A: the ready-made stage with your own scene arrangement
+export function Stage() {
+  return (
+    <MockupCanvas autoRotate background="#0b0d12">
+      <Float>
+        <Phone color="#d3d6dd" frameColor="#b6bac4" rotation={[0, -0.4, 0]}>
+          <YourApp />
+        </Phone>
+      </Float>
+    </MockupCanvas>
+  )
+}
+
+// Option B: drop the device into a Canvas you already have
+export function CustomScene() {
+  return (
+    <Canvas camera={{ position: [0, 0.5, 7.4], fov: 40 }}>
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[4, 8, 6]} intensity={1.4} />
+      <Phone>
+        <YourApp />
+      </Phone>
+    </Canvas>
+  )
+}
+```
+
+Devices accept all react-three-fiber group props (`position`, `rotation`,
+`scale`), so you can pose several of them in one scene, animate them, or mix
+them with your own meshes.
+
+## Transparent background
+
+The WebGL canvas is transparent by default (alpha context, no scene
+background), so whatever your page renders behind the mockup shows through.
+Set the `background` prop on `MockupCanvas` (any CSS color, gradient, or image
+value) when you want the canvas to paint its own backdrop.

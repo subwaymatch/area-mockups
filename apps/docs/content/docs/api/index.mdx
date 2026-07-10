@@ -1,0 +1,34 @@
+---
+title: Components overview
+description: How the pieces fit together, and the props every mockup shares.
+---
+
+The library has two layers:
+
+1. **All-in-one mockups**: `PhoneMockup`, `IPhoneMockup`, `LaptopMockup`,
+   `TabletMockup`, `WatchMockup`, and `MonitorMockup`. Each one bundles the
+   stage and a device, ready to drop into a page.
+2. **Composable parts**: [`MockupCanvas`](/docs/api/mockup-canvas) (the stage)
+   plus the bare devices (`Phone`, `IPhone`, `Laptop`, `Tablet`, `Watch`,
+   `Monitor`) for your own react-three-fiber scenes. See
+   [Composing scenes](/docs/composing).
+
+## Shared mockup props
+
+Every `*Mockup` component accepts all [`MockupCanvas`](/docs/api/mockup-canvas)
+props, all of its device's appearance props, and:
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | - | Screen content: any React node, iframe, or video. |
+| `float` | `boolean` | `false` | Gentle floating idle animation for the device. |
+| `deviceProps` | device props | - | Extra props forwarded to the device group: `position`, `rotation`, `scale`, and so on. |
+
+## Shared screen props
+
+Every device (and therefore every mockup) accepts the screen behavior props
+documented in [Screen content](/docs/screen-content): `interactive`,
+`dragToRotate`, `occlude`, `screenBackground`, `screenStyle`, and `resolution`.
+
+Devices also accept all react-three-fiber group props (`position`, `rotation`,
+`scale`) when rendered inside a canvas.

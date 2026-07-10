@@ -1,41 +1,57 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+import { inter, jetbrainsMono } from '@/lib/fonts'
+import '../globals.css'
 
+export const metadata: Metadata = {
+  title: 'area-mockups: interactive 3D device mockups for React',
+  description:
+    'GPU-accelerated 3D device mockups for React, built on three.js. Drop any content onto the screen of a 3D device and it stays fully live and interactive.',
+}
+
+// Root layout for the marketing site (home, demos). The docs and embedded
+// routes have their own root layouts, so the site styles never mix with the
+// Fumadocs/Tailwind styles and vice versa.
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="site">
-      <header className="site-header">
-        <div className="container header-inner">
-          <Link href="/" className="brand">
-            <span className="brand-dot" aria-hidden />
-            area-mockups
-          </Link>
-          <nav className="site-nav">
-            <Link href="/docs">Docs</Link>
-            <Link href="/demos">Demos</Link>
-            <a
-              href="https://github.com/subwaymatch/area-mockups"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub
-            </a>
-          </nav>
-        </div>
-      </header>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body>
+        <div className="site">
+          <header className="site-header">
+            <div className="container header-inner">
+              <Link href="/" className="brand">
+                <span className="brand-dot" aria-hidden />
+                area-mockups
+              </Link>
+              <nav className="site-nav">
+                <Link href="/docs">Docs</Link>
+                <Link href="/demos">Demos</Link>
+                <a
+                  href="https://github.com/subwaymatch/area-mockups"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
+              </nav>
+            </div>
+          </header>
 
-      <main>{children}</main>
+          <main>{children}</main>
 
-      <footer className="site-footer">
-        <div className="container footer-inner">
-          <span>
-            MIT © {new Date().getFullYear()} subwaymatch · built with three.js &
-            react-three-fiber
-          </span>
-          <a href="https://github.com/subwaymatch/area-mockups" target="_blank" rel="noreferrer">
-            github.com/subwaymatch/area-mockups
-          </a>
+          <footer className="site-footer">
+            <div className="container footer-inner">
+              <span>
+                MIT © {new Date().getFullYear()} subwaymatch · built with three.js &
+                react-three-fiber
+              </span>
+              <a href="https://github.com/subwaymatch/area-mockups" target="_blank" rel="noreferrer">
+                github.com/subwaymatch/area-mockups
+              </a>
+            </div>
+          </footer>
         </div>
-      </footer>
-    </div>
+      </body>
+    </html>
   )
 }

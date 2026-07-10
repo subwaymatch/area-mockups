@@ -1,0 +1,25 @@
+---
+title: MockupCanvas
+description: The ready-made stage, with a WebGL canvas, studio lighting, soft shadows, and orbit controls.
+---
+
+`<MockupCanvas>` wraps a react-three-fiber `Canvas` with everything a product
+shot needs. Compose it with any device, for example
+`<MockupCanvas><Phone>...</Phone></MockupCanvas>`.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | - | Your scene, typically a device such as `Phone`. |
+| `controls` | `boolean` | `true` | Drag-to-orbit controls (pan is always disabled). |
+| `autoRotate` | `boolean` | `false` | Slowly orbit the camera around the device. |
+| `autoRotateSpeed` | `number` | `1` | Orbit speed when `autoRotate` is on. |
+| `zoom` | `boolean` | `false` | Scroll and pinch zoom. Off by default so embedded mockups never hijack page scroll. |
+| `shadows` | `boolean` | `true` | Soft contact shadow under the device. |
+| `shadowY` | `number` | `-2.05` | Y position (world units) of the shadow plane. Grounds the device on its shadow. The mockup wrappers compute this per device. |
+| `environment` | `boolean` | `true` | Procedural studio lighting and reflections, generated on the GPU with no HDR downloads. |
+| `background` | `string` | - | CSS background of the canvas (color, gradient, or image). Transparent when unset. |
+| `camera` | r3f camera | `[0, 0.5, 7.4]`, fov 40 | Override the default camera. |
+| `dpr` | `number \| [min, max]` | `[1, 2]` | Device pixel ratio clamp. Keeps hi-dpi GPU load predictable. |
+| `className`, `style` | - | - | Forwarded to the canvas wrapper. |

@@ -1,0 +1,27 @@
+---
+title: Watch (Apple Watch)
+description: An Apple Watch Series 11 with a squircle case, Digital Crown, and Sport Band.
+---
+
+`<Watch>` and `<WatchMockup>` render an Apple Watch Series 11 (46 mm) style
+watch: squircle case, knurled Digital Crown, side button, sensor dome, and
+Sport Band straps. The face is a live 208×248 screen, so complications really
+tap.
+
+```tsx
+<WatchMockup float color="#1c1d21" bandColor="#33415c">
+  <YourWatchFace />
+</WatchMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#1c1d21'` | Case colorway. |
+| `bandColor` | `string` | `'#2a2c31'` | Sport Band straps. |
+| `resolution` | `number` | `208` | Virtual display width; 208 gives a 208×248 face, the 46 mm point grid. |
+
+There is no `orientation` prop.
