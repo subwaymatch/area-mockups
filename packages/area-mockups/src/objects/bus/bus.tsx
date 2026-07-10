@@ -131,6 +131,9 @@ export function Bus({
   const bandCenterX = (windowBand.frontX + windowBand.backX) / 2
   const bandLength = windowBand.frontX - windowBand.backX
   const doorTopY = windowBand.y + windowBand.height / 2
+  // drive-axle dual pair: outer tire face lines up with the single fronts
+  const dualOuterZ = body.width / 2 - 0.02 - wheels.dualWidth / 2
+  const dualInnerZ = dualOuterZ - wheels.dualWidth - wheels.dualGap
 
   return (
     <group {...groupProps}>
@@ -189,16 +192,23 @@ export function Bus({
         </RoundedBox>
       ))}
 
-      {/* curb-side doors: full-glass slabs breaking below the belt line */}
+      {/* curb-side doors: two-leaf full-glass slabs dropping to the low-floor
+          entry, with a center mullion slightly proud of the glass marking the
+          leaf split */}
       {doors.map(({ x, width, bottomY }) => (
-        <RoundedBox
-          key={x}
-          args={[width, doorTopY - bottomY, 0.1]}
-          radius={0.03}
-          position={[x, (doorTopY + bottomY) / 2, body.width / 2 - 0.02]}
-        >
-          {glassMaterial}
-        </RoundedBox>
+        <group key={x}>
+          <RoundedBox
+            args={[width, doorTopY - bottomY, 0.1]}
+            radius={0.03}
+            position={[x, (doorTopY + bottomY) / 2, body.width / 2 - 0.02]}
+          >
+            {glassMaterial}
+          </RoundedBox>
+          <mesh position={[x, (doorTopY + bottomY) / 2, body.width / 2 + 0.036]}>
+            <boxGeometry args={[0.013, doorTopY - bottomY - 0.04, 0.015]} />
+            {trimMaterial}
+          </mesh>
+        </group>
       ))}
 
       {/* roof HVAC pod over the rear half */}
@@ -230,25 +240,42 @@ export function Bus({
         <meshPhysicalMaterial color="#0d0e11" metalness={0.1} roughness={0.95} />
       </mesh>
 
-      {/* wheels: tire, rim, hub — four corners */}
-      {([wheels.frontX, wheels.rearX] as const).map((x) =>
-        [1, -1].map((side) => (
-          <group key={`${x}${side}`} position={[x, wheels.centerY, side * (body.width / 2 - 0.12)]}>
-            <mesh rotation-x={Math.PI / 2}>
-              <cylinderGeometry args={[wheels.radius, wheels.radius, wheels.width, 28]} />
+      {/* wheels: single steer tires up front — tire, rim, hub */}
+      {[1, -1].map((side) => (
+        <group key={side} position={[wheels.frontX, wheels.centerY, side * (body.width / 2 - 0.12)]}>
+          <mesh rotation-x={Math.PI / 2}>
+            <cylinderGeometry args={[wheels.radius, wheels.radius, wheels.width, 28]} />
+            <meshPhysicalMaterial color="#15161a" metalness={0} roughness={0.95} />
+          </mesh>
+          <mesh rotation-x={Math.PI / 2}>
+            <cylinderGeometry args={[0.15, 0.15, wheels.width + 0.006, 24]} />
+            <meshPhysicalMaterial color="#c6cad1" metalness={0.85} roughness={0.35} />
+          </mesh>
+          <mesh rotation-x={Math.PI / 2}>
+            <cylinderGeometry args={[0.05, 0.05, wheels.width + 0.012, 16]} />
+            <meshPhysicalMaterial color="#3c4046" metalness={0.7} roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
+      {/* drive axle runs dual tires per side; rim and hub only on the outer */}
+      {[1, -1].map((side) => (
+        <group key={side} position={[wheels.rearX, wheels.centerY, 0]}>
+          {[dualOuterZ, dualInnerZ].map((z) => (
+            <mesh key={z} rotation-x={Math.PI / 2} position={[0, 0, side * z]}>
+              <cylinderGeometry args={[wheels.radius, wheels.radius, wheels.dualWidth, 28]} />
               <meshPhysicalMaterial color="#15161a" metalness={0} roughness={0.95} />
             </mesh>
-            <mesh rotation-x={Math.PI / 2}>
-              <cylinderGeometry args={[0.15, 0.15, wheels.width + 0.006, 24]} />
-              <meshPhysicalMaterial color="#c6cad1" metalness={0.85} roughness={0.35} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2}>
-              <cylinderGeometry args={[0.05, 0.05, wheels.width + 0.012, 16]} />
-              <meshPhysicalMaterial color="#3c4046" metalness={0.7} roughness={0.4} />
-            </mesh>
-          </group>
-        ))
-      )}
+          ))}
+          <mesh rotation-x={Math.PI / 2} position={[0, 0, side * dualOuterZ]}>
+            <cylinderGeometry args={[0.15, 0.15, wheels.dualWidth + 0.006, 24]} />
+            <meshPhysicalMaterial color="#c6cad1" metalness={0.85} roughness={0.35} />
+          </mesh>
+          <mesh rotation-x={Math.PI / 2} position={[0, 0, side * dualOuterZ]}>
+            <cylinderGeometry args={[0.05, 0.05, wheels.dualWidth + 0.012, 16]} />
+            <meshPhysicalMaterial color="#3c4046" metalness={0.7} roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
 
       {/* bumpers */}
       <RoundedBox args={[0.1, 0.27, body.width + 0.02]} radius={0.04} position={[3.2, -0.4, 0]}>
@@ -320,17 +347,45 @@ export function Bus({
         ))
       )}
 
-      {/* door mirrors on forward arms */}
+      {/* door mirrors on swan-neck arms: the heads hang ~450 mm forward of
+          the windshield at its mid-height, transit style — root stub off the
+          A-pillar, forward run, then the drop to the head */}
       {[1, -1].map((side) => (
         <group key={side}>
-          <mesh position={[3.12, 0.5, side * (body.width / 2 + 0.1)]} rotation-y={side * 0.3}>
-            <boxGeometry args={[0.22, 0.03, 0.04]} />
+          <mesh position={[3.15, 0.34, side * (body.width / 2 + 0.06)]}>
+            <boxGeometry args={[0.035, 0.03, 0.16]} />
             {trimMaterial}
           </mesh>
-          <RoundedBox args={[0.06, 0.28, 0.12]} radius={0.02} position={[3.2, 0.36, side * (body.width / 2 + 0.16)]}>
+          <mesh position={[3.29, 0.34, side * (body.width / 2 + 0.12)]}>
+            <boxGeometry args={[0.32, 0.028, 0.028]} />
+            {trimMaterial}
+          </mesh>
+          <mesh position={[3.44, 0.22, side * (body.width / 2 + 0.12)]}>
+            <boxGeometry args={[0.028, 0.26, 0.028]} />
+            {trimMaterial}
+          </mesh>
+          <RoundedBox
+            args={[0.06, 0.3, 0.13]}
+            radius={0.02}
+            position={[3.44, 0.05, side * (body.width / 2 + 0.12)]}
+            rotation-y={side * 0.15}
+          >
             {trimMaterial}
           </RoundedBox>
         </group>
+      ))}
+
+      {/* five amber marker lights across the front roof dome */}
+      {[-0.44, -0.22, 0, 0.22, 0.44].map((z) => (
+        <RoundedBox key={z} args={[0.05, 0.03, 0.09]} radius={0.012} position={[2.99, 0.81, z]} rotation-z={-0.49}>
+          <meshPhysicalMaterial
+            color="#f2a33c"
+            emissive="#ffb340"
+            emissiveIntensity={0.4}
+            roughness={0.25}
+            clearcoat={1}
+          />
+        </RoundedBox>
       ))}
 
       {/* the live ads: king-size panels on both sides, tail ad on the rear */}

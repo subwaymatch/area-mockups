@@ -16,16 +16,20 @@
 export const TV_MM = 1 / 258
 
 export const TV = {
-  /** Enclosure (glass face). `radius` is the corner radius, `bevel` the edge rounding. */
-  body: { width: 5.671, height: 3.279, depth: 0.11, radius: 0.03, bevel: 0.012 },
+  /**
+   * Enclosure (glass face). `radius` is the corner radius, `bevel` the edge
+   * rounding. The body is taller than the display band by a ~14 mm bottom
+   * chin (vs ~8 mm sides), so it sits `centerY` below the panel center.
+   */
+  body: { width: 5.671, height: 3.302, depth: 0.11, radius: 0.03, bevel: 0.012, centerY: -0.0115 },
   /** Active display area. Content you pass as children maps onto this rect. */
-  display: { width: 5.612, height: 3.217, radius: 0.015 },
-  /** Shallow electronics bulge low on the back. */
-  backBulge: { width: 3.4, height: 1.9, depth: 0.14 },
+  display: { width: 5.612, height: 3.217, radius: 0.008 },
+  /** Wide, shallow electronics bulge low on the back. */
+  backBulge: { width: 5.2, height: 1.9, depth: 0.14 },
   /** Two splayed blade feet near the ends. */
   feet: { offsetX: 2.2, length: 1.05, height: 0.28, thickness: 0.055 },
   /** Distance from panel center down to the media-stand plane. */
-  standHeight: 3.279 / 2 + 0.28,
+  standHeight: 3.302 / 2 + 0.0115 + 0.28,
   /** Default CSS px width of the virtual display (the 1920x1080 logical grid). */
   resolution: 1920,
 } as const

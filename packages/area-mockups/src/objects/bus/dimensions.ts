@@ -26,13 +26,19 @@ export const BUS = {
   groundY: -0.842,
   /** Y of the body's lower skirt edge (~330 mm low-floor ground clearance). */
   skirtY: -0.676,
-  /** Wheels: front axle 2.7 m from the nose, 6 m wheelbase, ~1 m tires. */
+  /**
+   * Wheels: front axle 2.7 m from the nose, 6 m wheelbase, ~1 m tires.
+   * The front axle runs single tires; the drive axle runs duals —
+   * `dualWidth` is each tire of the pair, `dualGap` the space between them.
+   */
   wheels: {
     frontX: 1.779,
     rearX: -1.379,
     radius: 0.263,
     archRadius: 0.305,
     width: 0.2,
+    dualWidth: 0.158,
+    dualGap: 0.021,
     centerY: -0.587,
   },
   /**
@@ -53,10 +59,13 @@ export const BUS = {
   },
   /** Passenger window band (both sides) — nearly half the body height. */
   windowBand: { y: 0.079, height: 0.66, frontX: 2.35, backX: -3.02 },
-  /** Curb-side doors: full-glass slabs breaking below the belt line. */
+  /**
+   * Curb-side doors: two-leaf full-glass slabs whose glass drops to ~350 mm
+   * above the ground — the low-floor entry these buses are known for.
+   */
   doors: [
-    { x: 2.724, width: 0.6, bottomY: -0.5 },
-    { x: -0.158, width: 0.63, bottomY: -0.28 },
+    { x: 2.724, width: 0.6, bottomY: -0.66 },
+    { x: -0.158, width: 0.63, bottomY: -0.66 },
   ],
   /** Roof HVAC pod over the rear half. */
   hvac: { length: 1.579, height: 0.184, width: 1.079, x: -0.632 },

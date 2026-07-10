@@ -23,10 +23,13 @@ export const SEMI_TRAILER = {
   body: { length: 6.5, height: 1.167, width: 1.046, radius: 0.02 },
   /** Y of the road relative to the origin (box center). */
   groundY: -1.066,
-  /** Tandem axles at the rear. */
-  wheels: { axles: [-2.03, -2.53] as const, radius: 0.203, width: 0.36, centerY: -0.863 },
-  /** Landing gear legs behind the kingpin. */
-  landingGear: { x: 2.25, spread: 0.33 },
+  /**
+   * Tandem axles at the rear, dual tires per side — `width` is each tire of
+   * the pair, `dualGap` the space between them.
+   */
+  wheels: { axles: [-2.03, -2.53] as const, radius: 0.203, width: 0.121, dualGap: 0.026, centerY: -0.863 },
+  /** Landing gear legs, well behind the kingpin. */
+  landingGear: { x: 1.75, spread: 0.33 },
   /** Live wrap panels on both smooth sides. */
   side: { width: 6.1, height: 1.05, radius: 0.012 },
   /** Live panel on the rear doors, inside the door frame and lock rods. */

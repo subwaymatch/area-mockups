@@ -181,6 +181,21 @@ export function Van({
         </mesh>
       ))}
 
+      {/* cab door handles, ~1 m above the ground on both sides */}
+      {[1, -1].map((side) => (
+        <RoundedBox key={side} args={[0.162, 0.029, 0.022]} radius={0.01} position={[1.2, -0.26, side * 0.982]}>
+          {trimMaterial}
+        </RoundedBox>
+      ))}
+
+      {/* curb-side sliding-door track groove, from behind the door to the
+          rear quarter — held above the wrap panel's top edge (y 1.10) so it
+          never cuts through the live DeviceScreen */}
+      <mesh position={[-0.8, 1.14, body.width / 2 + 0.005]}>
+        <boxGeometry args={[3.4, 0.038, 0.012]} />
+        <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
+      </mesh>
+
       {/* running gear: dark wheel-well liners fill the arch openings, axles
           tie each wheel pair together, and an underbody pan closes the gap
           between the rockers — so the wheels read as attached, not floating */}
@@ -278,14 +293,42 @@ export function Van({
         </group>
       ))}
 
-      {/* door mirrors on long arms, standing well outboard */}
+      {/* rear barn-door center seam — segments only above and below the rear
+          wrap DeviceScreen rect (y -0.67..0.95), which covers the middle */}
+      {(
+        [
+          { y: -0.77, height: 0.18 },
+          { y: 0.99, height: 0.08 },
+        ] as const
+      ).map(({ y, height }) => (
+        <mesh key={y} position={[-2.822, y, 0]}>
+          <boxGeometry args={[0.01, height, 0.014]} />
+          <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
+        </mesh>
+      ))}
+      {/* high-mount third brake light strip above the doors */}
+      <RoundedBox args={[0.025, 0.035, 0.55]} radius={0.01} position={[-2.822, 1.05, 0]}>
+        <meshPhysicalMaterial color="#8c1524" emissive="#c11a30" emissiveIntensity={0.45} roughness={0.25} clearcoat={1} />
+      </RoundedBox>
+      {/* vertical grab handle on the right rear door leaf, kept just behind
+          the rear wrap plane so a live rear panel covers it cleanly */}
+      <RoundedBox args={[0.024, 0.162, 0.03]} radius={0.008} position={[-2.82, -0.26, -0.12]}>
+        {trimMaterial}
+      </RoundedBox>
+
+      {/* door mirrors: heads reach only ~165 mm beyond the body per side,
+          each hung from two short arms off the door at beltline */}
       {[1, -1].map((side) => (
         <group key={side}>
-          <mesh position={[2.06, 0.66, side * 1.09]}>
-            <boxGeometry args={[0.05, 0.03, 0.28]} />
+          <mesh position={[2.08, 0.62, side * 1.0]}>
+            <boxGeometry args={[0.03, 0.025, 0.09]} />
             {trimMaterial}
           </mesh>
-          <RoundedBox args={[0.07, 0.26, 0.15]} radius={0.02} position={[2.03, 0.52, side * 1.22]}>
+          <mesh position={[2.08, 0.44, side * 1.0]}>
+            <boxGeometry args={[0.03, 0.025, 0.09]} />
+            {trimMaterial}
+          </mesh>
+          <RoundedBox args={[0.07, 0.26, 0.15]} radius={0.02} position={[2.03, 0.52, side * 1.055]}>
             {trimMaterial}
           </RoundedBox>
         </group>

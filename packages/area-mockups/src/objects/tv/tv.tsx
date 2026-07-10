@@ -75,31 +75,68 @@ export function TVSet({
     return geometry
   }, [body])
 
-  React.useEffect(() => () => bodyGeometry.dispose(), [bodyGeometry])
+  // Raked blade profile for the feet: a parallelogram in the y-z plane
+  // running from the cabinet bottom down-and-outward to the runner end.
+  const bladeGeometry = React.useMemo(() => {
+    const width = 0.27 // ~70mm fore-aft
+    const run = 0.32 // outward travel from cabinet to runner end
+    const shape = new THREE.Shape()
+    shape.moveTo(0, 0)
+    shape.lineTo(width, 0)
+    shape.lineTo(width + run, -feet.height)
+    shape.lineTo(run, -feet.height)
+    shape.closePath()
+    const geometry = new THREE.ExtrudeGeometry(shape, { depth: feet.thickness, bevelEnabled: false })
+    geometry.translate(0, 0, -feet.thickness / 2)
+    return geometry
+  }, [feet])
+
+  React.useEffect(() => {
+    return () => {
+      bodyGeometry.dispose()
+      bladeGeometry.dispose()
+    }
+  }, [bodyGeometry, bladeGeometry])
 
   return (
     <group {...groupProps}>
-      {/* enclosure */}
-      <mesh ref={bodyRef} geometry={bodyGeometry}>
+      {/* enclosure, dropped by the chin offset so the display stays centered */}
+      <mesh ref={bodyRef} geometry={bodyGeometry} position={[0, body.centerY, 0]}>
         <meshPhysicalMaterial color={color} metalness={0.6} roughness={0.4} />
       </mesh>
+
+      {/* logo/IR bar projecting just below the chin at bottom center */}
+      <RoundedBox
+        args={[0.35, 0.04, 0.023]}
+        radius={0.01}
+        position={[0, -body.height / 2 + body.centerY - 0.012, body.depth / 2 - 0.02]}
+      >
+        <meshPhysicalMaterial color="#0b0c0e" metalness={0.5} roughness={0.4} />
+      </RoundedBox>
 
       {/* shallow electronics bulge low on the back */}
       <RoundedBox
         args={[backBulge.width, backBulge.height, backBulge.depth]}
         radius={0.04}
-        position={[0, -(body.height - backBulge.height) / 2 + 0.1, -body.depth / 2 - backBulge.depth / 2 + 0.02]}
+        position={[0, -(body.height - backBulge.height) / 2 + body.centerY + 0.1, -body.depth / 2 - backBulge.depth / 2 + 0.02]}
       >
         <meshPhysicalMaterial color={color} metalness={0.3} roughness={0.6} />
       </RoundedBox>
 
-      {/* splayed blade feet near the ends */}
+      {/* splayed feet near the ends: two raked blades per foot, slanting from
+          the cabinet bottom out to the front and rear ends of the runner */}
       {([1, -1] as const).map((side) => (
-        <group key={side} position={[side * feet.offsetX, -body.height / 2 - feet.height / 2, 0]}>
-          <mesh rotation-x={0.08}>
-            <boxGeometry args={[feet.thickness, feet.height, 0.06]} />
-            <meshPhysicalMaterial color={color} metalness={0.7} roughness={0.35} />
-          </mesh>
+        <group key={side} position={[side * feet.offsetX, -body.height / 2 + body.centerY - feet.height / 2, 0]}>
+          {([1, -1] as const).map((end) => (
+            <mesh
+              key={end}
+              geometry={bladeGeometry}
+              position={[0, feet.height / 2, end === 1 ? -0.06 : 0.16]}
+              rotation-y={end === 1 ? -Math.PI / 2 : Math.PI / 2}
+            >
+              <meshPhysicalMaterial color={color} metalness={0.7} roughness={0.35} />
+            </mesh>
+          ))}
           <RoundedBox
             args={[feet.thickness + 0.02, 0.035, feet.length]}
             radius={0.015}
