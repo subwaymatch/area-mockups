@@ -1120,6 +1120,51 @@ export function PizzaFrontArt() {
   )
 }
 
+/** Bus shelter RTPI arrivals board — amber LED rows on a dot-matrix panel. */
+export function ArrivalsBoardArt() {
+  const rows: [string, string, string][] = [
+    ['12', 'Harbor Loop', '2 min'],
+    ['4X', 'Union Sq Express', '7 min'],
+    ['31', 'Larchmont via Basin Rd', '12 min'],
+  ]
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '8px 14px',
+        background: '#0b0c0e',
+        color: '#ffb340',
+        fontFamily: '"Courier New", monospace',
+        fontWeight: 700,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        position: 'relative',
+      }}
+    >
+      {rows.map(([route, dest, eta]) => (
+        <div key={route} style={{ display: 'flex', gap: 12, fontSize: 15, letterSpacing: 1 }}>
+          <span style={{ width: 30 }}>{route}</span>
+          <span style={{ flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' }}>{dest}</span>
+          <span>{eta}</span>
+        </div>
+      ))}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background: 'radial-gradient(circle at center, transparent 0.8px, rgba(0,0,0,0.5) 1.1px)',
+          backgroundSize: '3px 3px',
+        }}
+      />
+    </div>
+  )
+}
+
 /** Pizza box beveled front band strip. */
 export function PizzaBevelArt() {
   return (
