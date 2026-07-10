@@ -35,9 +35,10 @@ export interface AFrameSignProps extends Omit<GroupProps, 'children' | 'color'> 
 
 /**
  * A procedurally built sidewalk A-frame sandwich board: two wood-framed
- * 600 x 900 mm panels hinged at the top and splayed into an A, both sides
- * live DOM — chalk menus, sale boards, open/closed signs. No 3D asset files
- * are loaded.
+ * 600 x 900 mm panels hinged near the corners and splayed into an A, held by
+ * webbing straps at mid-height, standing on four leg tips — both sides live
+ * DOM: chalk menus, sale boards, open/closed signs. No 3D asset files are
+ * loaded.
  *
  * The origin is mid-height between the panels; the pavement sits at the leg
  * bottoms. Must be rendered inside a react-three-fiber `<Canvas>` (or
@@ -90,6 +91,11 @@ export function AFrameSign({
   const tilt = (splayAngle * Math.PI) / 180
   // hinge at the top: panels pivot about their top edge
   const topY = (panel.height / 2) * Math.cos(tilt)
+  // the frame stiles run ~40 mm past the panel bottom so the board stands on
+  // four leg tips; lifting the whole sign by the same drop keeps the leg tips
+  // on the original pavement line
+  const legDrop = 0.143
+  const legLift = legDrop * Math.cos(tilt)
   const screenProps = {
     width: face.width,
     height: face.height,
@@ -111,7 +117,7 @@ export function AFrameSign({
         return (
           <group
             key={dir}
-            position={[0, 0, -dir * (panel.height / 2) * Math.sin(tilt)]}
+            position={[0, legLift, -dir * (panel.height / 2) * Math.sin(tilt)]}
             rotation-x={dir * tilt}
           >
             {/* wood frame with a true opening */}
@@ -122,6 +128,16 @@ export function AFrameSign({
             <mesh geometry={boardGeometry} rotation-y={isFront ? 0 : Math.PI} position-z={isFront ? -0.012 : 0.012}>
               <meshPhysicalMaterial color="#181b17" metalness={0} roughness={0.95} />
             </mesh>
+            {/* frame stiles extended past the bottom rail into four leg tips */}
+            {([1, -1] as const).map((side) => (
+              <mesh
+                key={side}
+                position={[side * (panel.width / 2 - panel.frameWidth / 2), -panel.height / 2 - legDrop / 2 + 0.05, 0]}
+              >
+                <boxGeometry args={[panel.frameWidth, legDrop + 0.1, panel.frameDepth - 0.02]} />
+                <meshPhysicalMaterial color={color} metalness={0} roughness={0.75} />
+              </mesh>
+            ))}
 
             {/* live face */}
             <DeviceScreen
@@ -135,11 +151,22 @@ export function AFrameSign({
         )
       })}
 
-      {/* hinge bar across the apex */}
-      <mesh rotation-z={Math.PI / 2} position={[0, topY + 0.02, 0]}>
-        <cylinderGeometry args={[0.035, 0.035, panel.width - 0.1, 12]} />
-        <meshPhysicalMaterial color="#8f949c" metalness={0.9} roughness={0.35} />
-      </mesh>
+      {/* hinge blocks (~80 mm) near the ends — the center gap is the carry-handle area */}
+      {([1, -1] as const).map((side) => (
+        <mesh key={side} rotation-z={Math.PI / 2} position={[side * (panel.width / 2 - 0.35), legLift + topY + 0.02, 0]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.286, 12]} />
+          <meshPhysicalMaterial color="#8f949c" metalness={0.9} roughness={0.35} />
+        </mesh>
+      ))}
+
+      {/* restraint straps at mid-height: dark webbing on each side, bolted to
+          the frame stiles and spanning the panels' inner faces to hold the splay */}
+      {([1, -1] as const).map((side) => (
+        <mesh key={side} position={[side * (panel.width / 2 - panel.frameWidth / 2), legLift, 0]}>
+          <boxGeometry args={[0.02, 0.13, panel.height * Math.sin(tilt) - panel.frameDepth + 0.06]} />
+          <meshPhysicalMaterial color="#1c1e21" metalness={0} roughness={0.9} />
+        </mesh>
+      ))}
     </group>
   )
 }

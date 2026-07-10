@@ -11,6 +11,8 @@ type GroupProps = ThreeElements['group']
 export interface DOOHTotemProps extends Omit<GroupProps, 'children' | 'color'> {
   /** The creative — any React node on the portrait 9:16 display. */
   children?: React.ReactNode
+  /** Creative on the back (−Z) display — real totems are double-sided. */
+  back?: React.ReactNode
   /** Enclosure colorway (street-furniture dark gray by default). */
   color?: string
   /** CSS background painted behind your screen content. */
@@ -33,8 +35,10 @@ export interface DOOHTotemProps extends Omit<GroupProps, 'children' | 'color'> {
 
 /**
  * A procedurally built digital out-of-home totem (digital 6-sheet class): a
- * rounded street-furniture enclosure on a low plinth, dark glass face, and a
- * live portrait 9:16 display. No 3D asset files are loaded.
+ * rounded street-furniture enclosure running full-width into a kick plinth,
+ * ventilation louvres, cover glass on both faces, and a live portrait 9:16
+ * display behind the front glass (plus an optional `back` display — real
+ * units are double-sided). No 3D asset files are loaded.
  *
  * The origin is the enclosure center; the pavement sits
  * `DOOH_TOTEM.standHeight` below it. Must be rendered inside a
@@ -42,6 +46,7 @@ export interface DOOHTotemProps extends Omit<GroupProps, 'children' | 'color'> {
  */
 export function DOOHTotem({
   children,
+  back,
   color = '#2f333a',
   screenBackground = '#000000',
   resolution = DOOH_TOTEM.resolution,
@@ -51,7 +56,7 @@ export function DOOHTotem({
   screenStyle,
   ...groupProps
 }: DOOHTotemProps) {
-  const { body, glass, display, plinth, standHeight } = DOOH_TOTEM
+  const { body, glass, display, plinth, louvre, standHeight } = DOOH_TOTEM
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [bodyRef], [])
 
@@ -86,6 +91,18 @@ export function DOOHTotem({
     }
   }, [bodyGeometry, glassGeometry])
 
+  const screenProps = {
+    width: display.width,
+    height: display.height,
+    radius: display.radius,
+    resolution,
+    background: screenBackground,
+    interactive,
+    dragToRotate,
+    occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined,
+    screenStyle,
+  }
+
   return (
     <group {...groupProps}>
       {/* enclosure */}
@@ -93,15 +110,35 @@ export function DOOHTotem({
         <meshPhysicalMaterial color={color} metalness={0.65} roughness={0.4} />
       </mesh>
 
-      {/* dark glass face (both sides carry glass; the display lives in front) */}
-      <mesh geometry={glassGeometry} position-z={body.depth / 2 + 0.003}>
-        <meshPhysicalMaterial color="#05070b" metalness={0.15} roughness={0.08} clearcoat={1} />
-      </mesh>
-      <mesh geometry={glassGeometry} rotation-y={Math.PI} position-z={-body.depth / 2 - 0.003}>
-        <meshPhysicalMaterial color="#05070b" metalness={0.15} roughness={0.08} clearcoat={1} />
-      </mesh>
+      {/* both faces: matte display surround, subtle cover glass, louvre bands */}
+      {([1, -1] as const).map((s) => (
+        <group key={s} rotation-y={s === 1 ? 0 : Math.PI}>
+          {/* matte black surround — reads through the glass around the display */}
+          <mesh geometry={glassGeometry} position-z={body.depth / 2 + 0.001}>
+            <meshPhysicalMaterial color="#05070b" metalness={0.1} roughness={0.5} />
+          </mesh>
+          {/* cover glass; the display sits ~2 mm behind this plane, never proud of it */}
+          <mesh geometry={glassGeometry} position-z={body.depth / 2 + 0.005}>
+            <meshPhysicalMaterial
+              color="#0b0f14"
+              metalness={0.1}
+              roughness={0.06}
+              clearcoat={1}
+              transparent
+              opacity={0.22}
+            />
+          </mesh>
+          {/* ventilation louvre bands above and below the glass */}
+          {([1, -1] as const).map((v) => (
+            <mesh key={v} position={[0, v * louvre.y, body.depth / 2 + 0.001]}>
+              <planeGeometry args={[louvre.width, louvre.height]} />
+              <meshPhysicalMaterial color="#14161a" metalness={0.3} roughness={0.8} />
+            </mesh>
+          ))}
+        </group>
+      ))}
 
-      {/* plinth on the pavement */}
+      {/* full-width kick plinth — the enclosure runs straight into it, no neck */}
       <RoundedBox
         args={[plinth.width, plinth.height, plinth.depth]}
         radius={0.03}
@@ -109,26 +146,22 @@ export function DOOHTotem({
       >
         <meshPhysicalMaterial color="#1d2025" metalness={0.4} roughness={0.6} />
       </RoundedBox>
-      {/* column connecting enclosure to plinth */}
-      <RoundedBox args={[body.width - 0.5, 0.35, body.depth - 0.14]} radius={0.05} position={[0, -body.height / 2 - 0.1, 0]}>
-        <meshPhysicalMaterial color={color} metalness={0.65} roughness={0.4} />
-      </RoundedBox>
 
-      {/* the live portrait display behind the glass line */}
-      <DeviceScreen
-        width={display.width}
-        height={display.height}
-        radius={display.radius}
-        resolution={resolution}
-        position={[0, 0, body.depth / 2 + 0.006]}
-        background={screenBackground}
-        interactive={interactive}
-        dragToRotate={dragToRotate}
-        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-        screenStyle={screenStyle}
-      >
+      {/* the live portrait display, just behind the front cover glass */}
+      <DeviceScreen {...screenProps} position={[0, 0, body.depth / 2 + 0.002]}>
         {children}
       </DeviceScreen>
+
+      {/* the back display — real totems are double-sided */}
+      {back != null && (
+        <DeviceScreen
+          {...screenProps}
+          position={[0, 0, -(body.depth / 2 + 0.002)]}
+          rotation={[0, Math.PI, 0]}
+        >
+          {back}
+        </DeviceScreen>
+      )}
     </group>
   )
 }

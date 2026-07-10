@@ -17,12 +17,14 @@ export const DOOH_TOTEM_MM = 1 / 700
 export const DOOH_TOTEM = {
   /** Rounded enclosure. `radius` is the corner radius, `bevel` the edge rounding. */
   body: { width: 1.857, height: 4.0, depth: 0.5, radius: 0.24, bevel: 0.03 },
-  /** Dark glass face inset into the enclosure front. */
-  glass: { width: 1.66, height: 3.4, radius: 0.14 },
+  /** Dark cover glass inset into the enclosure front (and back). */
+  glass: { width: 1.66, height: 3.1, radius: 0.14 },
   /** Active display area (portrait 9:16). Content maps onto this rect. */
   display: { width: 1.343, height: 2.387, radius: 0.02 },
-  /** Low plinth the enclosure stands on. */
-  plinth: { width: 1.62, height: 0.12, depth: 0.44 },
+  /** Full-width kick plinth at the pavement — the enclosure runs straight into it. */
+  plinth: { width: 1.9, height: 0.24, depth: 0.56 },
+  /** Ventilation louvre bands above and below the glass (~120 mm tall). */
+  louvre: { width: 1.5, height: 0.171, y: 1.78 },
   /** Distance from the enclosure center down to the pavement. */
   standHeight: 2.0 + 0.12,
   /** Default CSS px width of the virtual display (a 1080x1920 grid at 2x). */

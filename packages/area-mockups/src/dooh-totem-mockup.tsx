@@ -6,6 +6,7 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   DOOHTotemProps,
+  | 'back'
   | 'color'
   | 'screenBackground'
   | 'resolution'
@@ -37,6 +38,7 @@ export interface DOOHTotemMockupProps
  */
 export function DOOHTotemMockup({
   children,
+  back,
   color,
   screenBackground,
   resolution,
@@ -50,6 +52,7 @@ export function DOOHTotemMockup({
 }: DOOHTotemMockupProps) {
   const object = (
     <DOOHTotem
+      back={back}
       color={color}
       screenBackground={screenBackground}
       resolution={resolution}

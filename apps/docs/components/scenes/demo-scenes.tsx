@@ -638,7 +638,7 @@ export default function DemoScenes() {
           </>
         }
       >
-        <DOOHTotemMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+        <DOOHTotemMockup back={<BannerArt />} deviceProps={{ rotation: [0, -0.18, 0] }}>
           <BannerArt />
         </DOOHTotemMockup>
       </DemoCard>

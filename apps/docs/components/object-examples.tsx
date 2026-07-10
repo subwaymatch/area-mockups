@@ -470,7 +470,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- DOOH totem ---------------------------------------------------------------------
   'totem-basic': (
-    <DOOHTotemMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+    <DOOHTotemMockup back={<BannerArt />} deviceProps={{ rotation: [0, -0.18, 0] }}>
       <BannerArt />
     </DOOHTotemMockup>
   ),

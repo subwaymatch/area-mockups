@@ -55,7 +55,7 @@ export function BusShelter({
   screenStyle,
   ...groupProps
 }: BusShelterProps) {
-  const { body, roof, backGlass, post, bench, lightbox, poster, standHeight } = BUS_SHELTER
+  const { body, roof, backGlass, post, bench, lightbox, poster, flag, standHeight } = BUS_SHELTER
   const boxRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [boxRef], [])
 
@@ -94,14 +94,22 @@ export function BusShelter({
         <meshPhysicalMaterial {...steel} />
       </RoundedBox>
 
-      {/* glass back wall in a slim bottom rail */}
-      <mesh position={[-0.35, -0.08, -body.depth / 2 + 0.05]}>
+      {/* glass back wall: floats ~120 mm above the pavement in a slim clamp
+          rail, and stops ~80 mm short of the roof */}
+      <mesh position={[-0.35, floorY + 0.171 + backGlass.height / 2, -body.depth / 2 + 0.05]}>
         <boxGeometry args={[backGlass.width - lightbox.width, backGlass.height, backGlass.thickness]} />
         {glassMaterial}
       </mesh>
-      <RoundedBox args={[backGlass.width - lightbox.width, 0.1, 0.08]} radius={0.02} position={[-0.35, floorY + 0.07, -body.depth / 2 + 0.05]}>
+      <RoundedBox args={[backGlass.width - lightbox.width, 0.1, 0.08]} radius={0.02} position={[-0.35, floorY + 0.171, -body.depth / 2 + 0.05]}>
         <meshPhysicalMaterial {...steel} />
       </RoundedBox>
+      {/* manifestation frit bands (~60 mm) at ~900 and ~1500 mm above ground */}
+      {[1.286, 2.143].map((h) => (
+        <mesh key={h} position={[-0.35, floorY + h, -body.depth / 2 + 0.05 + backGlass.thickness / 2 + 0.002]}>
+          <planeGeometry args={[backGlass.width - lightbox.width - 0.1, 0.086]} />
+          <meshPhysicalMaterial color="#ffffff" transparent opacity={0.4} roughness={0.6} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
 
       {/* two slim posts on the back-wall line — the roof cantilevers forward,
           and the lightbox cabinet is structural at its end */}
@@ -128,8 +136,28 @@ export function BusShelter({
         ))}
       </group>
 
-      {/* the 6-sheet lightbox standing as the end panel */}
+      {/* bus-stop flag on a short post rising above the roof, by the lightbox end */}
+      <group position={[flag.x, 0, 0]}>
+        <mesh position={[0, roofY + 0.36, 0]}>
+          <cylinderGeometry args={[flag.postRadius, flag.postRadius, 0.8, 14]} />
+          <meshPhysicalMaterial {...steel} />
+        </mesh>
+        {/* double-sided sign panel facing along the sidewalk, like the lightbox */}
+        <RoundedBox args={[0.045, flag.height, flag.width]} radius={0.02} position={[0, roofY + 0.51, 0]}>
+          <meshPhysicalMaterial color="#e9edf2" metalness={0.1} roughness={0.5} />
+        </RoundedBox>
+      </group>
+
+      {/* the 6-sheet lightbox as the end panel: pedestal to the pavement and
+          header to the roof keep it structural, the cabinet a near-uniform
+          ~70 mm frame around the poster */}
       <group position={[lightbox.x, -0.05, 0]}>
+        <RoundedBox args={[0.3, 0.4, 0.9]} radius={0.02} position={[0, floorY + 0.05 + 0.2, 0]}>
+          <meshPhysicalMaterial {...steel} />
+        </RoundedBox>
+        <RoundedBox args={[0.3, 0.36, 0.9]} radius={0.02} position={[0, roofY - roof.thickness / 2 + 0.05 - 0.18, 0]}>
+          <meshPhysicalMaterial {...steel} />
+        </RoundedBox>
         <RoundedBox ref={boxRef} args={[lightbox.depth, lightbox.height, lightbox.width]} radius={0.04}>
           <meshPhysicalMaterial {...steel} />
         </RoundedBox>

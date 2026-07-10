@@ -19,10 +19,10 @@ export const STOREFRONT_MM = 1 / 1100
 export const STOREFRONT = {
   /** Overall façade: width (x), height (y), wall depth (z). */
   body: { width: 5.455, height: 3.818, depth: 0.26 },
-  /** Fascia sign band above the glazing. */
-  fascia: { height: 0.727, y: 0.684 },
+  /** Fascia sign band (~550 mm) sitting directly above the window head. */
+  fascia: { height: 0.5, y: 0.57 },
   /** Live sign area inset in the fascia. Content (`children`) maps here. */
-  sign: { width: 4.9, height: 0.55, radius: 0.01 },
+  sign: { width: 4.9, height: 0.41, radius: 0.01 },
   /** Stall riser under the display window. */
   riser: { height: 0.545 },
   /** Display window band between riser and fascia (door bay on the right). */

@@ -36,8 +36,10 @@ export interface StorefrontProps extends Omit<GroupProps, 'children' | 'color'> 
 
 /**
  * A procedurally built high-street shopfront: painted timber surround, stall
- * riser, big display window with a mullion, glazed door, cornice — with the
- * fascia sign and a window poster as live DOM. No 3D asset files are loaded.
+ * riser, big display window with a mullion and a band of transom lights,
+ * glazed door with a vertical pull, corniced fascia on console brackets —
+ * with the fascia sign and a window poster as live DOM. No 3D asset files
+ * are loaded.
  *
  * The origin is the façade center; the pavement sits
  * `STOREFRONT.standHeight` below it. Must be rendered inside a
@@ -68,6 +70,11 @@ export function Storefront({
   const riserTop = -standHeight + riser.height
   const windowH = win.top - riserTop
   const frontZ = body.depth / 2
+  // window glazing extent (the door bay sits to its right)
+  const glazeX = (win.doorX - 0.35 - body.width / 2) / 2
+  const glazeW = win.doorX - 0.35 + body.width / 2 - 0.3
+  // transom rail ~450 mm below the window head
+  const transomY = win.top - 0.409
 
   return (
     <group {...groupProps}>
@@ -94,8 +101,8 @@ export function Storefront({
       </RoundedBox>
 
       {/* display glazing: window bays left of the door, door bay right */}
-      <mesh position={[(win.doorX - 0.35 + -body.width / 2) / 2, riserTop + windowH / 2, frontZ + 0.005]}>
-        <planeGeometry args={[win.doorX - 0.35 + body.width / 2 - 0.3, windowH]} />
+      <mesh position={[glazeX, riserTop + windowH / 2, frontZ + 0.005]}>
+        <planeGeometry args={[glazeW, windowH]} />
         {glassMaterial}
       </mesh>
       {/* mullion + window head */}
@@ -105,6 +112,16 @@ export function Storefront({
       <RoundedBox args={[body.width, 0.1, 0.1]} radius={0.012} position={[0, win.top + 0.02, frontZ + 0.02]}>
         <meshPhysicalMaterial {...paint} />
       </RoundedBox>
+      {/* transom rail below the window head; the band above it reads as
+          separate transom lights, split by thin vertical dividers */}
+      <RoundedBox args={[glazeW + 0.1, 0.055, 0.09]} radius={0.012} position={[glazeX, transomY, frontZ + 0.02]}>
+        <meshPhysicalMaterial {...paint} />
+      </RoundedBox>
+      {[-1.61, -0.07, 0.52].map((x) => (
+        <RoundedBox key={x} args={[0.045, win.top - transomY, 0.08]} radius={0.01} position={[x, (win.top + transomY) / 2, frontZ + 0.018]}>
+          <meshPhysicalMaterial {...paint} />
+        </RoundedBox>
+      ))}
 
       {/* glazed door with frame, handle and a doorstep */}
       <RoundedBox args={[win.doorWidth, windowH + riser.height, 0.08]} radius={0.015} position={[win.doorX + win.doorWidth / 2, riserTop + (windowH - riser.height) / 2, frontZ + 0.012]}>
@@ -114,10 +131,24 @@ export function Storefront({
         <planeGeometry args={[win.doorWidth - 0.22, windowH + riser.height - 0.34]} />
         {glassMaterial}
       </mesh>
-      <mesh rotation-z={Math.PI / 2} position={[win.doorX + 0.16, riserTop + 0.1, frontZ + 0.07]}>
-        <cylinderGeometry args={[0.018, 0.018, 0.3, 10]} />
+      {/* vertical pull (~300 mm) on the lock stile, centered ~1 m above the pavement */}
+      <mesh position={[win.doorX + 0.16, -standHeight + 0.909, frontZ + 0.075]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.273, 10]} />
         <meshPhysicalMaterial color="#c9ccd2" metalness={0.9} roughness={0.3} />
       </mesh>
+      {([1, -1] as const).map((s) => (
+        <mesh key={s} rotation-x={Math.PI / 2} position={[win.doorX + 0.16, -standHeight + 0.909 + s * 0.11, frontZ + 0.065]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.03, 8]} />
+          <meshPhysicalMaterial color="#c9ccd2" metalness={0.9} roughness={0.3} />
+        </mesh>
+      ))}
+
+      {/* console brackets carrying the cornice at the fascia ends */}
+      {([1, -1] as const).map((s) => (
+        <RoundedBox key={s} args={[0.14, 0.26, 0.14]} radius={0.02} position={[s * (body.width / 2 - 0.15), fascia.y + fascia.height / 2 - 0.13, frontZ + 0.06]}>
+          <meshPhysicalMaterial {...paint} />
+        </RoundedBox>
+      ))}
 
       {/* the live fascia sign */}
       <DeviceScreen
