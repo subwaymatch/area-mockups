@@ -4,10 +4,11 @@ Interactive, GPU-accelerated **3D device mockups for React**. Put any content on
 of a 3D device — real DOM, projected onto WebGL glass, so it stays fully live: buttons click,
 videos play, iframes scroll.
 
-- **Nine devices** — the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge), the full
-  iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max) and a MacBook Air 13" (M5) laptop, all
-  procedurally generated at runtime. No GLB files, no hosting, no pop-in — importing one
-  device family costs 3.7–4.7 KB gzipped (whole library: 7.8 KB), peers excluded.
+- **Eleven devices** — the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge), the
+  full iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max), a MacBook Air 13" (M5), an iPad
+  Pro 13" (M5) and an Apple Watch Series 11, all procedurally generated at runtime. No GLB
+  files, no hosting, no pop-in — importing one device family costs 2.9–4.7 KB gzipped
+  (whole library: 9.3 KB), peers excluded.
 - **True-to-device screens** — each virtual display matches the real device's logical
   resolution in portrait *and* landscape (table below), so your layouts and breakpoints
   behave exactly like on the hardware.
@@ -51,7 +52,7 @@ screen still go to your content. In Next.js, load it client-side only
 
 ## Components
 
-### `<PhoneMockup>` / `<IPhoneMockup>` / `<LaptopMockup>` — all-in-one
+### `<PhoneMockup>` / `<IPhoneMockup>` / `<LaptopMockup>` / `<TabletMockup>` / `<WatchMockup>` — all-in-one
 
 Every `<MockupCanvas>` prop + every corresponding device appearance prop, plus `float` (idle
 floating animation) and `deviceProps` (position/rotation/scale forwarded to the device).
@@ -121,10 +122,19 @@ Every variant's screen defaults to the real device's logical resolution (CSS px)
 | iPhone 17 Pro | `pro` | 402×874 | 874×402 | 2622×1206 @ 3x point grid |
 | iPhone 17 Pro Max | `promax` | 440×956 | 956×440 | 2868×1320 @ 3x point grid |
 | MacBook Air 13" (M5) | — | — | 1280×832 | 2560×1664 @ 2x default scaled |
+| iPad Pro 13" (M5) | — | 1032×1376 | 1376×1032 | 2752×2064 @ 2x point grid |
+| Apple Watch Series 11 46mm | — | 208×248 | — | 416×496 @ 2x point grid |
+
+### `<Tablet>` — iPad Pro 13"-style · `<Watch>` — Apple Watch-style
+
+The tablet shares the phones' screen/interaction API plus `orientation`; the watch adds
+`bandColor` (Sport-Band straps) and skips orientation. Both are fully procedural: camera
+pod, Pencil strip and edge buttons on the tablet; squircle case, knurled Digital Crown,
+side button and straps on the watch.
 
 Renderer-agnostic device specs are exported as `GALAXY_VARIANTS`, `IPHONE_VARIANTS`,
-`PHONE`, `IPHONE` and `LAPTOP` — the same data will drive the planned 2D (CSS/SVG)
-renderers.
+`PHONE`, `IPHONE`, `LAPTOP`, `TABLET` and `WATCH` — the same data will drive the planned
+2D (CSS/SVG) renderers.
 
 ## Docs & demos
 

@@ -1,9 +1,10 @@
 'use client'
 
-import { LaptopMockup, PhoneMockup } from 'area-mockups'
+import { LaptopMockup, PhoneMockup, TabletMockup, WatchMockup } from 'area-mockups'
 import { TapCounter } from '../screens/tap-counter'
 import { LockScreen } from '../screens/lock-screen'
 import { DesktopScreen } from '../screens/desktop-screen'
+import { WatchFace } from '../screens/watch-face'
 import { VariantExplorer } from './variant-explorer'
 
 function DemoCard({
@@ -102,6 +103,34 @@ export default function DemoScenes() {
           device-accurate virtual resolution (e.g. 780×360 on the S25, 874×402 on the 17).
         </p>
       </article>
+
+      <DemoCard
+        title="iPad Pro 13″ (M5)"
+        description={
+          <>
+            <code>&lt;TabletMockup orientation=&quot;landscape&quot;&gt;</code> — the 5.1mm
+            slab with its 1376×1032 virtual screen; desktop-class layouts apply.
+          </>
+        }
+      >
+        <TabletMockup orientation="landscape" color="#3a3c40" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <DesktopScreen />
+        </TabletMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Apple Watch Series 11"
+        description={
+          <>
+            <code>&lt;WatchMockup&gt;</code> — squircle case, Digital Crown, Sport Band, and
+            a live 208×248 face. The complication really taps.
+          </>
+        }
+      >
+        <WatchMockup float color="#1c1d21" bandColor="#33415c" deviceProps={{ rotation: [0, -0.35, 0] }}>
+          <WatchFace />
+        </WatchMockup>
+      </DemoCard>
 
       <DemoCard
         title="Transparent background"

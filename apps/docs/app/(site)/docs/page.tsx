@@ -167,17 +167,19 @@ export default function DocsPage() {
             <tr><td>Apple iPhone 17 Pro</td><td><code>IPhoneMockup · pro</code></td><td className="type">150.0×71.9×8.75</td><td className="type">6.3&quot; 2622×1206</td><td className="type">402×874</td><td className="type">874×402</td></tr>
             <tr><td>Apple iPhone 17 Pro Max</td><td><code>IPhoneMockup · promax</code></td><td className="type">163.4×78.0×8.75</td><td className="type">6.9&quot; 2868×1320</td><td className="type">440×956</td><td className="type">956×440</td></tr>
             <tr><td>Apple MacBook Air 13&quot; (M5)</td><td><code>LaptopMockup</code></td><td className="type">304.1×215×11.3</td><td className="type">13.6&quot; 2560×1664</td><td className="type">—</td><td className="type">1280×832</td><td className="type">12.5 KB min<br />4.7 KB gzip</td></tr>
+            <tr><td>Apple iPad Pro 13&quot; (M5)</td><td><code>TabletMockup</code></td><td className="type">281.6×215.5×5.1</td><td className="type">13&quot; 2752×2064</td><td className="type">1032×1376</td><td className="type">1376×1032</td><td className="type">8.6 KB min<br />3.1 KB gzip</td></tr>
+            <tr><td>Apple Watch Series 11 (46mm)</td><td><code>WatchMockup</code></td><td className="type">46×39×9.7</td><td className="type">1.96&quot; 416×496</td><td className="type">208×248</td><td className="type">—</td><td className="type">7.5 KB min<br />2.9 KB gzip</td></tr>
           </tbody>
         </table>
         </div>
         <p>
           Resolution basis: Galaxy S25 is its panel at ⅓ scale; the QHD+ Galaxys use One
           UI&apos;s default FHD+ render at 450 dpi (build.prop-confirmed on the Ultra);
-          iPhones use their exact 3x point grids; the MacBook uses its default scaled
-          resolution. Importing the whole library costs 27.1 KB min / 7.8 KB gzip. Pass{' '}
-          <code>orientation=&quot;landscape&quot;</code> on a phone to lay the device on its
-          side: the virtual viewport swaps to the landscape resolution and your content
-          renders upright, exactly like rotating the real phone.
+          iPhones, iPad and Watch use their exact point grids (3x / 2x). Importing the whole
+          library costs 35.0 KB min / 9.3 KB gzip. Pass{' '}
+          <code>orientation=&quot;landscape&quot;</code> on a phone or tablet to lay the
+          device on its side: the virtual viewport swaps to the landscape resolution and
+          your content renders upright, exactly like rotating the real device.
         </p>
       </section>
 

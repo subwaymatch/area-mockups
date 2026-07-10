@@ -1150,6 +1150,65 @@ code {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Screen: watch face                                                 */
+/* ------------------------------------------------------------------ */
+
+.wf {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #000;
+  color: #eef0f6;
+  font-family: var(--font-sans);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.wf-date {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #fa1450;
+}
+
+.wf-time {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.wf-zone {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(238, 240, 246, 0.55);
+}
+
+.wf-rings {
+  width: 92px;
+  height: 92px;
+  margin-top: 6px;
+}
+
+.wf-hint {
+  position: absolute;
+  bottom: 12px;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(238, 240, 246, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Screen: embedded page (/embedded)                                  */
 /* ------------------------------------------------------------------ */
 
