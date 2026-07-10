@@ -31,11 +31,11 @@ const ENTRIES = {
   'DOOHTotemMockup (digital totem)': "export { DOOHTotemMockup } from './src/index'",
   'StorefrontMockup (shop facade)': "export { StorefrontMockup } from './src/index'",
   'SemiTrailerMockup (53ft dry van)': "export { SemiTrailerMockup } from './src/index'",
-  'WheatpasteWallMockup (poster wall)': "export { WheatpasteWallMockup } from './src/index'",
   'MailerBoxMockup (shipper box)': "export { MailerBoxMockup } from './src/index'",
   'ShoppingBagMockup (kraft carrier)': "export { ShoppingBagMockup } from './src/index'",
-  'CoffeeCupMockup (curved sleeve)': "export { CoffeeCupMockup } from './src/index'",
   'PizzaBoxMockup (14in box)': "export { PizzaBoxMockup } from './src/index'",
+  'CustomPanelMockup (any-size sheet)': "export { CustomPanelMockup } from './src/index'",
+  'CustomBoxMockup (any-size box)': "export { CustomBoxMockup } from './src/index'",
   'everything (full library)': "export * from './src/index'",
 }
 

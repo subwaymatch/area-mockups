@@ -96,13 +96,16 @@ export function IDCard({
     <meshPhysicalMaterial color={lanyardColor} metalness={0} roughness={0.85} sheen={1} sheenColor="#ffffff" sheenRoughness={0.6} />
   )
 
-  // Hardware chain: the snap hook threads the slot, pulled up against the
-  // slot's bottom edge the way a hanging badge loads it; the swivel barrel,
-  // split ring and strap crimp stack above it.
-  const hookY = slot.centerY - slot.height / 2 + hook.hookRadius + hook.hookTube
-  const barrelY = hookY + hook.hookRadius + hook.barrel.height / 2 - 0.01
-  const ringY = barrelY + hook.barrel.height / 2 + hook.ringRadius - 0.02
-  const crimpY = ringY + hook.ringRadius + hook.crimp.height / 2 - 0.03
+  // Hardware chain: the J-hook's nose wire rests INSIDE the slot, loaded
+  // against its bottom edge the way a hanging badge sits; the swivel barrel
+  // rises from the hook, clamps the flat D-eye, and the crimp overlaps the
+  // eye's top arc with the strap fold passing through the aperture.
+  const slotBottom = slot.centerY - slot.height / 2
+  const hookY = slotBottom + hook.hookTube + hook.hookRadius * hook.hookScaleY
+  const hookTop = hookY + hook.hookRadius * hook.hookScaleY
+  const barrelY = hookTop + hook.barrel.height / 2 - 0.05
+  const eyeY = barrelY + hook.barrel.height / 2 + hook.eye.radius - hook.eye.tube - 0.02
+  const crimpY = eyeY + hook.crimp.height / 2
   const faceProps = {
     width: face.width,
     height: face.height,
@@ -122,26 +125,33 @@ export function IDCard({
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.55} clearcoat={0.4} clearcoatRoughness={0.4} />
       </mesh>
 
-      {/* trigger snap hook through the slot: an open torus arc closed by the
-          thin spring gate, hanging from the swivel barrel */}
-      <group position={[0, hookY, 0]}>
+      {/* elongated trigger snap J-hook: an open wire loop stretched tall,
+          its nose resting inside the slot, closed by the spring gate */}
+      <group position={[0, hookY, 0]} scale={[1, hook.hookScaleY, 1]}>
         <mesh rotation-z={Math.PI / 2 + 0.5}>
           <torusGeometry args={[hook.hookRadius, hook.hookTube, 10, 40, Math.PI * 1.72]} />
           {metal}
         </mesh>
-        <mesh position={[0.052, 0.1, 0]} rotation-z={-0.5}>
-          <cylinderGeometry args={[0.012, 0.012, 0.19, 8]} />
+        <mesh position={[0.06, 0.09, 0]} rotation-z={-0.45}>
+          <cylinderGeometry args={[0.016, 0.016, 0.21, 8]} />
           {metal}
         </mesh>
       </group>
+      {/* swivel barrel */}
       <mesh position={[0, barrelY, 0]}>
         <cylinderGeometry args={[hook.barrel.radius, hook.barrel.radius, hook.barrel.height, 14]} />
         {metal}
       </mesh>
-      <mesh position={[0, ringY, 0]}>
-        <torusGeometry args={[hook.ringRadius, hook.ringTube, 10, 24]} />
+      {/* flat D-eye, its bottom arc clamped inside the barrel */}
+      <mesh position={[0, eyeY, 0]} scale={[hook.eye.scaleX, 1, 1]}>
+        <torusGeometry args={[hook.eye.radius, hook.eye.tube, 10, 24]} />
         {metal}
       </mesh>
+      {/* strap fold carrying the load through the eye's aperture */}
+      <RoundedBox args={[0.34, 0.42, 0.02]} radius={0.008} position={[0, eyeY + 0.12, -0.004]}>
+        {fabric}
+      </RoundedBox>
+      {/* crimp sleeve clamping the folded strap ends, overlapping the eye */}
       <RoundedBox
         args={[hook.crimp.width, hook.crimp.height, hook.crimp.depth]}
         radius={0.02}

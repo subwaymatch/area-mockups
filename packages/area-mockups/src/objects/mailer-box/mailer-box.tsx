@@ -82,23 +82,26 @@ export function MailerBox({
     />
   )
 
-  // flap seam: a hairline down the top center, under the tape
+  // flap seam: the flaps hinge on the LONG walls and meet along the width,
+  // so the gap runs left-right — visible through the translucent tape
   const seamOverlay = (
     <>
       <div
         aria-hidden
         style={{
           position: 'absolute',
-          top: 0,
-          bottom: 0,
-          left: '50%',
-          width: 1.5,
-          background: 'rgba(0,0,0,0.25)',
+          left: 0,
+          right: 0,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          height: 3,
+          background:
+            'linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.12))',
           pointerEvents: 'none',
           zIndex: 2147483646,
         }}
       />
-      {tapeOverlay(true)}
+      {tapeOverlay(false)}
     </>
   )
 
@@ -118,26 +121,40 @@ export function MailerBox({
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.85} />
       </RoundedBox>
 
-      {/* geometry tape + seam for the unprinted faces (hidden under live DOM) */}
-      <mesh position={[0, body.height / 2 + 0.002, 0]} rotation-x={-Math.PI / 2}>
-        <planeGeometry args={[tape.width, body.depth]} />
-        <meshPhysicalMaterial color="#a87f4f" metalness={0} roughness={0.45} clearcoat={0.6} />
+      {/* geometry seam gap + tape for the unprinted faces (hidden under live
+          DOM). The tape runs along the width — over the flap seam — and wraps
+          down both short end faces. It is slightly translucent so the dark
+          gap between the flaps reads through it, like real packing tape. */}
+      <mesh position={[0, body.height / 2 + 0.0015, 0]} rotation-x={-Math.PI / 2}>
+        <planeGeometry args={[body.width, 0.022]} />
+        <meshBasicMaterial color="#4a3a26" />
+      </mesh>
+      <mesh position={[0, body.height / 2 + 0.003, 0]} rotation-x={-Math.PI / 2}>
+        <planeGeometry args={[body.width, tape.width]} />
+        <meshPhysicalMaterial color="#a87f4f" metalness={0} roughness={0.45} clearcoat={0.6} transparent opacity={0.88} />
       </mesh>
       {([1, -1] as const).map((s) => (
         <mesh key={s} position={[s * (body.width / 2 + 0.002), body.height / 2 - 0.385, 0]} rotation-y={s * (Math.PI / 2)}>
           <planeGeometry args={[tape.width, 0.77]} />
-          <meshPhysicalMaterial color="#a87f4f" metalness={0} roughness={0.45} clearcoat={0.6} />
+          <meshPhysicalMaterial color="#a87f4f" metalness={0} roughness={0.45} clearcoat={0.6} transparent opacity={0.94} />
         </mesh>
       ))}
+
+      {/* manufacturer's joint: the vertical glued lap seam on one corner */}
+      <mesh position={[-body.width / 2 - 0.002, 0, body.depth / 2 - 0.26]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[0.46, body.height - 0.04]} />
+        <meshPhysicalMaterial color="#a8845a" metalness={0} roughness={0.85} />
+      </mesh>
 
       {/* unprinted-state details: flap seam slabs and a skewed 4x6 label
           (hidden under the live top panel when one is mounted) */}
       {children == null && (
         <group position={[0, body.height / 2, 0]}>
-          {/* below the tape plane (+0.002 in the parent) so the tape stays visible */}
+          {/* the two flaps, hinged on the long walls, meeting along the width
+              — below the seam/tape planes so both stay visible */}
           {([1, -1] as const).map((s) => (
-            <mesh key={s} position={[s * (body.width / 4 + 0.004), 0.001, 0]} rotation-x={-Math.PI / 2}>
-              <planeGeometry args={[body.width / 2 - 0.012, body.depth]} />
+            <mesh key={s} position={[0, 0.001, s * (body.depth / 4 + 0.006)]} rotation-x={-Math.PI / 2}>
+              <planeGeometry args={[body.width - 0.012, body.depth / 2 - 0.012]} />
               <meshPhysicalMaterial color={color} metalness={0} roughness={0.82} />
             </mesh>
           ))}

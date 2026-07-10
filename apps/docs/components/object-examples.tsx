@@ -11,7 +11,8 @@ import {
   BusinessCardMockup,
   BusMockup,
   BusShelterMockup,
-  CoffeeCupMockup,
+  CustomBoxMockup,
+  CustomPanelMockup,
   DOOHTotemMockup,
   GreetingCardMockup,
   IDCardMockup,
@@ -39,7 +40,6 @@ import {
   VinylRecord,
   VinylRecordMockup,
   WatchMockup,
-  WheatpasteWallMockup,
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import {
@@ -61,12 +61,11 @@ import {
   CardBackArt,
   ChalkMenuArt,
   CardFrontArt,
-  CupSleeveArt,
   DestinationArt,
-  GigPosterArt,
   GreetingCoverArt,
   GreetingInsideArt,
   MagazineCoverArt,
+  PizzaBevelArt,
   PizzaFrontArt,
   PizzaInsideArt,
   PizzaLidArt,
@@ -505,19 +504,6 @@ const DEMOS: Record<string, React.ReactNode> = {
     </SemiTrailerMockup>
   ),
 
-  // ---- Wheatpaste wall ------------------------------------------------------------------
-  'wall-basic': (
-    <WheatpasteWallMockup
-      posters={[<PosterArt key="a" />, <GigPosterArt key="b" />, <BannerArt key="c" />]}
-      deviceProps={{ rotation: [0, -0.2, 0] }}
-    />
-  ),
-  'wall-single': (
-    <WheatpasteWallMockup color="#4d5158" mortarColor="#3a3d42" deviceProps={{ rotation: [0, 0.25, 0] }}>
-      <GigPosterArt />
-    </WheatpasteWallMockup>
-  ),
-
   // ---- Mailer box ---------------------------------------------------------------------
   'mailer-basic': (
     <MailerBoxMockup front={<BoxPanelArt />} deviceProps={{ rotation: [0, 0.5, 0] }}>
@@ -559,31 +545,54 @@ const DEMOS: Record<string, React.ReactNode> = {
     </BookMockup>
   ),
 
-  // ---- Coffee cup ---------------------------------------------------------------------
-  'cup-basic': (
-    <CoffeeCupMockup autoRotate autoRotateSpeed={1.6} deviceProps={{ rotation: [0, -0.4, 0] }}>
-      <CupSleeveArt />
-    </CoffeeCupMockup>
+  // ---- Custom sizes ---------------------------------------------------------------------
+  'custom-panel-basic': (
+    <CustomPanelMockup size={{ width: 600, height: 900, thickness: 5 }} deviceProps={{ rotation: [0, 0.25, 0] }}>
+      <PosterArt />
+    </CustomPanelMockup>
   ),
-  'cup-tall': (
-    <CoffeeCupMockup variant="16oz" lidColor="#2b2b2e" deviceProps={{ rotation: [0, -1.57, 0] }}>
-      <CupSleeveArt />
-    </CoffeeCupMockup>
+  'custom-panel-wide': (
+    <CustomPanelMockup size={{ width: 2400, height: 800, thickness: 12 }} color="#20242b" float deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <TrailerWrapArt />
+    </CustomPanelMockup>
   ),
-  'cup-nolid': (
-    <CoffeeCupMockup lid={false} float camera={{ position: [0, 3.4, 5.6], fov: 40 }} deviceProps={{ rotation: [0, -1.57, 0] }}>
-      <CupSleeveArt />
-    </CoffeeCupMockup>
+  'custom-box-basic': (
+    <CustomBoxMockup
+      size={{ width: 240, height: 320, depth: 80 }}
+      left={<BoxSideArt />}
+      right={<BoxSideArt />}
+      top={<BoxTopArt />}
+      back={<BoxFrontArt />}
+      deviceProps={{ rotation: [0, -0.45, 0] }}
+    >
+      <BoxFrontArt />
+    </CustomBoxMockup>
+  ),
+  'custom-box-flat': (
+    <CustomBoxMockup
+      size={{ width: 300, height: 60, depth: 300 }}
+      top={<BoxLidArt />}
+      camera={{ position: [0, 2.6, 7.0], fov: 40 }}
+      deviceProps={{ rotation: [0, 0.4, 0] }}
+    >
+      <BoxPanelArt />
+    </CustomBoxMockup>
   ),
 
   // ---- Pizza box ---------------------------------------------------------------------
   'pizza-basic': (
-    <PizzaBoxMockup front={<PizzaFrontArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+    <PizzaBoxMockup bevel={<PizzaBevelArt />} front={<PizzaFrontArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
       <PizzaLidArt />
     </PizzaBoxMockup>
   ),
   'pizza-open': (
-    <PizzaBoxMockup open front={<PizzaFrontArt />} insideLid={<PizzaInsideArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <PizzaBoxMockup
+      open
+      bevel={<PizzaBevelArt />}
+      front={<PizzaFrontArt />}
+      insideLid={<PizzaInsideArt />}
+      deviceProps={{ rotation: [0, -0.25, 0] }}
+    >
       <PizzaLidArt />
     </PizzaBoxMockup>
   ),

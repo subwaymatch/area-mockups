@@ -26,17 +26,19 @@ export const ID_CARD = {
    */
   face: { width: 1.687, height: 2.235, radius: 0.1, offsetY: -0.22 },
   /**
-   * Hardware chain, bottom to top exactly as on real lanyards: trigger snap
-   * hook through the slot, swivel barrel, small split ring, and the metal
-   * crimp sleeve that captures the folded strap ends.
+   * Hardware chain, bottom to top exactly as on real lanyards: an elongated
+   * trigger snap hook whose nose wire threads the slot, the swivel barrel,
+   * the flat D-shaped eye clamped by the barrel, and the sheet-metal crimp
+   * that captures the folded strap ends through the eye.
    */
   hook: {
-    hookRadius: 0.14,
-    hookTube: 0.026,
-    barrel: { radius: 0.042, height: 0.2 },
-    ringRadius: 0.07,
-    ringTube: 0.016,
-    crimp: { width: 0.5, height: 0.26, depth: 0.055 },
+    hookRadius: 0.15,
+    /** Vertical stretch turning the wire circle into the J-hook profile. */
+    hookScaleY: 1.9,
+    hookTube: 0.034,
+    barrel: { radius: 0.09, height: 0.24 },
+    eye: { radius: 0.11, scaleX: 1.4, tube: 0.03 },
+    crimp: { width: 0.5, height: 0.26, depth: 0.07 },
   },
   /** Woven strap halves rising from the crimp in a hanging ~30° V. */
   strap: { width: 0.47, thickness: 0.022, length: 2.6, spreadAngle: 0.26, backTilt: 0.1 },

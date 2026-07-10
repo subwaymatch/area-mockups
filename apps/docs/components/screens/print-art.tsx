@@ -955,41 +955,8 @@ export function TrailerRearArt() {
   )
 }
 
-/** Gig poster for the wheatpaste wall — loud typographic show bill. */
-export function GigPosterArt() {
-  return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        padding: 20,
-        background: '#12100e',
-        color: '#f2e3c2',
-        display: 'flex',
-        flexDirection: 'column',
-        textAlign: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <div style={{ fontSize: 10, letterSpacing: 4, color: '#d7823a' }}>ONE NIGHT ONLY</div>
-      <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 0.95, marginTop: 14, textTransform: 'uppercase' }}>
-        The
-        <br />
-        Paper
-        <br />
-        Tigers
-      </div>
-      <svg viewBox="0 0 80 26" aria-hidden style={{ width: '80%', margin: 'auto 0' }}>
-        <path d="M2 20 q 10 -18 20 0 t 20 0 t 20 0 t 16 0" fill="none" stroke="#d7823a" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-      <div style={{ fontSize: 13, fontWeight: 700 }}>FRI OCT 24 · THE ECHO ROOM</div>
-      <div style={{ fontSize: 11, color: '#b7a98a', marginTop: 6 }}>doors 8pm · tickets at the door</div>
-    </div>
-  )
-}
-
-/** Mailer box lid — kraft-print seed club brand. */
+/** Mailer box lid — kraft-print seed club brand. The layout keeps the
+ * middle band clear: the packing tape runs across it. */
 export function BoxLidArt() {
   return (
     <div
@@ -997,24 +964,27 @@ export function BoxLidArt() {
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        padding: 26,
+        padding: '18px 26px',
         background: '#a9805a',
         color: '#2e2013',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         textAlign: 'center',
-        gap: 8,
       }}
     >
-      <svg viewBox="0 0 60 30" aria-hidden style={{ width: 90 }}>
-        <path d="M30 28 C 30 12, 18 8, 8 6 C 12 20, 20 26, 30 28 Z" fill="#2e2013" />
-        <path d="M30 28 C 30 14, 42 9, 52 8 C 48 20, 40 26, 30 28 Z" fill="none" stroke="#2e2013" strokeWidth="2" />
-      </svg>
-      <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: 3 }}>LOAM</div>
-      <div style={{ fontSize: 11, letterSpacing: 4 }}>SEED CLUB · NO. 08</div>
-      <div style={{ fontSize: 11, color: '#5b4630', marginTop: 8 }}>sow within 12 months · loam.example</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <svg viewBox="0 0 60 30" aria-hidden style={{ width: 64 }}>
+          <path d="M30 28 C 30 12, 18 8, 8 6 C 12 20, 20 26, 30 28 Z" fill="#2e2013" />
+          <path d="M30 28 C 30 14, 42 9, 52 8 C 48 20, 40 26, 30 28 Z" fill="none" stroke="#2e2013" strokeWidth="2" />
+        </svg>
+        <div>
+          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: 3 }}>LOAM</div>
+          <div style={{ fontSize: 10, letterSpacing: 4 }}>SEED CLUB · NO. 08</div>
+        </div>
+      </div>
+      <div style={{ fontSize: 11, color: '#5b4630' }}>sow within 12 months · loam.example</div>
     </div>
   )
 }
@@ -1075,63 +1045,6 @@ export function BagArt() {
         M
       </div>
       <div style={{ fontSize: 11, letterSpacing: 4, marginBottom: 14 }}>MARROW &amp; CO · SINCE 2009</div>
-    </div>
-  )
-}
-
-/** Coffee cup sleeve wrap — printed-on-kraft roastery band (full unroll). */
-export function CupSleeveArt() {
-  return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        color: '#3b2a1c',
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      {[0, 1].map((half) => (
-        <div
-          key={half}
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            borderRight: '2px dotted rgba(59,42,28,0.45)',
-          }}
-        >
-          {half === 0 ? (
-            <>
-              <svg viewBox="0 0 40 24" aria-hidden style={{ width: 44 }}>
-                <path d="M6 4 h22 a6 6 0 0 1 0 12 h-2 M6 4 v8 a8 8 0 0 0 16 0 V4 Z" fill="none" stroke="#3b2a1c" strokeWidth="2.4" />
-                <path d="M2 22 h30" stroke="#3b2a1c" strokeWidth="2.4" strokeLinecap="round" />
-              </svg>
-              <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: 5 }}>RIDGE ROAST</div>
-              <div style={{ fontSize: 10, letterSpacing: 4 }}>SMALL-BATCH COFFEE</div>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>CAUTION: GOOD COFFEE IS HOT</div>
-              <div style={{ fontSize: 10, letterSpacing: 2, color: '#6b5138' }}>
-                double-walled · compostable · ridge.example
-              </div>
-              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                {[0, 1, 2].map((b) => (
-                  <svg key={b} viewBox="0 0 12 16" aria-hidden style={{ width: 10 }}>
-                    <ellipse cx="6" cy="8" rx="5" ry="7" fill="none" stroke="#3b2a1c" strokeWidth="1.6" />
-                    <path d="M6 2 C 4 6, 8 10, 6 14" fill="none" stroke="#3b2a1c" strokeWidth="1.6" />
-                  </svg>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      ))}
     </div>
   )
 }
@@ -1203,6 +1116,32 @@ export function PizzaFrontArt() {
       <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>HOT &amp; FRESH</div>
       <div style={{ fontFamily: serif, fontSize: 22 }}>Tony&apos;s Slice House</div>
       <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>555-0134</div>
+    </div>
+  )
+}
+
+/** Pizza box beveled front band strip. */
+export function PizzaBevelArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 20px',
+        background: '#f5efdf',
+        color: '#b22318',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 18,
+      }}
+    >
+      <div style={{ fontSize: 12, letterSpacing: 4, fontWeight: 700 }}>CARRYOUT</div>
+      <svg viewBox="0 0 60 30" aria-hidden style={{ width: 34 }}>
+        <path d="M30 28 L10 4 a30 30 0 0 1 40 0 Z" fill="#e8a33c" stroke="#b22318" strokeWidth="2" />
+      </svg>
+      <div style={{ fontSize: 12, letterSpacing: 4, fontWeight: 700 }}>OVEN-HOT SINCE 1979</div>
     </div>
   )
 }

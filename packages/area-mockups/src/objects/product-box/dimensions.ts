@@ -16,7 +16,7 @@ export const PRODUCT_BOX_MM = 1 / 62
 
 export const PRODUCT_BOX = {
   /** The carton: width (x), height (y), depth (z). `radius` is the fold-edge rounding. */
-  body: { width: 3.065, height: 4.274, depth: 0.887, radius: 0.022 },
+  body: { width: 3.065, height: 4.274, depth: 0.887, radius: 0.008 },
   /** Tuck flap on the top face: how far it stops short of the back edge, and its lift. */
   flap: { backGap: 0.1, lift: 0.008 },
   /** Default CSS px width of the virtual front face; other faces share its dpi. */

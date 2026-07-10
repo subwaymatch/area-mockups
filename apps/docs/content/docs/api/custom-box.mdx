@@ -1,0 +1,54 @@
+---
+title: Custom box
+description: A rectangular box at any size you specify in millimeters, printable on all six faces.
+---
+
+`<CustomBox>` and `<CustomBoxMockup>` render a rectangular box at ANY size —
+shipper, carton, counter display, crate. Pass real millimeters via `size`;
+the longest edge auto-normalizes to the stage while the mm dimensions keep
+the true proportions. All six faces are printable live DOM at one shared
+dpi.
+
+<ObjectDemo demo="custom-box-basic" />
+
+```tsx
+<CustomBoxMockup
+  size={{ width: 240, height: 320, depth: 80 }}
+  left={<YourSide />}
+  top={<YourTop />}
+  deviceProps={{ rotation: [0, -0.45, 0] }}
+>
+  <YourFront />
+</CustomBoxMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `size` | `{ width, height, depth }` | required | Box size in millimeters. |
+| `back`, `left`, `right`, `top`, `bottom` | `ReactNode` | - | The other five faces; `children` is the front. |
+| `color` | `string` | `'#e8e5df'` | Stock color for unprinted faces. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed face. |
+| `resolution` | `number` | `560` | Virtual front face width in CSS px; all faces share its dpi. |
+
+`customBoxScale(size)` is exported if you need the world-units-per-mm
+factor.
+
+## More examples
+
+### Flat gift box from above
+
+<ObjectDemo demo="custom-box-flat" />
+
+```tsx
+<CustomBoxMockup
+  size={{ width: 300, height: 60, depth: 300 }}
+  top={<YourLid />}
+  camera={{ position: [0, 2.6, 7.0], fov: 40 }}
+>
+  <YourFront />
+</CustomBoxMockup>
+```

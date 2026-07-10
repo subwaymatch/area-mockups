@@ -26,9 +26,10 @@ import { GalaxyWatchFace, WatchFace } from '../screens/watch-face'
 import {
   AFrameSignMockup,
   BusShelterMockup,
-  CoffeeCupMockup,
   DOOHTotemMockup,
   GreetingCardMockup,
+  CustomBoxMockup,
+  CustomPanelMockup,
   MailerBoxMockup,
   PizzaBoxMockup,
   SemiTrailerMockup,
@@ -36,7 +37,6 @@ import {
   StorefrontMockup,
   TVSetMockup,
   VinylRecordMockup,
-  WheatpasteWallMockup,
 } from 'area-mockups'
 import {
   BadgeBackArt,
@@ -45,8 +45,7 @@ import {
   BannerArt,
   BoxLidArt,
   BoxPanelArt,
-  CupSleeveArt,
-  GigPosterArt,
+  PizzaBevelArt,
   PizzaFrontArt,
   PizzaInsideArt,
   PizzaLidArt,
@@ -673,21 +672,6 @@ export default function DemoScenes() {
       </DemoCard>
 
       <DemoCard
-        title="Wheatpaste wall"
-        description={
-          <>
-            <code>&lt;WheatpasteWallMockup&gt;</code>: three one-sheets pasted on city
-            brick, tilted and overlapping — every poster is live.
-          </>
-        }
-      >
-        <WheatpasteWallMockup
-          posters={[<PosterArt key="a" />, <GigPosterArt key="b" />, <BannerArt key="c" />]}
-          deviceProps={{ rotation: [0, -0.2, 0] }}
-        />
-      </DemoCard>
-
-      <DemoCard
         title="Mailer box"
         description={
           <>
@@ -716,21 +700,6 @@ export default function DemoScenes() {
       </DemoCard>
 
       <DemoCard
-        title="Coffee cup — curved wrap"
-        description={
-          <>
-            <code>&lt;CoffeeCupMockup&gt;</code>: the first CURVED live surface — one
-            unrolled artwork tiled around the kraft sleeve from 16 flat strips that hide
-            themselves as they turn away.
-          </>
-        }
-      >
-        <CoffeeCupMockup autoRotate autoRotateSpeed={1.6} deviceProps={{ rotation: [0, -0.4, 0] }}>
-          <CupSleeveArt />
-        </CoffeeCupMockup>
-      </DemoCard>
-
-      <DemoCard
         title="Pizza box"
         description={
           <>
@@ -739,9 +708,45 @@ export default function DemoScenes() {
           </>
         }
       >
-        <PizzaBoxMockup open front={<PizzaFrontArt />} insideLid={<PizzaInsideArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+        <PizzaBoxMockup open bevel={<PizzaBevelArt />} front={<PizzaFrontArt />} insideLid={<PizzaInsideArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
           <PizzaLidArt />
         </PizzaBoxMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Custom panel — any size"
+        description={
+          <>
+            <code>&lt;CustomPanelMockup&gt;</code>: pass real millimeters via{' '}
+            <code>size</code> and get a live rectangular sheet at true proportions —
+            here a 600×900 mm board.
+          </>
+        }
+      >
+        <CustomPanelMockup size={{ width: 600, height: 900, thickness: 5 }} back={<PosterArt />} deviceProps={{ rotation: [0, 0.25, 0] }}>
+          <PosterArt />
+        </CustomPanelMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Custom box — any size"
+        description={
+          <>
+            <code>&lt;CustomBoxMockup&gt;</code>: a 240×320×80 mm box with all six faces
+            printable at one shared dpi.
+          </>
+        }
+      >
+        <CustomBoxMockup
+          size={{ width: 240, height: 320, depth: 80 }}
+          back={<BoxFrontArt />}
+          left={<BoxSideArt />}
+          right={<BoxSideArt />}
+          top={<BoxTopArt />}
+          deviceProps={{ rotation: [0, -0.45, 0] }}
+        >
+          <BoxFrontArt />
+        </CustomBoxMockup>
       </DemoCard>
 
       <DemoCard

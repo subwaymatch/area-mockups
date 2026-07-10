@@ -26,11 +26,11 @@ export { AFrameSignMockup, type AFrameSignMockupProps } from './a-frame-sign-moc
 export { DOOHTotemMockup, type DOOHTotemMockupProps } from './dooh-totem-mockup'
 export { StorefrontMockup, type StorefrontMockupProps } from './storefront-mockup'
 export { SemiTrailerMockup, type SemiTrailerMockupProps } from './semi-trailer-mockup'
-export { WheatpasteWallMockup, type WheatpasteWallMockupProps } from './wheatpaste-wall-mockup'
 export { MailerBoxMockup, type MailerBoxMockupProps } from './mailer-box-mockup'
 export { ShoppingBagMockup, type ShoppingBagMockupProps } from './shopping-bag-mockup'
-export { CoffeeCupMockup, type CoffeeCupMockupProps } from './coffee-cup-mockup'
 export { PizzaBoxMockup, type PizzaBoxMockupProps } from './pizza-box-mockup'
+export { CustomPanelMockup, type CustomPanelMockupProps } from './custom-panel-mockup'
+export { CustomBoxMockup, type CustomBoxMockupProps } from './custom-box-mockup'
 
 // Composable pieces: bring your own scene, or drop a device into an existing one.
 export { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
@@ -59,11 +59,11 @@ export { AFrameSign, type AFrameSignProps } from './objects/a-frame-sign/a-frame
 export { DOOHTotem, type DOOHTotemProps } from './objects/dooh-totem/dooh-totem'
 export { Storefront, type StorefrontProps } from './objects/storefront/storefront'
 export { SemiTrailer, type SemiTrailerProps } from './objects/semi-trailer/semi-trailer'
-export { WheatpasteWall, type WheatpasteWallProps } from './objects/wheatpaste-wall/wheatpaste-wall'
 export { MailerBox, type MailerBoxProps } from './objects/mailer-box/mailer-box'
 export { ShoppingBag, type ShoppingBagProps } from './objects/shopping-bag/shopping-bag'
-export { CoffeeCup, type CoffeeCupProps } from './objects/coffee-cup/coffee-cup'
 export { PizzaBox, type PizzaBoxProps } from './objects/pizza-box/pizza-box'
+export { CustomPanel, type CustomPanelProps } from './objects/custom-panel/custom-panel'
+export { CustomBox, type CustomBoxProps } from './objects/custom-box/custom-box'
 
 // Renderer-agnostic device data (shared with the planned 2D renderers).
 export {
@@ -117,14 +117,8 @@ export { A_FRAME_SIGN, A_FRAME_SIGN_ASPECT } from './objects/a-frame-sign/dimens
 export { DOOH_TOTEM, DOOH_TOTEM_ASPECT } from './objects/dooh-totem/dimensions'
 export { STOREFRONT, STOREFRONT_SIGN_ASPECT } from './objects/storefront/dimensions'
 export { SEMI_TRAILER, SEMI_TRAILER_SIDE_ASPECT } from './objects/semi-trailer/dimensions'
-export { WHEATPASTE_WALL, WHEATPASTE_WALL_ASPECT } from './objects/wheatpaste-wall/dimensions'
 export { MAILER_BOX, MAILER_BOX_TOP_ASPECT } from './objects/mailer-box/dimensions'
 export { SHOPPING_BAG, SHOPPING_BAG_ASPECT } from './objects/shopping-bag/dimensions'
-export {
-  COFFEE_CUP,
-  COFFEE_CUP_WRAP_ASPECT,
-  COFFEE_CUP_VARIANTS,
-  type CoffeeCupVariant,
-  type CoffeeCupSpec,
-} from './objects/coffee-cup/dimensions'
 export { PIZZA_BOX, PIZZA_BOX_TOP_ASPECT } from './objects/pizza-box/dimensions'
+export { CUSTOM_PANEL, customPanelScale, type CustomSizeMm } from './objects/custom-panel/dimensions'
+export { CUSTOM_BOX, customBoxScale, type CustomBoxSizeMm } from './objects/custom-box/dimensions'

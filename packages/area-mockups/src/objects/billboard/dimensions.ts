@@ -30,7 +30,7 @@ export const BILLBOARD = {
   /** Maintenance catwalk hung off the apron front. */
   catwalk: { width: 4.6, depth: 0.3, thickness: 0.04, drop: 0.1, railHeight: 0.38, posts: 5 },
   /** Floodlight fixtures along the top edge: arm reach and lamp size. */
-  lights: { count: 3, reach: 0.6, rise: 0.24, radius: 0.07 },
+  lights: { count: 4, reach: 0.6, rise: 0.24, radius: 0.07 },
   /** Default CSS px width of the virtual face. */
   resolution: 1200,
 } as const

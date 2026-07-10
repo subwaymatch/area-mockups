@@ -20,8 +20,9 @@
     "product-box",
     "mailer-box",
     "shopping-bag",
-    "coffee-cup",
     "pizza-box",
+    "custom-panel",
+    "custom-box",
     "vinyl-record",
     "rollup-banner",
     "a-frame-sign",
@@ -29,7 +30,6 @@
     "dooh-totem",
     "billboard",
     "storefront",
-    "wheatpaste-wall",
     "bus",
     "van",
     "semi-trailer"

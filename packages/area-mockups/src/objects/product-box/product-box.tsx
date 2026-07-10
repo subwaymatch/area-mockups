@@ -91,6 +91,16 @@ export function ProductBox({
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.55} clearcoat={0.2} clearcoatRoughness={0.7} />
       </RoundedBox>
 
+      {/* manufacturer's glue seam: the vertical lap joint on the left rear edge */}
+      <mesh position={[-body.width / 2 - 0.0015, 0, -body.depth / 2 + 0.2]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[0.38, body.height - 0.02]} />
+        <meshPhysicalMaterial color={color} metalness={0} roughness={0.62} />
+      </mesh>
+      <mesh position={[-body.width / 2 - 0.003, 0, -body.depth / 2 + 0.39]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[0.006, body.height - 0.02]} />
+        <meshBasicMaterial color="rgba(0,0,0)" transparent opacity={0.22} />
+      </mesh>
+
       {/* front panel */}
       <DeviceScreen
         {...shared}

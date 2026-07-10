@@ -1,17 +1,16 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
-import { CoffeeCup, type CoffeeCupProps } from './objects/coffee-cup/coffee-cup'
-import { COFFEE_CUP_VARIANTS } from './objects/coffee-cup/dimensions'
+import { CustomPanel, type CustomPanelProps } from './objects/custom-panel/custom-panel'
+import { customPanelScale } from './objects/custom-panel/dimensions'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
-  CoffeeCupProps,
-  | 'variant'
-  | 'lid'
+  CustomPanelProps,
+  | 'size'
+  | 'back'
   | 'color'
-  | 'sleeveColor'
-  | 'lidColor'
-  | 'wrapBackground'
+  | 'cornerRadius'
+  | 'faceBackground'
   | 'resolution'
   | 'interactive'
   | 'dragToRotate'
@@ -19,35 +18,34 @@ type InheritedObjectProps = Pick<
   | 'screenStyle'
 >
 
-export interface CoffeeCupMockupProps
+export interface CustomPanelMockupProps
   extends Omit<MockupCanvasProps, 'children'>,
     InheritedObjectProps {
-  /** Sleeve wrap design at the full unrolled wrap size — any React node. */
+  /** Front face design — any React node. */
   children?: React.ReactNode
   /** Gentle floating idle animation. */
   float?: boolean
   /** Extra props forwarded to the object group (position, rotation, scale…). */
-  deviceProps?: Omit<CoffeeCupProps, 'children'>
+  deviceProps?: Omit<CustomPanelProps, 'children' | 'size'>
 }
 
 /**
- * The one-liner: a complete, interactive 3D coffee cup mockup whose curved
- * kraft-sleeve wrap is live DOM.
+ * The one-liner: a flat rectangular panel mockup at any size you specify
+ * in millimeters.
  *
  * ```tsx
- * <CoffeeCupMockup autoRotate>
- *   <YourSleeveWrap />
- * </CoffeeCupMockup>
+ * <CustomPanelMockup size={{ width: 600, height: 900, thickness: 5 }}>
+ *   <YourArtwork />
+ * </CustomPanelMockup>
  * ```
  */
-export function CoffeeCupMockup({
+export function CustomPanelMockup({
   children,
-  variant = '12oz',
-  lid,
+  size,
+  back,
   color,
-  sleeveColor,
-  lidColor,
-  wrapBackground,
+  cornerRadius,
+  faceBackground,
   resolution,
   interactive,
   dragToRotate,
@@ -56,15 +54,14 @@ export function CoffeeCupMockup({
   float = false,
   deviceProps,
   ...canvasProps
-}: CoffeeCupMockupProps) {
+}: CustomPanelMockupProps) {
   const object = (
-    <CoffeeCup
-      variant={variant}
-      lid={lid}
+    <CustomPanel
+      size={size}
+      back={back}
       color={color}
-      sleeveColor={sleeveColor}
-      lidColor={lidColor}
-      wrapBackground={wrapBackground}
+      cornerRadius={cornerRadius}
+      faceBackground={faceBackground}
       resolution={resolution}
       interactive={interactive}
       dragToRotate={dragToRotate}
@@ -73,17 +70,17 @@ export function CoffeeCupMockup({
       {...deviceProps}
     >
       {children}
-    </CoffeeCup>
+    </CustomPanel>
   )
 
-  // The cup stands on the counter; ground the shadow just under the base.
-  const groundY = -COFFEE_CUP_VARIANTS[variant].height / 2
+  // The panel stands on its bottom edge; ground the shadow just under it.
+  const groundY = (-size.height * customPanelScale(size)) / 2
   const shadowY = canvasProps.shadowY ?? (float ? groundY - 0.3 : groundY - 0.02)
 
   return (
     <MockupCanvas
       {...canvasProps}
-      camera={canvasProps.camera ?? { position: [0, 0.6, 7.2], fov: 40 }}
+      camera={canvasProps.camera ?? { position: [0, 0.5, 7.4], fov: 40 }}
       shadowY={shadowY}
     >
       {float ? <FloatGroup intensity={0.5}>{object}</FloatGroup> : object}

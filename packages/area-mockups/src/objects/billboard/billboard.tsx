@@ -121,20 +121,19 @@ export function Billboard({
         ))}
       </group>
 
-      {/* gooseneck floodlights over the top edge */}
+      {/* floodlights on the catwalk edge, aimed up at the face — classic
+          bulletins are bottom-lit from the walkway, not top-lit */}
       {Array.from({ length: lights.count }, (_, i) => {
         const x = (i - (lights.count - 1) / 2) * (face.width / lights.count) * 0.82
+        const fixtureY = apronCenterY + apron.height / 2 - catwalk.drop - 0.14 + 0.05
+        const fixtureZ = apron.depth / 2 - 0.04 + catwalk.depth - 0.06
         return (
-          <group key={i} position={[x, panelTop, 0]}>
-            <mesh position={[0, lights.rise / 2, -0.02]}>
-              <boxGeometry args={[0.03, lights.rise + 0.06, 0.03]} />
+          <group key={i} position={[x, fixtureY, fixtureZ]}>
+            <mesh position={[0, 0.07, 0]}>
+              <boxGeometry args={[0.03, 0.14, 0.03]} />
               <meshPhysicalMaterial {...steel} />
             </mesh>
-            <mesh position={[0, lights.rise, lights.reach / 2 - 0.02]}>
-              <boxGeometry args={[0.03, 0.03, lights.reach + 0.04]} />
-              <meshPhysicalMaterial {...steel} />
-            </mesh>
-            <group position={[0, lights.rise - 0.04, lights.reach]} rotation-x={-2.5}>
+            <group position={[0, 0.16, 0]} rotation-x={0.72}>
               <mesh>
                 <cylinderGeometry args={[lights.radius, lights.radius * 0.72, 0.15, 16]} />
                 <meshPhysicalMaterial {...steel} roughness={0.35} />
@@ -147,6 +146,28 @@ export function Billboard({
           </group>
         )
       })}
+
+      {/* torsion tube behind the face — the heavy member the pole tees into */}
+      <mesh rotation-z={Math.PI / 2} position={[0, apronCenterY, -panel.depth / 2 - pole.radius]}>
+        <cylinderGeometry args={[pole.radius * 0.72, pole.radius * 0.72, panel.width * 0.7, 18]} />
+        <meshPhysicalMaterial {...steel} roughness={0.55} />
+      </mesh>
+
+      {/* fixed access ladder up the rear of the pole */}
+      <group position={[0, 0, -pole.radius * 2 - panel.depth / 2 - 0.06]}>
+        {([1, -1] as const).map((s) => (
+          <mesh key={s} position={[s * 0.11, (apronCenterY - standHeight) / 2 + 0.1, 0]}>
+            <boxGeometry args={[0.022, standHeight + apronCenterY - 0.1, 0.022]} />
+            <meshPhysicalMaterial {...steel} />
+          </mesh>
+        ))}
+        {Array.from({ length: 12 }, (_, i) => (
+          <mesh key={i} rotation-z={Math.PI / 2} position={[0, -standHeight + 0.35 + i * ((standHeight + apronCenterY - 0.5) / 11), 0]}>
+            <cylinderGeometry args={[0.011, 0.011, 0.22, 8]} />
+            <meshPhysicalMaterial {...steel} />
+          </mesh>
+        ))}
+      </group>
 
       {/* the live face: real DOM, CSS3D-transformed onto the vinyl */}
       <DeviceScreen

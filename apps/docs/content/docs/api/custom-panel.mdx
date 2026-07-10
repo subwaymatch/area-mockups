@@ -1,0 +1,47 @@
+---
+title: Custom panel
+description: A flat rectangular sheet at any size you specify in millimeters.
+---
+
+`<CustomPanel>` and `<CustomPanelMockup>` render a flat rectangular sheet at
+ANY size — foam board, acrylic sign, art print, table card. Pass real
+millimeters via `size`; the longest edge auto-normalizes to the stage, so a
+100×150 mm card and a 1000×1500 mm board both fill the default camera while
+keeping their true aspect ratio and relative thickness. Front and back are
+live DOM.
+
+<ObjectDemo demo="custom-panel-basic" />
+
+```tsx
+<CustomPanelMockup size={{ width: 600, height: 900, thickness: 5 }} deviceProps={{ rotation: [0, 0.25, 0] }}>
+  <YourArtwork />
+</CustomPanelMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `size` | `{ width, height, thickness? }` | required | Panel size in millimeters. `thickness` defaults to 5. |
+| `back` | `ReactNode` | - | Back face design. |
+| `color` | `string` | `'#f2f1ed'` | Stock color: edges, and the back when unprinted. |
+| `cornerRadius` | `number` | `2` | Corner rounding in millimeters. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed face. |
+| `resolution` | `number` | `560` | Virtual front face width in CSS px. |
+
+`customPanelScale(size)` is exported if you need the world-units-per-mm
+factor (e.g. to position several panels in one scene).
+
+## More examples
+
+### Wide display board
+
+<ObjectDemo demo="custom-panel-wide" />
+
+```tsx
+<CustomPanelMockup size={{ width: 2400, height: 800, thickness: 12 }} color="#20242b" float>
+  <YourArtwork />
+</CustomPanelMockup>
+```

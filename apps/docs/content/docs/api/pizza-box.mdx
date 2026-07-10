@@ -3,18 +3,20 @@ title: Pizza box
 description: A corrugated pizza box — closed or open, with a procedural pizza inside.
 ---
 
-`<PizzaBox>` and `<PizzaBoxMockup>` render a 14" corrugated pizza box in
-the glue-free "Michigan" style: a hollow tray with 45° chamfered front
-corners and a lid hinged along the back wall, whose flap tucks inside the
-base — flush walls, no shoebox overhang. The lid top (`children`), the
-front wall strip and the inside of the lid are live DOM — and flipping
-`open` leans the lid back on its hinge and serves a procedural
-pepperoni-and-basil pizza in the tray.
+`<PizzaBox>` and `<PizzaBoxMockup>` render a 14" corrugated carryout box
+in the classic chain-store shape: a hollow tray with a low front wall and
+45° chamfered front corners, and a lid hinged along the back whose front
+edge folds down as a 45° beveled band before tucking inside the base —
+flush walls, no shoebox overhang. Four live surfaces: the lid top
+(`children`), the beveled band (`bevel`), the front wall strip, and the
+inside of the lid — and flipping `open` leans the lid back on its hinge
+and serves a procedural pepperoni-and-basil pizza, nearly wall to wall
+like a real 14" pie.
 
 <ObjectDemo demo="pizza-basic" />
 
 ```tsx
-<PizzaBoxMockup front={<YourFrontStrip />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+<PizzaBoxMockup bevel={<YourBevelStrip />} front={<YourFrontStrip />} deviceProps={{ rotation: [0, 0.35, 0] }}>
   <YourLidArt />
 </PizzaBoxMockup>
 ```
@@ -25,6 +27,7 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `bevel` | `ReactNode` | - | Strip on the 45° beveled band folding the lid down to the front wall. |
 | `front` | `ReactNode` | - | Front wall strip — the rim you see when boxes are stacked. |
 | `insideLid` | `ReactNode` | - | Inside-of-lid print (menu, coupon…). Rendered only when `open`. |
 | `open` | `boolean` | `false` | Flip the lid back against its hinge. |
@@ -35,12 +38,12 @@ Beyond the [shared screen props](/docs/screen-content):
 
 ## More examples
 
-### Open, all three surfaces live
+### Open, all four surfaces live
 
 <ObjectDemo demo="pizza-open" />
 
 ```tsx
-<PizzaBoxMockup open front={<YourFrontStrip />} insideLid={<YourCoupon />}>
+<PizzaBoxMockup open bevel={<YourBevelStrip />} front={<YourFrontStrip />} insideLid={<YourCoupon />}>
   <YourLidArt />
 </PizzaBoxMockup>
 ```

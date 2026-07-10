@@ -6,6 +6,7 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   PizzaBoxProps,
+  | 'bevel'
   | 'front'
   | 'insideLid'
   | 'open'
@@ -43,6 +44,7 @@ export interface PizzaBoxMockupProps
  */
 export function PizzaBoxMockup({
   children,
+  bevel,
   front,
   insideLid,
   open = false,
@@ -60,6 +62,7 @@ export function PizzaBoxMockup({
 }: PizzaBoxMockupProps) {
   const object = (
     <PizzaBox
+      bevel={bevel}
       front={front}
       insideLid={insideLid}
       open={open}
