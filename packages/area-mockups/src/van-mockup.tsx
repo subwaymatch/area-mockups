@@ -11,6 +11,7 @@ type InheritedObjectProps = Pick<
   | 'color'
   | 'wrapBackground'
   | 'resolution'
+  | 'coverage'
   | 'interactive'
   | 'dragToRotate'
   | 'occlude'
@@ -43,6 +44,7 @@ export function VanMockup({
   color,
   wrapBackground,
   resolution,
+  coverage,
   interactive,
   dragToRotate,
   occlude,
@@ -58,6 +60,7 @@ export function VanMockup({
       color={color}
       wrapBackground={wrapBackground}
       resolution={resolution}
+      coverage={coverage}
       interactive={interactive}
       dragToRotate={dragToRotate}
       occlude={occlude}

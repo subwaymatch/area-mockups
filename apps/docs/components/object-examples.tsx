@@ -87,6 +87,45 @@ import { LockScreen } from './screens/lock-screen'
 import { DesktopScreen } from './screens/desktop-screen'
 import { MusicPlayer } from './screens/music-player'
 
+/**
+ * Full-bleed livery for the van's `coverage="full"` demo. The art deliberately
+ * runs paint, stripes and type across the whole side elevation so the carved
+ * wheel arches, door glass and hardware pockets read instantly.
+ */
+function FullSideLivery() {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        background: 'linear-gradient(112deg, #0d2823 0%, #175a4a 52%, #2ba584 100%)',
+        color: '#eafff7',
+        fontFamily: 'inherit',
+      }}
+    >
+      {/* ridgeline sweep crossing the arches and door — carving cuts through it */}
+      <svg
+        viewBox="0 0 1360 501"
+        preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        aria-hidden
+      >
+        <path d="M0 356 L210 250 L360 322 L540 198 L742 306 L920 172 L1130 288 L1360 190 L1360 501 L0 501 Z" fill="rgba(10, 26, 22, 0.5)" />
+        <path d="M0 398 L210 302 L360 366 L540 252 L742 352 L920 226 L1130 334 L1360 240" fill="none" stroke="#7ee0c0" strokeWidth="7" strokeLinejoin="round" />
+        <circle cx="1052" cy="96" r="54" fill="#f4c944" />
+      </svg>
+      <div style={{ position: 'absolute', top: 38, left: 56, fontSize: 68, fontWeight: 800, letterSpacing: -2, lineHeight: 1 }}>
+        RIDGELINE TOURS
+      </div>
+      <div style={{ position: 'absolute', top: 118, left: 58, fontSize: 25, fontWeight: 600, opacity: 0.88 }}>
+        Small-group trips into the high country · ridgeline.example
+      </div>
+    </div>
+  )
+}
+
 /** Minimal typographic cover for composition demos — one prop, one accent. */
 function MiniCover({ title, from, to }: { title: string; from: string; to: string }) {
   return (
@@ -320,6 +359,16 @@ const DEMOS: Record<string, React.ReactNode> = {
   'van-rear': (
     <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} deviceProps={{ rotation: [0, 2.25, 0] }}>
       <VanLiveryArt />
+    </VanMockup>
+  ),
+  'van-full': (
+    <VanMockup
+      coverage="full"
+      streetSide={<FullSideLivery />}
+      rear={<VanRearArt />}
+      deviceProps={{ rotation: [0, -0.42, 0] }}
+    >
+      <FullSideLivery />
     </VanMockup>
   ),
   'van-paint': (

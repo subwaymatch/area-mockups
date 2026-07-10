@@ -26,6 +26,27 @@
 
 /* ---- top bar --------------------------------------------------------- */
 
+/* The top bar and copy column are full-width boxes stacked ABOVE the phone
+   canvas (z-index 2 vs 1), so the containers themselves must be transparent
+   to pointers — otherwise they swallow drags over the phone. Interactivity
+   comes back on their actual content below. */
+.xh-top,
+.xh-copy,
+.xh-actions {
+  pointer-events: none;
+}
+
+.xh-brand,
+.xh-badge,
+.xh-btn,
+.xh-link,
+.xh-eyebrow,
+.xh-copy h1,
+.xh-lede,
+.xh-hint {
+  pointer-events: auto;
+}
+
 .xh-top {
   position: relative;
   z-index: 2;
