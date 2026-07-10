@@ -78,12 +78,15 @@ export function Brochure({
   const a = (foldAngle * Math.PI) / 180
   const yaws = [a, -a, a]
   const layout: { x: number; z: number; yaw: number }[] = []
+  const creases: { x: number; z: number }[] = []
   let hinge = { x: (-3 * panel.width * Math.cos(a)) / 2, z: (panel.width * Math.sin(a)) / 2 }
-  for (const yaw of yaws) {
+  yaws.forEach((yaw, i) => {
+    // each interior hinge (a panel's shared left edge) gets a fold crease
+    if (i > 0) creases.push(hinge)
     const dir = { x: Math.cos(yaw), z: -Math.sin(yaw) }
     layout.push({ x: hinge.x + (dir.x * panel.width) / 2, z: hinge.z + (dir.z * panel.width) / 2, yaw })
     hinge = { x: hinge.x + dir.x * panel.width, z: hinge.z + dir.z * panel.width }
-  }
+  })
 
   const content = [panels?.[0] ?? children, panels?.[1], panels?.[2]]
   // back faces, indexed so backPanels reads left-to-right when viewed from behind
@@ -122,6 +125,17 @@ export function Brochure({
 
   return (
     <group {...groupProps}>
+      {/* fold creases: a thin paper-colored cylinder down each hinge line, so
+          the folds read as continuous paper rather than butted boxes. The
+          hinge positions come from the same chained layout as the panels, so
+          they stay correct for any foldAngle. */}
+      {creases.map(({ x, z }, i) => (
+        <mesh key={`crease-${i}`} position={[x, 0, z]}>
+          <cylinderGeometry args={[panel.thickness * 0.8, panel.thickness * 0.8, panel.height, 16]} />
+          <meshPhysicalMaterial color={paperColor} metalness={0} roughness={0.85} />
+        </mesh>
+      ))}
+
       {layout.map(({ x, z, yaw }, i) => (
         <group key={i} position={[x, 0, z]} rotation-y={yaw}>
           {/* heavy paper stock — bare stock shows wherever a face is unprinted */}

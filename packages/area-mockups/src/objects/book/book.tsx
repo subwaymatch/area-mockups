@@ -35,8 +35,9 @@ export interface BookProps extends Omit<GroupProps, 'children' | 'color'> {
 
 /**
  * A procedurally built trade hardcover: cloth-wrapped binder's boards with a
- * rounded spine, a cream page block recessed behind the board overhang, and a
- * live full-bleed front cover. No 3D asset files are loaded.
+ * convex cloth backbone, french grooves along the spine joints, headbands, a
+ * cream page block recessed behind the board overhang, and a live full-bleed
+ * front cover. No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
@@ -52,14 +53,16 @@ export function Book({
   screenStyle,
   ...groupProps
 }: BookProps) {
-  const { board, thickness, pages, spine, cover } = BOOK
+  const { board, thickness, pages, spine, groove, headband, cover } = BOOK
   const frontRef = React.useRef<THREE.Mesh>(null!)
   const backRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [frontRef, backRef], [])
 
+  // the boards stop short of the spine by the french groove width — the
+  // groove itself is a thinner recessed strip added separately below
   const boardGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
-      board.width - board.bevel * 2,
+      board.width - groove.width - board.bevel * 2,
       board.height - board.bevel * 2,
       board.radius - board.bevel
     )
@@ -74,7 +77,7 @@ export function Book({
     })
     geometry.translate(0, 0, -depth / 2)
     return geometry
-  }, [board])
+  }, [board, groove])
 
   React.useEffect(() => () => boardGeometry.dispose(), [boardGeometry])
 
@@ -82,13 +85,25 @@ export function Book({
 
   return (
     <group {...groupProps}>
-      {/* front and back binder's boards */}
-      <mesh ref={frontRef} geometry={boardGeometry} position-z={boardZ}>
+      {/* front and back binder's boards, shifted clear of the french groove */}
+      <mesh ref={frontRef} geometry={boardGeometry} position={[groove.width / 2, 0, boardZ]}>
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.72} />
       </mesh>
-      <mesh ref={backRef} geometry={boardGeometry} position-z={-boardZ}>
+      <mesh ref={backRef} geometry={boardGeometry} position={[groove.width / 2, 0, -boardZ]}>
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.72} />
       </mesh>
+
+      {/* french grooves: a shallow recessed cloth strip on each cover along
+          the spine joint (the front one tucks under the cover art's edge) */}
+      {[1, -1].map((sign) => (
+        <mesh
+          key={sign}
+          position={[-board.width / 2 + (groove.width + 0.01) / 2, 0, sign * (boardZ - groove.depth / 2)]}
+        >
+          <boxGeometry args={[groove.width + 0.01, board.height - 0.016, board.thickness - groove.depth]} />
+          <meshPhysicalMaterial color={color} metalness={0} roughness={0.72} />
+        </mesh>
+      ))}
 
       {/* page block, flush at the spine and recessed behind the board squares
           on the three open edges (the fore edge overhang is what you see) */}
@@ -100,22 +115,25 @@ export function Book({
         <meshPhysicalMaterial color={pageColor} metalness={0} roughness={0.92} />
       </RoundedBox>
 
-      {/* rounded cloth spine wrapping the bound edge, flush with the boards */}
-      <RoundedBox
-        args={[spine.width, board.height, thickness]}
-        radius={spine.radius}
-        smoothness={6}
-        position-x={-board.width / 2 + 0.012}
-      >
+      {/* convex cloth backbone: a half-cylinder shell wrapping OUTSIDE the
+          bound edge, projecting past the boards (scaled unit cylinder so the
+          shell spans the full closed thickness) */}
+      <mesh position-x={-board.width / 2 + 0.012} scale={[spine.bulge + 0.012, 1, thickness / 2]}>
+        <cylinderGeometry args={[1, 1, board.height, 24, 1, false, Math.PI, Math.PI]} />
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.72} />
-      </RoundedBox>
-
-      {/* case-binding joint groove on the back board, ~7 mm from the spine
-          edge (the front board's groove is under the cover art) */}
-      <mesh position={[-board.width / 2 + spine.width + 0.03, 0, -thickness / 2 - 0.0015]}>
-        <boxGeometry args={[0.024, board.height - 0.16, 0.002]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.22} />
       </mesh>
+
+      {/* headbands at the head and tail of the spine, spanning the text block */}
+      {[1, -1].map((sign) => (
+        <mesh
+          key={sign}
+          rotation-x={Math.PI / 2}
+          position={[-board.width / 2 + 0.01, sign * (pages.height / 2), 0]}
+        >
+          <cylinderGeometry args={[headband.radius, headband.radius, pages.thickness, 12]} />
+          <meshPhysicalMaterial color="#b6403a" metalness={0} roughness={0.6} />
+        </mesh>
+      ))}
 
       {/* the live cover: real DOM, CSS3D-transformed onto the front board */}
       <DeviceScreen

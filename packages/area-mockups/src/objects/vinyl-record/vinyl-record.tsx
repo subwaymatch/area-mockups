@@ -38,8 +38,9 @@ export interface VinylRecordProps extends Omit<GroupProps, 'children' | 'color'>
 
 /**
  * A procedurally built 12" vinyl LP half-out of its jacket: a square sleeve
- * with live front and back cover art, and a glossy grooved disc whose center
- * label is a live circular DOM area. No 3D asset files are loaded.
+ * with live front and back cover art, a white paper inner sleeve peeking out
+ * of the mouth, and a glossy grooved disc whose center label is a live
+ * circular DOM area. No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
@@ -57,7 +58,7 @@ export function VinylRecord({
   screenStyle,
   ...groupProps
 }: VinylRecordProps) {
-  const { sleeve, disc, discPeek } = VINYL_RECORD
+  const { sleeve, disc, innerSleeve, discPeek } = VINYL_RECORD
   const sleeveRef = React.useRef<THREE.Mesh>(null!)
   const discRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [sleeveRef, discRef], [])
@@ -126,14 +127,22 @@ export function VinylRecord({
           </DeviceScreen>
         )}
 
+        {/* white paper inner sleeve behind the disc, peeking out of the
+            jacket mouth */}
+        <mesh position={[0.08, 0, discZ - disc.thickness / 2 - 0.004]}>
+          <boxGeometry args={[innerSleeve.size, innerSleeve.size, innerSleeve.thickness]} />
+          <meshPhysicalMaterial color="#fdfdfa" metalness={0} roughness={0.95} />
+        </mesh>
+
         {/* the disc, half-out behind the jacket */}
         <group position={[discX, 0, discZ]}>
           <mesh ref={discRef} rotation-x={Math.PI / 2}>
             <cylinderGeometry args={[disc.radius, disc.radius, disc.thickness, 64]} />
             <meshPhysicalMaterial color={vinylColor} metalness={0.1} roughness={0.32} clearcoat={1} clearcoatRoughness={0.25} />
           </mesh>
-          {/* groove sheen rings */}
-          {[0.95, 0.86, 0.76, 0.68].map((f) => (
+          {/* groove sheen rings — the playing surface runs from the lead-in
+              (~146 mm radius) down to the lead-out at ~60 mm (f ≈ 0.42) */}
+          {[0.95, 0.87, 0.79, 0.71, 0.63, 0.55, 0.48, 0.42].map((f) => (
             <mesh key={f} rotation-x={Math.PI / 2} position-z={0.002}>
               <torusGeometry args={[disc.radius * f, 0.0035, 6, 80]} />
               <meshPhysicalMaterial color="#26262a" metalness={0.3} roughness={0.2} clearcoat={1} />
@@ -157,10 +166,10 @@ export function VinylRecord({
             {label}
           </DeviceScreen>
 
-          {/* spindle hole */}
+          {/* spindle hole — unlit black so it reads as a hole, not a plug */}
           <mesh rotation-x={Math.PI / 2} position-z={0.004}>
-            <cylinderGeometry args={[0.028, 0.028, disc.thickness + 0.012, 16]} />
-            <meshPhysicalMaterial color="#0a0a0c" metalness={0} roughness={0.9} />
+            <cylinderGeometry args={[disc.spindleRadius, disc.spindleRadius, disc.thickness + 0.012, 24]} />
+            <meshBasicMaterial color="#050506" />
           </mesh>
         </group>
       </group>

@@ -16,8 +16,11 @@ export const VINYL_RECORD_MM = 1 / 92
 export const VINYL_RECORD = {
   /** Square jacket. `radius` softens the corners a hair. */
   sleeve: { size: 3.402, thickness: 0.043, radius: 0.01 },
-  /** The disc: vinyl radius, thickness, and the label/dead-wax radii. */
-  disc: { radius: 1.641, thickness: 0.022, labelRadius: 0.543, deadWaxRadius: 0.62 },
+  /** The disc: vinyl radius, thickness, label/dead-wax radii, and the
+   * standard 7.24 mm diameter spindle hole. */
+  disc: { radius: 1.641, thickness: 0.022, labelRadius: 0.543, deadWaxRadius: 0.62, spindleRadius: 0.039 },
+  /** White paper inner sleeve, slightly smaller than the jacket. */
+  innerSleeve: { size: 3.35, thickness: 0.006 },
   /** Fraction of the disc exposed past the sleeve edge (~62% shows the whole label). */
   discPeek: 0.62,
   /** Default CSS px width of the virtual cover; the label shares its dpi. */

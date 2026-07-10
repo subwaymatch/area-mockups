@@ -105,6 +105,13 @@ export function GreetingCard({
 
   return (
     <group {...groupProps}>
+      {/* rounded crease: a slim stock-colored cylinder bridging the panels at
+          the fold, so the spine reads as continuous paper rather than a seam */}
+      <mesh position={[0, 0, spineZ]}>
+        <cylinderGeometry args={[0.022, 0.022, panel.height, 24]} />
+        <meshPhysicalMaterial color={color} metalness={0} roughness={0.85} />
+      </mesh>
+
       {panels.map(({ x, z, yaw, ref, outer, inner }, i) => (
         <group key={i} position={[x, 0, z]} rotation-y={yaw}>
           {/* heavy card stock */}

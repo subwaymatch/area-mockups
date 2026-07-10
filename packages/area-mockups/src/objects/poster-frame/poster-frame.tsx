@@ -39,8 +39,9 @@ export interface PosterFrameProps extends Omit<GroupProps, 'children' | 'color'>
 /**
  * A procedurally built gallery poster frame: an extruded molding whose rabbet
  * lip overlaps the sheet edge like a real frame, a shallowly recessed live
- * 18" x 24" poster with an acrylic glazing sheen, an optional gallery
- * matboard, and a kraft dust cover on the back. No 3D asset files are loaded.
+ * 18" x 24" poster behind a clear acrylic glazing pane (plus a soft sheen
+ * overlay), an optional gallery matboard, and a kraft dust cover on the back.
+ * No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
@@ -112,14 +113,24 @@ export function PosterFrame({
     [outerWidth, outerHeight, frame]
   )
 
+  const glazingGeometry = React.useMemo(
+    () =>
+      new THREE.ShapeGeometry(
+        roundedRectShape(poster.width - 0.02, poster.height - 0.02, poster.radius),
+        8
+      ),
+    [poster]
+  )
+
   React.useEffect(() => {
     return () => {
       frameGeometry.dispose()
       backingGeometry.dispose()
       matGeometry?.dispose()
       dustCoverGeometry.dispose()
+      glazingGeometry.dispose()
     }
-  }, [frameGeometry, backingGeometry, matGeometry, dustCoverGeometry])
+  }, [frameGeometry, backingGeometry, matGeometry, dustCoverGeometry, glazingGeometry])
 
   const sheetZ = frame.depth / 2 - recess
 
@@ -139,6 +150,20 @@ export function PosterFrame({
       {matGeometry && (
         <mesh geometry={matGeometry} position-z={sheetZ - 0.003}>
           <meshPhysicalMaterial color={matColor} metalness={0} roughness={0.95} />
+        </mesh>
+      )}
+
+      {/* clear acrylic glazing: a thin transmissive pane just behind the lip,
+          in front of the sheet (the DOM sheen overlay adds the reflections) */}
+      {glazing && (
+        <mesh geometry={glazingGeometry} position-z={frame.depth / 2 - 0.007}>
+          <meshPhysicalMaterial
+            transmission={0.9}
+            roughness={0.05}
+            thickness={0.01}
+            ior={1.49}
+            metalness={0}
+          />
         </mesh>
       )}
 

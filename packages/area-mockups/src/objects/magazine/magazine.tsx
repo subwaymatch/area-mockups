@@ -77,10 +77,11 @@ export function Magazine({
         <meshPhysicalMaterial color={pageColor} metalness={0} roughness={0.9} />
       </RoundedBox>
 
-      {/* perfect-bound spine: the glossy cover stock wraps the bound edge —
-          page edges show only on the three trimmed sides */}
+      {/* perfect-bound spine: the glossy cover stock wraps only the bound
+          edge, trimmed flush with the block on the other sides (the hair of
+          offset just avoids z-fighting with the page block faces) */}
       <RoundedBox
-        args={[0.016, body.height - 0.004, body.thickness + 0.004]}
+        args={[0.016, body.height - 0.002, body.thickness + 0.001]}
         radius={0.004}
         position-x={-body.width / 2}
       >
