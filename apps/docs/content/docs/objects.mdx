@@ -1,0 +1,66 @@
+---
+title: Objects and print surfaces
+description: Books, magazines, brochures, business cards, poster frames, billboards, and a wrap-ready cargo van — every non-device mockup in the library.
+---
+
+Beyond phones and laptops, the library models everyday objects whose printable
+surface is a live DOM area: design a book cover or a van livery in plain React
+(or drop in an `<iframe>`), and it stays interactive on the 3D object.
+
+Like the devices, every object is procedurally generated at runtime from real
+product dimensions — no GLB files, no hosting, no pop-in.
+
+## The objects
+
+| Object | Component | Real size | Live area | Default virtual px |
+| --- | --- | --- | --- | --- |
+| Hardcover book | `Book` | 156×234×30 mm trade hardcover | front cover | 480×720 |
+| Magazine | `Magazine` | 216×279×6 mm perfect-bound | front cover | 480×620 |
+| Tri-fold brochure | `Brochure` | 93×216 mm per letter-fold panel | 3 panels | 360×835 each |
+| Business card | `BusinessCard` | 89×51 mm, 32 pt stock | front + back | 520×298 each |
+| Poster frame | `PosterFrame` | 18"×24" sheet, 22 mm molding | poster sheet | 540×721 |
+| Billboard | `Billboard` | 14'×48' highway bulletin | vinyl face | 1200×350 |
+| Cargo van | `Van` | 5.9×2.55×2.05 m panel van | side wrap panel | 900×368 |
+
+Each object also has a one-liner `*Mockup` wrapper (`BookMockup`,
+`VanMockup`, …) that bundles the stage, camera, and grounded shadow — the same
+pattern as the devices.
+
+```tsx
+'use client'
+
+import { BookMockup } from 'area-mockups'
+
+export function CoverPreview() {
+  return (
+    <BookMockup color="#1f3a5f" float>
+      <YourCoverArt /> {/* any React node, full bleed */}
+    </BookMockup>
+  )
+}
+```
+
+## Multiple live surfaces
+
+Two objects host more than one surface:
+
+- **`Brochure`** renders three panels in a standing zig-zag. Pass one node as
+  `children` for the first panel, or all three via
+  `panels={[<Front />, <Middle />, <Back />]}`. `foldAngle={0}` lays the sheet
+  flat.
+- **`BusinessCard`** takes `children` for the front and `back` for the reverse
+  — spin the card around to see it.
+
+## Ground planes
+
+`VanMockup` and `BillboardMockup` ground their shadow at the wheels and pole
+base respectively, like `MonitorMockup` does with its stand. The floating
+`float` idle animation is available on every object, but reads most natural on
+the hand-held print pieces.
+
+## Renderer-agnostic specs
+
+As with the devices, the raw dimensions are exported as plain data: `BOOK`,
+`MAGAZINE`, `BROCHURE`, `BUSINESS_CARD`, `POSTER_FRAME`, `BILLBOARD`, and
+`VAN`, plus aspect-ratio constants like `VAN_WRAP_ASPECT`. The same numbers
+will drive the planned 2D (CSS/SVG) renderers.

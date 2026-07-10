@@ -12,8 +12,9 @@ export default function DemosPage() {
       <header className="page-header">
         <h1>Demos</h1>
         <p>
-          Every phone below is a live WebGL scene, and every screen is real DOM. Drag the
-          devices, click the buttons, scroll the iframe.
+          Every mockup below is a live WebGL scene, and every surface is real DOM — device
+          screens, book covers, brochure panels, even the van wrap. Drag the models, click
+          the buttons, scroll the iframe.
         </p>
       </header>
       <DemoGallery />

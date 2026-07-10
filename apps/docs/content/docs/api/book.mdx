@@ -1,0 +1,28 @@
+---
+title: Book (hardcover)
+description: A trade hardcover with a live full-bleed front cover.
+---
+
+`<Book>` and `<BookMockup>` render a 156×234 mm trade hardcover: cloth-wrapped
+binder's boards with a rounded spine, a cream page block recessed behind the
+board overhang, and the whole front cover as a live 480×720 DOM surface.
+
+```tsx
+<BookMockup color="#1f3a5f" float>
+  <YourCoverArt />
+</BookMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#1f3a5f'` | Cloth color: spine, back board, and board edges. |
+| `pageColor` | `string` | `'#f4eede'` | Paper color of the page block edges. |
+| `coverBackground` | `string` | `'#ffffff'` | CSS background behind your cover content. |
+| `resolution` | `number` | `480` | Virtual cover width in CSS px; height follows the board aspect. |
+
+The screen-background prop is named `coverBackground` here — on a book it
+paints paper, not glass.

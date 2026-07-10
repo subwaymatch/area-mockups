@@ -1,0 +1,31 @@
+---
+title: Van (cargo van)
+description: A wrap-ready cargo van with a live livery panel on the cargo side.
+---
+
+`<Van>` and `<VanMockup>` render a generic Euro-style cargo van (a
+Transit/Sprinter-class silhouette, no brand): the shell is the side profile —
+sloped nose, raked windshield, high roof, wheel-arch cutouts — extruded across
+the width, with wheels, glass, lights, mirrors, and bumpers added on. The flat
+cargo side carries a live 900×368 vinyl-wrap panel for your livery. The mockup
+grounds the wheels on a virtual road plane.
+
+```tsx
+<VanMockup deviceProps={{ rotation: [0, -0.4, 0] }}>
+  <YourLivery />
+</VanMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#eef0f2'` | Body paint. Wrap fleets are usually white. |
+| `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
+| `resolution` | `number` | `900` | Virtual wrap width in CSS px; height follows the panel aspect. |
+
+The wrap panel faces +Z (the curb side) and sits clear of the wheel arches
+and cab glass. Rotate the group to pose the van; the panel content stays
+live at any angle.

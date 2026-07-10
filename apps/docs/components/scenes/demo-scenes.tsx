@@ -1,10 +1,34 @@
 'use client'
 
-import { LaptopMockup, MonitorMockup, PhoneMockup, WatchMockup } from 'area-mockups'
+import {
+  BillboardMockup,
+  BookMockup,
+  BrochureMockup,
+  BusinessCardMockup,
+  LaptopMockup,
+  MagazineMockup,
+  MonitorMockup,
+  PhoneMockup,
+  PosterFrameMockup,
+  VanMockup,
+  WatchMockup,
+} from 'area-mockups'
 import { TapCounter } from '../screens/tap-counter'
 import { LockScreen } from '../screens/lock-screen'
 import { DesktopScreen } from '../screens/desktop-screen'
 import { WatchFace } from '../screens/watch-face'
+import {
+  BillboardAdArt,
+  BookCoverArt,
+  BrochureFrontArt,
+  BrochureTrailsArt,
+  BrochureVisitArt,
+  CardBackArt,
+  CardFrontArt,
+  MagazineCoverArt,
+  PosterArt,
+  VanLiveryArt,
+} from '../screens/print-art'
 import { VariantExplorer } from './variant-explorer'
 import { TabletExplorer } from './tablet-explorer'
 
@@ -141,6 +165,105 @@ export default function DemoScenes() {
         <WatchMockup float color="#1c1d21" bandColor="#33415c" deviceProps={{ rotation: [0, -0.35, 0] }}>
           <WatchFace />
         </WatchMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Hardcover book"
+        description={
+          <>
+            <code>&lt;BookMockup&gt;</code>: a 156×234 mm trade hardcover — cloth boards,
+            rounded spine, cream page block — with the whole jacket as live DOM.
+          </>
+        }
+      >
+        <BookMockup float color="#16324a" deviceProps={{ rotation: [0, 0.35, 0] }}>
+          <BookCoverArt />
+        </BookMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Magazine cover"
+        description={
+          <>
+            <code>&lt;MagazineMockup&gt;</code>: a perfect-bound letter-trim monthly. The
+            cover is a 480×620 virtual page, so real editorial CSS just works.
+          </>
+        }
+      >
+        <MagazineMockup float deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <MagazineCoverArt />
+        </MagazineMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Tri-fold brochure"
+        description={
+          <>
+            <code>&lt;BrochureMockup&gt;</code>: three letter-fold panels standing in a
+            zig-zag, each its own live surface via <code>panels=&#123;[…]&#125;</code>.
+          </>
+        }
+      >
+        <BrochureMockup
+          panels={[<BrochureFrontArt key="f" />, <BrochureTrailsArt key="t" />, <BrochureVisitArt key="v" />]}
+          deviceProps={{ rotation: [0, -0.12, 0] }}
+        />
+      </DemoCard>
+
+      <DemoCard
+        title="Business card, both sides"
+        description={
+          <>
+            <code>&lt;BusinessCardMockup&gt;</code>: 32 pt stock with rounded die-cut
+            corners. Drag it around — the <code>back</code> prop prints the reverse.
+          </>
+        }
+      >
+        <BusinessCardMockup float back={<CardBackArt />} deviceProps={{ rotation: [-0.1, -0.35, 0] }}>
+          <CardFrontArt />
+        </BusinessCardMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Poster frame"
+        description={
+          <>
+            <code>&lt;PosterFrameMockup&gt;</code>: an 18″×24″ sheet recessed in a gallery
+            molding with a true through-hole and kraft dust cover on the back.
+          </>
+        }
+      >
+        <PosterFrameMockup deviceProps={{ rotation: [0, 0.25, 0] }}>
+          <PosterArt />
+        </PosterFrameMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Highway billboard"
+        description={
+          <>
+            <code>&lt;BillboardMockup&gt;</code>: the classic 14′×48′ bulletin on a
+            monopole — catwalk, railing, gooseneck floodlights — grounded like a monitor.
+          </>
+        }
+      >
+        <BillboardMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+          <BillboardAdArt />
+        </BillboardMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Vehicle wrap"
+        description={
+          <>
+            <code>&lt;VanMockup&gt;</code>: a procedural cargo van with a live vinyl-wrap
+            panel on the cargo side — design a fleet livery in plain CSS.
+          </>
+        }
+      >
+        <VanMockup deviceProps={{ rotation: [0, -0.5, 0] }}>
+          <VanLiveryArt />
+        </VanMockup>
       </DemoCard>
 
       <DemoCard

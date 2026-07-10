@@ -1,0 +1,26 @@
+---
+title: Business card
+description: A 32 pt business card with live front and back faces.
+---
+
+`<BusinessCard>` and `<BusinessCardMockup>` render an 89×51 mm (3.5"×2")
+business card on premium 32 pt stock with rounded die-cut corners. The front
+is a live 520×298 DOM surface; pass `back` to print the reverse too, then
+spin the card around.
+
+```tsx
+<BusinessCardMockup back={<CardBack />} float>
+  <CardFront />
+</BusinessCardMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back face design. Plain stock when omitted. |
+| `color` | `string` | `'#f7f6f2'` | Stock color: the die-cut edges and unprinted back. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
+| `resolution` | `number` | `520` | Virtual face width in CSS px (~150 dpi); height follows the card aspect. |

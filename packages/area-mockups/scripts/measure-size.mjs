@@ -12,6 +12,13 @@ const ENTRIES = {
   'TabletMockup (iPad + Galaxy Tab)': "export { TabletMockup } from './src/index'",
   'WatchMockup (Apple Watch)': "export { WatchMockup } from './src/index'",
   'MonitorMockup (Studio Display)': "export { MonitorMockup } from './src/index'",
+  'BookMockup (hardcover)': "export { BookMockup } from './src/index'",
+  'MagazineMockup (glossy monthly)': "export { MagazineMockup } from './src/index'",
+  'BrochureMockup (tri-fold)': "export { BrochureMockup } from './src/index'",
+  'BusinessCardMockup (32pt card)': "export { BusinessCardMockup } from './src/index'",
+  'PosterFrameMockup (18x24 frame)': "export { PosterFrameMockup } from './src/index'",
+  'BillboardMockup (14x48 bulletin)': "export { BillboardMockup } from './src/index'",
+  'VanMockup (cargo van)': "export { VanMockup } from './src/index'",
   'everything (full library)': "export * from './src/index'",
 }
 

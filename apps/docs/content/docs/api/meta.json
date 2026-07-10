@@ -8,6 +8,13 @@
     "laptop",
     "tablet",
     "watch",
-    "monitor"
+    "monitor",
+    "book",
+    "magazine",
+    "brochure",
+    "business-card",
+    "poster-frame",
+    "billboard",
+    "van"
   ]
 }

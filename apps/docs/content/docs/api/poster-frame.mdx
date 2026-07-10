@@ -1,0 +1,25 @@
+---
+title: Poster frame
+description: An 18x24 gallery frame with a live recessed poster sheet.
+---
+
+`<PosterFrame>` and `<PosterFrameMockup>` render an 18"×24" poster in a 22 mm
+gallery frame: an extruded molding with a true through-hole, the sheet
+recessed behind the front lip, and a kraft dust cover on the back. The poster
+is a live 540×721 DOM surface.
+
+```tsx
+<PosterFrameMockup color="#22262e">
+  <YourPosterArt />
+</PosterFrameMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#22262e'` | Frame molding color. |
+| `posterBackground` | `string` | `'#ffffff'` | CSS background behind your poster content. |
+| `resolution` | `number` | `540` | Virtual poster width in CSS px; height follows the 18×24 sheet. |

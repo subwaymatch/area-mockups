@@ -1,0 +1,26 @@
+---
+title: Magazine
+description: A perfect-bound glossy monthly with a live full-bleed cover.
+---
+
+`<Magazine>` and `<MagazineMockup>` render a 216×279 mm letter-trim,
+perfect-bound magazine: a thin page block with visible paper edges, a flat
+glued spine, a glossier back cover, and the whole front cover as a live
+480×620 DOM surface.
+
+```tsx
+<MagazineMockup float>
+  <YourCoverArt />
+</MagazineMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `pageColor` | `string` | `'#fbfaf7'` | Paper color of the trimmed page edges. |
+| `backColor` | `string` | `'#e9e7e2'` | Back cover color. |
+| `coverBackground` | `string` | `'#ffffff'` | CSS background behind your cover content. |
+| `resolution` | `number` | `480` | Virtual cover width in CSS px; height follows the trim aspect. |

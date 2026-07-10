@@ -1,0 +1,29 @@
+---
+title: Brochure (tri-fold)
+description: A standing letter tri-fold with three live panels.
+---
+
+`<Brochure>` and `<BrochureMockup>` render a US letter tri-fold standing in a
+zig-zag accordion. Each of the three 93×216 mm panels is its own live 360×835
+DOM surface.
+
+```tsx
+<BrochureMockup panels={[<Front />, <Middle />, <Back />]} />
+```
+
+Passing a single node as `children` fills just the first (left) panel.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `panels` | `[ReactNode?, ReactNode?, ReactNode?]` | - | Content per panel, left to right. Wins over `children` where provided. |
+| `foldAngle` | `number` | `24` | Zig-zag fold angle in degrees. `0` lays the sheet out flat. |
+| `paperColor` | `string` | `'#f5f4f0'` | Stock color of the panel backs and edges. |
+| `panelBackground` | `string` | `'#ffffff'` | CSS background behind each panel's content. |
+| `resolution` | `number` | `360` | Virtual width of one panel in CSS px; height follows the panel aspect. |
+
+The fold keeps every panel centered on the group origin, so the brochure
+orbits about its own visual center at any `foldAngle`.
