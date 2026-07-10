@@ -1,0 +1,45 @@
+---
+title: Storefront
+description: A high-street shopfront with a live fascia sign and window poster.
+---
+
+`<Storefront>` and `<StorefrontMockup>` render a classic single-unit shop
+façade: painted timber surround with cornice and pilasters, a 600 mm stall
+riser, big display glazing with a mullion, a glazed door on the right — and
+two live surfaces: the fascia sign band (5390×451 mm) above the glazing and
+an A1-class poster pasted inside the left window bay.
+
+<ObjectDemo demo="storefront-basic" />
+
+```tsx
+<StorefrontMockup windowPoster={<YourPoster />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+  <YourSign />
+</StorefrontMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `windowPoster` | `ReactNode` | - | Poster displayed inside the left window bay. |
+| `color` | `string` | `'#2e4638'` | Shopfront paint: fascia surround, frames, door, stall riser. |
+| `wallColor` | `string` | `'#8d7a6a'` | Masonry above and around the shopfront. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind sign and poster content. |
+| `resolution` | `number` | `800` | Virtual fascia sign width in CSS px. The window poster is a fixed 420 px wide. |
+
+The pavement sits `STOREFRONT.standHeight` below the origin — the mockup
+grounds the shadow there automatically.
+
+## More examples
+
+### Oxblood paint, three-quarter view
+
+<ObjectDemo demo="storefront-paint" />
+
+```tsx
+<StorefrontMockup color="#5c2330" wallColor="#6d6258" windowPoster={<YourPoster />} deviceProps={{ rotation: [0, 0.3, 0] }}>
+  <YourSign />
+</StorefrontMockup>
+```

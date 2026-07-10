@@ -1,0 +1,43 @@
+---
+title: Vinyl record
+description: A 12-inch LP half-out of its sleeve, with live cover, back and disc label.
+---
+
+`<VinylRecord>` and `<VinylRecordMockup>` render a 12" LP: a 313 mm square
+jacket with live front (and optional back) cover art, and a glossy grooved
+302 mm disc peeking ~40% out — concentric track-gap sheen rings, dead-wax
+annulus, spindle hole, and the 100 mm center label as a live **circular**
+DOM area.
+
+<ObjectDemo demo="vinyl-basic" />
+
+```tsx
+<VinylRecordMockup label={<Label />} deviceProps={{ rotation: [0, -0.2, 0] }}>
+  <CoverArt />
+</VinylRecordMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back cover design. |
+| `label` | `ReactNode` | - | Center label — a live circle, like the round watch face. |
+| `vinylColor` | `string` | `'#0b0b0d'` | Disc color. Classic black; try pressing colors. |
+| `color` | `string` | `'#f2efe8'` | Jacket stock (edges and unprinted faces). |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind cover, back and label. |
+| `resolution` | `number` | `520` | Virtual cover width in CSS px; the label shares its dpi. |
+
+## More examples
+
+### A colored pressing
+
+<ObjectDemo demo="vinyl-colored" />
+
+```tsx
+<VinylRecordMockup vinylColor="#7a2337" color="#101725" label={<Label />} float>
+  <CoverArt />
+</VinylRecordMockup>
+```

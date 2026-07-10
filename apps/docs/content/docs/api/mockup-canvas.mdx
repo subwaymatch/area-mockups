@@ -7,6 +7,21 @@ description: The ready-made stage, with a WebGL canvas, studio lighting, soft sh
 shot needs. Compose it with any device, for example
 `<MockupCanvas><Phone>...</Phone></MockupCanvas>`.
 
+One canvas, two bare devices, one shared studio light rig and shadow plane.
+
+<ObjectDemo demo="phone-duo" />
+
+```tsx
+<MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
+  <Phone variant="s25ultra" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
+    <YourAndroidApp />
+  </Phone>
+  <IPhone variant="promax" position={[1.6, 0, 0]} rotation={[0, -0.3, 0]}>
+    <YourIOSApp />
+  </IPhone>
+</MockupCanvas>
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -15,7 +30,7 @@ shot needs. Compose it with any device, for example
 | `controls` | `boolean` | `true` | Drag-to-orbit controls (pan is always disabled). |
 | `autoRotate` | `boolean` | `false` | Slowly orbit the camera around the device. |
 | `autoRotateSpeed` | `number` | `1` | Orbit speed when `autoRotate` is on. |
-| `zoom` | `boolean` | `false` | Scroll and pinch zoom. Off by default so embedded mockups never hijack page scroll. |
+| `zoom` | `boolean` | `false` | Pinch zoom on touch, scroll-wheel zoom on desktop, plus overlay +/− buttons. Off by default so embedded mockups never hijack page scroll; on, the canvas owns two-finger gestures. |
 | `shadows` | `boolean` | `true` | Soft contact shadow under the device. |
 | `shadowY` | `number` | `-2.05` | Y position (world units) of the shadow plane. Grounds the device on its shadow. The mockup wrappers compute this per device. |
 | `environment` | `boolean` | `true` | Procedural studio lighting and reflections, generated on the GPU with no HDR downloads. |
@@ -23,3 +38,19 @@ shot needs. Compose it with any device, for example
 | `camera` | r3f camera | `[0, 0.5, 7.4]`, fov 40 | Override the default camera. |
 | `dpr` | `number \| [min, max]` | `[1, 2]` | Device pixel ratio clamp. Keeps hi-dpi GPU load predictable. |
 | `className`, `style` | - | - | Forwarded to the canvas wrapper. |
+
+## More examples
+
+### Zoom controls
+
+`zoom` enables pinch on touch, the scroll wheel on desktop, and overlay
++/− buttons on both. Zooming clamps to the same distance range as the
+orbit controls.
+
+<ObjectDemo demo="canvas-zoom" />
+
+```tsx
+<BookMockup zoom float color="#4a2c3f">
+  <YourCoverArt />
+</BookMockup>
+```

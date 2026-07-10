@@ -1,0 +1,49 @@
+---
+title: ID card (badge on lanyard)
+description: A CR80 badge hanging from a lanyard, with live front and back faces.
+---
+
+`<IDCard>` and `<IDCardMockup>` render a portrait CR80 badge (54×85.6 mm,
+30 mil PVC) hanging from a lanyard: a real 14×3 mm punched slot through the
+card, the full hardware chain from real lanyards — trigger snap hook through
+the slot, swivel barrel, split ring, strap crimp — and two woven strap halves
+rising in a hanging ~30° V out of the top of the frame.
+
+The printable face is live DOM on the front and, optionally, the back. Like
+a real badge, the design keeps clear of the punch strip: the live area is
+the card minus the top 14 mm, which stays bare stock around the slot.
+
+<ObjectDemo demo="idcard-basic" />
+
+```tsx
+<IDCardMockup float deviceProps={{ rotation: [0, -0.25, 0.04] }}>
+  <BadgeFront />
+</IDCardMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back face design. Plain stock when omitted. |
+| `color` | `string` | `'#f4f5f7'` | Card stock: the edges and the unprinted punch strip. |
+| `lanyardColor` | `string` | `'#b3223a'` | Woven strap color (lanyards come in saturated solids). |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
+| `resolution` | `number` | `420` | Virtual face width in CSS px (~300 dpi); height follows the printable area. |
+
+## More examples
+
+### Both sides, on a corporate lanyard
+
+`lanyardColor` takes any CSS color; `back` prints the reverse — barcodes,
+return-if-found text, wifi credentials for the office guest network…
+
+<ObjectDemo demo="idcard-back" />
+
+```tsx
+<IDCardMockup autoRotate autoRotateSpeed={2} lanyardColor="#1d4ed8" back={<BadgeBack />}>
+  <BadgeFront />
+</IDCardMockup>
+```

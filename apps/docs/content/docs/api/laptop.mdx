@@ -8,6 +8,10 @@ unibody deck with the real 78-key Magic Keyboard layout (printed legends,
 rendered as a single instanced draw call), trackpad, hinge band, ports, and a
 notched display.
 
+The window on screen is real DOM — click it, drag the mockup.
+
+<ObjectDemo demo="laptop-basic" />
+
 ```tsx
 <LaptopMockup color="#aec6d9" deviceProps={{ rotation: [0, -0.35, 0] }}>
   <YourDesktopApp />
@@ -26,3 +30,17 @@ Beyond the [shared screen props](/docs/screen-content):
 | `resolution` | `number` | `1280` | Virtual display width; 1280 gives 1280×832, exactly the MacBook Air default scaled resolution, so desktop breakpoints apply. |
 
 There is no `orientation` prop; laptops only have one pose.
+
+## More examples
+
+### Midnight, tighter lid angle
+
+`openAngle` poses the hinge; 100° reads more "working", 110° more "display".
+
+<ObjectDemo demo="laptop-midnight" />
+
+```tsx
+<LaptopMockup color="#2e3642" openAngle={100} float>
+  <YourDesktopApp />
+</LaptopMockup>
+```

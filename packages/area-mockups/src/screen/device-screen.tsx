@@ -1,7 +1,8 @@
 import * as React from 'react'
 import type * as THREE from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import { Html } from '@react-three/drei'
-import { useThree } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 
 /**
  * Class applied to drei's `<Html transform>` portal root so we can promote it to
@@ -88,6 +89,27 @@ export function DeviceScreen({
 
   React.useEffect(() => () => screenDrag.current?.cancel(), [])
 
+  // Backface culling for the DOM plane. CSS backface-visibility can't see
+  // drei's transform chain, and two overlapping <Html> planes (a card's front
+  // and back) otherwise paint in DOM order — the reverse face would bleed
+  // through, mirrored. Hiding the plane whenever its normal points away from
+  // the camera is deterministic and also covers `occlude: false` setups.
+  const anchorRef = React.useRef<Group>(null!)
+  const contentRef = React.useRef<HTMLDivElement>(null!)
+  const cullVecs = React.useRef({ n: new Vector3(), p: new Vector3(), q: new Quaternion() })
+  useFrame(({ camera }) => {
+    const anchor = anchorRef.current
+    const content = contentRef.current
+    if (!anchor || !content) return
+    const { n, p, q } = cullVecs.current
+    anchor.getWorldQuaternion(q)
+    anchor.getWorldPosition(p)
+    n.set(0, 0, 1).applyQuaternion(q)
+    p.subVectors(camera.position, p)
+    const visibility = n.dot(p) > 0 ? '' : 'hidden'
+    if (content.style.visibility !== visibility) content.style.visibility = visibility
+  })
+
   // CSS px per world unit for the virtual display.
   const pxPerUnit = resolution / width
   const px = (units: number) => units * pxPerUnit
@@ -147,45 +169,46 @@ export function DeviceScreen({
   }
 
   return (
-    <Html
-      transform
-      occlude={occlude}
-      distanceFactor={(400 * width) / resolution}
-      position={position}
-      rotation={rotation}
-      zIndexRange={[10, 0]}
-      wrapperClass={dragToRotate ? `${SCREEN_LAYER_CLASS} ${SCREEN_LAYER_CLASS}--pan` : SCREEN_LAYER_CLASS}
-    >
+    <group ref={anchorRef} position={position} rotation={rotation}>
+      <Html
+        transform
+        occlude={occlude}
+        distanceFactor={(400 * width) / resolution}
+        zIndexRange={[10, 0]}
+        wrapperClass={dragToRotate ? `${SCREEN_LAYER_CLASS} ${SCREEN_LAYER_CLASS}--pan` : SCREEN_LAYER_CLASS}
+      >
       {/*
         will-change: compositor-layer promotion (see component doc above).
         touch-action pan-y must cover drei's whole transformed div chain — the
         3D layers are compositor boundaries, and Chromium ignores a pan-y set
         only on the content inside them, which would trap page scrolling.
       */}
-      <style>{`.${SCREEN_LAYER_CLASS}{will-change:transform}.${SCREEN_LAYER_CLASS}--pan,.${SCREEN_LAYER_CLASS}--pan>div,.${SCREEN_LAYER_CLASS}--pan>div>div,.${SCREEN_LAYER_CLASS}--pan>div>div>div{touch-action:pan-y}`}</style>
-      <div
-        onPointerDown={beginScreenDrag}
-        style={{
-          position: 'relative',
-          width: resolution,
-          height: Math.round((resolution * height) / width),
-          borderRadius,
-          overflow: 'hidden',
-          background,
-          pointerEvents: interactive ? 'auto' : 'none',
-          // pan-y mirrors the canvas: on touch, vertical swipes over the screen
-          // scroll the page; horizontal drags past the threshold rotate the
-          // device; taps still click content.
-          touchAction: dragToRotate ? 'pan-y' : undefined,
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          WebkitFontSmoothing: 'antialiased',
-          ...screenStyle,
-        }}
-      >
-        {children}
-        {overlay}
-      </div>
-    </Html>
+        <style>{`.${SCREEN_LAYER_CLASS}{will-change:transform}.${SCREEN_LAYER_CLASS}--pan,.${SCREEN_LAYER_CLASS}--pan>div,.${SCREEN_LAYER_CLASS}--pan>div>div,.${SCREEN_LAYER_CLASS}--pan>div>div>div{touch-action:pan-y}`}</style>
+        <div
+          ref={contentRef}
+          onPointerDown={beginScreenDrag}
+          style={{
+            position: 'relative',
+            width: resolution,
+            height: Math.round((resolution * height) / width),
+            borderRadius,
+            overflow: 'hidden',
+            background,
+            pointerEvents: interactive ? 'auto' : 'none',
+            // pan-y mirrors the canvas: on touch, vertical swipes over the screen
+            // scroll the page; horizontal drags past the threshold rotate the
+            // device; taps still click content.
+            touchAction: dragToRotate ? 'pan-y' : undefined,
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            WebkitFontSmoothing: 'antialiased',
+            ...screenStyle,
+          }}
+        >
+          {children}
+          {overlay}
+        </div>
+      </Html>
+    </group>
   )
 }

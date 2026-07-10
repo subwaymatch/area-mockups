@@ -1,0 +1,68 @@
+---
+title: Bus (city transit)
+description: A 40 ft low-floor transit bus with a live king-size ad and LED destination sign.
+---
+
+`<Bus>` and `<BusMockup>` render a generic 40 ft / 12 m low-floor city
+transit bus (Xcelsior/LFS/Citaro-class silhouette, no brand): a one-box
+shell with no hood, a lightly-raked two-piece windshield under the dark sign
+fascia, a window band covering nearly half the body height, two full-glass
+curb-side doors, flat roof with HVAC pod, stacked round taillights and rear
+louvers. Two live surfaces:
+
+- the classic **king-size ad panel** (30"×144") between the wheels, a
+  960×200 DOM surface, and
+- optionally the **LED destination sign** above the windshield via
+  `destinationSign`.
+
+The destination sign is live DOM, so a CSS keyframe animation gives you a
+real scrolling marquee behind a dot-matrix mask.
+
+<ObjectDemo demo="bus-basic" />
+
+```tsx
+<BusMockup destinationSign={<Route42Marquee />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+  <YourCreative />
+</BusMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `streetSideAd` | `ReactNode` | - | Creative for the street-side (−Z) king-size panel. |
+| `rearAd` | `ReactNode` | - | Creative for the 21"×70" tail ad on the engine door. |
+| `destinationSign` | `ReactNode` | - | Live LED sign content (480×76 virtual px, dark background) — try a scrolling marquee. |
+| `color` | `string` | `'#eef0f2'` | Body paint. Transit fleets are usually white or silver. |
+| `adBackground` | `string` | `'#ffffff'` | CSS background behind your ad content. |
+| `resolution` | `number` | `960` | Virtual king-size width in CSS px; the tail ad shares its dpi. |
+
+## More examples
+
+### Rear three-quarter with the tail ad
+
+Rear window, stacked brake/turn lamps, engine louvers — and the 21"×70"
+tail ad between them.
+
+<ObjectDemo demo="bus-rear" />
+
+```tsx
+<BusMockup streetSideAd={<Creative />} rearAd={<TailAd />} deviceProps={{ rotation: [0, 2.35, 0] }}>
+  <Creative />
+</BusMockup>
+```
+
+### A liveried fleet bus
+
+`color` paints the shell; match `adBackground` to the creative for a
+wrapped look.
+
+<ObjectDemo demo="bus-livery" />
+
+```tsx
+<BusMockup color="#1d4433" adBackground="#f4c534" autoRotate destinationSign={<Route42 />}>
+  <YourCreative />
+</BusMockup>
+```

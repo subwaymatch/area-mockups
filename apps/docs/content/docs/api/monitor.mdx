@@ -9,6 +9,8 @@ rear Thunderbolt and USB-C port row, captive power inlet, the L-shaped tilt
 stand, and (faithfully) no power button. The mockup grounds the stand on a
 virtual desk plane.
 
+<ObjectDemo demo="monitor-basic" />
+
 ```tsx
 <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
   <YourDesktopApp />
@@ -25,3 +27,15 @@ Beyond the [shared screen props](/docs/screen-content):
 | `resolution` | `number` | `2560` | Virtual display width; 2560 gives 2560×1440, the Studio Display's logical desktop, so real desktop layouts apply. |
 
 There is no `orientation` prop; it lives on a desk.
+
+## More examples
+
+### Silver, slow orbit
+
+<ObjectDemo demo="monitor-silver" />
+
+```tsx
+<MonitorMockup color="#e2e4e8" autoRotate autoRotateSpeed={0.8}>
+  <YourDesktopApp />
+</MonitorMockup>
+```

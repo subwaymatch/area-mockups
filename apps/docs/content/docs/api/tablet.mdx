@@ -11,8 +11,12 @@ Tabs, plus the Ultra's droplet display notch. Every non-notch tablet carries
 its front camera in the bezel on the landscape-top edge, like the real
 devices.
 
+The virtual display swaps to 1376×1032 — real desktop-class layouts apply.
+
+<ObjectDemo demo="tablet-landscape" />
+
 ```tsx
-<TabletMockup variant="tabs11ultra" orientation="landscape">
+<TabletMockup orientation="landscape" deviceProps={{ rotation: [0, -0.3, 0] }}>
   <YourApp />
 </TabletMockup>
 ```
@@ -27,3 +31,18 @@ Beyond the [shared screen props](/docs/screen-content):
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the tablet on its side and swaps the virtual display (for example 1376×1032 on the 13" iPad) with upright content. |
 | `resolution` | `number` | per variant | Defaults to the variant's logical grid: 1032×1376 (ipadpro13), 834×1210 (ipadpro11), 800×1280 (tabs11), 924×1480 (tabs11ultra). |
 | `color` | `string` | `'#3a3c40'` | Body colorway. iPad: Space Black `#3a3c40`, Silver `#e3e4e6`. Tab: Gray `#4b4f56`, Silver `#dcdee1`. |
+
+## More examples
+
+### Galaxy Tab S11 Ultra in portrait
+
+The droplet notch sits on the right edge in portrait, exactly like the
+hardware; spin it to catch the dual camera rings and S Pen.
+
+<ObjectDemo demo="tablet-ultra" />
+
+```tsx
+<TabletMockup variant="tabs11ultra" color="#2e3136" float>
+  <YourApp />
+</TabletMockup>
+```

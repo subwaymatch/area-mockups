@@ -1,5 +1,6 @@
 import { inter, jetbrainsMono } from '@/lib/fonts'
 import '../globals.css'
+import '../screens.css'
 
 // Root layout for the standalone /embedded route (iframed into device
 // screens). No site chrome, but it shares the site stylesheet and fonts.

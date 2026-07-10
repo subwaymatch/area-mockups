@@ -5,7 +5,9 @@ description: Every device the library models, with real hardware dimensions and 
 
 Every device is procedurally generated at runtime from real product research:
 no GLB files, no hosting, no pop-in. Variants within a family keep true
-relative sizes because they share one world scale.
+relative sizes because they share one world scale. Non-device mockups (books,
+brochures, billboards, a cargo van, …) live on the
+[Objects and print surfaces](/docs/objects) page.
 
 ## Specifications
 
@@ -27,7 +29,8 @@ orientations.
 | Apple iPad Pro 11" (M5) | `ipadpro11` | 249.7×177.5×5.3 | 11" 2420×1668 | 834×1210 | 1210×834 |
 | Samsung Galaxy Tab S11 | `tabs11` | 253.8×165.3×5.5 | 11" 2560×1600 | 800×1280 | 1280×800 |
 | Samsung Galaxy Tab S11 Ultra | `tabs11ultra` | 326.3×208.5×5.1 | 14.6" 2960×1848 | 924×1480 | 1480×924 |
-| Apple Watch Series 11 (46mm) | - | 46×39×9.7 | 1.96" 416×496 | 208×248 | - |
+| Apple Watch Series 11 (46mm) | `series11` | 46×39×9.7 | 1.96" 416×496 | 208×248 | - |
+| Samsung Galaxy Watch 8 (44mm) | `watch8` | 46×43.7×8.6 | 1.47" 480×480 round | 240×240 | - |
 | Apple Studio Display (27") | - | 623×478×168 | 27" 5120×2880 | - | 2560×1440 |
 
 **Resolution basis.** The Galaxy S25 is its panel at one-third scale. The QHD+
@@ -53,13 +56,35 @@ Tree-shaken cost of importing each family, minified, with `three`,
 
 | Import | Minified | Gzip |
 | --- | --- | --- |
-| `PhoneMockup` (Galaxy family) | 10.4 KB | 3.7 KB |
-| `IPhoneMockup` (iPhone family) | 12.4 KB | 4.1 KB |
-| `LaptopMockup` (MacBook Air) | 12.5 KB | 4.7 KB |
-| `TabletMockup` (iPad + Galaxy Tab) | 12.0 KB | 4.0 KB |
-| `WatchMockup` (Apple Watch) | 7.5 KB | 2.9 KB |
-| `MonitorMockup` (Studio Display) | 7.4 KB | 2.9 KB |
-| Whole library (15 devices) | 41.7 KB | 10.7 KB |
+| `PhoneMockup` (Galaxy family) | 10.9 KB | 3.9 KB |
+| `IPhoneMockup` (iPhone family) | 12.9 KB | 4.4 KB |
+| `LaptopMockup` (MacBook Air) | 13.1 KB | 4.9 KB |
+| `TabletMockup` (iPad + Galaxy Tab) | 12.8 KB | 4.3 KB |
+| `WatchMockup` (Apple Watch + Galaxy Watch) | 9.8 KB | 3.9 KB |
+| `MonitorMockup` (Studio Display) | 7.9 KB | 3.1 KB |
+| `BookMockup` (hardcover) | 7.2 KB | 2.9 KB |
+| `MagazineMockup` (glossy monthly) | 6.9 KB | 2.8 KB |
+| `BrochureMockup` (tri-fold) | 6.6 KB | 2.8 KB |
+| `BusinessCardMockup` (32 pt card) | 6.6 KB | 2.7 KB |
+| `IDCardMockup` (badge + lanyard) | 8.2 KB | 3.3 KB |
+| `PosterFrameMockup` (18×24 frame) | 7.8 KB | 3.1 KB |
+| `ProductBoxMockup` (retail carton) | 6.5 KB | 2.6 KB |
+| `RollupBannerMockup` (850×2000 stand) | 7.5 KB | 3.0 KB |
+| `BillboardMockup` (14×48 bulletin) | 8.4 KB | 3.1 KB |
+| `BusMockup` (transit bus) | 11.9 KB | 4.2 KB |
+| `VanMockup` (cargo van) | 11.3 KB | 4.0 KB |
+| `BusShelterMockup` (6-sheet shelter) | 7.6 KB | 3.0 KB |
+| `GreetingCardMockup` (A7 card) | 6.5 KB | 2.7 KB |
+| `VinylRecordMockup` (12" LP) | 7.7 KB | 3.0 KB |
+| `TVSetMockup` (65" TV) | 7.4 KB | 3.0 KB |
+| `AFrameSignMockup` (sandwich board) | 7.2 KB | 3.0 KB |
+| `DOOHTotemMockup` (digital totem) | 7.2 KB | 2.9 KB |
+| `StorefrontMockup` (shop façade) | 7.8 KB | 3.0 KB |
+| `SemiTrailerMockup` (53 ft dry van) | 10.1 KB | 3.5 KB |
+| `MailerBoxMockup` (shipper box) | 7.5 KB | 2.9 KB |
+| `ShoppingBagMockup` (kraft carrier) | 7.0 KB | 2.8 KB |
+| `PizzaBoxMockup` (14" box) | 8.7 KB | 3.2 KB |
+| Whole library (16 devices + 24 objects) | 126.7 KB | 29.2 KB |
 
 ## Renderer-agnostic specs
 

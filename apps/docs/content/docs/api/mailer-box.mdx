@@ -1,0 +1,52 @@
+---
+title: Mailer box
+description: A corrugated shipper with printed panels under real packing tape.
+---
+
+`<MailerBox>` and `<MailerBoxMockup>` render a closed corrugated shipping
+box (350×120×250 mm): kraft stock, the flaps hinged on the long walls
+meeting along the width, a visible flap gap under the translucent
+packing-tape band that wraps over the top and down both short ends, and the
+manufacturer's glued lap seam on one corner. The top, front and end panels
+are live — and the tape rides *over* your print via a DOM overlay, exactly
+like tape over a printed box.
+
+<ObjectDemo demo="mailer-basic" />
+
+```tsx
+<MailerBoxMockup front={<YourFrontPanel />} deviceProps={{ rotation: [0, 0.5, 0] }}>
+  <YourTopPanel />
+</MailerBoxMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `front` | `ReactNode` | - | Front (long) panel design. |
+| `side` | `ReactNode` | - | End panel design (the right short face). |
+| `color` | `string` | `'#b5915f'` | Corrugated stock. Kraft by default; try white or a brand dip. |
+| `tapeColor` | `string` | `'rgba(168, 127, 79, 0.82)'` | Packing tape color. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed panel. |
+| `resolution` | `number` | `520` | Virtual top panel width in CSS px; other panels share its dpi. |
+
+## More examples
+
+### Unprinted white shipper
+
+Leave `children` off and the box renders in its unprinted state — flap slabs
+and a skewed 4×6 shipping label instead of a live top panel.
+
+<ObjectDemo demo="mailer-blank" />
+
+```tsx
+<MailerBoxMockup
+  float
+  color="#e8e4dd"
+  tapeColor="rgba(210, 205, 196, 0.9)"
+  camera={{ position: [0, 3.2, 6.6], fov: 40 }}
+  deviceProps={{ rotation: [0, -0.4, 0] }}
+/>
+```

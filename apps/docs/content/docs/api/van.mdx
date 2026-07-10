@@ -1,0 +1,65 @@
+---
+title: Van (cargo van)
+description: A wrap-ready cargo van with a live livery panel on the cargo side.
+---
+
+`<Van>` and `<VanMockup>` render a generic Euro-style cargo van (a
+Transit/Sprinter-class silhouette, no brand): the shell is the side profile —
+clamshell hood, cowl break, raked windshield, high roof, wheel-arch cutouts —
+extruded across the width, with wheels, A-pillar-raked door glass, a high
+grille between swept headlights, wrap-around lower bumper mass, mirrors on
+long arms and hand-height taillights added on. The flat cargo side carries a
+live 900×368 vinyl-wrap panel for your livery. The mockup grounds the wheels
+on a virtual road plane.
+
+<ObjectDemo demo="van-basic" />
+
+```tsx
+<VanMockup streetSide={<Livery />} rear={<RearDoors />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+  <Livery />
+</VanMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `streetSide` | `ReactNode` | - | Livery for the street-side (−Z) wrap panel. |
+| `rear` | `ReactNode` | - | Livery for the rear-door panel, between the taillight clusters. |
+| `color` | `string` | `'#eef0f2'` | Body paint. Wrap fleets are usually white. |
+| `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
+| `resolution` | `number` | `900` | Virtual side-wrap width in CSS px; the rear panel shares its dpi. |
+
+`children` is the curb-side (+Z) panel; all three panels sit clear of the
+wheel arches, lights and cab glass. Rotate the group to pose the van; the
+panels stay live at any angle.
+
+## More examples
+
+### The rear three-quarter
+
+Same van from behind: rear-door panel between the brake/turn/reverse
+clusters, street-side wrap beyond.
+
+<ObjectDemo demo="van-rear" />
+
+```tsx
+<VanMockup streetSide={<Livery />} rear={<RearDoors />} deviceProps={{ rotation: [0, 2.25, 0] }}>
+  <Livery />
+</VanMockup>
+```
+
+### Painted body + full-color wrap
+
+Match `color` and `wrapBackground` for a fully-wrapped look — the paint
+carries across the cab, nose and roof that the panel doesn't cover.
+
+<ObjectDemo demo="van-paint" />
+
+```tsx
+<VanMockup color="#1d4433" wrapBackground="#1d4433" autoRotate>
+  <YourLivery />
+</VanMockup>
+```

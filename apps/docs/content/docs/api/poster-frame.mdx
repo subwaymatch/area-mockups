@@ -1,0 +1,64 @@
+---
+title: Poster frame
+description: An 18x24 gallery frame with a live recessed sheet, glazing sheen, and optional mat.
+---
+
+`<PosterFrame>` and `<PosterFrameMockup>` render an 18"×24" poster in a 22 mm
+gallery frame: an extruded molding whose rabbet lip overlaps the sheet edge
+~5 mm per side like a real frame, the sheet shallowly recessed behind the
+front lip, a soft acrylic glazing sheen over the art, an optional 2.5"
+gallery matboard, and a kraft dust cover on the back. The visible opening is
+a live 540×721 DOM surface.
+
+<ObjectDemo demo="poster-basic" />
+
+```tsx
+<PosterFrameMockup deviceProps={{ rotation: [0, 0.25, 0] }}>
+  <YourPosterArt />
+</PosterFrameMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#22262e'` | Frame molding color. |
+| `mat` | `boolean` | `false` | Mount the art behind a 2.5" gallery matboard. |
+| `matColor` | `string` | `'#f6f3ec'` | Matboard color. |
+| `glazing` | `boolean` | `true` | Soft acrylic sheen over the art. |
+| `posterBackground` | `string` | `'#ffffff'` | CSS background behind your poster content. |
+| `resolution` | `number` | `540` | Virtual art width in CSS px; height follows its aspect. |
+
+## More examples
+
+### Oak molding
+
+`color` takes any CSS color — wood tones work as well as gallery black.
+
+<ObjectDemo demo="poster-oak" />
+
+```tsx
+<PosterFrameMockup color="#b98d5f" posterBackground="#f7f2e8" float>
+  <YourPosterArt />
+</PosterFrameMockup>
+```
+
+### A gallery wall pair
+
+Bare `<PosterFrame>` objects composed in one
+[`MockupCanvas`](/docs/api/mockup-canvas).
+
+<ObjectDemo demo="poster-pair" />
+
+```tsx
+<MockupCanvas camera={{ position: [0, 0.3, 10.4], fov: 40 }} shadowY={-2.5}>
+  <PosterFrame position={[-2.15, 0, -0.3]} rotation={[0, 0.35, 0]}>
+    <PosterOne />
+  </PosterFrame>
+  <PosterFrame color="#e8e5dd" position={[2.15, 0, 0]} rotation={[0, -0.25, 0]}>
+    <PosterTwo />
+  </PosterFrame>
+</MockupCanvas>
+```

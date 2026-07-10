@@ -9,9 +9,11 @@ camera architecture follows the real devices: two-lens pill (17), ultra-thin
 single-lens bar (Air), full-width triple-lens plateau with flash and LiDAR
 (Pro and Pro Max).
 
+<ObjectDemo demo="iphone-pro" />
+
 ```tsx
-<IPhoneMockup variant="pro" color="#c96b34">
-  <YourApp />
+<IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
+  <MusicPlayer />
 </IPhoneMockup>
 ```
 
@@ -32,3 +34,36 @@ Same API as [`Phone`](/docs/api/phone), except:
 17: Lavender `#cfc4e6`, Mist Blue `#b7c9dd`, Sage `#aebfae`. Air: Sky Blue
 `#bfd4e6`, Light Gold `#e6d9c0`. Pro: Cosmic Orange `#c96b34`, Deep Blue
 `#2b3a55`, Silver `#dfe0e2`.
+
+## More examples
+
+### iPhone 17 Air, floating
+
+The Air's ultra-thin profile and single-lens bar show off on the orbit.
+
+<ObjectDemo demo="iphone-air" />
+
+```tsx
+<IPhoneMockup variant="air" autoRotate float color="#bfd4e6" frameColor="#a9c0d4">
+  <LockScreen />
+</IPhoneMockup>
+```
+
+### Galaxy and iPhone side by side
+
+Bare `<Phone>` and `<IPhone>` objects share one
+[`MockupCanvas`](/docs/api/mockup-canvas) — both families use the same world
+scale, so relative sizes are true.
+
+<ObjectDemo demo="phone-duo" />
+
+```tsx
+<MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
+  <Phone variant="s25ultra" color="#2e3238" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
+    <YourAndroidApp />
+  </Phone>
+  <IPhone variant="promax" color="#2b3a55" position={[1.6, 0, 0]} rotation={[0, -0.3, 0]}>
+    <YourIOSApp />
+  </IPhone>
+</MockupCanvas>
+```

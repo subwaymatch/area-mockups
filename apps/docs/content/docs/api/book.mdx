@@ -1,0 +1,71 @@
+---
+title: Book (hardcover)
+description: A trade hardcover with a live full-bleed front cover.
+---
+
+`<Book>` and `<BookMockup>` render a 156×234 mm trade hardcover: cloth-wrapped
+binder's boards with a rounded flush spine and case-binding joint groove, a
+cream page block recessed behind the board overhang on the three open edges,
+and the whole front cover as a live 480×720 DOM surface.
+
+Any React node fills the front board, full bleed. Match `color` to the
+jacket's palette so the spine and back board feel like the same book.
+
+<ObjectDemo demo="book-basic" />
+
+```tsx
+<BookMockup color="#16324a" deviceProps={{ rotation: [0, 0.35, 0] }}>
+  <YourCoverArt />
+</BookMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#1f3a5f'` | Cloth color: spine, back board, and board edges. |
+| `pageColor` | `string` | `'#f4eede'` | Paper color of the page block edges. |
+| `coverBackground` | `string` | `'#ffffff'` | CSS background behind your cover content. |
+| `resolution` | `number` | `480` | Virtual cover width in CSS px; height follows the board aspect. |
+
+The screen-background prop is named `coverBackground` here — on a book it
+paints paper, not glass. Every example below is live: drag to spin it.
+
+## More examples
+
+### Floating and auto-orbiting
+
+The same idle animations every device mockup has. `pageColor` warms up the
+page block for an older, cream-paper look.
+
+<ObjectDemo demo="book-float" />
+
+```tsx
+<BookMockup color="#3d2352" pageColor="#efe8db" autoRotate float>
+  <YourCoverArt />
+</BookMockup>
+```
+
+### A row of books — composing bare objects
+
+Skip the all-in-one wrapper and drop several `<Book>` objects into one
+[`MockupCanvas`](/docs/api/mockup-canvas) — a series lineup in a single
+WebGL context.
+
+<ObjectDemo demo="book-row" />
+
+```tsx
+<MockupCanvas camera={{ position: [0, 0.4, 9.4], fov: 40 }} shadowY={-2.2}>
+  <Book color="#16324a" position={[-3, 0, -0.4]} rotation={[0, 0.5, 0]}>
+    <CoverOne />
+  </Book>
+  <Book color="#5e2431" position={[0, 0, 0]} rotation={[0, 0.15, 0]}>
+    <CoverTwo />
+  </Book>
+  <Book color="#274233" position={[3, 0, -0.4]} rotation={[0, -0.35, 0]}>
+    <CoverThree />
+  </Book>
+</MockupCanvas>
+```

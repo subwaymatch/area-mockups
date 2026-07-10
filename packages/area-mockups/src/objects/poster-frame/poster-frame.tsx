@@ -1,0 +1,207 @@
+import * as React from 'react'
+import * as THREE from 'three'
+import type { ThreeElements } from '@react-three/fiber'
+import { POSTER_FRAME } from './dimensions'
+import { DeviceScreen } from '../../screen/device-screen'
+import { roundedRectShape } from '../../utils/rounded-rect'
+
+type GroupProps = ThreeElements['group']
+
+export interface PosterFrameProps extends Omit<GroupProps, 'children' | 'color'> {
+  /** Poster art — any React node. It fills the visible opening, full bleed. */
+  children?: React.ReactNode
+  /** Frame molding color. */
+  color?: string
+  /** Mount the art behind a 2.5" gallery matboard instead of full bleed. */
+  mat?: boolean
+  /** Matboard color (when `mat` is set). */
+  matColor?: string
+  /** Simulated glazing: a soft acrylic sheen over the art. */
+  glazing?: boolean
+  /** CSS background painted behind your poster content. */
+  posterBackground?: string
+  /** CSS pixel width of the virtual art area. Height follows its aspect. */
+  resolution?: number
+  /** Let pointer events (clicks, scrolling, typing) reach your poster content. */
+  interactive?: boolean
+  /** Hand >10px drags off to the orbit controls; taps still reach the content. */
+  dragToRotate?: boolean
+  /**
+   * How poster content hides when the frame faces away from the camera.
+   * `true` raycasts against the frame and backing (fast, interactive).
+   * `'blending'` uses per-pixel depth blending. `false` disables hiding.
+   */
+  occlude?: boolean | 'blending'
+  /** Extra styles merged onto the poster wrapper (e.g. a custom fontFamily). */
+  screenStyle?: React.CSSProperties
+}
+
+/**
+ * A procedurally built gallery poster frame: an extruded molding whose rabbet
+ * lip overlaps the sheet edge like a real frame, a shallowly recessed live
+ * 18" x 24" poster behind a clear acrylic glazing pane (plus a soft sheen
+ * overlay), an optional gallery matboard, and a kraft dust cover on the back.
+ * No 3D asset files are loaded.
+ *
+ * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
+ */
+export function PosterFrame({
+  children,
+  color = '#22262e',
+  mat = false,
+  matColor = '#f6f3ec',
+  glazing = true,
+  posterBackground = '#ffffff',
+  resolution = POSTER_FRAME.resolution,
+  interactive = true,
+  dragToRotate = true,
+  occlude = true,
+  screenStyle,
+  ...groupProps
+}: PosterFrameProps) {
+  const { poster, opening, frame, recess, matWidth } = POSTER_FRAME
+  const frameRef = React.useRef<THREE.Mesh>(null!)
+  const backingRef = React.useRef<THREE.Mesh>(null!)
+  const occludeRefs = React.useMemo(() => [frameRef, backingRef], [])
+
+  const outerWidth = poster.width + frame.width * 2
+  const outerHeight = poster.height + frame.width * 2
+  // with a mat, the live art shrinks to the mat window
+  const art = mat
+    ? { width: opening.width - matWidth * 2, height: opening.height - matWidth * 2 }
+    : { width: opening.width, height: opening.height }
+
+  const frameGeometry = React.useMemo(() => {
+    const shape = roundedRectShape(
+      outerWidth - frame.bevel * 2,
+      outerHeight - frame.bevel * 2,
+      frame.radius - frame.bevel
+    )
+    // the through-hole is the visible opening — the rabbet lip overlaps the sheet
+    shape.holes.push(roundedRectShape(opening.width, opening.height, opening.radius))
+    const depth = frame.depth - frame.bevel * 2
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth,
+      bevelEnabled: true,
+      bevelThickness: frame.bevel,
+      bevelSize: frame.bevel,
+      bevelSegments: 2,
+      curveSegments: 12,
+    })
+    geometry.translate(0, 0, -depth / 2)
+    return geometry
+  }, [outerWidth, outerHeight, frame, opening])
+
+  const backingGeometry = React.useMemo(
+    () => new THREE.ShapeGeometry(roundedRectShape(poster.width, poster.height, poster.radius), 8),
+    [poster]
+  )
+
+  const matGeometry = React.useMemo(() => {
+    if (!mat) return null
+    const shape = roundedRectShape(poster.width - 0.01, poster.height - 0.01, poster.radius)
+    shape.holes.push(roundedRectShape(art.width, art.height, 0.002))
+    return new THREE.ShapeGeometry(shape, 8)
+  }, [mat, poster, art.width, art.height])
+
+  const dustCoverGeometry = React.useMemo(
+    () =>
+      new THREE.ShapeGeometry(
+        roundedRectShape(outerWidth - 0.06, outerHeight - 0.06, frame.radius),
+        8
+      ),
+    [outerWidth, outerHeight, frame]
+  )
+
+  const glazingGeometry = React.useMemo(
+    () =>
+      new THREE.ShapeGeometry(
+        roundedRectShape(poster.width - 0.02, poster.height - 0.02, poster.radius),
+        8
+      ),
+    [poster]
+  )
+
+  React.useEffect(() => {
+    return () => {
+      frameGeometry.dispose()
+      backingGeometry.dispose()
+      matGeometry?.dispose()
+      dustCoverGeometry.dispose()
+      glazingGeometry.dispose()
+    }
+  }, [frameGeometry, backingGeometry, matGeometry, dustCoverGeometry, glazingGeometry])
+
+  const sheetZ = frame.depth / 2 - recess
+
+  return (
+    <group {...groupProps}>
+      {/* molding with a true through-hole and overlapping rabbet lip */}
+      <mesh ref={frameRef} geometry={frameGeometry}>
+        <meshPhysicalMaterial color={color} metalness={0.15} roughness={0.45} clearcoat={0.4} />
+      </mesh>
+
+      {/* the sheet/backing continuing behind the lip */}
+      <mesh ref={backingRef} geometry={backingGeometry} position-z={sheetZ - 0.008}>
+        <meshPhysicalMaterial color="#f4f2ec" metalness={0} roughness={0.9} />
+      </mesh>
+
+      {/* optional gallery matboard between backing and art */}
+      {matGeometry && (
+        <mesh geometry={matGeometry} position-z={sheetZ - 0.003}>
+          <meshPhysicalMaterial color={matColor} metalness={0} roughness={0.95} />
+        </mesh>
+      )}
+
+      {/* clear acrylic glazing: a thin transmissive pane just behind the lip,
+          in front of the sheet (the DOM sheen overlay adds the reflections) */}
+      {glazing && (
+        <mesh geometry={glazingGeometry} position-z={frame.depth / 2 - 0.007}>
+          <meshPhysicalMaterial
+            transmission={0.9}
+            roughness={0.05}
+            thickness={0.01}
+            ior={1.49}
+            metalness={0}
+          />
+        </mesh>
+      )}
+
+      {/* kraft dust cover on the back */}
+      <mesh geometry={dustCoverGeometry} rotation-y={Math.PI} position-z={-frame.depth / 2 - 0.002}>
+        <meshPhysicalMaterial color="#8d7c62" metalness={0} roughness={0.95} />
+      </mesh>
+
+      {/* the live art: real DOM, CSS3D-transformed onto the recessed sheet */}
+      <DeviceScreen
+        width={art.width}
+        height={art.height}
+        radius={mat ? 0.002 : opening.radius}
+        resolution={resolution}
+        position={[0, 0, sheetZ]}
+        background={posterBackground}
+        interactive={interactive}
+        dragToRotate={dragToRotate}
+        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+        screenStyle={screenStyle}
+        overlay={
+          glazing ? (
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                inset: 0,
+                pointerEvents: 'none',
+                zIndex: 2147483647,
+                background:
+                  'linear-gradient(115deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.05) 26%, rgba(255,255,255,0) 42%, rgba(255,255,255,0) 68%, rgba(255,255,255,0.06) 100%)',
+              }}
+            />
+          ) : undefined
+        }
+      >
+        {children}
+      </DeviceScreen>
+    </group>
+  )
+}

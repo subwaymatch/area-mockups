@@ -1,0 +1,62 @@
+---
+title: Business card
+description: A 32 pt business card with live front and back faces and painted edges.
+---
+
+`<BusinessCard>` and `<BusinessCardMockup>` render an 89×51 mm (3.5"×2")
+business card on premium 32 pt stock: square die-cut corners (the standard
+for thick stock), an optional painted edge, and a live 520×298 DOM surface
+on the front — and, optionally, the back.
+
+<ObjectDemo demo="card-basic" />
+
+```tsx
+<BusinessCardMockup float deviceProps={{ rotation: [-0.1, -0.35, 0] }}>
+  <CardFront />
+</BusinessCardMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back face design. Plain stock when omitted. |
+| `color` | `string` | `'#f7f6f2'` | Stock color: the faces' base and unprinted back. |
+| `edgeColor` | `string` | stock color | Painted-edge color — the bright seam that says "32 pt". |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
+| `resolution` | `number` | `520` | Virtual face width in CSS px (~150 dpi); height follows the card aspect. |
+
+## More examples
+
+### Front and back
+
+Pass `back` and let it orbit — both faces are live DOM.
+
+<ObjectDemo demo="card-back" />
+
+```tsx
+<BusinessCardMockup autoRotate autoRotateSpeed={2} back={<CardBack />}>
+  <CardFront />
+</BusinessCardMockup>
+```
+
+### Showing both sides at once
+
+Two bare `<BusinessCard>` objects in one
+[`MockupCanvas`](/docs/api/mockup-canvas) — the classic front-and-back
+presentation pair.
+
+<ObjectDemo demo="card-pair" />
+
+```tsx
+<MockupCanvas camera={{ position: [0, 0.2, 6.4], fov: 40 }} shadowY={-2.1}>
+  <BusinessCard position={[-1.85, 0.9, 0]} rotation={[-0.06, 0.25, 0.03]}>
+    <CardFront />
+  </BusinessCard>
+  <BusinessCard color="#191d24" position={[1.85, -0.9, 0.2]} rotation={[-0.06, -0.3, -0.03]}>
+    <CardBack />
+  </BusinessCard>
+</MockupCanvas>
+```
