@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   BusShelterProps,
   | 'inner'
+  | 'arrivals'
   | 'color'
   | 'posterBackground'
   | 'resolution'
@@ -39,6 +40,7 @@ export interface BusShelterMockupProps
 export function BusShelterMockup({
   children,
   inner,
+  arrivals,
   color,
   posterBackground,
   resolution,
@@ -53,6 +55,7 @@ export function BusShelterMockup({
   const object = (
     <BusShelter
       inner={inner}
+      arrivals={arrivals}
       color={color}
       posterBackground={posterBackground}
       resolution={resolution}

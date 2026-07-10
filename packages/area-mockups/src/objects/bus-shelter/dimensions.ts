@@ -33,6 +33,8 @@ export const BUS_SHELTER = {
   poster: { width: 1.693, height: 2.5, radius: 0.01 },
   /** Bus-stop flag: a small double-sided sign panel on a short post above the roof. */
   flag: { width: 0.643, height: 0.5, x: 2.55, postRadius: 0.028 },
+  /** RTPI arrivals display (~800×300 mm) hanging under the roof, facing the street. */
+  display: { width: 1.143, height: 0.429, x: -0.35, drop: 0.09, resolution: 400 },
   /** Distance from the envelope center down to the pavement. */
   standHeight: 3.57 / 2,
   /** Default CSS px width of the virtual poster. */

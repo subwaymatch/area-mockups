@@ -43,6 +43,7 @@ import {
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import {
+  ArrivalsBoardArt,
   BadgeBackArt,
   BadgeFrontArt,
   BagArt,
@@ -409,12 +410,12 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Bus shelter ---------------------------------------------------------------
   'shelter-basic': (
-    <BusShelterMockup deviceProps={{ rotation: [0, -0.55, 0] }}>
+    <BusShelterMockup arrivals={<ArrivalsBoardArt />} deviceProps={{ rotation: [0, -0.55, 0] }}>
       <PosterArt />
     </BusShelterMockup>
   ),
   'shelter-night': (
-    <BusShelterMockup color="#22262c" background="#0b0d12" deviceProps={{ rotation: [0, -0.75, 0] }} inner={<PosterArt />}>
+    <BusShelterMockup color="#22262c" background="#0b0d12" deviceProps={{ rotation: [0, -0.75, 0] }} inner={<PosterArt />} arrivals={<ArrivalsBoardArt />}>
       <PosterArt />
     </BusShelterMockup>
   ),

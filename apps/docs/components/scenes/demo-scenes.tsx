@@ -39,6 +39,7 @@ import {
   VinylRecordMockup,
 } from 'area-mockups'
 import {
+  ArrivalsBoardArt,
   BadgeBackArt,
   BadgeFrontArt,
   BagArt,
@@ -562,7 +563,7 @@ export default function DemoScenes() {
           </>
         }
       >
-        <BusShelterMockup inner={<PosterArt />} deviceProps={{ rotation: [0, -0.55, 0] }}>
+        <BusShelterMockup inner={<PosterArt />} arrivals={<ArrivalsBoardArt />} deviceProps={{ rotation: [0, -0.55, 0] }}>
           <PosterArt />
         </BusShelterMockup>
       </DemoCard>

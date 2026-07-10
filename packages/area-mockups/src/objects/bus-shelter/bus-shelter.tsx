@@ -12,6 +12,11 @@ export interface BusShelterProps extends Omit<GroupProps, 'children' | 'color'> 
   children?: React.ReactNode
   /** Creative on the inward (waiting-area) lightbox face. */
   inner?: React.ReactNode
+  /**
+   * Live RTPI arrivals display hanging under the roof — bus times, service
+   * alerts, anything. Renders on a dark board facing the street.
+   */
+  arrivals?: React.ReactNode
   /** Street-furniture steel color (roof, posts, frames, bench). */
   color?: string
   /** CSS background painted behind the poster content (backlit white). */
@@ -46,6 +51,7 @@ export interface BusShelterProps extends Omit<GroupProps, 'children' | 'color'> 
 export function BusShelter({
   children,
   inner,
+  arrivals,
   color = '#2f333a',
   posterBackground = '#ffffff',
   resolution = BUS_SHELTER.resolution,
@@ -55,7 +61,7 @@ export function BusShelter({
   screenStyle,
   ...groupProps
 }: BusShelterProps) {
-  const { body, roof, backGlass, post, bench, lightbox, poster, flag, standHeight } = BUS_SHELTER
+  const { body, roof, backGlass, post, bench, lightbox, poster, flag, display, standHeight } = BUS_SHELTER
   const boxRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [boxRef], [])
 
@@ -147,6 +153,35 @@ export function BusShelter({
           <meshPhysicalMaterial color="#e9edf2" metalness={0.1} roughness={0.5} />
         </RoundedBox>
       </group>
+
+      {/* RTPI arrivals display hanging under the roof near the front edge */}
+      {arrivals != null && (
+        <group position={[display.x, roofY - roof.thickness / 2 - display.drop - display.height / 2 - 0.05, body.depth / 2 - 0.3]}>
+          {([1, -1] as const).map((s) => (
+            <mesh key={s} position={[s * (display.width / 2 - 0.12), display.height / 2 + 0.05 + display.drop / 2, 0]}>
+              <boxGeometry args={[0.035, display.drop + 0.1, 0.035]} />
+              <meshPhysicalMaterial {...steel} />
+            </mesh>
+          ))}
+          <RoundedBox args={[display.width + 0.09, display.height + 0.09, 0.09]} radius={0.02}>
+            <meshPhysicalMaterial color="#1c1e22" metalness={0.4} roughness={0.5} />
+          </RoundedBox>
+          <DeviceScreen
+            width={display.width}
+            height={display.height}
+            radius={0.01}
+            resolution={display.resolution}
+            position={[0, 0, 0.049]}
+            background="#0b0c0e"
+            interactive={interactive}
+            dragToRotate={dragToRotate}
+            occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+            screenStyle={screenStyle}
+          >
+            {arrivals}
+          </DeviceScreen>
+        </group>
+      )}
 
       {/* the 6-sheet lightbox as the end panel: pedestal to the pavement and
           header to the roof keep it structural, the cabinet a near-uniform

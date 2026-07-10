@@ -12,7 +12,7 @@ standing as the structural end panel, with backlit diffusers behind a live
 <ObjectDemo demo="shelter-basic" />
 
 ```tsx
-<BusShelterMockup deviceProps={{ rotation: [0, -0.55, 0] }}>
+<BusShelterMockup arrivals={<YourArrivalsBoard />} deviceProps={{ rotation: [0, -0.55, 0] }}>
   <YourPoster />
 </BusShelterMockup>
 ```
@@ -24,6 +24,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `inner` | `ReactNode` | - | Creative on the inward (waiting-area) lightbox face. |
+| `arrivals` | `ReactNode` | - | Live RTPI arrivals display hanging under the roof — bus times, alerts. |
 | `color` | `string` | `'#2f333a'` | Street-furniture steel: roof, posts, frames, bench supports. |
 | `posterBackground` | `string` | `'#ffffff'` | CSS background behind the poster (backlit white). |
 | `resolution` | `number` | `480` | Virtual poster width in CSS px; height follows the 6-sheet. |
@@ -38,7 +39,12 @@ three-quarter view to feature it.
 <ObjectDemo demo="shelter-night" />
 
 ```tsx
-<BusShelterMockup color="#22262c" inner={<InnerPoster />} deviceProps={{ rotation: [0, -0.75, 0] }}>
+<BusShelterMockup
+  color="#22262c"
+  inner={<InnerPoster />}
+  arrivals={<YourArrivalsBoard />}
+  deviceProps={{ rotation: [0, -0.75, 0] }}
+>
   <YourPoster />
 </BusShelterMockup>
 ```
