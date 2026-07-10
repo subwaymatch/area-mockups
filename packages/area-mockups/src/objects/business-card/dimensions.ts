@@ -13,10 +13,15 @@
 export const BUSINESS_CARD_MM = 1 / 26
 
 export const BUSINESS_CARD = {
-  /** The card itself. `radius` is the corner rounding of the die cut. */
-  body: { width: 3.423, height: 1.962, thickness: 0.031, radius: 0.077, bevel: 0.006 },
+  /**
+   * The card itself. Premium 32 pt stock is die-cut with square corners —
+   * `radius` keeps only a hair of rounding so the die never glints. (Standard
+   * round-corner dies, when used, are 3.2 mm: pass `radius: 0.123` via a
+   * custom spec if you need one.)
+   */
+  body: { width: 3.423, height: 1.962, thickness: 0.031, radius: 0.02, bevel: 0.006 },
   /** Printable face (full bleed). Content maps onto this rect on both sides. */
-  face: { width: 3.423, height: 1.962, radius: 0.077 },
+  face: { width: 3.423, height: 1.962, radius: 0.02 },
   /** Default CSS px width of the virtual face (~150 dpi of the physical card). */
   resolution: 520,
 } as const

@@ -8,6 +8,7 @@ type InheritedObjectProps = Pick<
   MagazineProps,
   | 'pageColor'
   | 'backColor'
+  | 'glossy'
   | 'coverBackground'
   | 'resolution'
   | 'interactive'
@@ -41,6 +42,7 @@ export function MagazineMockup({
   children,
   pageColor,
   backColor,
+  glossy,
   coverBackground,
   resolution,
   interactive,
@@ -55,6 +57,7 @@ export function MagazineMockup({
     <Magazine
       pageColor={pageColor}
       backColor={backColor}
+      glossy={glossy}
       coverBackground={coverBackground}
       resolution={resolution}
       interactive={interactive}

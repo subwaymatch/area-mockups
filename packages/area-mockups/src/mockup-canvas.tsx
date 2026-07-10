@@ -69,6 +69,13 @@ export function MockupCanvas({
   className,
   style,
 }: MockupCanvasProps) {
+  // Keep the orbit-zoom range sane for whatever camera the mockup configured:
+  // a wide stage (billboard, van) must not snap back to a closer maxDistance
+  // on the first drag.
+  const cameraPosition = (camera as { position?: [number, number, number] } | undefined)?.position
+  const cameraDistance = cameraPosition
+    ? Math.hypot(cameraPosition[0], cameraPosition[1], cameraPosition[2])
+    : 7.4
   return (
     <Canvas
       className={className}
@@ -129,8 +136,8 @@ export function MockupCanvas({
           autoRotateSpeed={autoRotateSpeed}
           minPolarAngle={0.5}
           maxPolarAngle={Math.PI - 0.5}
-          minDistance={4}
-          maxDistance={12}
+          minDistance={Math.min(4, cameraDistance * 0.6)}
+          maxDistance={Math.max(12, cameraDistance * 1.35)}
         />
       )}
     </Canvas>

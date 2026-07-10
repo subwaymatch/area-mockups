@@ -8,6 +8,7 @@ type InheritedObjectProps = Pick<
   BusinessCardProps,
   | 'back'
   | 'color'
+  | 'edgeColor'
   | 'faceBackground'
   | 'resolution'
   | 'interactive'
@@ -41,6 +42,7 @@ export function BusinessCardMockup({
   children,
   back,
   color,
+  edgeColor,
   faceBackground,
   resolution,
   interactive,
@@ -55,6 +57,7 @@ export function BusinessCardMockup({
     <BusinessCard
       back={back}
       color={color}
+      edgeColor={edgeColor}
       faceBackground={faceBackground}
       resolution={resolution}
       interactive={interactive}

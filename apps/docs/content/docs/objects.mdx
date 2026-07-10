@@ -16,9 +16,10 @@ product dimensions — no GLB files, no hosting, no pop-in.
 | --- | --- | --- | --- | --- |
 | Hardcover book | `Book` | 156×234×30 mm trade hardcover | front cover | 480×720 |
 | Magazine | `Magazine` | 216×279×6 mm perfect-bound | front cover | 480×620 |
-| Tri-fold brochure | `Brochure` | 93×216 mm per letter-fold panel | 3 panels | 360×835 each |
+| Tri-fold brochure | `Brochure` | 93×216 mm per letter-fold panel | 3 panels, front + back | 360×835 each |
 | Business card | `BusinessCard` | 89×51 mm, 32 pt stock | front + back | 520×298 each |
-| Poster frame | `PosterFrame` | 18"×24" sheet, 22 mm molding | poster sheet | 540×721 |
+| ID card (lanyard) | `IDCard` | 54×85.6 mm CR80 badge | front + back below the punch strip | 420×556 each |
+| Poster frame | `PosterFrame` | 18"×24" sheet, 22 mm molding | visible opening (optional mat) | 540×721 |
 | Billboard | `Billboard` | 14'×48' highway bulletin | vinyl face | 1200×350 |
 | Cargo van | `Van` | 5.9×2.55×2.05 m panel van | side wrap panel | 900×368 |
 
@@ -40,16 +41,19 @@ export function CoverPreview() {
 }
 ```
 
+Every object's API page has multiple live, draggable examples with the code
+next to them — see the API reference section in the sidebar.
+
 ## Multiple live surfaces
 
-Two objects host more than one surface:
+Several objects host more than one surface:
 
 - **`Brochure`** renders three panels in a standing zig-zag. Pass one node as
   `children` for the first panel, or all three via
-  `panels={[<Front />, <Middle />, <Back />]}`. `foldAngle={0}` lays the sheet
-  flat.
-- **`BusinessCard`** takes `children` for the front and `back` for the reverse
-  — spin the card around to see it.
+  `panels={[<Front />, <Middle />, <Back />]}` — and print the reverse side
+  with `backPanels`. `foldAngle={0}` lays the sheet flat.
+- **`BusinessCard`** and **`IDCard`** take `children` for the front and
+  `back` for the reverse — spin them around to see it.
 
 ## Ground planes
 
@@ -61,6 +65,6 @@ the hand-held print pieces.
 ## Renderer-agnostic specs
 
 As with the devices, the raw dimensions are exported as plain data: `BOOK`,
-`MAGAZINE`, `BROCHURE`, `BUSINESS_CARD`, `POSTER_FRAME`, `BILLBOARD`, and
-`VAN`, plus aspect-ratio constants like `VAN_WRAP_ASPECT`. The same numbers
-will drive the planned 2D (CSS/SVG) renderers.
+`MAGAZINE`, `BROCHURE`, `BUSINESS_CARD`, `ID_CARD`, `POSTER_FRAME`,
+`BILLBOARD`, and `VAN`, plus aspect-ratio constants like `VAN_WRAP_ASPECT`.
+The same numbers will drive the planned 2D (CSS/SVG) renderers.

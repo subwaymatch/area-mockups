@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Watch, type WatchProps } from './devices/watch/watch'
-import { WATCH } from './devices/watch/dimensions'
+import { WATCH_VARIANTS } from './devices/watch/dimensions'
 import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
   WatchProps,
+  | 'variant'
   | 'color'
   | 'bandColor'
   | 'screenBackground'
@@ -28,16 +29,18 @@ export interface WatchMockupProps
 }
 
 /**
- * The one-liner: a complete, interactive 3D Apple Watch-style mockup.
+ * The one-liner: a complete, interactive 3D smartwatch mockup — Apple Watch
+ * Series 11 or Galaxy Watch 8, wearing a full wristband.
  *
  * ```tsx
- * <WatchMockup float>
+ * <WatchMockup variant="watch8" float>
  *   <YourWatchFace />
  * </WatchMockup>
  * ```
  */
 export function WatchMockup({
   children,
+  variant = 'series11',
   color,
   bandColor,
   screenBackground,
@@ -52,6 +55,7 @@ export function WatchMockup({
 }: WatchMockupProps) {
   const device = (
     <Watch
+      variant={variant}
       color={color}
       bandColor={bandColor}
       screenBackground={screenBackground}
@@ -66,14 +70,16 @@ export function WatchMockup({
     </Watch>
   )
 
-  // Grounded under the lower strap tip; floating keeps a hover gap.
-  const extent = WATCH.body.height / 2 + WATCH.band.length + 0.4
-  const shadowY = canvasProps.shadowY ?? (float ? -(extent + 0.25) : -extent)
+  // Grounded under the bottom of the band loop; floating keeps a hover gap.
+  const spec = WATCH_VARIANTS[variant]
+  const loop = spec.band.loop
+  const extent = (loop.ryFront + loop.ryBack) / 2 + spec.band.thickness / 2
+  const shadowY = canvasProps.shadowY ?? (float ? -(extent + 0.25) : -(extent + 0.05))
 
   return (
     <MockupCanvas
       {...canvasProps}
-      camera={canvasProps.camera ?? { position: [0, 0.4, 6.6], fov: 40 }}
+      camera={canvasProps.camera ?? { position: [0, 0.4, 6.9], fov: 40 }}
       shadowY={shadowY}
     >
       {float ? <FloatGroup intensity={0.6}>{device}</FloatGroup> : device}

@@ -1,10 +1,11 @@
 /**
  * Book object dimensions — a trade hardcover.
  *
- * Proportions follow a standard 6.14" x 9.21" (156 x 234 mm) trade hardcover
- * with a 30 mm page block, 4 mm binder's boards and a 3 mm board overhang
- * ("squares") past the pages, normalized to ~56 mm per world unit so the book
- * stands 4.18 units tall — phone-sized on the default mockup stage.
+ * Proportions follow a standard 6.14" x 9.21" (156 x 234 mm) trade hardcover,
+ * 30 mm thick overall: a 22 mm page block between 4 mm binder's boards, with
+ * a 3 mm board overhang ("squares") past the pages on the three open edges.
+ * Normalized to ~56 mm per world unit so the book stands 4.18 units tall —
+ * phone-sized on the default mockup stage.
  *
  * This is pure, renderer-agnostic data: the 3D model consumes it today and a
  * future 2D (CSS/SVG) renderer can consume the same numbers.

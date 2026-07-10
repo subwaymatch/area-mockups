@@ -12,8 +12,13 @@ export interface BusinessCardProps extends Omit<GroupProps, 'children' | 'color'
   children?: React.ReactNode
   /** Back face design. Spin the card around to see it (plain stock if omitted). */
   back?: React.ReactNode
-  /** Stock color — the die-cut edges (and the back, behind any `back` content). */
+  /** Stock color — the faces' base (and the back, behind any `back` content). */
   color?: string
+  /**
+   * Painted-edge color, the signature of premium 32 pt stock (think a bright
+   * seam of color around the card). Defaults to the stock color (unpainted).
+   */
+  edgeColor?: string
   /** CSS background painted behind your face content. */
   faceBackground?: string
   /** CSS pixel width of the virtual face. Height follows the card aspect. */
@@ -43,6 +48,7 @@ export function BusinessCard({
   children,
   back,
   color = '#f7f6f2',
+  edgeColor,
   faceBackground = '#ffffff',
   resolution = BUSINESS_CARD.resolution,
   interactive = true,
@@ -90,9 +96,16 @@ export function BusinessCard({
 
   return (
     <group {...groupProps}>
-      {/* the stock */}
+      {/* the stock — faces in the stock color, die-cut edge optionally painted
+          (ExtrudeGeometry material group 0 is the caps, group 1 the sides) */}
       <mesh ref={bodyRef} geometry={bodyGeometry}>
-        <meshPhysicalMaterial color={color} metalness={0} roughness={0.82} />
+        <meshPhysicalMaterial attach="material-0" color={color} metalness={0} roughness={0.82} />
+        <meshPhysicalMaterial
+          attach="material-1"
+          color={edgeColor ?? color}
+          metalness={0}
+          roughness={edgeColor ? 0.5 : 0.82}
+        />
       </mesh>
 
       {/* live front face */}

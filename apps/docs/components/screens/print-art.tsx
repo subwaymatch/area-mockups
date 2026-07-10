@@ -318,6 +318,72 @@ export function BillboardAdArt() {
   )
 }
 
+/** ID badge front. */
+export function BadgeFrontArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: '#fdfdfb',
+        color: '#161a20',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ height: 8, background: '#b3223a' }} />
+      <div style={{ padding: '18px 20px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ width: 22, height: 22, borderRadius: 7, background: '#b3223a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>A</div>
+        <div style={{ fontSize: 12, letterSpacing: 2, fontWeight: 700 }}>AREA LABS</div>
+      </div>
+      <div style={{ margin: '18px auto 0', width: 108, height: 108, borderRadius: '50%', background: 'linear-gradient(160deg, #cdd6e2, #9fb0c4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 700, color: '#5b6a7e' }}>
+        YP
+      </div>
+      <div style={{ textAlign: 'center', marginTop: 14 }}>
+        <div style={{ fontSize: 20, fontWeight: 700 }}>Yuna Park</div>
+        <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Product Designer</div>
+      </div>
+      <div style={{ marginTop: 'auto', padding: '0 20px 16px', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#6b7280' }}>
+        <span>ID 0042</span>
+        <span>EXP 08/27</span>
+      </div>
+    </div>
+  )
+}
+
+/** ID badge back. */
+export function BadgeBackArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: '#161a20',
+        color: '#e7eaef',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        padding: 20,
+        textAlign: 'center',
+      }}
+    >
+      <svg width="120" height="40" viewBox="0 0 120 40" aria-hidden>
+        {Array.from({ length: 30 }, (_, i) => (
+          <rect key={i} x={i * 4} y={0} width={i % 3 === 0 ? 2.6 : 1.3} height={40} fill="#e7eaef" />
+        ))}
+      </svg>
+      <div style={{ fontSize: 10, color: '#9aa1ab', maxWidth: 200 }}>
+        This badge is the property of Area Labs. If found, drop it in any mailbox.
+      </div>
+    </div>
+  )
+}
+
 /** Cargo-van wrap livery. */
 export function VanLiveryArt() {
   return (

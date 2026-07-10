@@ -51,11 +51,12 @@ export function Billboard({
   screenStyle,
   ...groupProps
 }: BillboardProps) {
-  const { face, panel, standHeight, pole, catwalk, lights } = BILLBOARD
+  const { face, panel, apron, standHeight, pole, catwalk, lights } = BILLBOARD
   const panelRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [panelRef], [])
 
   const panelTop = panel.height / 2
+  const apronCenterY = -panelTop - apron.height / 2 + 0.02
   const steel = { color, metalness: 0.6, roughness: 0.45 }
 
   return (
@@ -65,35 +66,56 @@ export function Billboard({
         <meshPhysicalMaterial {...steel} />
       </RoundedBox>
 
-      {/* monopole, torsion struts and foundation collar */}
-      <mesh position={[0, (0.3 - standHeight) / 2, -pole.radius - panel.depth / 2 - 0.02]}>
-        <cylinderGeometry args={[pole.radius, pole.radius, standHeight + 0.3, 24]} />
-        <meshPhysicalMaterial {...steel} />
-      </mesh>
-      {[0.4, -0.4].map((y) => (
-        <mesh key={y} position={[0, y, -panel.depth / 2 - pole.radius / 2]}>
-          <boxGeometry args={[0.09, 0.09, pole.radius + 0.06]} />
-          <meshPhysicalMaterial {...steel} />
+      {/* torsion box + slatted apron skirt flush under the face — the
+          structural band the pole actually connects to */}
+      <RoundedBox args={[apron.width, apron.height, apron.depth]} radius={0.02} position={[0, apronCenterY, -0.04]}>
+        <meshPhysicalMaterial {...steel} roughness={0.55} />
+      </RoundedBox>
+      {Array.from({ length: 13 }, (_, i) => (
+        <mesh key={i} position={[(i - 6) * (apron.width / 13.4), apronCenterY, apron.depth / 2 - 0.028]}>
+          <boxGeometry args={[0.02, apron.height - 0.06, 0.02]} />
+          <meshPhysicalMaterial {...steel} roughness={0.65} />
         </mesh>
       ))}
+
+      {/* monopole rising into the apron, and the foundation collar */}
+      <mesh position={[0, (apronCenterY - standHeight) / 2, -pole.radius - panel.depth / 2 - 0.02]}>
+        <cylinderGeometry args={[pole.radius, pole.radius, standHeight + apronCenterY + 0.2, 24]} />
+        <meshPhysicalMaterial {...steel} />
+      </mesh>
+      <mesh position={[0, apronCenterY, -panel.depth / 2 - pole.radius / 2]}>
+        <boxGeometry args={[0.6, apron.height - 0.08, pole.radius + 0.1]} />
+        <meshPhysicalMaterial {...steel} />
+      </mesh>
       <mesh position={[0, -standHeight + pole.collarHeight / 2, -pole.radius - panel.depth / 2 - 0.02]}>
         <cylinderGeometry args={[pole.collarRadius, pole.collarRadius, pole.collarHeight, 24]} />
         <meshPhysicalMaterial {...steel} roughness={0.7} />
       </mesh>
 
-      {/* maintenance catwalk + railing along the bottom edge */}
-      <group position={[0, -panelTop - catwalk.drop, panel.depth / 2 + catwalk.depth / 2]}>
+      {/* maintenance catwalk hung off the apron front, with a guardrail */}
+      <group position={[0, apronCenterY + apron.height / 2 - catwalk.drop - 0.14, apron.depth / 2 - 0.04 + catwalk.depth / 2]}>
         <mesh>
           <boxGeometry args={[catwalk.width, catwalk.thickness, catwalk.depth]} />
           <meshPhysicalMaterial {...steel} roughness={0.6} />
         </mesh>
-        <mesh position={[0, 0.3, catwalk.depth / 2 - 0.02]}>
+        <mesh position={[0, catwalk.railHeight, catwalk.depth / 2 - 0.02]}>
           <boxGeometry args={[catwalk.width, 0.025, 0.025]} />
           <meshPhysicalMaterial {...steel} />
         </mesh>
-        {[1, -1].map((side) => (
-          <mesh key={side} position={[side * (catwalk.width / 2 - 0.05), 0.15, catwalk.depth / 2 - 0.02]}>
-            <boxGeometry args={[0.025, 0.3, 0.025]} />
+        <mesh position={[0, catwalk.railHeight * 0.55, catwalk.depth / 2 - 0.02]}>
+          <boxGeometry args={[catwalk.width, 0.018, 0.018]} />
+          <meshPhysicalMaterial {...steel} />
+        </mesh>
+        {Array.from({ length: catwalk.posts }, (_, i) => (
+          <mesh
+            key={i}
+            position={[
+              (i - (catwalk.posts - 1) / 2) * ((catwalk.width - 0.1) / (catwalk.posts - 1)),
+              catwalk.railHeight / 2,
+              catwalk.depth / 2 - 0.02,
+            ]}
+          >
+            <boxGeometry args={[0.025, catwalk.railHeight, 0.025]} />
             <meshPhysicalMaterial {...steel} />
           </mesh>
         ))}

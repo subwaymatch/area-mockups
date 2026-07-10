@@ -90,24 +90,32 @@ export function Book({
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.72} />
       </mesh>
 
-      {/* page block, flush at the spine and recessed behind the board squares */}
+      {/* page block, flush at the spine and recessed behind the board squares
+          on the three open edges (the fore edge overhang is what you see) */}
       <RoundedBox
         args={[pages.width, pages.height, pages.thickness]}
         radius={0.008}
-        position-x={pages.inset / 2}
+        position-x={-pages.inset / 2}
       >
         <meshPhysicalMaterial color={pageColor} metalness={0} roughness={0.92} />
       </RoundedBox>
 
-      {/* rounded cloth spine wrapping the bound edge */}
+      {/* rounded cloth spine wrapping the bound edge, flush with the boards */}
       <RoundedBox
-        args={[spine.width, board.height, thickness + 0.012]}
+        args={[spine.width, board.height, thickness]}
         radius={spine.radius}
         smoothness={6}
         position-x={-board.width / 2 + 0.012}
       >
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.72} />
       </RoundedBox>
+
+      {/* case-binding joint groove on the back board, ~7 mm from the spine
+          edge (the front board's groove is under the cover art) */}
+      <mesh position={[-board.width / 2 + spine.width + 0.03, 0, -thickness / 2 - 0.0015]}>
+        <boxGeometry args={[0.024, board.height - 0.16, 0.002]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.22} />
+      </mesh>
 
       {/* the live cover: real DOM, CSS3D-transformed onto the front board */}
       <DeviceScreen

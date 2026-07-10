@@ -1,8 +1,8 @@
 /**
  * Van object dimensions — a generic Euro-style cargo van (think Transit /
- * Sprinter silhouette, no brand): long-wheelbase panel van with a short
- * sloped nose, raked windshield, high roof and a flat cargo side that takes
- * a vinyl-wrap livery.
+ * Sprinter silhouette, no brand): long-wheelbase panel van with a clamshell
+ * hood, cowl break, raked windshield, high roof and a flat cargo side that
+ * takes a vinyl-wrap livery.
  *
  * Normalized to ~1050 mm per world unit: 5.9 m long, 2.55 m tall, 2.05 m wide
  * becomes 5.62 x 2.43 x 1.95 units. The group origin sits mid-height at the
@@ -33,15 +33,22 @@ export const VAN = {
     /** Wheel axle height (tire bottom touches `groundY`). */
     centerY: -0.853,
   },
-  /** Side profile checkpoints (x, y) used to build the extruded shell. */
+  /**
+   * Side profile checkpoints (x, y) used to build the extruded shell: bumper
+   * face, near-horizontal clamshell hood top, cowl crease at the windshield
+   * base, raked glass, and the high-roof cap ramping back to the roofline.
+   */
   profile: {
     noseX: 2.81,
     tailX: -2.81,
     bumperTopY: -0.28,
-    hoodX: 2.66,
-    hoodY: -0.05,
+    hoodX: 2.68,
+    hoodY: 0.02,
+    cowlX: 2.32,
+    cowlY: 0.2,
     windshieldTopX: 2.06,
     windshieldTopY: 0.92,
+    roofStartX: 1.3,
     roofY: 1.19,
   },
   /** Live vinyl-wrap panel on the cargo side (+Z), clear of the arches and door glass. */

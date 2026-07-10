@@ -14,6 +14,12 @@ export interface BrochureProps extends Omit<GroupProps, 'children' | 'color'> {
    * provided; panels left undefined show `panelBackground`.
    */
   panels?: [React.ReactNode?, React.ReactNode?, React.ReactNode?]
+  /**
+   * Content for the reverse side of each panel, left to right as seen from
+   * the BACK. A real tri-fold is printed on all six faces; panels left
+   * undefined show bare `paperColor` stock.
+   */
+  backPanels?: [React.ReactNode?, React.ReactNode?, React.ReactNode?]
   /** Zig-zag fold angle in degrees. `0` lays the sheet out flat. */
   foldAngle?: number
   /** Paper color of the panel backs and edges. */
@@ -47,6 +53,7 @@ export interface BrochureProps extends Omit<GroupProps, 'children' | 'color'> {
 export function Brochure({
   children,
   panels,
+  backPanels,
   foldAngle = BROCHURE.foldAngle,
   paperColor = '#f5f4f0',
   panelBackground = '#ffffff',
@@ -79,12 +86,45 @@ export function Brochure({
   }
 
   const content = [panels?.[0] ?? children, panels?.[1], panels?.[2]]
+  // back faces, indexed so backPanels reads left-to-right when viewed from behind
+  const backContent = [backPanels?.[2], backPanels?.[1], backPanels?.[0]]
+
+  const screenProps = {
+    width: panel.width,
+    height: panel.height,
+    radius: panel.radius,
+    resolution,
+    background: panelBackground,
+    interactive,
+    dragToRotate,
+    occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined,
+    screenStyle,
+  }
+
+  /**
+   * Fake the paper's gentle bow with shading: each panel darkens toward its
+   * receding hinge (a valley crease as seen from the front). Dead-flat evenly
+   * lit facets are the giveaway of a CG fold.
+   */
+  const foldShade = (yaw: number): React.ReactNode =>
+    foldAngle > 2 ? (
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 2147483647,
+          background: `linear-gradient(${yaw > 0 ? 90 : 270}deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.13) 100%)`,
+        }}
+      />
+    ) : undefined
 
   return (
     <group {...groupProps}>
       {layout.map(({ x, z, yaw }, i) => (
         <group key={i} position={[x, 0, z]} rotation-y={yaw}>
-          {/* heavy paper stock — the back face is what shows through the folds */}
+          {/* heavy paper stock — bare stock shows wherever a face is unprinted */}
           <mesh ref={refs[i]}>
             <boxGeometry args={[panel.width, panel.height, panel.thickness]} />
             <meshPhysicalMaterial color={paperColor} metalness={0} roughness={0.85} />
@@ -92,19 +132,24 @@ export function Brochure({
 
           {/* the live panel: real DOM, CSS3D-transformed onto the front face */}
           <DeviceScreen
-            width={panel.width}
-            height={panel.height}
-            radius={panel.radius}
-            resolution={resolution}
+            {...screenProps}
             position={[0, 0, panel.thickness / 2 + 0.003]}
-            background={panelBackground}
-            interactive={interactive}
-            dragToRotate={dragToRotate}
-            occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-            screenStyle={screenStyle}
+            overlay={foldShade(yaw)}
           >
             {content[i]}
           </DeviceScreen>
+
+          {/* reverse side — only mounted when there's a design for it */}
+          {backContent[i] != null && (
+            <DeviceScreen
+              {...screenProps}
+              position={[0, 0, -panel.thickness / 2 - 0.003]}
+              rotation={[0, Math.PI, 0]}
+              overlay={foldShade(-yaw)}
+            >
+              {backContent[i]}
+            </DeviceScreen>
+          )}
         </group>
       ))}
     </group>

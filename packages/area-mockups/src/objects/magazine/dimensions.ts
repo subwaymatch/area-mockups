@@ -14,10 +14,11 @@
 export const MAGAZINE_MM = 1 / 66
 
 export const MAGAZINE = {
-  /** Trimmed page block (covers are flush — it's perfect-bound, not a hardcover). */
-  body: { width: 3.273, height: 4.227, thickness: 0.091, radius: 0.016 },
+  /** Trimmed page block — real guillotine cuts are near-square, so the edge
+   * rounding is just enough to catch a highlight. */
+  body: { width: 3.273, height: 4.227, thickness: 0.091, radius: 0.003 },
   /** Cover art area (the whole front). Content you pass as children maps onto this rect. */
-  cover: { width: 3.273, height: 4.227, radius: 0.016 },
+  cover: { width: 3.273, height: 4.227, radius: 0.008 },
   /** Default CSS px width of the virtual cover. */
   resolution: 480,
 } as const

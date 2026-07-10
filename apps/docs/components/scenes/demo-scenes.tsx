@@ -5,6 +5,7 @@ import {
   BookMockup,
   BrochureMockup,
   BusinessCardMockup,
+  IDCardMockup,
   LaptopMockup,
   MagazineMockup,
   MonitorMockup,
@@ -16,8 +17,10 @@ import {
 import { TapCounter } from '../screens/tap-counter'
 import { LockScreen } from '../screens/lock-screen'
 import { DesktopScreen } from '../screens/desktop-screen'
-import { WatchFace } from '../screens/watch-face'
+import { GalaxyWatchFace, WatchFace } from '../screens/watch-face'
 import {
+  BadgeBackArt,
+  BadgeFrontArt,
   BillboardAdArt,
   BookCoverArt,
   BrochureFrontArt,
@@ -160,13 +163,35 @@ export default function DemoScenes() {
         title="Apple Watch Series 11"
         description={
           <>
-            <code>&lt;WatchMockup&gt;</code>: squircle case, Digital Crown, Sport Band, and
-            a live 208×248 face. The complication really taps.
+            <code>&lt;WatchMockup&gt;</code>: squircle case, Digital Crown, a full Sport
+            Band loop worn on an invisible wrist, and a live 208×248 face. The
+            complication really taps.
           </>
         }
       >
         <WatchMockup float color="#1c1d21" bandColor="#33415c" deviceProps={{ rotation: [0, -0.35, 0] }}>
           <WatchFace />
+        </WatchMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Galaxy Watch 8"
+        description={
+          <>
+            <code>variant=&quot;watch8&quot;</code>: the cushion case with a fully round
+            1.47″ display — a live circular 240×240 face — two flat keys, and the
+            Dynamic Lug band.
+          </>
+        }
+      >
+        <WatchMockup
+          variant="watch8"
+          float
+          color="#33363c"
+          bandColor="#23252a"
+          deviceProps={{ rotation: [0, 0.3, 0] }}
+        >
+          <GalaxyWatchFace />
         </WatchMockup>
       </DemoCard>
 
@@ -225,6 +250,20 @@ export default function DemoScenes() {
         <BusinessCardMockup float back={<CardBackArt />} deviceProps={{ rotation: [-0.1, -0.35, 0] }}>
           <CardFrontArt />
         </BusinessCardMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="ID badge on a lanyard"
+        description={
+          <>
+            <code>&lt;IDCardMockup&gt;</code>: a CR80 badge with a real punched slot, snap
+            hook, and hanging lanyard. The <code>back</code> face is live too.
+          </>
+        }
+      >
+        <IDCardMockup float back={<BadgeBackArt />} deviceProps={{ rotation: [0, -0.25, 0.04] }}>
+          <BadgeFrontArt />
+        </IDCardMockup>
       </DemoCard>
 
       <DemoCard

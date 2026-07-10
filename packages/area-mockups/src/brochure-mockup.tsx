@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   BrochureProps,
   | 'panels'
+  | 'backPanels'
   | 'foldAngle'
   | 'paperColor'
   | 'panelBackground'
@@ -39,6 +40,7 @@ export interface BrochureMockupProps
 export function BrochureMockup({
   children,
   panels,
+  backPanels,
   foldAngle,
   paperColor,
   panelBackground,
@@ -54,6 +56,7 @@ export function BrochureMockup({
   const object = (
     <Brochure
       panels={panels}
+      backPanels={backPanels}
       foldAngle={foldAngle}
       paperColor={paperColor}
       panelBackground={panelBackground}

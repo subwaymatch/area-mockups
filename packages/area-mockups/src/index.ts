@@ -14,6 +14,7 @@ export { BusinessCardMockup, type BusinessCardMockupProps } from './business-car
 export { PosterFrameMockup, type PosterFrameMockupProps } from './poster-frame-mockup'
 export { BillboardMockup, type BillboardMockupProps } from './billboard-mockup'
 export { VanMockup, type VanMockupProps } from './van-mockup'
+export { IDCardMockup, type IDCardMockupProps } from './id-card-mockup'
 
 // Composable pieces: bring your own scene, or drop a device into an existing one.
 export { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
@@ -30,6 +31,7 @@ export { BusinessCard, type BusinessCardProps } from './objects/business-card/bu
 export { PosterFrame, type PosterFrameProps } from './objects/poster-frame/poster-frame'
 export { Billboard, type BillboardProps } from './objects/billboard/billboard'
 export { Van, type VanProps } from './objects/van/van'
+export { IDCard, type IDCardProps } from './objects/id-card/id-card'
 
 // Renderer-agnostic device data (shared with the planned 2D renderers).
 export {
@@ -54,7 +56,13 @@ export {
   type TabletVariant,
   type TabletSpec,
 } from './devices/tablet/dimensions'
-export { WATCH, WATCH_DISPLAY_ASPECT } from './devices/watch/dimensions'
+export {
+  WATCH,
+  WATCH_DISPLAY_ASPECT,
+  WATCH_VARIANTS,
+  type WatchVariant,
+  type WatchSpec,
+} from './devices/watch/dimensions'
 export { MONITOR, MONITOR_DISPLAY_ASPECT } from './devices/monitor/dimensions'
 
 // Renderer-agnostic object data (print, out-of-home, vehicles).
@@ -65,3 +73,4 @@ export { BUSINESS_CARD, BUSINESS_CARD_FACE_ASPECT } from './objects/business-car
 export { POSTER_FRAME, POSTER_FRAME_ASPECT } from './objects/poster-frame/dimensions'
 export { BILLBOARD, BILLBOARD_FACE_ASPECT } from './objects/billboard/dimensions'
 export { VAN, VAN_WRAP_ASPECT } from './objects/van/dimensions'
+export { ID_CARD, ID_CARD_FACE_ASPECT } from './objects/id-card/dimensions'

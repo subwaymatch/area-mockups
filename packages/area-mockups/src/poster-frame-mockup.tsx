@@ -7,6 +7,9 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   PosterFrameProps,
   | 'color'
+  | 'mat'
+  | 'matColor'
+  | 'glazing'
   | 'posterBackground'
   | 'resolution'
   | 'interactive'
@@ -39,6 +42,9 @@ export interface PosterFrameMockupProps
 export function PosterFrameMockup({
   children,
   color,
+  mat,
+  matColor,
+  glazing,
   posterBackground,
   resolution,
   interactive,
@@ -52,6 +58,9 @@ export function PosterFrameMockup({
   const object = (
     <PosterFrame
       color={color}
+      mat={mat}
+      matColor={matColor}
+      glazing={glazing}
       posterBackground={posterBackground}
       resolution={resolution}
       interactive={interactive}

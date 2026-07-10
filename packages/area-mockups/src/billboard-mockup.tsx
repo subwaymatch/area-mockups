@@ -30,7 +30,7 @@ export interface BillboardMockupProps
  * Vertical offset that keeps the billboard (face + pole) visually centered on
  * the stage origin the camera and shadow are tuned for.
  */
-const STAGE_OFFSET_Y = 0.6
+const STAGE_OFFSET_Y = 1.1
 
 /**
  * The one-liner: a complete, interactive 3D highway bulletin mockup with a
@@ -77,7 +77,7 @@ export function BillboardMockup({
   return (
     <MockupCanvas
       {...canvasProps}
-      camera={canvasProps.camera ?? { position: [0, 0.3, 11.6], fov: 40 }}
+      camera={canvasProps.camera ?? { position: [0, 0.2, 13.6], fov: 40 }}
       shadowY={shadowY}
     >
       <group position={[0, STAGE_OFFSET_Y, 0]}>

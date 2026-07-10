@@ -1,18 +1,19 @@
 ---
-title: Watch (Apple Watch)
-description: An Apple Watch Series 11 with a squircle case, Digital Crown, and Sport Band.
+title: Watch (Apple Watch + Galaxy Watch)
+description: Apple Watch Series 11 or Galaxy Watch 8, wearing a full wristband.
 ---
 
-`<Watch>` and `<WatchMockup>` render an Apple Watch Series 11 (46 mm) style
-watch: squircle case, knurled Digital Crown, side button, sensor dome, and
-Sport Band straps. The face is a live 208×248 screen, so complications really
-tap.
+`<Watch>` and `<WatchMockup>` render a smartwatch wearing a full closed
+wristband — a teardrop loop behind the case, as if on an invisible wrist,
+matching how every band product photo poses it. Two variants at true
+relative sizes:
 
-```tsx
-<WatchMockup float color="#1c1d21" bandColor="#33415c">
-  <YourWatchFace />
-</WatchMockup>
-```
+- **`series11`** (default): Apple Watch Series 11, 46 mm — squircle case,
+  knurled Digital Crown, flush side button, Sport Band with its pin cap at
+  the bottom of the loop, and a live 208×248 rounded-rect face.
+- **`watch8`**: Samsung Galaxy Watch 8, 44 mm — cushion case (squircle
+  armor, flat top), fully **round** 1.47" display as a live 240×240 circular
+  face, two flat keys, and the Dynamic Lug band cradle.
 
 ## Props
 
@@ -20,8 +21,34 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `variant` | `'series11' \| 'watch8'` | `'series11'` | Which watch to render. |
 | `color` | `string` | `'#1c1d21'` | Case colorway. |
-| `bandColor` | `string` | `'#2a2c31'` | Sport Band straps. |
-| `resolution` | `number` | `208` | Virtual display width; 208 gives a 208×248 face, the 46 mm point grid. |
+| `bandColor` | `string` | `'#2a2c31'` | Wristband loop. |
+| `resolution` | `number` | per variant | Virtual display width: 208 (Apple point grid) or 240 (Galaxy dp grid). |
 
 There is no `orientation` prop.
+
+## Examples
+
+### Apple Watch, full Sport Band
+
+<ObjectDemo demo="watch-band" />
+
+```tsx
+<WatchMockup float color="#1c1d21" bandColor="#33415c">
+  <YourWatchFace />
+</WatchMockup>
+```
+
+### Galaxy Watch 8, round face
+
+The display is a circle: give your face a `border-radius: 50%` root (or just
+design edge-to-edge — the crystal masks it round).
+
+<ObjectDemo demo="watch-galaxy" />
+
+```tsx
+<WatchMockup variant="watch8" color="#33363c" bandColor="#23252a" float>
+  <YourRoundFace />
+</WatchMockup>
+```
