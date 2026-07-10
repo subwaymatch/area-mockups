@@ -1,0 +1,29 @@
+---
+title: DOOH totem
+description: A digital street totem with a live portrait 9:16 display.
+---
+
+`<DOOHTotem>` and `<DOOHTotemMockup>` render a digital out-of-home street
+totem (digital 6-sheet class): a rounded street-furniture enclosure on a low
+plinth with dark glass on both faces, and a live portrait 540×960 display —
+the digital sibling of the [billboard](/docs/api/billboard) and
+[bus shelter](/docs/api/bus-shelter).
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `color` | `string` | `'#2f333a'` | Enclosure colorway. |
+| `resolution` | `number` | `540` | Virtual display width; 540 gives 540×960 (a 1080×1920 grid at 2x). |
+
+## Example
+
+<ObjectDemo demo="totem-basic" />
+
+```tsx
+<DOOHTotemMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+  <YourCreative />
+</DOOHTotemMockup>
+```

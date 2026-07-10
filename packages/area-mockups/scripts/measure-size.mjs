@@ -23,6 +23,12 @@ const ENTRIES = {
   'BusMockup (transit bus)': "export { BusMockup } from './src/index'",
   'ProductBoxMockup (retail carton)': "export { ProductBoxMockup } from './src/index'",
   'RollupBannerMockup (850x2000 stand)': "export { RollupBannerMockup } from './src/index'",
+  'BusShelterMockup (6-sheet shelter)': "export { BusShelterMockup } from './src/index'",
+  'GreetingCardMockup (A7 card)': "export { GreetingCardMockup } from './src/index'",
+  'VinylRecordMockup (12in LP)': "export { VinylRecordMockup } from './src/index'",
+  'TVSetMockup (65in TV)': "export { TVSetMockup } from './src/index'",
+  'AFrameSignMockup (sandwich board)': "export { AFrameSignMockup } from './src/index'",
+  'DOOHTotemMockup (digital totem)': "export { DOOHTotemMockup } from './src/index'",
   'everything (full library)': "export * from './src/index'",
 }
 

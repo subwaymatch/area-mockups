@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  AFrameSignMockup,
   Billboard,
   BillboardMockup,
   Book,
@@ -9,6 +10,9 @@ import {
   BusinessCard,
   BusinessCardMockup,
   BusMockup,
+  BusShelterMockup,
+  DOOHTotemMockup,
+  GreetingCardMockup,
   IDCardMockup,
   IPhone,
   IPhoneMockup,
@@ -24,7 +28,10 @@ import {
   RollupBanner,
   RollupBannerMockup,
   TabletMockup,
+  TVSetMockup,
   VanMockup,
+  VinylRecord,
+  VinylRecordMockup,
   WatchMockup,
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
@@ -42,12 +49,18 @@ import {
   BrochureVisitArt,
   BusAdArt,
   CardBackArt,
+  ChalkMenuArt,
   CardFrontArt,
   DestinationArt,
+  GreetingCoverArt,
+  GreetingInsideArt,
   MagazineCoverArt,
   PosterArt,
+  TVShowArt,
   VanLiveryArt,
   VanRearArt,
+  VinylCoverArt,
+  VinylLabelArt,
 } from './screens/print-art'
 import { GalaxyWatchFace, WatchFace } from './screens/watch-face'
 import { TapCounter } from './screens/tap-counter'
@@ -374,6 +387,74 @@ const DEMOS: Record<string, React.ReactNode> = {
         </RollupBanner>
       </group>
     </MockupCanvas>
+  ),
+
+  // ---- Bus shelter ---------------------------------------------------------------
+  'shelter-basic': (
+    <BusShelterMockup deviceProps={{ rotation: [0, -0.55, 0] }}>
+      <PosterArt />
+    </BusShelterMockup>
+  ),
+  'shelter-night': (
+    <BusShelterMockup color="#22262c" background="#0b0d12" deviceProps={{ rotation: [0, -0.75, 0] }} inner={<PosterArt />}>
+      <PosterArt />
+    </BusShelterMockup>
+  ),
+
+  // ---- Greeting card ---------------------------------------------------------------
+  'greeting-basic': (
+    <GreetingCardMockup float deviceProps={{ rotation: [0, -0.82, 0] }}>
+      <GreetingCoverArt />
+    </GreetingCardMockup>
+  ),
+  'greeting-inside': (
+    <GreetingCardMockup
+      autoRotate
+      autoRotateSpeed={1.4}
+      insideLeft={<GreetingInsideArt />}
+      insideRight={<GreetingInsideArt />}
+      backCover={<GreetingInsideArt />}
+    >
+      <GreetingCoverArt />
+    </GreetingCardMockup>
+  ),
+
+  // ---- Vinyl record ---------------------------------------------------------------
+  'vinyl-basic': (
+    <VinylRecordMockup label={<VinylLabelArt />} deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <VinylCoverArt />
+    </VinylRecordMockup>
+  ),
+  'vinyl-colored': (
+    <VinylRecordMockup vinylColor="#7a2337" color="#101725" label={<VinylLabelArt />} float>
+      <VinylCoverArt />
+    </VinylRecordMockup>
+  ),
+
+  // ---- TV ---------------------------------------------------------------------------
+  'tv-basic': (
+    <TVSetMockup deviceProps={{ rotation: [0, -0.22, 0] }}>
+      <TVShowArt />
+    </TVSetMockup>
+  ),
+
+  // ---- A-frame sign -----------------------------------------------------------------
+  'aframe-basic': (
+    <AFrameSignMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChalkMenuArt />
+    </AFrameSignMockup>
+  ),
+  'aframe-back': (
+    <AFrameSignMockup autoRotate autoRotateSpeed={1.2} back={<ChalkMenuArt />} color="#31404f" faceBackground="#1c2733">
+      <ChalkMenuArt />
+    </AFrameSignMockup>
+  ),
+
+  // ---- DOOH totem ---------------------------------------------------------------------
+  'totem-basic': (
+    <DOOHTotemMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+      <BannerArt />
+    </DOOHTotemMockup>
   ),
 
   // ---- Watch ------------------------------------------------------------------

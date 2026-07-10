@@ -1,0 +1,46 @@
+---
+title: Bus shelter
+description: A glass transit shelter with a backlit live 6-sheet lightbox.
+---
+
+`<BusShelter>` and `<BusShelterMockup>` render a JCDecaux-class glass transit
+shelter: a flat roof slab cantilevered off two slim back posts, full-width
+glass back wall, floating bench — and the 6-sheet lightbox (1185×1750 mm)
+standing as the structural end panel, with backlit diffusers behind a live
+480×709 poster on each face.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `inner` | `ReactNode` | - | Creative on the inward (waiting-area) lightbox face. |
+| `color` | `string` | `'#2f333a'` | Street-furniture steel: roof, posts, frames, bench supports. |
+| `posterBackground` | `string` | `'#ffffff'` | CSS background behind the poster (backlit white). |
+| `resolution` | `number` | `480` | Virtual poster width in CSS px; height follows the 6-sheet. |
+
+The lightbox faces ±X (along the sidewalk) — pose the shelter in
+three-quarter view to feature it.
+
+## Examples
+
+### The classic street angle
+
+<ObjectDemo demo="shelter-basic" />
+
+```tsx
+<BusShelterMockup deviceProps={{ rotation: [0, -0.55, 0] }}>
+  <YourPoster />
+</BusShelterMockup>
+```
+
+### Dark steel, both poster faces
+
+<ObjectDemo demo="shelter-night" />
+
+```tsx
+<BusShelterMockup color="#22262c" inner={<InnerPoster />} deviceProps={{ rotation: [0, -0.75, 0] }}>
+  <YourPoster />
+</BusShelterMockup>
+```

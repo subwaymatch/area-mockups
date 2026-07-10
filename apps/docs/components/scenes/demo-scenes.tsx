@@ -22,6 +22,14 @@ import { LockScreen } from '../screens/lock-screen'
 import { DesktopScreen } from '../screens/desktop-screen'
 import { GalaxyWatchFace, WatchFace } from '../screens/watch-face'
 import {
+  AFrameSignMockup,
+  BusShelterMockup,
+  DOOHTotemMockup,
+  GreetingCardMockup,
+  TVSetMockup,
+  VinylRecordMockup,
+} from 'area-mockups'
+import {
   BadgeBackArt,
   BadgeFrontArt,
   BannerArt,
@@ -31,7 +39,13 @@ import {
   BoxSideArt,
   BoxTopArt,
   BusAdArt,
+  ChalkMenuArt,
   DestinationArt,
+  GreetingCoverArt,
+  GreetingInsideArt,
+  TVShowArt,
+  VinylCoverArt,
+  VinylLabelArt,
   BrochureFrontArt,
   BrochureTrailsArt,
   BrochureVisitArt,
@@ -357,6 +371,90 @@ export default function DemoScenes() {
         <VanMockup deviceProps={{ rotation: [0, -0.5, 0] }}>
           <VanLiveryArt />
         </VanMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Bus shelter 6-sheet"
+        description={
+          <>
+            <code>&lt;BusShelterMockup&gt;</code>: a glass transit shelter whose backlit
+            6-sheet lightbox holds a live 480×709 poster on both faces.
+          </>
+        }
+      >
+        <BusShelterMockup deviceProps={{ rotation: [0, -0.55, 0] }}>
+          <PosterArt />
+        </BusShelterMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Greeting card"
+        description={
+          <>
+            <code>&lt;GreetingCardMockup&gt;</code>: a folded A7 card standing like a tent
+            — cover, back and the inside spread are all live faces.
+          </>
+        }
+      >
+        <GreetingCardMockup float insideLeft={<GreetingInsideArt />} insideRight={<GreetingInsideArt />} deviceProps={{ rotation: [0, -0.82, 0] }}>
+          <GreetingCoverArt />
+        </GreetingCardMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Vinyl record"
+        description={
+          <>
+            <code>&lt;VinylRecordMockup&gt;</code>: a 12″ LP half-out of its jacket. The
+            cover is live DOM — and so is the circular center label.
+          </>
+        }
+      >
+        <VinylRecordMockup label={<VinylLabelArt />} deviceProps={{ rotation: [0, -0.2, 0] }}>
+          <VinylCoverArt />
+        </VinylRecordMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="65″ TV"
+        description={
+          <>
+            <code>&lt;TVSetMockup&gt;</code>: a near-bezel-less 65″ panel on blade feet
+            with a live 1920×1080 screen — desktop layouts and video apply directly.
+          </>
+        }
+      >
+        <TVSetMockup deviceProps={{ rotation: [0, -0.22, 0] }}>
+          <TVShowArt />
+        </TVSetMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="A-frame sign"
+        description={
+          <>
+            <code>&lt;AFrameSignMockup&gt;</code>: the sidewalk sandwich board, legs
+            splayed like the real thing — both chalkboard panels are live.
+          </>
+        }
+      >
+        <AFrameSignMockup back={<ChalkMenuArt />} deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <ChalkMenuArt />
+        </AFrameSignMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="DOOH totem"
+        description={
+          <>
+            <code>&lt;DOOHTotemMockup&gt;</code>: a digital street totem with a live
+            portrait 540×960 display — the digital sibling of the billboard.
+          </>
+        }
+      >
+        <DOOHTotemMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+          <BannerArt />
+        </DOOHTotemMockup>
       </DemoCard>
 
       <DemoCard

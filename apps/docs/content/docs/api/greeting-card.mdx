@@ -1,0 +1,45 @@
+---
+title: Greeting card
+description: A standing A7 card with four live faces — covers and inside spread.
+---
+
+`<GreetingCard>` and `<GreetingCardMockup>` render a folded 5"×7" (A7) card
+standing like a tent, fold toward the viewer: `children` is the front cover,
+`backCover` the other outward face, and `insideLeft`/`insideRight` print the
+spread you see from behind. Each face gently shades into the crease, like
+paper actually bowing.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `backCover` | `ReactNode` | - | The left outward face. |
+| `insideLeft`, `insideRight` | `ReactNode` | - | The inside spread. |
+| `openAngle` | `number` | `65` | Angle between the panels (display sweet spot is 60–75). |
+| `color` | `string` | `'#f6f3ec'` | Card stock: edges and unprinted faces. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed face. |
+| `resolution` | `number` | `380` | Virtual panel width in CSS px; height follows the A7 panel. |
+
+## Examples
+
+### The cover, on a shelf
+
+<ObjectDemo demo="greeting-basic" />
+
+```tsx
+<GreetingCardMockup float deviceProps={{ rotation: [0, -0.82, 0] }}>
+  <Cover />
+</GreetingCardMockup>
+```
+
+### All four faces, orbiting
+
+<ObjectDemo demo="greeting-inside" />
+
+```tsx
+<GreetingCardMockup autoRotate insideLeft={<Note />} insideRight={<Message />} backCover={<Logo />}>
+  <Cover />
+</GreetingCardMockup>
+```

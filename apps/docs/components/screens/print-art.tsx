@@ -577,6 +577,191 @@ export function BannerArt() {
   )
 }
 
+/** Greeting card cover. */
+export function GreetingCoverArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 22,
+        background: 'linear-gradient(170deg, #f8e8d8 0%, #f2cfc0 100%)',
+        color: '#7a3b2e',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <svg viewBox="0 0 60 60" style={{ width: 110, marginTop: 26 }} aria-hidden>
+        <circle cx="30" cy="26" r="14" fill="none" stroke="#c96b52" strokeWidth="2" />
+        <path d="M30 40 v12 M22 48 h16" stroke="#c96b52" strokeWidth="2" strokeLinecap="round" />
+        <path d="M18 18 c4 -8 20 -8 24 0" fill="none" stroke="#e8a087" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      <div style={{ fontFamily: serif, fontSize: 34, lineHeight: 1.1, marginTop: 'auto' }}>
+        oh happy day
+      </div>
+      <div style={{ fontSize: 11, letterSpacing: 3, margin: '10px 0 16px' }}>A LITTLE SUNSHINE, POST-HASTE</div>
+    </div>
+  )
+}
+
+/** Greeting card inside-right message page. */
+export function GreetingInsideArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 26,
+        background: '#fdfaf4',
+        color: '#7a3b2e',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 14,
+      }}
+    >
+      <div style={{ fontFamily: serif, fontSize: 26, lineHeight: 1.3 }}>
+        wishing you the
+        <br />
+        very best year yet
+      </div>
+      <div style={{ width: 60, height: 2, background: '#e8a087' }} />
+      <div style={{ fontSize: 13 }}>— everyone at Area Labs</div>
+    </div>
+  )
+}
+
+/** Vinyl album cover. */
+export function VinylCoverArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 26,
+        background: 'radial-gradient(140% 110% at 20% 15%, #2b3f63 0%, #101725 62%)',
+        color: '#e9edf5',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <svg viewBox="0 0 100 100" aria-hidden style={{ position: 'absolute', right: -30, bottom: -30, width: 260, opacity: 0.5 }}>
+        {[44, 36, 28, 20].map((r) => (
+          <circle key={r} cx="50" cy="50" r={r} fill="none" stroke="#5ad0a6" strokeWidth="0.8" />
+        ))}
+      </svg>
+      <div style={{ fontSize: 12, letterSpacing: 4, color: '#8fa3c8' }}>AREA WAVES</div>
+      <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1, lineHeight: 1.02, marginTop: 10 }}>
+        Neon
+        <br />
+        Skyline
+      </div>
+      <div style={{ marginTop: 'auto', fontSize: 12, color: '#8fa3c8' }}>LP · 44 MIN · AREA-007</div>
+    </div>
+  )
+}
+
+/** Vinyl center label (circular). */
+export function VinylLabelArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        background: '#e8b64c',
+        color: '#1c1a16',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 2,
+      }}
+    >
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 2 }}>AREA WAVES</div>
+      <div style={{ fontSize: 9, letterSpacing: 1 }}>NEON SKYLINE · SIDE A</div>
+      <div style={{ fontSize: 8, marginTop: 4 }}>33⅓ RPM · STEREO</div>
+    </div>
+  )
+}
+
+/** TV streaming-app hero. */
+export function TVShowArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: 'linear-gradient(200deg, #1c2b45 0%, #0a0f1a 70%)',
+        color: '#eef2f8',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 60,
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ fontSize: 26, letterSpacing: 6, color: '#5ad0a6', fontWeight: 700 }}>AREA+ ORIGINAL</div>
+      <div style={{ fontSize: 110, fontWeight: 800, letterSpacing: -3, lineHeight: 0.98, marginTop: 24 }}>
+        THE RIDGE
+      </div>
+      <div style={{ fontSize: 30, color: '#9db0cd', marginTop: 18 }}>New season · Fridays</div>
+      <div style={{ display: 'flex', gap: 24, marginTop: 'auto' }}>
+        {['#25467a', '#2a8f68', '#8a3547', '#66513a', '#31552e'].map((c) => (
+          <div key={c} style={{ width: 300, height: 170, borderRadius: 14, background: `linear-gradient(160deg, ${c}, #10151f)` }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Chalkboard menu for the A-frame. */
+export function ChalkMenuArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 24,
+        background: '#232823',
+        color: '#f0ede4',
+        display: 'flex',
+        flexDirection: 'column',
+        textAlign: 'center',
+        fontFamily: serif,
+      }}
+    >
+      <div style={{ fontSize: 30, fontStyle: 'italic' }}>Ridgeline Café</div>
+      <svg viewBox="0 0 100 8" style={{ width: '80%', margin: '8px auto 14px' }} aria-hidden>
+        <path d="M2 5 Q 25 1, 50 4 T 98 3" fill="none" stroke="#e8b64c" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+      {[
+        ['flat white', '4.5'],
+        ['batch brew', '3.5'],
+        ['cardamom bun', '5'],
+        ['trail toastie', '9'],
+      ].map(([item, price]) => (
+        <div key={item} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 17, padding: '7px 8px', borderBottom: '1px dashed rgba(240,237,228,0.25)' }}>
+          <span>{item}</span>
+          <span style={{ color: '#e8b64c' }}>{price}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 'auto', fontSize: 14, color: '#b9c4b4' }}>open till dusk ☀</div>
+    </div>
+  )
+}
+
 /** Rear-door panel for the van. */
 export function VanRearArt() {
   return (

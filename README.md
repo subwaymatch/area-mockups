@@ -6,10 +6,10 @@ screen of a 3D phone and it stays fully live: buttons click, videos play, iframe
 Built on [three.js](https://threejs.org) and
 [react-three-fiber](https://github.com/pmndrs/react-three-fiber). The starter device is a
 procedurally generated Galaxy-style phone — no 3D asset files to load. Beyond devices,
-the same live-surface API covers everyday objects: a hardcover book, magazine, tri-fold
-brochure, business card, ID badge on a lanyard, poster frame, product box, roll-up
-banner, billboard, city transit bus, and a wrap-ready cargo van. 2D (CSS/SVG) mockups
-sharing the same API are on the roadmap.
+the same live-surface API covers seventeen everyday objects — books, magazines,
+brochures, cards, packaging, posters, vinyl records, out-of-home formats (billboard,
+bus shelter, DOOH totem, A-frame, roll-up banner), a 65" TV, and wrap-ready vehicles
+(transit bus, cargo van). 2D (CSS/SVG) mockups sharing the same API are on the roadmap.
 
 ```tsx
 'use client'

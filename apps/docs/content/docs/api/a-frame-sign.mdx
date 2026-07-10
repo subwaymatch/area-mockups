@@ -1,0 +1,42 @@
+---
+title: A-frame sign
+description: A sidewalk sandwich board with two live framed panels.
+---
+
+`<AFrameSign>` and `<AFrameSignMockup>` render the classic 600×900 mm
+chalkboard-class sidewalk sign: two wood-framed panels hinged at the top,
+legs splayed ~15° (measured from street photos), with both faces live DOM —
+chalk menus, sale boards, open/closed signs.
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `back` | `ReactNode` | - | The other side of the A. |
+| `color` | `string` | `'#4a3826'` | Frame color — dark-stained wood by default. |
+| `faceBackground` | `string` | `'#20241f'` | CSS background behind each panel (chalkboard black). |
+| `resolution` | `number` | `420` | Virtual face width in CSS px; height follows the panel. |
+
+## Examples
+
+### A café menu board
+
+<ObjectDemo demo="aframe-basic" />
+
+```tsx
+<AFrameSignMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+  <MenuBoard />
+</AFrameSignMockup>
+```
+
+### Painted frame, both sides
+
+<ObjectDemo demo="aframe-back" />
+
+```tsx
+<AFrameSignMockup color="#31404f" faceBackground="#1c2733" back={<HoursBoard />} autoRotate>
+  <MenuBoard />
+</AFrameSignMockup>
+```
