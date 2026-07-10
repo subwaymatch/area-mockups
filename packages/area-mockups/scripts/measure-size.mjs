@@ -9,8 +9,9 @@ const ENTRIES = {
   'PhoneMockup (Galaxy family)': "export { PhoneMockup } from './src/index'",
   'IPhoneMockup (iPhone family)': "export { IPhoneMockup } from './src/index'",
   'LaptopMockup (MacBook Air)': "export { LaptopMockup } from './src/index'",
-  'TabletMockup (iPad Pro)': "export { TabletMockup } from './src/index'",
+  'TabletMockup (iPad + Galaxy Tab)': "export { TabletMockup } from './src/index'",
   'WatchMockup (Apple Watch)': "export { WatchMockup } from './src/index'",
+  'MonitorMockup (Studio Display)': "export { MonitorMockup } from './src/index'",
   'everything (full library)': "export * from './src/index'",
 }
 

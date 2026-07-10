@@ -167,16 +167,21 @@ export default function DocsPage() {
             <tr><td>Apple iPhone 17 Pro</td><td><code>IPhoneMockup · pro</code></td><td className="type">150.0×71.9×8.75</td><td className="type">6.3&quot; 2622×1206</td><td className="type">402×874</td><td className="type">874×402</td></tr>
             <tr><td>Apple iPhone 17 Pro Max</td><td><code>IPhoneMockup · promax</code></td><td className="type">163.4×78.0×8.75</td><td className="type">6.9&quot; 2868×1320</td><td className="type">440×956</td><td className="type">956×440</td></tr>
             <tr><td>Apple MacBook Air 13&quot; (M5)</td><td><code>LaptopMockup</code></td><td className="type">304.1×215×11.3</td><td className="type">13.6&quot; 2560×1664</td><td className="type">—</td><td className="type">1280×832</td><td className="type">12.5 KB min<br />4.7 KB gzip</td></tr>
-            <tr><td>Apple iPad Pro 13&quot; (M5)</td><td><code>TabletMockup</code></td><td className="type">281.6×215.5×5.1</td><td className="type">13&quot; 2752×2064</td><td className="type">1032×1376</td><td className="type">1376×1032</td><td className="type">8.6 KB min<br />3.1 KB gzip</td></tr>
+            <tr><td>Apple iPad Pro 13&quot; (M5)</td><td><code>TabletMockup · ipadpro13</code></td><td className="type">281.6×215.5×5.1</td><td className="type">13&quot; 2752×2064</td><td className="type">1032×1376</td><td className="type">1376×1032</td><td className="type" rowSpan={4}>12.0 KB min<br />4.0 KB gzip</td></tr>
+            <tr><td>Apple iPad Pro 11&quot; (M5)</td><td><code>TabletMockup · ipadpro11</code></td><td className="type">249.7×177.5×5.3</td><td className="type">11&quot; 2420×1668</td><td className="type">834×1210</td><td className="type">1210×834</td></tr>
+            <tr><td>Samsung Galaxy Tab S11</td><td><code>TabletMockup · tabs11</code></td><td className="type">253.8×165.3×5.5</td><td className="type">11&quot; 2560×1600</td><td className="type">800×1280</td><td className="type">1280×800</td></tr>
+            <tr><td>Samsung Galaxy Tab S11 Ultra</td><td><code>TabletMockup · tabs11ultra</code></td><td className="type">326.3×208.5×5.1</td><td className="type">14.6&quot; 2960×1848</td><td className="type">924×1480</td><td className="type">1480×924</td></tr>
             <tr><td>Apple Watch Series 11 (46mm)</td><td><code>WatchMockup</code></td><td className="type">46×39×9.7</td><td className="type">1.96&quot; 416×496</td><td className="type">208×248</td><td className="type">—</td><td className="type">7.5 KB min<br />2.9 KB gzip</td></tr>
+            <tr><td>Apple Studio Display (27&quot;)</td><td><code>MonitorMockup</code></td><td className="type">623×478×168</td><td className="type">27&quot; 5120×2880</td><td className="type">—</td><td className="type">2560×1440</td><td className="type">7.4 KB min<br />2.9 KB gzip</td></tr>
           </tbody>
         </table>
         </div>
         <p>
           Resolution basis: Galaxy S25 is its panel at ⅓ scale; the QHD+ Galaxys use One
           UI&apos;s default FHD+ render at 450 dpi (build.prop-confirmed on the Ultra);
-          iPhones, iPad and Watch use their exact point grids (3x / 2x). Importing the whole
-          library costs 35.0 KB min / 9.3 KB gzip. Pass{' '}
+          Galaxy Tabs use their xhdpi dp grid (panel at ½ scale); iPhones, iPads, Watch,
+          MacBook and Studio Display use their exact point grids (2x / 3x). Importing the
+          whole library costs 41.7 KB min / 10.7 KB gzip. Pass{' '}
           <code>orientation=&quot;landscape&quot;</code> on a phone or tablet to lay the
           device on its side: the virtual viewport swaps to the landscape resolution and
           your content renders upright, exactly like rotating the real device.
@@ -470,6 +475,64 @@ export default function DocsPage() {
             },
           ]}
         />
+
+        <h3>&lt;Tablet&gt; / &lt;TabletMockup&gt;</h3>
+        <p>
+          An iPad Pro (M5) or Galaxy Tab S11-family tablet — ultra-thin slab with
+          per-family rear camera architecture, stylus mount and USB-C port. Same
+          screen/interaction API as the phones, plus:
+        </p>
+        <PropsTable
+          rows={[
+            {
+              name: 'variant',
+              type: "'ipadpro13' | 'ipadpro11' | 'tabs11' | 'tabs11ultra'",
+              defaultValue: "'ipadpro13'",
+              description:
+                'Which tablet: iPad Pro 13″/11″ (camera pod, Pencil strip on the long edge), Galaxy Tab S11 (single protruding camera ring, side-mounted S Pen, keyboard pogo pins), Tab S11 Ultra (dual rings + droplet display notch).',
+            },
+            {
+              name: 'orientation',
+              type: "'portrait' | 'landscape'",
+              defaultValue: "'portrait'",
+              description:
+                'landscape lays the tablet on its side and swaps the virtual display (e.g. 1376×1032 on the 13″ iPad) with upright content.',
+            },
+            {
+              name: 'resolution',
+              type: 'number',
+              defaultValue: 'per variant',
+              description:
+                'Virtual display width; defaults to the variant logical grid — 1032×1376 (ipadpro13), 834×1210 (ipadpro11), 800×1280 (tabs11), 924×1480 (tabs11ultra).',
+            },
+            {
+              name: 'color',
+              type: 'string',
+              defaultValue: "'#3a3c40'",
+              description:
+                'Back colorway. iPad: Space Black #3a3c40, Silver #e3e4e6 · Tab: Gray #4b4f56, Silver #dcdee1.',
+            },
+          ]}
+        />
+
+        <h3>&lt;Watch&gt; / &lt;WatchMockup&gt;</h3>
+        <p>
+          An Apple Watch Series 11 (46&nbsp;mm)-style watch — squircle case, Digital Crown,
+          side button, sensor dome and Sport Band. Same screen/interaction API, plus{' '}
+          <code>color</code> (case, default <code>&apos;#1c1d21&apos;</code>),{' '}
+          <code>bandColor</code> (default <code>&apos;#2a2c31&apos;</code>) and{' '}
+          <code>resolution</code> (default 208 → a 208×248 face).
+        </p>
+
+        <h3>&lt;Monitor&gt; / &lt;MonitorMockup&gt;</h3>
+        <p>
+          An Apple Studio Display-style 27″ 5K monitor on its tilt stand — uniform black
+          bezel, centered camera, Thunderbolt/USB-C row and captive power inlet on the back
+          (and, faithfully, no power button). Same screen/interaction API, plus{' '}
+          <code>color</code> (aluminum, default <code>&apos;#c8cbd0&apos;</code>) and{' '}
+          <code>resolution</code> (default 2560 → the 2560×1440 logical desktop). No{' '}
+          <code>orientation</code> — it lives on a desk.
+        </p>
       </section>
 
       <section>
@@ -514,7 +577,7 @@ export default function DocsPage() {
             (exported today as <code>PHONE</code>) and the same content API, for zero-WebGL
             contexts like screenshots and emails.
           </li>
-          <li>More devices: tablets, laptops, watches.</li>
+          <li>More devices: TVs, foldables, more monitors and wearables.</li>
           <li>Deep-link camera poses and scroll-driven animation helpers.</li>
         </ul>
       </section>

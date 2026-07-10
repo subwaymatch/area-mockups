@@ -4,11 +4,12 @@ Interactive, GPU-accelerated **3D device mockups for React**. Put any content on
 of a 3D device — real DOM, projected onto WebGL glass, so it stays fully live: buttons click,
 videos play, iframes scroll.
 
-- **Eleven devices** — the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge), the
-  full iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max), a MacBook Air 13" (M5), an iPad
-  Pro 13" (M5) and an Apple Watch Series 11, all procedurally generated at runtime. No GLB
-  files, no hosting, no pop-in — importing one device family costs 2.9–4.7 KB gzipped
-  (whole library: 9.3 KB), peers excluded.
+- **Fifteen devices** — the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge), the
+  full iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max), a MacBook Air 13" (M5), iPad Pro
+  13"/11" (M5), Galaxy Tab S11 / S11 Ultra, an Apple Watch Series 11 and a Studio
+  Display-style 27" monitor, all procedurally generated at runtime. No GLB files, no
+  hosting, no pop-in — importing one device family costs 2.9–4.7 KB gzipped (whole
+  library: 10.7 KB), peers excluded.
 - **True-to-device screens** — each virtual display matches the real device's logical
   resolution in portrait *and* landscape (table below), so your layouts and breakpoints
   behave exactly like on the hardware.
@@ -16,8 +17,9 @@ videos play, iframes scroll.
   lighting, soft shadows, clamped DPR.
 - **Any content on screen** — pass React components, an `<iframe>` or a `<video>` as
   children. Pointer events, state and scrolling keep working.
-- **Composable** — use the one-liners `<PhoneMockup>` / `<IPhoneMockup>` / `<LaptopMockup>`,
-  or drop `<Phone>` / `<IPhone>` / `<Laptop>` into your own react-three-fiber scene.
+- **Composable** — use the one-liners `<PhoneMockup>` / `<IPhoneMockup>` / `<LaptopMockup>`
+  / `<TabletMockup>` / `<WatchMockup>` / `<MonitorMockup>`, or drop `<Phone>` / `<IPhone>` /
+  `<Laptop>` / `<Tablet>` / `<Watch>` / `<Monitor>` into your own react-three-fiber scene.
 
 ## Install
 
@@ -52,7 +54,7 @@ screen still go to your content. In Next.js, load it client-side only
 
 ## Components
 
-### `<PhoneMockup>` / `<IPhoneMockup>` / `<LaptopMockup>` / `<TabletMockup>` / `<WatchMockup>` — all-in-one
+### `<PhoneMockup>` / `<IPhoneMockup>` / `<LaptopMockup>` / `<TabletMockup>` / `<WatchMockup>` / `<MonitorMockup>` — all-in-one
 
 Every `<MockupCanvas>` prop + every corresponding device appearance prop, plus `float` (idle
 floating animation) and `deviceProps` (position/rotation/scale forwarded to the device).
@@ -122,19 +124,32 @@ Every variant's screen defaults to the real device's logical resolution (CSS px)
 | iPhone 17 Pro | `pro` | 402×874 | 874×402 | 2622×1206 @ 3x point grid |
 | iPhone 17 Pro Max | `promax` | 440×956 | 956×440 | 2868×1320 @ 3x point grid |
 | MacBook Air 13" (M5) | — | — | 1280×832 | 2560×1664 @ 2x default scaled |
-| iPad Pro 13" (M5) | — | 1032×1376 | 1376×1032 | 2752×2064 @ 2x point grid |
+| iPad Pro 13" (M5) | `ipadpro13` | 1032×1376 | 1376×1032 | 2752×2064 @ 2x point grid |
+| iPad Pro 11" (M5) | `ipadpro11` | 834×1210 | 1210×834 | 2420×1668 @ 2x point grid |
+| Galaxy Tab S11 | `tabs11` | 800×1280 | 1280×800 | 2560×1600 panel at ½ (xhdpi) |
+| Galaxy Tab S11 Ultra | `tabs11ultra` | 924×1480 | 1480×924 | 2960×1848 panel at ½ (xhdpi) |
 | Apple Watch Series 11 46mm | — | 208×248 | — | 416×496 @ 2x point grid |
+| Studio Display 27" | — | — | 2560×1440 | 5120×2880 @ 2x point grid |
 
-### `<Tablet>` — iPad Pro 13"-style · `<Watch>` — Apple Watch-style
+### `<Tablet>` — iPad Pro / Galaxy Tab S11 families
 
-The tablet shares the phones' screen/interaction API plus `orientation`; the watch adds
-`bandColor` (Sport-Band straps) and skips orientation. Both are fully procedural: camera
-pod, Pencil strip and edge buttons on the tablet; squircle case, knurled Digital Crown,
-side button and straps on the watch.
+Shares the phones' screen/interaction API plus `orientation`, with a `variant` prop
+(`'ipadpro13' | 'ipadpro11' | 'tabs11' | 'tabs11ultra'`). Fully procedural and
+per-family accurate: camera pod + Pencil long-edge strip on the iPads; protruding
+camera rings, side-mounted S Pen, keyboard pogo pins and (on the Ultra) the droplet
+display notch on the Galaxy Tabs; landscape-edge front cameras, USB-C port and
+machined edge buttons on both.
+
+### `<Watch>` — Apple Watch-style · `<Monitor>` — Studio Display-style
+
+The watch adds `bandColor` (Sport-Band straps) and skips orientation: squircle case,
+knurled Digital Crown, side button, sensor dome and straps. The monitor puts a 27" 5K
+panel on its tilt stand — uniform bezel, centered camera, rear Thunderbolt/USB-C row,
+captive power inlet and, faithfully, no power button.
 
 Renderer-agnostic device specs are exported as `GALAXY_VARIANTS`, `IPHONE_VARIANTS`,
-`PHONE`, `IPHONE`, `LAPTOP`, `TABLET` and `WATCH` — the same data will drive the planned
-2D (CSS/SVG) renderers.
+`TABLET_VARIANTS`, `PHONE`, `IPHONE`, `LAPTOP`, `TABLET`, `WATCH` and `MONITOR` — the
+same data will drive the planned 2D (CSS/SVG) renderers.
 
 ## Docs & demos
 

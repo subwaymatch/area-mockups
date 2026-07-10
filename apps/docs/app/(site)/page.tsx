@@ -26,9 +26,10 @@ export default function HomePage() {
           </h1>
           <p className="lede">
             <code>area-mockups</code> renders GPU-accelerated, fully interactive 3D devices —
-            Galaxy- and iPhone-style phones, a MacBook Air-style laptop — and maps{' '}
-            <em>real, live DOM</em> onto their screens. Buttons click, videos play, iframes
-            scroll. No 3D asset files, no screenshots.
+            Galaxy and iPhone families, iPad Pro and Galaxy Tab tablets, a MacBook Air, an
+            Apple Watch and a Studio Display-style monitor — and maps <em>real, live DOM</em>{' '}
+            onto their screens. Buttons click, videos play, iframes scroll. No 3D asset
+            files, no screenshots.
           </p>
           <p className="install-line">$ npm install area-mockups</p>
           <div className="hero-actions">

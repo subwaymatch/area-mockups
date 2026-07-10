@@ -1,11 +1,12 @@
 'use client'
 
-import { LaptopMockup, PhoneMockup, TabletMockup, WatchMockup } from 'area-mockups'
+import { LaptopMockup, MonitorMockup, PhoneMockup, WatchMockup } from 'area-mockups'
 import { TapCounter } from '../screens/tap-counter'
 import { LockScreen } from '../screens/lock-screen'
 import { DesktopScreen } from '../screens/desktop-screen'
 import { WatchFace } from '../screens/watch-face'
 import { VariantExplorer } from './variant-explorer'
+import { TabletExplorer } from './tablet-explorer'
 
 function DemoCard({
   title,
@@ -104,18 +105,28 @@ export default function DemoScenes() {
         </p>
       </article>
 
+      <article className="demo-card">
+        <TabletExplorer />
+        <h3>Tablets, both families</h3>
+        <p>
+          <code>&lt;TabletMockup&gt;</code> — iPad Pro 13″/11″ (M5) and Galaxy Tab S11 /
+          S11 Ultra at true relative sizes, with per-family camera pods, stylus mounts and
+          the Ultra&apos;s display notch. Orientation swaps the exact logical resolution.
+        </p>
+      </article>
+
       <DemoCard
-        title="iPad Pro 13″ (M5)"
+        title="Studio Display"
         description={
           <>
-            <code>&lt;TabletMockup orientation=&quot;landscape&quot;&gt;</code> — the 5.1mm
-            slab with its 1376×1032 virtual screen; desktop-class layouts apply.
+            <code>&lt;MonitorMockup&gt;</code> — the 27″ 5K panel on its tilt stand with a
+            2560×1440 virtual screen (and, faithfully, no power button).
           </>
         }
       >
-        <TabletMockup orientation="landscape" color="#3a3c40" deviceProps={{ rotation: [0, -0.3, 0] }}>
+        <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
           <DesktopScreen />
-        </TabletMockup>
+        </MonitorMockup>
       </DemoCard>
 
       <DemoCard
