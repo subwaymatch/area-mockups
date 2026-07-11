@@ -42,9 +42,10 @@ export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
 }
 
 /**
- * A procedurally built Apple Studio Display-style monitor: 27" 5K panel in an
- * all-aluminum enclosure with a uniform black bezel, centered camera dot,
- * L-shaped tilt stand, USB-C/Thunderbolt port row and power inlet on the back
+ * A procedurally built Apple Studio Display-style monitor: 27" 5K panel behind
+ * an edge-to-edge glass front (uniform black bezel, only a hairline of
+ * aluminum at the rim), centered camera dot, the signature one-piece bent
+ * aluminum tilt stand, USB-C/Thunderbolt port row and power inlet on the back
  * (and, faithfully, no power button). No 3D asset files are loaded.
  *
  * The group origin is the panel center; the stand reaches `MONITOR.standHeight`
@@ -90,18 +91,78 @@ export function Monitor({
     [glass]
   )
 
+  // The tilt stand is one continuous bent slab of aluminum: the arm leans
+  // forward from the knee at the rear up to the panel back, the foot runs
+  // forward under the display. Built as a 2D side profile (in the z/y plane)
+  // extruded across the stand width, so arm and foot read as a single piece.
+  const standGeometry = React.useMemo(() => {
+    const deskY = -standHeight
+    const lean = (stand.leanDeg * Math.PI) / 180
+    const d = { z: Math.sin(lean), y: Math.cos(lean) } // arm axis, up-forward
+    const n = { z: Math.cos(lean), y: -Math.sin(lean) } // front-face normal
+    // Arm faces as lines n·X = c; the front face meets the panel back at attachY.
+    const cFront = n.z * (-body.depth / 2) + n.y * stand.attachY
+    const cBack = cFront - stand.thickness
+    const zTopCap = -body.depth / 2 + 0.04 // buried inside the panel
+    const footTopY = deskY + stand.footThickness
+    const tangentAngle = Math.atan2(n.y, n.z) + Math.PI
+
+    // Outer knee: tangent to the desk plane and to the arm's back face.
+    const Ro = stand.outerKneeRadius
+    const oC = { y: deskY + Ro, z: 0 }
+    oC.z = (cBack + Ro - n.y * oC.y) / n.z
+    const oTan = { z: oC.z - n.z * Ro, y: oC.y - n.y * Ro }
+    // Inner knee: fillet between the foot's top face and the arm's front face.
+    const Ri = stand.innerKneeRadius
+    const iC = { y: footTopY + Ri, z: 0 }
+    iC.z = (cFront + Ri - n.y * iC.y) / n.z
+    const iTan = { z: iC.z - n.z * Ri, y: iC.y - n.y * Ri }
+    // Arm face endpoints on the top-cap plane.
+    const topBackY = oTan.y + (d.y / d.z) * (zTopCap - oTan.z)
+    const topFrontY = stand.attachY + (d.y / d.z) * (zTopCap + body.depth / 2)
+    // Rounded front edge of the foot.
+    const r = stand.footThickness / 2
+    const cap = { z: stand.footFrontZ - r, y: deskY + r }
+
+    const shape = new THREE.Shape()
+    shape.moveTo(cap.z, deskY)
+    shape.lineTo(oC.z, deskY)
+    shape.absarc(oC.z, oC.y, Ro, -Math.PI / 2, tangentAngle, true)
+    shape.lineTo(zTopCap, topBackY)
+    shape.lineTo(zTopCap, topFrontY)
+    shape.lineTo(iTan.z, iTan.y)
+    shape.absarc(iC.z, iC.y, Ri, tangentAngle, -Math.PI / 2, false)
+    shape.lineTo(cap.z, footTopY)
+    shape.absarc(cap.z, cap.y, r, Math.PI / 2, -Math.PI / 2, true)
+
+    const bevel = 0.012
+    const depth = stand.width - bevel * 2
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth,
+      bevelEnabled: true,
+      bevelThickness: bevel,
+      bevelSize: bevel,
+      bevelSegments: 2,
+      curveSegments: 24,
+    })
+    geometry.translate(0, 0, -depth / 2)
+    geometry.rotateY(-Math.PI / 2)
+    return geometry
+  }, [body, stand, standHeight])
+
   React.useEffect(() => {
     return () => {
       bodyGeometry.dispose()
       glassGeometry.dispose()
+      standGeometry.dispose()
     }
-  }, [bodyGeometry, glassGeometry])
+  }, [bodyGeometry, glassGeometry, standGeometry])
 
   return (
     <group {...groupProps}>
       {/* enclosure */}
       <mesh ref={bodyRef} geometry={bodyGeometry}>
-        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.35} />
+        <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
       </mesh>
 
       {/* cover glass (uniform black bezel) */}
@@ -131,26 +192,10 @@ export function Monitor({
         <meshPhysicalMaterial color="#101114" metalness={0.5} roughness={0.4} />
       </mesh>
 
-      {/* L-shaped tilt stand: the arm leaves the back panel and sweeps down-back,
-          landing flush on the base plate (never poking through it) */}
-      <group position={[0, -body.height / 2, -body.depth / 2]}>
-        <RoundedBox
-          args={[stand.armWidth, 1.28, stand.armThickness]}
-          radius={0.03}
-          position={[0, -0.4, -0.34]}
-          rotation-x={0.47}
-        >
-          <meshPhysicalMaterial color={color} metalness={0.6} roughness={0.5} envMapIntensity={1} />
-        </RoundedBox>
-        <RoundedBox
-          args={[stand.base.width, stand.base.thickness, stand.base.depth]}
-          radius={0.028}
-          smoothness={6}
-          position={[0, -(standHeight - body.height / 2) + stand.base.thickness / 2, -0.62]}
-        >
-          <meshPhysicalMaterial color={color} metalness={0.6} roughness={0.5} envMapIntensity={1} />
-        </RoundedBox>
-      </group>
+      {/* one-piece bent-aluminum tilt stand, same finish as the enclosure */}
+      <mesh geometry={standGeometry}>
+        <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
+      </mesh>
 
       {/* the live screen: real DOM, CSS3D-transformed onto the panel */}
       <DeviceScreen
