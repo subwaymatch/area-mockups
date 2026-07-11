@@ -7,6 +7,119 @@ import { DeviceScreen } from '../../screen/device-screen'
 
 type GroupProps = ThreeElements['group']
 
+/**
+ * Full-coverage side wrap: the whole flat side elevation, rockers to
+ * roofline, tail to nose. The extruded shell makes the entire side face
+ * coplanar, so one DOM plane can cover it; the outline and the hardware
+ * cutouts below are carved out of that plane with a CSS `clip-path`.
+ */
+const FULL_WRAP = {
+  width: VAN.profile.noseX - VAN.profile.tailX,
+  height: VAN.profile.roofY - VAN.rockerY,
+  x: (VAN.profile.noseX + VAN.profile.tailX) / 2,
+  y: (VAN.profile.roofY + VAN.rockerY) / 2,
+} as const
+
+/** Default CSS px width of the full-side wrap — same dpi as the panel wrap. */
+const FULL_WRAP_RESOLUTION = Math.round(VAN.resolution * (FULL_WRAP.width / VAN.wrap.width))
+
+/**
+ * Regions carved out of the full-coverage wrap, in world units on the side
+ * elevation. Each matches a physical feature rendered by the meshes below
+ * (with a little trim margin, like a real wrap install): the cab door glass,
+ * the door handle, the mirror arms + head, and the curb-side door track.
+ */
+const SIDE_CUTOUTS = {
+  /** Mirrors doorGlassGeometry (shape-local coords + its [1.52, 0.24] mount). */
+  doorGlass: { x: 1.52, y: 0.24, halfW: 0.5, h: 0.56, rake: 0.36 },
+  /** Door handle RoundedBox [0.162 × 0.029] at (1.2, −0.26). */
+  handle: { minX: 1.099, minY: -0.295, maxX: 1.301, maxY: -0.225, r: 0.035 },
+  /** Mirror arms + head footprint beside the A-pillar. */
+  mirror: { minX: 1.975, minY: 0.365, maxX: 2.115, maxY: 0.675, r: 0.045 },
+  /** Curb-side sliding-door track groove [3.4 × 0.038] at (−0.8, 1.14). */
+  track: { minX: -2.52, minY: 1.114, maxX: 0.92, maxY: 1.166, r: 0.026 },
+} as const
+
+/** Rounded-rect cutout subpath, traced world-clockwise so the nonzero fill
+    rule reads it as a hole against the world-counterclockwise outline. */
+function holeRect(
+  P: (x: number, y: number) => string,
+  R: (u: number) => string,
+  sw: number,
+  { minX, minY, maxX, maxY, r }: { minX: number; minY: number; maxX: number; maxY: number; r: number }
+): string {
+  return (
+    `M ${P(minX + r, maxY)} L ${P(maxX - r, maxY)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(maxX, maxY - r)} ` +
+    `L ${P(maxX, minY + r)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(maxX - r, minY)} ` +
+    `L ${P(minX + r, minY)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(minX, minY + r)} ` +
+    `L ${P(minX, maxY - r)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(minX + r, maxY)} Z `
+  )
+}
+
+/**
+ * SVG path (CSS px, y-down) clipping the full-coverage wrap: the shell's own
+ * side profile — including the wheel-arch arcs — as the outer boundary, with
+ * the hardware cutouts as opposite-winding holes. `mirrored` builds the
+ * street-side (−Z) variant, whose CSS x axis runs nose→tail; mirroring also
+ * flips every arc's sweep flag so the geometry stays identical.
+ */
+function buildFullWrapClip(pxPerUnit: number, mirrored: boolean): string {
+  const { rockerY, wheels, profile } = VAN
+  // Keep the wrap just inside the shell's beveled edge (bevelSize 0.015).
+  const inset = 0.015
+  const X = (x: number) => ((mirrored ? profile.noseX - x : x - profile.tailX) * pxPerUnit).toFixed(1)
+  const Y = (y: number) => ((profile.roofY - y) * pxPerUnit).toFixed(1)
+  const P = (x: number, y: number) => `${X(x)} ${Y(y)}`
+  const R = (u: number) => (u * pxPerUnit).toFixed(1)
+  // World-ccw curves render css-cw (the y axis flips): sweep 1 — and the
+  // street-side mirror flips orientation once more.
+  const swOut = mirrored ? 0 : 1
+  const swHole = mirrored ? 1 : 0
+
+  const bottom = rockerY + inset
+  const top = profile.roofY - inset
+  const tail = profile.tailX + inset
+  const nose = profile.noseX - inset
+  const arch = wheels.archRadius
+
+  // The same trace as shellGeometry's profile shape, world-counterclockwise.
+  const outline =
+    `M ${P(tail + 0.06, bottom)} ` +
+    `L ${P(wheels.rearX - arch, bottom)} ` +
+    `A ${R(arch)} ${R(arch)} 0 0 ${swOut} ${P(wheels.rearX + arch, bottom)} ` +
+    `L ${P(wheels.frontX - arch, bottom)} ` +
+    `A ${R(arch)} ${R(arch)} 0 0 ${swOut} ${P(wheels.frontX + arch, bottom)} ` +
+    `L ${P(nose - 0.09, bottom)} Q ${P(nose, bottom)} ${P(nose, bottom + 0.09)} ` +
+    `L ${P(nose, profile.bumperTopY)} ` +
+    `L ${P(profile.hoodX - inset, profile.hoodY - inset)} ` +
+    `L ${P(profile.cowlX - inset, profile.cowlY)} ` +
+    `L ${P(profile.windshieldTopX - inset, profile.windshieldTopY)} ` +
+    `Q ${P(profile.windshieldTopX - inset - 0.12, top)} ${P(profile.roofStartX, top)} ` +
+    `L ${P(tail + 0.09, top)} Q ${P(tail, top)} ${P(tail, top - 0.09)} ` +
+    `L ${P(tail, bottom + 0.06)} Q ${P(tail, bottom)} ${P(tail + 0.06, bottom)} Z `
+
+  // Door glass trapezoid, traced world-clockwise (reverse of the mesh shape).
+  const g = SIDE_CUTOUTS.doorGlass
+  const gx0 = g.x - g.halfW
+  const gx1 = g.x + g.halfW
+  const gy0 = g.y
+  const gy1 = g.y + g.h
+  const gCx = g.x + g.halfW - g.rake * g.h // raked top-front corner
+  const gDx = g.x + 0.34 - g.rake * g.h
+  const gEx = g.x - 0.42
+  const glass =
+    `M ${P(gx0, gy0)} L ${P(gx0, gy1 - 0.08)} Q ${P(gx0, gy1)} ${P(gEx, gy1)} ` +
+    `L ${P(gDx, gy1)} Q ${P(gCx - 0.1, gy1)} ${P(gCx, gy1)} L ${P(gx1, gy0)} Z `
+
+  return (
+    outline +
+    glass +
+    holeRect(P, R, swHole, SIDE_CUTOUTS.handle) +
+    holeRect(P, R, swHole, SIDE_CUTOUTS.mirror) +
+    (mirrored ? '' : holeRect(P, R, swHole, SIDE_CUTOUTS.track))
+  ).trim()
+}
+
 export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Livery for the curb-side (+Z) wrap panel — any React node, full bleed. */
   children?: React.ReactNode
@@ -20,6 +133,15 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
   wrapBackground?: string
   /** CSS pixel width of the virtual wrap panel. Height follows the panel aspect. */
   resolution?: number
+  /**
+   * How much of the cargo side the live wraps cover. `'panel'` (default) is
+   * the classic rectangular mid-panel, clear of the arches and glass.
+   * `'full'` covers the entire side elevation — rockers to roofline, tail to
+   * nose — with the wheel arches, door glass, door handle, mirror mount and
+   * curb-side door track carved out of the wrap (CSS `clip-path`), so the 3D
+   * wheels, windows and hardware show through your livery.
+   */
+  coverage?: 'panel' | 'full'
   /** Let pointer events (clicks, scrolling, typing) reach your wrap content. */
   interactive?: boolean
   /** Hand >10px drags off to the orbit controls; taps still reach the content. */
@@ -52,7 +174,8 @@ export function Van({
   rear,
   color = '#eef0f2',
   wrapBackground = '#ffffff',
-  resolution = VAN.resolution,
+  resolution,
+  coverage = 'panel',
   interactive = true,
   dragToRotate = true,
   occlude = true,
@@ -62,6 +185,26 @@ export function Van({
   const { body, rockerY, wheels, profile, wrap, rear: rearSpec } = VAN
   const shellRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [shellRef], [])
+
+  // The side rect the DeviceScreens cover: the classic mid-panel, or the
+  // whole side elevation with the hardware carved out via clip-path.
+  const fullWrap = coverage === 'full'
+  const side = fullWrap
+    ? { width: FULL_WRAP.width, height: FULL_WRAP.height, x: FULL_WRAP.x, y: FULL_WRAP.y, radius: 0 }
+    : { width: wrap.width, height: wrap.height, x: wrap.x, y: wrap.y, radius: wrap.radius }
+  const sideResolution = resolution ?? (fullWrap ? FULL_WRAP_RESOLUTION : VAN.resolution)
+  // The rear panel shares the side wrap's dpi.
+  const rearResolution = Math.round(rearSpec.width * (sideResolution / side.width))
+  const sideClip = React.useMemo(() => {
+    if (!fullWrap) return null
+    const pxPerUnit = sideResolution / FULL_WRAP.width
+    return {
+      curb: `path("${buildFullWrapClip(pxPerUnit, false)}")`,
+      street: `path("${buildFullWrapClip(pxPerUnit, true)}")`,
+    }
+  }, [fullWrap, sideResolution])
+  const curbStyle = sideClip ? { clipPath: sideClip.curb, ...screenStyle } : screenStyle
+  const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
 
   const shellGeometry = React.useMemo(() => {
     const { noseX, tailX, bumperTopY, hoodX, hoodY, cowlX, cowlY, windshieldTopX, windshieldTopY, roofStartX, roofY } = profile
@@ -336,32 +479,32 @@ export function Van({
 
       {/* the live wraps: real DOM on the curb side, street side and rear doors */}
       <DeviceScreen
-        width={wrap.width}
-        height={wrap.height}
-        radius={wrap.radius}
-        resolution={resolution}
-        position={[wrap.x, wrap.y, body.width / 2 + 0.008]}
+        width={side.width}
+        height={side.height}
+        radius={side.radius}
+        resolution={sideResolution}
+        position={[side.x, side.y, body.width / 2 + 0.008]}
         background={wrapBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}
         occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-        screenStyle={screenStyle}
+        screenStyle={curbStyle}
       >
         {children}
       </DeviceScreen>
       {streetSide != null && (
         <DeviceScreen
-          width={wrap.width}
-          height={wrap.height}
-          radius={wrap.radius}
-          resolution={resolution}
-          position={[wrap.x, wrap.y, -body.width / 2 - 0.008]}
+          width={side.width}
+          height={side.height}
+          radius={side.radius}
+          resolution={sideResolution}
+          position={[side.x, side.y, -body.width / 2 - 0.008]}
           rotation={[0, Math.PI, 0]}
           background={wrapBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
           occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-          screenStyle={screenStyle}
+          screenStyle={streetStyle}
         >
           {streetSide}
         </DeviceScreen>
@@ -371,7 +514,7 @@ export function Van({
           width={rearSpec.width}
           height={rearSpec.height}
           radius={rearSpec.radius}
-          resolution={Math.round(resolution * (rearSpec.width / wrap.width))}
+          resolution={rearResolution}
           position={[-body.length / 2 - 0.026, rearSpec.y, 0]}
           rotation={[0, -Math.PI / 2, 0]}
           background={wrapBackground}

@@ -9,7 +9,7 @@ shot needs. Compose it with any device, for example
 
 One canvas, two bare devices, one shared studio light rig and shadow plane.
 
-<ObjectDemo demo="phone-duo" />
+<ObjectDemo demo="phone-duo" checker />
 
 ```tsx
 <MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
@@ -34,7 +34,7 @@ One canvas, two bare devices, one shared studio light rig and shadow plane.
 | `shadows` | `boolean` | `true` | Soft contact shadow under the device. |
 | `shadowY` | `number` | `-2.05` | Y position (world units) of the shadow plane. Grounds the device on its shadow. The mockup wrappers compute this per device. |
 | `environment` | `boolean` | `true` | Procedural studio lighting and reflections, generated on the GPU with no HDR downloads. |
-| `background` | `string` | - | CSS background of the canvas (color, gradient, or image). Transparent when unset. |
+| `background` | `string` | - | CSS background of the canvas (color, gradient, or image). Transparent when unset — that is what the checkerboard behind each page's first example is showing through. |
 | `camera` | r3f camera | `[0, 0.5, 7.4]`, fov 40 | Override the default camera. |
 | `dpr` | `number \| [min, max]` | `[1, 2]` | Device pixel ratio clamp. Keeps hi-dpi GPU load predictable. |
 | `className`, `style` | - | - | Forwarded to the canvas wrapper. |
