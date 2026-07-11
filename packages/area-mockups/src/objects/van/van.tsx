@@ -31,7 +31,7 @@ const FULL_WRAP_RESOLUTION = Math.round(VAN.resolution * (FULL_WRAP.width / VAN.
  */
 const SIDE_CUTOUTS = {
   /** Mirrors doorGlassGeometry (shape-local coords + its [1.52, 0.24] mount). */
-  doorGlass: { x: 1.52, y: 0.24, halfW: 0.5, h: 0.56, rake: 0.36 },
+  doorGlass: { x: 1.52, y: 0.24, halfW: 0.5, h: 0.56, rake: 0.486 },
   /** Door handle RoundedBox [0.162 × 0.029] at (1.2, −0.26). */
   handle: { minX: 1.099, minY: -0.295, maxX: 1.301, maxY: -0.225, r: 0.035 },
   /** Mirror arms + head footprint beside the A-pillar. */
@@ -264,7 +264,7 @@ export function Van({
   // Cab door glass: trapezoid with the leading edge slanted parallel to the
   // A-pillar and a blacked-out sail area, like the references.
   const doorGlassGeometry = React.useMemo(() => {
-    const rake = 0.36 // dx per unit dy of the windshield slope
+    const rake = 0.486 // dx per unit dy of the windshield slope
     const h = 0.56
     const shape = new THREE.Shape()
     shape.moveTo(-0.5, 0)
@@ -379,19 +379,29 @@ export function Van({
         ))
       )}
 
-      {/* main grille on the vertical nose face, just under the hood edge */}
-      <RoundedBox args={[0.05, 0.2, 1.0]} radius={0.02} position={[2.81, -0.09, 0]}>
-        <meshPhysicalMaterial color="#1d2025" metalness={0.3} roughness={0.6} />
+      {/* wide slatted grille spanning the nose between the headlights, just
+          under the hood's front edge (the modern Transit/Sprinter face) */}
+      <RoundedBox args={[0.05, 0.28, 1.12]} radius={0.03} position={[2.81, -0.11, 0]}>
+        <meshPhysicalMaterial color="#15171b" metalness={0.3} roughness={0.6} />
       </RoundedBox>
-      {/* slim lower intake in the bumper mass */}
-      <RoundedBox args={[0.05, 0.14, 1.2]} radius={0.02} position={[2.86, -0.62, 0]}>
+      {[-0.045, -0.125, -0.205].map((y) => (
+        <RoundedBox key={y} args={[0.055, 0.036, 1.06]} radius={0.015} position={[2.815, y, 0]}>
+          <meshPhysicalMaterial color="#2c3037" metalness={0.5} roughness={0.45} />
+        </RoundedBox>
+      ))}
+      {/* slim lower intake in the bumper band */}
+      <RoundedBox args={[0.05, 0.12, 1.2]} radius={0.02} position={[2.86, -0.72, 0]}>
         <meshPhysicalMaterial color="#141619" metalness={0.3} roughness={0.65} />
       </RoundedBox>
-      {/* headlights swept toward the corners at hood height, with the amber
-          turn-signal segment wrapping the outboard end */}
+      {/* license-plate recess between grille and bumper */}
+      <RoundedBox args={[0.03, 0.13, 0.52]} radius={0.012} position={[2.82, -0.42, 0]}>
+        <meshPhysicalMaterial color="#dfe2e6" metalness={0.1} roughness={0.5} />
+      </RoundedBox>
+      {/* headlight units flanking the grille, tops kissing the hood line,
+          reaching out to the corners with the amber segment wrapping the end */}
       {[1, -1].map((side) => (
         <group key={side}>
-          <RoundedBox args={[0.06, 0.18, 0.36]} radius={0.03} position={[2.81, -0.1, side * 0.68]}>
+          <RoundedBox args={[0.06, 0.22, 0.44]} radius={0.03} position={[2.81, -0.07, side * 0.72]}>
             <meshPhysicalMaterial
               color="#e8edf4"
               emissive="#dfe9f5"
@@ -401,7 +411,7 @@ export function Van({
               clearcoat={1}
             />
           </RoundedBox>
-          <RoundedBox args={[0.055, 0.14, 0.09]} radius={0.025} position={[2.8, -0.11, side * 0.9]}>
+          <RoundedBox args={[0.055, 0.16, 0.09]} radius={0.025} position={[2.8, -0.09, side * 0.93]}>
             <meshPhysicalMaterial
               color="#f2a33c"
               emissive="#ffb340"
@@ -413,8 +423,9 @@ export function Van({
         </group>
       ))}
 
-      {/* black plastic nose mass below the headlights, wrapping the corners */}
-      <RoundedBox args={[0.16, 0.5, body.width + 0.02]} radius={0.05} position={[2.8, -0.6, 0]}>
+      {/* black plastic bumper band low on the nose, wrapping the corners —
+          a slim skid band, not a half-height mass */}
+      <RoundedBox args={[0.14, 0.3, body.width + 0.02]} radius={0.05} position={[2.8, -0.73, 0]}>
         {trimMaterial}
       </RoundedBox>
       <RoundedBox args={[0.1, 0.16, body.width + 0.02]} radius={0.04} position={[-2.77, -0.82, 0]}>
