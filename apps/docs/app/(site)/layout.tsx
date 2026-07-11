@@ -27,6 +27,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               <nav className="site-nav">
                 <Link href="/docs">Docs</Link>
                 <Link href="/demos">Demos</Link>
+                <Link href="/examples/hero-phone">Hero phone</Link>
                 <a
                   href="https://github.com/subwaymatch/area-mockups"
                   target="_blank"
