@@ -5,6 +5,7 @@ export { LaptopMockup, type LaptopMockupProps } from './laptop-mockup'
 export { TabletMockup, type TabletMockupProps } from './tablet-mockup'
 export { WatchMockup, type WatchMockupProps } from './watch-mockup'
 export { MonitorMockup, type MonitorMockupProps } from './monitor-mockup'
+export { FoldMockup, type FoldMockupProps } from './fold-mockup'
 
 // All-in-one 3D object mockups (print, packaging, out-of-home, vehicles).
 export { BookMockup, type BookMockupProps } from './book-mockup'
@@ -40,6 +41,7 @@ export { Laptop, type LaptopProps } from './devices/laptop/laptop'
 export { Tablet, type TabletProps } from './devices/tablet/tablet'
 export { Watch, type WatchProps } from './devices/watch/watch'
 export { Monitor, type MonitorProps } from './devices/monitor/monitor'
+export { Fold, type FoldProps } from './devices/fold/fold'
 export { Book, type BookProps } from './objects/book/book'
 export { Magazine, type MagazineProps } from './objects/magazine/magazine'
 export { Brochure, type BrochureProps } from './objects/brochure/brochure'
@@ -96,6 +98,13 @@ export {
   type WatchSpec,
 } from './devices/watch/dimensions'
 export { MONITOR, MONITOR_DISPLAY_ASPECT } from './devices/monitor/dimensions'
+export {
+  FOLD,
+  FOLD_OPEN_ASPECT,
+  FOLD_VARIANTS,
+  type FoldVariant,
+  type FoldSpec,
+} from './devices/fold/dimensions'
 
 // Renderer-agnostic object data (print, out-of-home, vehicles).
 export { BOOK, BOOK_COVER_ASPECT } from './objects/book/dimensions'

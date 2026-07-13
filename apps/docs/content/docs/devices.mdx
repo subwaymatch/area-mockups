@@ -20,6 +20,9 @@ orientations.
 | Samsung Galaxy S25+ | `s25plus` | 158.4×75.8×7.3 | 6.7" 3120×1440 | 384×832 | 832×384 |
 | Samsung Galaxy S25 Ultra | `s25ultra` | 162.8×77.6×8.2 | 6.9" 3120×1440 | 384×832 | 832×384 |
 | Samsung Galaxy S25 Edge | `s25edge` | 158.2×75.6×5.8 | 6.7" 3120×1440 | 384×832 | 832×384 |
+| Samsung Galaxy S26 | `s26` | 149.5×71.4×7.2 | 6.3" flat | 360×775 | 775×360 |
+| Samsung Galaxy Z Fold 7 (open) | `fold7` · `open` | 158.4×143.2×4.2 | 8.0" 2184×1968 | 820×911 | 911×820 |
+| Samsung Galaxy Z Fold 7 (folded) | `fold7` · `open={false}` | 158.4×72.8×8.9 | 6.5" 2520×1080 | 360×816 | 816×360 |
 | Apple iPhone 17 | `17` | 149.6×71.5×7.95 | 6.3" 2622×1206 | 402×874 | 874×402 |
 | Apple iPhone 17 Air | `air` | 156.2×74.7×5.64 | 6.5" 2736×1260 | 420×912 | 912×420 |
 | Apple iPhone 17 Pro | `pro` | 150.0×71.9×8.75 | 6.3" 2622×1206 | 402×874 | 874×402 |
@@ -56,35 +59,36 @@ Tree-shaken cost of importing each family, minified, with `three`,
 
 | Import | Minified | Gzip |
 | --- | --- | --- |
-| `PhoneMockup` (Galaxy family) | 10.9 KB | 3.9 KB |
-| `IPhoneMockup` (iPhone family) | 12.9 KB | 4.4 KB |
-| `LaptopMockup` (MacBook Air) | 13.1 KB | 4.9 KB |
-| `TabletMockup` (iPad + Galaxy Tab) | 12.8 KB | 4.3 KB |
-| `WatchMockup` (Apple Watch + Galaxy Watch) | 9.8 KB | 3.9 KB |
-| `MonitorMockup` (Studio Display) | 7.9 KB | 3.1 KB |
-| `BookMockup` (hardcover) | 7.2 KB | 2.9 KB |
-| `MagazineMockup` (glossy monthly) | 6.9 KB | 2.8 KB |
-| `BrochureMockup` (tri-fold) | 6.6 KB | 2.8 KB |
-| `BusinessCardMockup` (32 pt card) | 6.6 KB | 2.7 KB |
-| `IDCardMockup` (badge + lanyard) | 8.2 KB | 3.3 KB |
-| `PosterFrameMockup` (18×24 frame) | 7.8 KB | 3.1 KB |
-| `ProductBoxMockup` (retail carton) | 6.5 KB | 2.6 KB |
-| `RollupBannerMockup` (850×2000 stand) | 7.5 KB | 3.0 KB |
-| `BillboardMockup` (14×48 bulletin) | 8.4 KB | 3.1 KB |
-| `BusMockup` (transit bus) | 11.9 KB | 4.2 KB |
-| `VanMockup` (cargo van) | 11.3 KB | 4.0 KB |
-| `BusShelterMockup` (6-sheet shelter) | 7.6 KB | 3.0 KB |
-| `GreetingCardMockup` (A7 card) | 6.5 KB | 2.7 KB |
-| `VinylRecordMockup` (12" LP) | 7.7 KB | 3.0 KB |
-| `TVSetMockup` (65" TV) | 7.4 KB | 3.0 KB |
-| `AFrameSignMockup` (sandwich board) | 7.2 KB | 3.0 KB |
-| `DOOHTotemMockup` (digital totem) | 7.2 KB | 2.9 KB |
-| `StorefrontMockup` (shop façade) | 7.8 KB | 3.0 KB |
-| `SemiTrailerMockup` (53 ft dry van) | 10.1 KB | 3.5 KB |
-| `MailerBoxMockup` (shipper box) | 7.5 KB | 2.9 KB |
-| `ShoppingBagMockup` (kraft carrier) | 7.0 KB | 2.8 KB |
-| `PizzaBoxMockup` (14" box) | 8.7 KB | 3.2 KB |
-| Whole library (16 devices + 24 objects) | 126.7 KB | 29.2 KB |
+| `PhoneMockup` (Galaxy family) | 12.4 KB | 4.5 KB |
+| `IPhoneMockup` (iPhone family) | 14.8 KB | 5.0 KB |
+| `FoldMockup` (Galaxy Z Fold 7) | 11.7 KB | 4.3 KB |
+| `LaptopMockup` (MacBook Air) | 14.1 KB | 5.3 KB |
+| `TabletMockup` (iPad + Galaxy Tab) | 13.9 KB | 4.7 KB |
+| `WatchMockup` (Apple Watch + Galaxy Watch) | 10.8 KB | 4.4 KB |
+| `MonitorMockup` (Studio Display) | 8.9 KB | 3.6 KB |
+| `BookMockup` (hardcover) | 8.6 KB | 3.5 KB |
+| `MagazineMockup` (glossy monthly) | 7.9 KB | 3.3 KB |
+| `BrochureMockup` (tri-fold) | 7.8 KB | 3.3 KB |
+| `BusinessCardMockup` (32 pt card) | 7.6 KB | 3.2 KB |
+| `IDCardMockup` (badge + lanyard) | 9.4 KB | 3.8 KB |
+| `PosterFrameMockup` (18×24 frame) | 9.1 KB | 3.6 KB |
+| `ProductBoxMockup` (retail carton) | 7.9 KB | 3.1 KB |
+| `RollupBannerMockup` (850×2000 stand) | 8.5 KB | 3.4 KB |
+| `BillboardMockup` (14×48 bulletin) | 9.9 KB | 3.7 KB |
+| `BusMockup` (transit bus) | 14.2 KB | 4.8 KB |
+| `VanMockup` (cargo van) | 15.2 KB | 5.4 KB |
+| `BusShelterMockup` (6-sheet shelter) | 10.2 KB | 3.8 KB |
+| `GreetingCardMockup` (A7 card) | 7.7 KB | 3.2 KB |
+| `VinylRecordMockup` (12" LP) | 9.0 KB | 3.5 KB |
+| `TVSetMockup` (65" TV) | 8.9 KB | 3.6 KB |
+| `AFrameSignMockup` (sandwich board) | 8.7 KB | 3.5 KB |
+| `DOOHTotemMockup` (digital totem) | 8.5 KB | 3.5 KB |
+| `StorefrontMockup` (shop façade) | 9.4 KB | 3.6 KB |
+| `SemiTrailerMockup` (53 ft dry van) | 13.6 KB | 4.3 KB |
+| `MailerBoxMockup` (shipper box) | 9.0 KB | 3.5 KB |
+| `ShoppingBagMockup` (kraft carrier) | 8.2 KB | 3.3 KB |
+| `PizzaBoxMockup` (14" box) | 10.6 KB | 3.8 KB |
+| Whole library (18 devices + 24 objects) | 146.1 KB | 33.7 KB |
 
 ## Renderer-agnostic specs
 

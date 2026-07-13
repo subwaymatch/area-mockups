@@ -1,5 +1,5 @@
 /**
- * Galaxy-style phone device dimensions — the full Galaxy S25 family.
+ * Galaxy-style phone device dimensions — the Galaxy S25 family plus the S26.
  *
  * All variants share one world scale (~36.66 mm per unit, set so the base
  * S25's display is exactly 1.8 units wide), so the variants keep their true
@@ -133,11 +133,39 @@ const S25_EDGE: GalaxyPhoneSpec = {
   },
 }
 
-export const GALAXY_VARIANTS: Record<'s25' | 's25plus' | 's25ultra' | 's25edge', GalaxyPhoneSpec> = {
+/**
+ * Galaxy S26 — 149.5 x 71.4 x 7.2 mm, 6.3" flat display. The next-gen design
+ * consolidates the S25's three floating rings into a single vertical pill
+ * island top-left (three lenses stacked inside it) with the LED flash on the
+ * flat back just to its right. Logical resolution 360x775.
+ */
+const S26: GalaxyPhoneSpec = {
+  body: { width: 1.97, height: 4.078, depth: 0.196, radius: 0.28, bevel: 0.02 },
+  glass: { width: 1.91, height: 4.038, radius: 0.25 },
+  display: { width: 1.83, height: 3.94, radius: 0.23 },
+  punchHole: { radius: 0.05, offsetY: 0.12 },
+  resolution: 360,
+  rearCamera: {
+    ringsX: 0.583,
+    rings: [
+      { y: 1.62, r: 0.155 },
+      { y: 1.22, r: 0.155 },
+      { y: 0.82, r: 0.155 },
+    ],
+    flash: { x: 0.17, y: 1.44 },
+    island: { x: 0.583, y: 1.22, width: 0.42, height: 1.32, radius: 0.21 },
+  },
+}
+
+export const GALAXY_VARIANTS: Record<
+  's25' | 's25plus' | 's25ultra' | 's25edge' | 's26',
+  GalaxyPhoneSpec
+> = {
   s25: S25,
   s25plus: S25_PLUS,
   s25ultra: S25_ULTRA,
   s25edge: S25_EDGE,
+  s26: S26,
 }
 
 export type GalaxyVariant = keyof typeof GALAXY_VARIANTS

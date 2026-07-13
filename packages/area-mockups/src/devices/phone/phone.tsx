@@ -12,9 +12,10 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the phone screen: React components, an <iframe>, a <video>… */
   children?: React.ReactNode
   /**
-   * Which Galaxy S25-family device to render. All variants use their true
-   * relative sizes: `s25` (6.2"), `s25plus` (6.7"), `s25ultra` (6.9", boxier
-   * corners, five-element camera), `s25edge` (6.7", ultra-thin, two-lens island).
+   * Which Galaxy device to render. All variants use their true relative sizes:
+   * `s25` (6.2"), `s25plus` (6.7"), `s25ultra` (6.9", boxier corners,
+   * five-element camera), `s25edge` (6.7", ultra-thin, two-lens island), and
+   * `s26` (6.3", three lenses in a vertical pill island).
    */
   variant?: GalaxyVariant
   /**
@@ -156,6 +157,18 @@ export function Phone({
   const pxPerUnit = res / (landscape ? display.height : display.width)
   const px = (units: number) => units * pxPerUnit
 
+  // A back element (flash, sensor) rides on the raised island only when it
+  // actually sits within the island footprint; otherwise it's flush on the flat
+  // back. The S25 Edge tucks its flash inside the island; the S26 keeps it on
+  // the back beside the pill.
+  const island = rearCamera.island
+  const onIsland = (x: number, y: number) =>
+    !!island &&
+    Math.abs(x - island.x) <= island.width / 2 &&
+    Math.abs(y - island.y) <= island.height / 2
+  const backZ = (x: number, y: number, flat: number, raised: number) =>
+    -body.depth / 2 - (onIsland(x, y) ? raised : flat)
+
   return (
     <group {...groupProps}>
       {/* landscape lays the body on its side (top edge to the left, the classic
@@ -195,7 +208,7 @@ export function Phone({
         {rearCamera.rings.map(({ x, y, r }, i) => (
           <group
             key={i}
-            position={[x ?? rearCamera.ringsX, y, -body.depth / 2 - (rearCamera.island ? 0.026 : 0)]}
+            position={[x ?? rearCamera.ringsX, y, backZ(x ?? rearCamera.ringsX, y, 0, 0.026)]}
           >
             <mesh rotation-x={Math.PI / 2} position-z={-0.02}>
               <cylinderGeometry args={[r, r, 0.06, 40]} />
@@ -216,7 +229,7 @@ export function Phone({
           position={[
             rearCamera.flash.x,
             rearCamera.flash.y,
-            -body.depth / 2 - (rearCamera.island ? 0.036 : 0.008),
+            backZ(rearCamera.flash.x, rearCamera.flash.y, 0.008, 0.036),
           ]}
         >
           <cylinderGeometry args={[0.05, 0.05, 0.016, 32]} />
@@ -231,7 +244,7 @@ export function Phone({
           <mesh
             key={i}
             rotation-x={Math.PI / 2}
-            position={[x, y, -body.depth / 2 - (rearCamera.island ? 0.034 : 0.006)]}
+            position={[x, y, backZ(x, y, 0.006, 0.034)]}
           >
             <cylinderGeometry args={[r, r, 0.012, 16]} />
             <meshPhysicalMaterial color="#07080c" metalness={0.3} roughness={0.45} />

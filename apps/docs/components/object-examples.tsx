@@ -14,6 +14,7 @@ import {
   CustomBoxMockup,
   CustomPanelMockup,
   DOOHTotemMockup,
+  FoldMockup,
   GreetingCardMockup,
   IDCardMockup,
   IPhone,
@@ -171,6 +172,23 @@ const DEMOS: Record<string, React.ReactNode> = {
     <PhoneMockup variant="s25ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
       <MusicPlayer />
     </PhoneMockup>
+  ),
+  'phone-s26': (
+    <PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </PhoneMockup>
+  ),
+
+  // ---- Fold (Galaxy Z Fold 7) ---------------------------------------------
+  'fold-open': (
+    <FoldMockup color="#c9ccce" frameColor="#b9bcbe" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </FoldMockup>
+  ),
+  'fold-closed': (
+    <FoldMockup open={false} autoRotate float color="#3a3d42" frameColor="#54585f" screenBackground="#000">
+      <LockScreen />
+    </FoldMockup>
   ),
 
   // ---- IPhone ---------------------------------------------------------------

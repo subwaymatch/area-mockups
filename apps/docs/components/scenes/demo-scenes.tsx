@@ -6,6 +6,7 @@ import {
   BrochureMockup,
   BusinessCardMockup,
   BusMockup,
+  FoldMockup,
   IDCardMockup,
   IPhoneMockup,
   LaptopMockup,
@@ -223,6 +224,49 @@ export default function DemoScenes() {
         <PhoneMockup variant="s25edge" color="#c8cdd4" frameColor="#aab0b9" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <MusicPlayer />
         </PhoneMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Galaxy S26"
+        description={
+          <>
+            <code>variant=&quot;s26&quot;</code> in Cobalt Violet — the next-gen 6.3″ model
+            that consolidates the camera into a single vertical pill island.
+          </>
+        }
+      >
+        <PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <MusicPlayer />
+        </PhoneMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Galaxy Z Fold 7"
+        description={
+          <>
+            <code>&lt;FoldMockup&gt;</code>: unfolded to the big, nearly square inner
+            display (a faint crease runs down its center). Content fills the whole
+            tablet-sized screen.
+          </>
+        }
+      >
+        <FoldMockup color="#c9ccce" frameColor="#b9bcbe" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <DesktopScreen />
+        </FoldMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Galaxy Z Fold 7 (folded)"
+        description={
+          <>
+            <code>open={'{'}false{'}'}</code> — the same device folded to the tall cover
+            display, with the rear triple camera on the back.
+          </>
+        }
+      >
+        <FoldMockup open={false} color="#c9ccce" frameColor="#b9bcbe" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <MusicPlayer />
+        </FoldMockup>
       </DemoCard>
 
       <DemoCard
