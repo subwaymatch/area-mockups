@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { IPHONE_VARIANTS, type IPhoneVariant } from './dimensions'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '../../utils/rounded-rect'
+import { appleLogoShapes } from '../../utils/apple-logo'
 
 type GroupProps = ThreeElements['group']
 
@@ -126,16 +127,26 @@ export function IPhone({
     [body]
   )
 
-  const backWindowGeometry = React.useMemo(
-    () =>
-      backWindow
-        ? new THREE.ShapeGeometry(
-            roundedRectShape(backWindow.width, backWindow.height, backWindow.radius),
-            16
-          )
-        : null,
-    [backWindow]
-  )
+  // The Ceramic Shield glass window — a thin raised rounded-rect panel so its
+  // edge reads as a real seam against the aluminum unibody, not just a color
+  // change. Covers most of the lower back below the plateau.
+  const backWindowGeometry = React.useMemo(() => {
+    if (!backWindow) return null
+    const bevel = 0.01
+    const shape = roundedRectShape(
+      backWindow.width - bevel * 2,
+      backWindow.height - bevel * 2,
+      backWindow.radius - bevel
+    )
+    return new THREE.ExtrudeGeometry(shape, {
+      depth: 0.01,
+      bevelEnabled: true,
+      bevelThickness: bevel,
+      bevelSize: bevel,
+      bevelSegments: 2,
+      curveSegments: 16,
+    })
+  }, [backWindow])
   React.useEffect(() => () => backWindowGeometry?.dispose(), [backWindowGeometry])
 
   // The camera pedestal: a vertical pill (17) or a full-width plateau bar
@@ -190,6 +201,18 @@ export function IPhone({
   // Lenses sit a touch further out when they protrude from the black deck.
   const lensZ = -body.depth / 2 - (lensDeck ? 0.058 : 0.05)
 
+  // The centered Apple mark on the back — a glossy same-color inlay, so it only
+  // catches the light like the real etched logo. Sits on the Ceramic Shield
+  // window when there is one, otherwise straight on the back glass.
+  const logo = React.useMemo(() => {
+    const { body: bodyShape, leaf } = appleLogoShapes()
+    const size = body.width * 0.155
+    const geometry = new THREE.ShapeGeometry([bodyShape, leaf], 12)
+    geometry.scale(size, size, 1)
+    return { geometry, y: backWindow ? backWindow.y : -body.height * 0.055 }
+  }, [body, backWindow])
+  React.useEffect(() => () => logo.geometry.dispose(), [logo])
+
   React.useEffect(() => {
     return () => {
       bodyGeometry.dispose()
@@ -234,17 +257,33 @@ export function IPhone({
           <mesh
             geometry={backWindowGeometry}
             rotation-y={Math.PI}
-            position={[0, backWindow.y, -body.depth / 2 - 0.004]}
+            position={[0, backWindow.y, -body.depth / 2 - 0.003]}
           >
             <meshPhysicalMaterial
               color={color}
               metalness={0.15}
-              roughness={0.18}
+              roughness={0.16}
               clearcoat={1}
-              clearcoatRoughness={0.12}
+              clearcoatRoughness={0.1}
             />
           </mesh>
         )}
+
+        {/* centered Apple mark — a glossy same-color inlay */}
+        <mesh
+          geometry={logo.geometry}
+          rotation-y={Math.PI}
+          position={[0, logo.y, -body.depth / 2 - (backWindow ? 0.03 : 0.006)]}
+        >
+          <meshPhysicalMaterial
+            color={color}
+            metalness={0.5}
+            roughness={0.12}
+            clearcoat={1}
+            clearcoatRoughness={0.05}
+            envMapIntensity={1.1}
+          />
+        </mesh>
 
         {/* rear camera pedestal (pill or full-width plateau) */}
         <mesh
