@@ -12,6 +12,7 @@ const ENTRIES = {
   'TabletMockup (iPad + Galaxy Tab)': "export { TabletMockup } from './src/index'",
   'WatchMockup (Apple Watch)': "export { WatchMockup } from './src/index'",
   'MonitorMockup (Studio Display)': "export { MonitorMockup } from './src/index'",
+  'FoldMockup (Galaxy Z Fold 7)': "export { FoldMockup } from './src/index'",
   'BookMockup (hardcover)': "export { BookMockup } from './src/index'",
   'MagazineMockup (glossy monthly)': "export { MagazineMockup } from './src/index'",
   'BrochureMockup (tri-fold)': "export { BrochureMockup } from './src/index'",

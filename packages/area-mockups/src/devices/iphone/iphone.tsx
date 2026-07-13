@@ -126,16 +126,26 @@ export function IPhone({
     [body]
   )
 
-  const backWindowGeometry = React.useMemo(
-    () =>
-      backWindow
-        ? new THREE.ShapeGeometry(
-            roundedRectShape(backWindow.width, backWindow.height, backWindow.radius),
-            16
-          )
-        : null,
-    [backWindow]
-  )
+  // The Ceramic Shield glass window — a thin raised rounded-rect panel so its
+  // edge reads as a real seam against the aluminum unibody, not just a color
+  // change. Covers most of the lower back below the plateau.
+  const backWindowGeometry = React.useMemo(() => {
+    if (!backWindow) return null
+    const bevel = 0.01
+    const shape = roundedRectShape(
+      backWindow.width - bevel * 2,
+      backWindow.height - bevel * 2,
+      backWindow.radius - bevel
+    )
+    return new THREE.ExtrudeGeometry(shape, {
+      depth: 0.01,
+      bevelEnabled: true,
+      bevelThickness: bevel,
+      bevelSize: bevel,
+      bevelSegments: 2,
+      curveSegments: 16,
+    })
+  }, [backWindow])
   React.useEffect(() => () => backWindowGeometry?.dispose(), [backWindowGeometry])
 
   // The camera pedestal: a vertical pill (17) or a full-width plateau bar
@@ -158,6 +168,37 @@ export function IPhone({
     })
     return geometry
   }, [rearCamera])
+
+  // Pro / Pro Max: a raised black platform that seats the triangular lens trio
+  // (the aluminum unibody's black camera deck). The two-lens 17 pill and the
+  // single-lens Air bar don't have it — their lenses sit straight on the frame.
+  const lensDeck = React.useMemo(() => {
+    if (rearCamera.style !== 'bar' || rearCamera.lenses.length < 3) return null
+    const xs = rearCamera.lenses.map((l) => l.x)
+    const ys = rearCamera.lenses.map((l) => l.y)
+    const r = rearCamera.lenses[0]!.r
+    const minX = Math.min(...xs)
+    const maxX = Math.max(...xs)
+    const minY = Math.min(...ys)
+    const maxY = Math.max(...ys)
+    const pad = r * 1.02
+    const width = maxX - minX + pad * 2
+    const height = maxY - minY + pad * 2
+    const radius = (Math.min(width, height) / 2) * 0.72
+    const geometry = new THREE.ExtrudeGeometry(roundedRectShape(width, height, radius), {
+      depth: 0.028,
+      bevelEnabled: true,
+      bevelThickness: 0.012,
+      bevelSize: 0.012,
+      bevelSegments: 3,
+      curveSegments: 28,
+    })
+    return { geometry, x: (minX + maxX) / 2, y: (minY + maxY) / 2 }
+  }, [rearCamera])
+  React.useEffect(() => () => lensDeck?.geometry.dispose(), [lensDeck])
+
+  // Lenses sit a touch further out when they protrude from the black deck.
+  const lensZ = -body.depth / 2 - (lensDeck ? 0.058 : 0.05)
 
   React.useEffect(() => {
     return () => {
@@ -203,14 +244,14 @@ export function IPhone({
           <mesh
             geometry={backWindowGeometry}
             rotation-y={Math.PI}
-            position={[0, backWindow.y, -body.depth / 2 - 0.004]}
+            position={[0, backWindow.y, -body.depth / 2 - 0.003]}
           >
             <meshPhysicalMaterial
               color={color}
               metalness={0.15}
-              roughness={0.18}
+              roughness={0.16}
               clearcoat={1}
-              clearcoatRoughness={0.12}
+              clearcoatRoughness={0.1}
             />
           </mesh>
         )}
@@ -230,25 +271,46 @@ export function IPhone({
           />
         </mesh>
 
-        {/* lens rings on the pedestal */}
+        {/* Pro camera deck: the raised black platform the triple lenses sit in */}
+        {lensDeck && (
+          <mesh
+            geometry={lensDeck.geometry}
+            rotation-y={Math.PI}
+            position={[lensDeck.x, lensDeck.y, -body.depth / 2 - 0.028]}
+          >
+            <meshPhysicalMaterial
+              color="#0a0c0f"
+              metalness={0.45}
+              roughness={0.38}
+              clearcoat={1}
+              clearcoatRoughness={0.28}
+            />
+          </mesh>
+        )}
+
+        {/* lens stacks: machined ring, dark bezel wall, blue-coated glass, glint */}
         {rearCamera.lenses.map(({ x, y, r }, i) => (
-          <group key={i} position={[x, y, -body.depth / 2 - 0.05]}>
+          <group key={i} position={[x, y, lensZ]}>
             <mesh rotation-x={Math.PI / 2}>
-              <cylinderGeometry args={[r, r, 0.045, 48]} />
-              <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+              <cylinderGeometry args={[r, r, 0.05, 56]} />
+              <meshPhysicalMaterial color={frameColor} metalness={1} roughness={0.22} envMapIntensity={1.2} />
             </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.026}>
-              <cylinderGeometry args={[r * 0.78, r * 0.78, 0.008, 48]} />
-              <meshPhysicalMaterial color="#04060a" metalness={0.2} roughness={0.12} clearcoat={1} envMapIntensity={0.4} />
+            <mesh rotation-x={Math.PI / 2} position-z={-0.006}>
+              <cylinderGeometry args={[r * 0.82, r * 0.86, 0.05, 56]} />
+              <meshPhysicalMaterial color="#17191d" metalness={0.7} roughness={0.3} />
             </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.032}>
-              <cylinderGeometry args={[r * 0.38, r * 0.38, 0.008, 32]} />
-              <meshPhysicalMaterial color="#0c1526" metalness={0.4} roughness={0.15} clearcoat={1} envMapIntensity={0.5} />
+            <mesh rotation-x={Math.PI / 2} position-z={-0.03}>
+              <cylinderGeometry args={[r * 0.72, r * 0.72, 0.012, 56]} />
+              <meshPhysicalMaterial color="#0b1c3f" metalness={0.5} roughness={0.06} clearcoat={1} clearcoatRoughness={0.04} envMapIntensity={0.5} />
+            </mesh>
+            <mesh rotation-x={Math.PI / 2} position-z={-0.037}>
+              <cylinderGeometry args={[r * 0.34, r * 0.34, 0.01, 40]} />
+              <meshPhysicalMaterial color="#152a55" metalness={0.6} roughness={0.15} clearcoat={1} envMapIntensity={0.6} />
             </mesh>
             {/* specular glint on the lens glass */}
-            <mesh rotation-x={Math.PI / 2} position={[r * 0.2, r * 0.2, -0.037]}>
-              <cylinderGeometry args={[r * 0.08, r * 0.08, 0.004, 16]} />
-              <meshPhysicalMaterial color="#3c4c6e" metalness={0.6} roughness={0.15} clearcoat={1} />
+            <mesh rotation-x={Math.PI / 2} position={[-r * 0.24, r * 0.24, -0.043]}>
+              <cylinderGeometry args={[r * 0.1, r * 0.1, 0.004, 20]} />
+              <meshPhysicalMaterial color="#9fb6e0" metalness={0.4} roughness={0.1} clearcoat={1} />
             </mesh>
           </group>
         ))}

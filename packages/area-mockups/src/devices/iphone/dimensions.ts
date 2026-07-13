@@ -113,7 +113,7 @@ const IPHONE_17_PRO: IPhoneSpec = {
       { x: -0.42, y: 4.038 / 2 - 0.62, r: 0.02 }, // mic
     ],
   },
-  backWindow: { y: -0.65, width: 1.5, height: 2.4, radius: 0.34 },
+  backWindow: { y: -0.56, width: 1.73, height: 2.72, radius: 0.42 },
 }
 
 /**
@@ -141,7 +141,7 @@ const IPHONE_17_PRO_MAX: IPhoneSpec = {
       { x: -0.46, y: 4.398 / 2 - 0.62, r: 0.02 },
     ],
   },
-  backWindow: { y: -0.72, width: 1.63, height: 2.62, radius: 0.36 },
+  backWindow: { y: -0.61, width: 1.88, height: 2.95, radius: 0.46 },
 }
 
 export const IPHONE_VARIANTS: Record<'17' | 'air' | 'pro' | 'promax', IPhoneSpec> = {

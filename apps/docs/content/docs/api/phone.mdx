@@ -3,9 +3,9 @@ title: Phone (Galaxy S25 family)
 description: The Galaxy S25 family device and its all-in-one mockup.
 ---
 
-`<Phone>` renders a Galaxy S25 family device; `<PhoneMockup>` is the
-all-in-one version. All four variants keep true relative sizes and per-model
-camera architecture.
+`<Phone>` renders a Galaxy device; `<PhoneMockup>` is the all-in-one version.
+All variants keep true relative sizes and per-model camera architecture — the
+S25 family plus the next-gen S26 with its single vertical pill camera island.
 
 <ObjectDemo demo="phone-basic" checker />
 
@@ -22,7 +22,7 @@ Beyond the [shared screen props](/docs/screen-content) and, on the mockup, the
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `variant` | `'s25' \| 's25plus' \| 's25ultra' \| 's25edge'` | `'s25'` | Which Galaxy S25 family device: true relative sizes, per-model cameras (Ultra five-element array, Edge pill island), and logical resolutions. |
+| `variant` | `'s25' \| 's25plus' \| 's25ultra' \| 's25edge' \| 's26'` | `'s25'` | Which Galaxy device: true relative sizes, per-model cameras (Ultra five-element array, Edge pill island, S26 vertical triple-lens island), and logical resolutions. |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display (for example 780×360 on the S25) with upright content. |
 | `color` | `string` | `'#101216'` | Back panel colorway. |
 | `frameColor` | `string` | `'#4a4f59'` | Metal frame, buttons, and camera rings. |
@@ -57,6 +57,19 @@ S25 Ultra — your responsive layout reacts exactly like on the device.
 
 ```tsx
 <PhoneMockup variant="s25ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
+  <MusicPlayer />
+</PhoneMockup>
+```
+
+### Galaxy S26 — the vertical pill camera island
+
+`variant="s26"` renders the next-gen 6.3″ design: the three lenses live in a
+single vertical pill island with the flash on the flat back beside it.
+
+<ObjectDemo demo="phone-s26" />
+
+```tsx
+<PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478">
   <MusicPlayer />
 </PhoneMockup>
 ```
