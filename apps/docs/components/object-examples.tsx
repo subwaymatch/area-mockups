@@ -43,6 +43,7 @@ import {
   WatchMockup,
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
+import { withPreviewControls } from './preview-controls'
 import {
   ArrivalsBoardArt,
   BadgeBackArt,
@@ -698,7 +699,7 @@ export function ObjectDemo({
   if (!scene) return <p>Unknown demo: {demo}</p>
   return (
     <div className={`object-demo${checker ? ' object-demo--checker' : ''}`} style={{ height }}>
-      <LazyScene>{scene}</LazyScene>
+      <LazyScene>{withPreviewControls(scene)}</LazyScene>
     </div>
   )
 }

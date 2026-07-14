@@ -31,6 +31,7 @@ One canvas, two bare devices, one shared studio light rig and shadow plane.
 | `autoRotate` | `boolean` | `false` | Slowly orbit the camera around the device. |
 | `autoRotateSpeed` | `number` | `1` | Orbit speed when `autoRotate` is on. |
 | `zoom` | `boolean` | `false` | Pinch zoom on touch, scroll-wheel zoom on desktop, plus overlay +/− buttons. Off by default so embedded mockups never hijack page scroll; on, the canvas owns two-finger gestures. |
+| `fullscreen` | `boolean` | `false` | Adds an overlay button that expands the mockup to fill the screen via the Fullscreen API (and collapses it back). Off by default. |
 | `shadows` | `boolean` | `true` | Soft contact shadow under the device. |
 | `shadowY` | `number` | `-2.05` | Y position (world units) of the shadow plane. Grounds the device on its shadow. The mockup wrappers compute this per device. |
 | `environment` | `boolean` | `true` | Procedural studio lighting and reflections, generated on the GPU with no HDR downloads. |
@@ -51,6 +52,18 @@ orbit controls.
 
 ```tsx
 <BookMockup zoom float color="#4a2c3f">
+  <YourCoverArt />
+</BookMockup>
+```
+
+### Full-screen view
+
+`fullscreen` adds an overlay button that expands the mockup to fill the whole
+screen through the browser's Fullscreen API, with a matching button to collapse
+it back. It composes with `zoom`, and works on any mockup.
+
+```tsx
+<BookMockup fullscreen float color="#4a2c3f">
   <YourCoverArt />
 </BookMockup>
 ```
