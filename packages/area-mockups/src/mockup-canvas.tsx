@@ -25,8 +25,8 @@ function TouchScrollFix({ zoom }: { zoom: boolean }) {
   return null
 }
 
-/** Shared look for the overlay zoom buttons — self-contained, no page CSS. */
-const ZOOM_BUTTON_STYLE: React.CSSProperties = {
+/** Shared look for the overlay control buttons — self-contained, no page CSS. */
+const OVERLAY_BUTTON_STYLE: React.CSSProperties = {
   width: 32,
   height: 32,
   borderRadius: '50%',
@@ -44,6 +44,23 @@ const ZOOM_BUTTON_STYLE: React.CSSProperties = {
   padding: 0,
 }
 
+/** Feather-style corner icons for the fullscreen toggle (16px, current color). */
+function EnterFullscreenIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden focusable="false">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+    </svg>
+  )
+}
+
+function ExitFullscreenIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden focusable="false">
+      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+    </svg>
+  )
+}
+
 export interface MockupCanvasProps {
   /** Your scene — typically a device such as `<Phone>`. */
   children: React.ReactNode
@@ -59,6 +76,12 @@ export interface MockupCanvasProps {
    * page scrolling then starts outside the mockup).
    */
   zoom?: boolean
+  /**
+   * Full-screen view: adds an overlay button that expands the mockup to fill
+   * the whole screen via the Fullscreen API (and collapses it back). Off by
+   * default so an embedded mockup never grows a control it wasn't asked for.
+   */
+  fullscreen?: boolean
   /** Soft contact shadow under the device. */
   shadows?: boolean
   /**
@@ -90,6 +113,7 @@ export function MockupCanvas({
   autoRotate = false,
   autoRotateSpeed = 1,
   zoom = false,
+  fullscreen = false,
   shadows = true,
   shadowY = -2.05,
   environment = true,
@@ -106,6 +130,44 @@ export function MockupCanvas({
   const cameraDistance = cameraPosition
     ? Math.hypot(cameraPosition[0], cameraPosition[1], cameraPosition[2])
     : 7.4
+
+  // Full-screen view toggles the overlay wrapper into the browser's Fullscreen
+  // API. Track the live state so the button flips its icon and label, and so a
+  // dark backdrop only appears while actually filling the screen (keeping the
+  // transparent-by-default canvas transparent the rest of the time).
+  const wrapperRef = React.useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  React.useEffect(() => {
+    if (!fullscreen) return
+    const doc = document as Document & { webkitFullscreenElement?: Element }
+    const onChange = () => {
+      const active = doc.fullscreenElement ?? doc.webkitFullscreenElement
+      setIsFullscreen(active === wrapperRef.current)
+    }
+    document.addEventListener('fullscreenchange', onChange)
+    document.addEventListener('webkitfullscreenchange', onChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange)
+      document.removeEventListener('webkitfullscreenchange', onChange)
+    }
+  }, [fullscreen])
+
+  const toggleFullscreen = () => {
+    const el = wrapperRef.current as
+      | (HTMLDivElement & { webkitRequestFullscreen?: () => Promise<void> | void })
+      | null
+    if (!el) return
+    const doc = document as Document & {
+      webkitFullscreenElement?: Element
+      webkitExitFullscreen?: () => Promise<void> | void
+    }
+    const active = doc.fullscreenElement ?? doc.webkitFullscreenElement
+    if (active) {
+      ;(doc.exitFullscreen ?? doc.webkitExitFullscreen)?.call(doc)
+    } else {
+      ;(el.requestFullscreen ?? el.webkitRequestFullscreen)?.call(el)
+    }
+  }
 
   const controlsRef = React.useRef<OrbitControlsImpl>(null)
   const zoomBy = (factor: number) => {
@@ -188,31 +250,58 @@ export function MockupCanvas({
     </Canvas>
   )
 
-  if (!zoom || !controls) return canvas
+  // Zoom's +/− buttons need the orbit controls to move the camera; the
+  // full-screen button is independent. With neither overlay, hand back the
+  // bare canvas untouched.
+  const showZoomButtons = zoom && controls
+  if (!showZoomButtons && !fullscreen) return canvas
 
-  // Overlay +/− buttons: the visible zoom affordance on desktop, and a
-  // fallback for touch. Wrapped so the buttons anchor to the canvas box.
+  // Wrap so the overlay buttons anchor to the canvas box — and so the
+  // Fullscreen API has an element to expand. A dark backdrop fills the letter-
+  // boxing only while actually full-screen, using `background` when provided.
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div
+      ref={wrapperRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        background: isFullscreen ? background ?? '#0b0d12' : undefined,
+      }}
+    >
       {canvas}
-      <div
-        style={{
-          position: 'absolute',
-          right: 10,
-          bottom: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          zIndex: 30,
-        }}
-      >
-        <button type="button" aria-label="Zoom in" style={ZOOM_BUTTON_STYLE} onClick={() => zoomBy(0.8)}>
-          +
-        </button>
-        <button type="button" aria-label="Zoom out" style={ZOOM_BUTTON_STYLE} onClick={() => zoomBy(1.25)}>
-          −
-        </button>
-      </div>
+      {fullscreen && (
+        <div style={{ position: 'absolute', right: 10, top: 10, zIndex: 30 }}>
+          <button
+            type="button"
+            aria-label={isFullscreen ? 'Exit full screen' : 'View full screen'}
+            style={OVERLAY_BUTTON_STYLE}
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen ? <ExitFullscreenIcon /> : <EnterFullscreenIcon />}
+          </button>
+        </div>
+      )}
+      {showZoomButtons && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 10,
+            bottom: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            zIndex: 30,
+          }}
+        >
+          <button type="button" aria-label="Zoom in" style={OVERLAY_BUTTON_STYLE} onClick={() => zoomBy(0.8)}>
+            +
+          </button>
+          <button type="button" aria-label="Zoom out" style={OVERLAY_BUTTON_STYLE} onClick={() => zoomBy(1.25)}>
+            −
+          </button>
+        </div>
+      )}
     </div>
   )
 }

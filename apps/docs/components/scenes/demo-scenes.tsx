@@ -80,6 +80,7 @@ import {
 } from '../screens/print-art'
 import { MusicPlayer } from '../screens/music-player'
 import { LazyScene } from '../lazy-scene'
+import { withPreviewControls } from '../preview-controls'
 
 function DemoCard({
   title,
@@ -93,7 +94,7 @@ function DemoCard({
   return (
     <article className="demo-card">
       <div className="mockup-viewport demo-viewport">
-        <LazyScene>{children}</LazyScene>
+        <LazyScene>{withPreviewControls(children)}</LazyScene>
       </div>
       <h3>{title}</h3>
       <p>{description}</p>
