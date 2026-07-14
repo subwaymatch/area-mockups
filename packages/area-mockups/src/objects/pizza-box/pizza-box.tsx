@@ -21,6 +21,29 @@ const BASIL: [number, number][] = [
   [-0.3, -0.55],
   [0.42, 0.22],
   [-0.48, 0.02],
+  [0.12, 0.24],
+  [-0.02, -0.4],
+]
+/** Lighter melted-cheese pools breaking up the flat cheese disc: [x, z, r]. */
+const CHEESE_POOLS: [number, number, number][] = [
+  [-0.3, 0.1, 0.24],
+  [0.34, -0.3, 0.3],
+  [0.1, 0.5, 0.2],
+  [-0.5, -0.42, 0.22],
+  [0.55, 0.28, 0.18],
+  [-0.05, -0.05, 0.26],
+]
+/** Blistered crust bumps around the rim: [angle rad, radial jitter, scale]. */
+const CRUST_BUMPS: [number, number, number][] = [
+  [0.2, 0.01, 1.1],
+  [0.93, -0.02, 0.9],
+  [1.7, 0.02, 1.2],
+  [2.4, -0.01, 0.85],
+  [3.05, 0.015, 1.05],
+  [3.8, -0.02, 0.95],
+  [4.5, 0.01, 1.15],
+  [5.2, -0.015, 0.9],
+  [5.9, 0.02, 1.0],
 ]
 
 export interface PizzaBoxProps extends Omit<GroupProps, 'children' | 'color'> {
@@ -143,31 +166,69 @@ export function PizzaBox({
         </mesh>
       ))}
 
-      {/* the pizza */}
+      {/* the pizza — built to read as food, not a toy: a flattened crust ring
+          with blistered bumps, a sauce ring peeking past the cheese, melted
+          cheese pools, domed pepperoni and leaf-shaped basil */}
       {open && pizza && (
         <group position={[0, -body.height / 2 + 0.06 + pie.height / 2, 0]}>
           <mesh>
-            <cylinderGeometry args={[pie.radius, pie.radius - 0.04, pie.height, 40]} />
+            <cylinderGeometry args={[pie.radius, pie.radius - 0.04, pie.height, 48]} />
             <meshPhysicalMaterial color="#e0a95c" metalness={0} roughness={0.8} />
           </mesh>
-          <mesh rotation-x={Math.PI / 2} position={[0, pie.height / 2 - 0.015, 0]}>
-            <torusGeometry args={[pie.radius - pie.crust / 2, pie.crust / 2 + 0.015, 12, 40]} />
+          {/* crust: flattened torus (a proud full-round ring reads as a pool
+              float) plus blister bumps breaking the perfect circle */}
+          <mesh rotation-x={Math.PI / 2} scale={[1, 1, 0.6]} position={[0, pie.height / 2 - 0.008, 0]}>
+            <torusGeometry args={[pie.radius - pie.crust / 2, pie.crust / 2 + 0.03, 12, 48]} />
             <meshPhysicalMaterial color="#c9863f" metalness={0} roughness={0.75} />
           </mesh>
-          <mesh position={[0, pie.height / 2 + 0.006, 0]}>
-            <cylinderGeometry args={[pie.radius - pie.crust, pie.radius - pie.crust, 0.02, 40]} />
-            <meshPhysicalMaterial color="#eebd55" metalness={0} roughness={0.7} envMapIntensity={0.5} />
-          </mesh>
-          {PEPPERONI.map(([x, z], i) => (
-            <mesh key={i} position={[x * pie.radius, pie.height / 2 + 0.02, z * pie.radius]}>
-              <cylinderGeometry args={[0.16, 0.16, 0.014, 16]} />
-              <meshPhysicalMaterial color="#8f231a" metalness={0} roughness={0.7} envMapIntensity={0.5} />
+          {CRUST_BUMPS.map(([a, jr, s], i) => (
+            <mesh
+              key={i}
+              position={[
+                Math.cos(a) * (pie.radius - pie.crust / 2 + jr),
+                pie.height / 2 + 0.015,
+                Math.sin(a) * (pie.radius - pie.crust / 2 + jr),
+              ]}
+              scale={[s, 0.45, 1]}
+              rotation-y={-a}
+            >
+              <sphereGeometry args={[pie.crust * 0.62, 16, 12]} />
+              <meshPhysicalMaterial color={i % 2 ? '#b5732f' : '#d0954c'} metalness={0} roughness={0.78} />
             </mesh>
           ))}
+          {/* sauce ring peeking past the cheese edge */}
+          <mesh position={[0, pie.height / 2 + 0.002, 0]}>
+            <cylinderGeometry args={[pie.radius - pie.crust + 0.06, pie.radius - pie.crust + 0.06, 0.014, 48]} />
+            <meshPhysicalMaterial color="#b8432a" metalness={0} roughness={0.6} />
+          </mesh>
+          {/* cheese */}
+          <mesh position={[0, pie.height / 2 + 0.01, 0]}>
+            <cylinderGeometry args={[pie.radius - pie.crust, pie.radius - pie.crust, 0.02, 48]} />
+            <meshPhysicalMaterial color="#e9b954" metalness={0} roughness={0.62} envMapIntensity={0.5} />
+          </mesh>
+          {CHEESE_POOLS.map(([x, z, r], i) => (
+            <mesh key={i} position={[x * pie.radius, pie.height / 2 + 0.021, z * pie.radius]} scale={[1, 1, 0.8]}>
+              <cylinderGeometry args={[r, r, 0.006, 20]} />
+              <meshPhysicalMaterial color="#eec25c" metalness={0} roughness={0.55} envMapIntensity={0.5} />
+            </mesh>
+          ))}
+          {/* pepperoni: shallow domes that sink into the cheese */}
+          {PEPPERONI.map(([x, z], i) => (
+            <mesh key={i} position={[x * pie.radius, pie.height / 2 + 0.018, z * pie.radius]} scale={[1, 0.16, 1]}>
+              <sphereGeometry args={[0.17, 20, 12]} />
+              <meshPhysicalMaterial color="#9c2a1c" metalness={0} roughness={0.55} envMapIntensity={0.5} />
+            </mesh>
+          ))}
+          {/* basil leaves */}
           {BASIL.map(([x, z], i) => (
-            <mesh key={i} position={[x * pie.radius, pie.height / 2 + 0.024, z * pie.radius]} rotation-y={i * 1.2}>
-              <cylinderGeometry args={[0.08, 0.08, 0.008, 8]} />
-              <meshPhysicalMaterial color="#3f6b34" metalness={0} roughness={0.7} />
+            <mesh
+              key={i}
+              position={[x * pie.radius, pie.height / 2 + 0.026, z * pie.radius]}
+              rotation-y={i * 1.2}
+              scale={[1, 0.12, 0.66]}
+            >
+              <sphereGeometry args={[0.09, 12, 8]} />
+              <meshPhysicalMaterial color="#46783a" metalness={0} roughness={0.65} />
             </mesh>
           ))}
         </group>

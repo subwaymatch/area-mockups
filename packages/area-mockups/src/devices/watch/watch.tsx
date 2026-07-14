@@ -51,9 +51,11 @@ export interface WatchProps extends Omit<GroupProps, 'children' | 'color'> {
 
 /**
  * A procedurally built smartwatch — Apple Watch Series 11 (46 mm squircle
- * case, Digital Crown) or Samsung Galaxy Watch 8 (44 mm cushion case, round
- * display, two flat keys) depending on `variant` — wearing a full closed
- * wristband that loops behind the case as if on an invisible wrist. No 3D
+ * case, Digital Crown, Sport Band) or Samsung Galaxy Watch 8 (44 mm cushion
+ * case with the round display raised on its dial puck, two flat keys, a
+ * tapering Dynamic-Lug-style band with keeper and buckle) depending on
+ * `variant` — wearing a full closed wristband that hugs an invisible wrist
+ * directly behind the case, emerging through the case's band slots. No 3D
  * asset files are loaded — the whole device is generated from geometry at
  * runtime.
  *
@@ -88,13 +90,15 @@ export function Watch({
       body.radius - body.bevel
     )
     const depth = body.depth - body.bevel * 2
+    // Generously tessellated: the case's tight curvature turns per-facet
+    // specular into visible mosaic patches at lower segment counts.
     const geometry = new THREE.ExtrudeGeometry(shape, {
       depth,
       bevelEnabled: true,
       bevelThickness: body.bevel,
       bevelSize: body.bevel,
-      bevelSegments: 5,
-      curveSegments: 24,
+      bevelSegments: 10,
+      curveSegments: 48,
     })
     geometry.translate(0, 0, -depth / 2)
     return geometry
@@ -105,27 +109,37 @@ export function Watch({
     [glass]
   )
 
-  // Full wristband: a rounded-rect cross-section swept along a teardrop arc
-  // that leaves the hidden lug slots, loops behind the case (around the
-  // invisible wrist, blunt at the case and tapering toward the back — the
-  // shape every worn-band product photo shows) and re-enters the case.
-  // Hand-swept as an indexed grid so the vertex normals come out smooth;
-  // ExtrudeGeometry's flat shading turns a glossy band into visible facets.
+  // Full wristband: a rounded-rect cross-section swept along a wrist-hugging
+  // ovoid loop. The strap ends stay buried inside the case so the band appears
+  // to leave through the band slots in the case's top/bottom edges (as on the
+  // real products), then wraps the invisible wrist directly behind the case.
+  // The cross-section can taper toward the far side of the wrist (`backWidth`,
+  // the Galaxy Dynamic Lug band). Hand-swept as an indexed grid so the vertex
+  // normals come out smooth; ExtrudeGeometry's flat shading turns a glossy
+  // band into visible facets.
   const bandGeometry = React.useMemo(() => {
     const { ryFront, ryBack, rz, centerZ, startAngle } = band.loop
     const a1 = (startAngle * Math.PI) / 180
     const a2 = Math.PI * 2 - a1
     const rings = 96
     const path: THREE.Vector3[] = []
+    const widths: number[] = []
     for (let i = 0; i <= rings; i++) {
       const phi = a1 + ((a2 - a1) * i) / rings
-      const ry = ryFront + (ryBack - ryFront) * (1 - Math.cos(phi)) * 0.5
+      const ease = (1 - Math.cos(phi)) * 0.5
+      const ry = ryFront + (ryBack - ryFront) * ease
       path.push(new THREE.Vector3(0, ry * Math.sin(phi), centerZ + rz * Math.cos(phi)))
+      // The strap reaches its tapered width within the first stretch past the
+      // case (the wide part is just the lug connector, as on the real bands).
+      widths.push(band.width + ((band.backWidth ?? band.width) - band.width) * Math.min(1, ease * 2.2))
     }
     // cross-section: x spans the thickness (radial), y the width (world x)
-    const section = roundedRectShape(band.thickness, band.width, band.thickness * 0.33).getPoints(4)
-    if (section.length > 1 && section[0]!.equals(section[section.length - 1]!)) section.pop()
-    const cols = section.length
+    const sectionAt = (w: number) => {
+      const pts = roundedRectShape(band.thickness, w, band.thickness * 0.33).getPoints(4)
+      if (pts.length > 1 && pts[0]!.equals(pts[pts.length - 1]!)) pts.pop()
+      return pts
+    }
+    const cols = sectionAt(band.width).length
 
     const positions = new Float32Array((rings + 1) * cols * 3)
     const indices: number[] = []
@@ -137,6 +151,7 @@ export function Watch({
         .subVectors(path[Math.min(i + 1, rings)]!, path[Math.max(i - 1, 0)]!)
         .normalize()
       normal.crossVectors(binormal, tangent).normalize()
+      const section = sectionAt(widths[i]!)
       for (let j = 0; j < cols; j++) {
         const s = section[j]!
         const o = (i * cols + j) * 3
@@ -171,17 +186,75 @@ export function Watch({
   }, [bodyGeometry, glassGeometry, bandGeometry])
 
   const isGalaxy = spec.style === 'galaxy'
+  const dial = spec.dial
+  const faceZ = body.depth / 2 + (dial?.height ?? 0)
+
+  // Worn-strap fittings sit on the loop's centerline: point, strap width and
+  // tangent tilt at a given sweep angle (0° = the loop's front axis).
+  const loopAt = React.useCallback(
+    (phiDeg: number) => {
+      const { ryFront, ryBack, rz, centerZ } = band.loop
+      const phi = (phiDeg * Math.PI) / 180
+      const ease = (1 - Math.cos(phi)) * 0.5
+      const ry = ryFront + (ryBack - ryFront) * ease
+      const dry = ((ryBack - ryFront) / 2) * Math.sin(phi)
+      const ty = dry * Math.sin(phi) + ry * Math.cos(phi)
+      const tz = -rz * Math.sin(phi)
+      return {
+        y: ry * Math.sin(phi),
+        z: centerZ + rz * Math.cos(phi),
+        width: band.width + ((band.backWidth ?? band.width) - band.width) * Math.min(1, ease * 2.2),
+        rotX: Math.atan2(tz, ty),
+      }
+    },
+    [band]
+  )
+
+  const keeper = isGalaxy ? loopAt(240) : null
+  const buckle = isGalaxy ? loopAt(264) : null
 
   return (
     <group {...groupProps}>
-      {/* case */}
+      {/* case — no sharp clearcoat: mirror-reflected light panels turn into
+          hard-edged patches on the tight case curvature */}
       <mesh ref={bodyRef} geometry={bodyGeometry}>
-        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.3} clearcoat={0.5} />
+        <meshPhysicalMaterial
+          color={color}
+          metalness={0.85}
+          roughness={0.3}
+          clearcoat={0.25}
+          clearcoatRoughness={0.4}
+        />
       </mesh>
 
-      {/* cover crystal (black ring around the display; a full circle on Galaxy) */}
-      <mesh geometry={glassGeometry} position-z={body.depth / 2 + 0.002}>
-        <meshPhysicalMaterial color="#020205" metalness={0.1} roughness={0.06} clearcoat={1} />
+      {/* Galaxy cushion design: the round dial rides on a raised black puck,
+          leaving the aluminum cushion visible around it */}
+      {dial && (
+        <mesh
+          rotation-x={Math.PI / 2}
+          position-z={body.depth / 2 + dial.height / 2 - 0.03}
+        >
+          <cylinderGeometry args={[dial.radius, dial.radius, dial.height + 0.06, 48]} />
+          <meshPhysicalMaterial
+            color="#0b0c10"
+            metalness={0.55}
+            roughness={0.25}
+            clearcoat={0.6}
+            clearcoatRoughness={0.3}
+          />
+        </mesh>
+      )}
+
+      {/* cover crystal (black ring around the display; a full circle on Galaxy).
+          Softened gloss: a mirror clearcoat blows out white at grazing angles */}
+      <mesh geometry={glassGeometry} position-z={faceZ + 0.002}>
+        <meshPhysicalMaterial
+          color="#020205"
+          metalness={0.1}
+          roughness={0.12}
+          clearcoat={0.8}
+          clearcoatRoughness={0.25}
+        />
       </mesh>
 
       {/* back sensor island — spans most of the case back on both watches */}
@@ -216,37 +289,18 @@ export function Watch({
         </RoundedBox>
       ))}
 
-      {/* full wristband loop, worn around the invisible wrist */}
+      {/* full wristband loop, worn around the invisible wrist. Matte
+          fluoroelastomer: a soft sheen only, or grazing angles blow out white */}
       <mesh geometry={bandGeometry}>
         <meshPhysicalMaterial
           color={bandColor}
           metalness={0.05}
-          roughness={0.6}
-          clearcoat={0.4}
-          clearcoatRoughness={0.5}
+          roughness={0.72}
+          clearcoat={0.12}
+          clearcoatRoughness={0.7}
           side={THREE.DoubleSide}
         />
       </mesh>
-
-      {/* lug stubs bridging the case into the loop (Galaxy's Dynamic Lug is a
-          visible case-colored cradle; Apple's slots are hidden in the case) */}
-      {([1, -1] as const).map((dir) => (
-        <RoundedBox
-          key={dir}
-          args={[isGalaxy ? band.width * 0.8 : band.width, 0.36, band.thickness + (isGalaxy ? 0.04 : 0.01)]}
-          radius={0.05}
-          position={[0, dir * (body.height / 2 + 0.03), -0.11]}
-          rotation-x={dir * -0.45}
-        >
-          <meshPhysicalMaterial
-            color={isGalaxy ? color : bandColor}
-            metalness={isGalaxy ? 0.7 : 0.05}
-            roughness={isGalaxy ? 0.35 : 0.6}
-            clearcoat={0.4}
-            clearcoatRoughness={0.5}
-          />
-        </RoundedBox>
-      ))}
 
       {/* Sport Band pin cap on the outer face at the bottom of the loop */}
       {!isGalaxy && (
@@ -256,13 +310,41 @@ export function Watch({
         </mesh>
       )}
 
+      {/* Galaxy Sport Band closure under the wrist: band keeper + metal buckle */}
+      {keeper && (
+        <RoundedBox
+          args={[keeper.width + 0.08, 0.18, band.thickness + 0.09]}
+          radius={0.04}
+          position={[0, keeper.y, keeper.z]}
+          rotation-x={keeper.rotX}
+        >
+          <meshPhysicalMaterial
+            color={bandColor}
+            metalness={0.05}
+            roughness={0.72}
+            clearcoat={0.12}
+            clearcoatRoughness={0.7}
+          />
+        </RoundedBox>
+      )}
+      {buckle && (
+        <RoundedBox
+          args={[buckle.width + 0.1, 0.24, band.thickness + 0.1]}
+          radius={0.04}
+          position={[0, buckle.y, buckle.z]}
+          rotation-x={buckle.rotX}
+        >
+          <meshPhysicalMaterial color="#b9bdc6" metalness={0.85} roughness={0.35} />
+        </RoundedBox>
+      )}
+
       {/* the live screen: real DOM, CSS3D-transformed onto the crystal */}
       <DeviceScreen
         width={display.width}
         height={display.height}
         radius={display.radius}
         resolution={res}
-        position={[0, 0, body.depth / 2 + 0.006]}
+        position={[0, 0, faceZ + 0.006]}
         background={screenBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}

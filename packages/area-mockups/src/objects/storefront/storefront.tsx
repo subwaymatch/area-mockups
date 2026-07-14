@@ -62,10 +62,61 @@ export function Storefront({
   const wallRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [wallRef], [])
 
+  // Shop glass reflects the street: a lighter blue-gray with strong env
+  // reflections, instead of a pitch-black hole in the façade.
   const glassMaterial = (
-    <meshPhysicalMaterial color="#1a2b33" metalness={0.15} roughness={0.06} clearcoat={1} />
+    <meshPhysicalMaterial
+      color="#5a6d75"
+      metalness={0.5}
+      roughness={0.05}
+      clearcoat={1}
+      clearcoatRoughness={0.08}
+      envMapIntensity={1.6}
+    />
   )
   const paint = { color, metalness: 0.05, roughness: 0.55, clearcoat: 0.3 }
+
+  // Cornice geometry (the brick panel above starts at its top edge).
+  const corniceY = fascia.y + fascia.height / 2 + 0.05
+  const brickTop = body.height / 2
+  const brickBottom = corniceY + 0.06
+  const brickH = brickTop - brickBottom
+
+  // Running-bond brickwork painted once into a texture: courses of
+  // wallColor-tinted bricks with light mortar joints, alternate rows offset
+  // half a brick — reads as masonry instead of a flat cardboard band.
+  const brickTexture = React.useMemo(() => {
+    if (typeof document === 'undefined') return null
+    const canvas = document.createElement('canvas')
+    const pxPerUnit = 220
+    canvas.width = Math.round(body.width * pxPerUnit)
+    canvas.height = Math.round(brickH * pxPerUnit)
+    const ctx = canvas.getContext('2d')!
+    ctx.fillStyle = '#a89d90' // mortar
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    const course = 0.068 * pxPerUnit // 65 mm brick + 10 mm joint
+    const brickW = 0.205 * pxPerUnit // 215 mm brick + joint
+    const joint = 0.009 * pxPerUnit
+    const base = new THREE.Color(wallColor)
+    const tint = new THREE.Color()
+    const rows = Math.ceil(canvas.height / course)
+    const cols = Math.ceil(canvas.width / brickW) + 1
+    for (let r = 0; r < rows; r++) {
+      const offset = r % 2 === 0 ? 0 : -brickW / 2
+      for (let c = 0; c < cols; c++) {
+        // deterministic per-brick tint jitter
+        const j = ((r * 31 + c * 17) % 10) / 10 - 0.5
+        tint.copy(base).offsetHSL(j * 0.01, j * 0.04, j * 0.06)
+        ctx.fillStyle = `#${tint.getHexString()}`
+        ctx.fillRect(offset + c * brickW, r * course, brickW - joint, course - joint)
+      }
+    }
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.anisotropy = 4
+    texture.colorSpace = THREE.SRGBColorSpace
+    return texture
+  }, [body.width, brickH, wallColor])
+  React.useEffect(() => () => brickTexture?.dispose(), [brickTexture])
 
   const riserTop = -standHeight + riser.height
   const windowH = win.top - riserTop
@@ -84,11 +135,19 @@ export function Storefront({
         <meshPhysicalMaterial color={wallColor} metalness={0} roughness={0.9} />
       </mesh>
 
+      {/* running-bond brickwork above the cornice */}
+      {brickTexture && (
+        <mesh position={[0, (brickBottom + brickTop) / 2, frontZ + 0.002]}>
+          <planeGeometry args={[body.width, brickH]} />
+          <meshPhysicalMaterial map={brickTexture} metalness={0} roughness={0.92} />
+        </mesh>
+      )}
+
       {/* painted shopfront surround: fascia band, cornice, pilasters, riser */}
       <RoundedBox args={[body.width, fascia.height, 0.12]} radius={0.015} position={[0, fascia.y, frontZ + 0.02]}>
         <meshPhysicalMaterial {...paint} />
       </RoundedBox>
-      <RoundedBox args={[body.width + 0.12, 0.12, 0.2]} radius={0.02} position={[0, fascia.y + fascia.height / 2 + 0.05, frontZ + 0.03]}>
+      <RoundedBox args={[body.width + 0.12, 0.12, 0.2]} radius={0.02} position={[0, corniceY, frontZ + 0.03]}>
         <meshPhysicalMaterial {...paint} />
       </RoundedBox>
       {([1, -1] as const).map((s) => (
@@ -105,6 +164,19 @@ export function Storefront({
         <planeGeometry args={[glazeW, windowH]} />
         {glassMaterial}
       </mesh>
+      {/* painted pilaster panel between the window bay and the door bay
+          (otherwise the raw wall shows through the gap) */}
+      <RoundedBox
+        args={[win.doorX - (glazeX + glazeW / 2) + 0.08, windowH + riser.height, 0.09]}
+        radius={0.012}
+        position={[
+          (glazeX + glazeW / 2 + win.doorX) / 2,
+          riserTop + (windowH - riser.height) / 2,
+          frontZ + 0.012,
+        ]}
+      >
+        <meshPhysicalMaterial {...paint} />
+      </RoundedBox>
       {/* mullion + window head */}
       <RoundedBox args={[0.1, windowH, 0.1]} radius={0.012} position={[win.mullionX, riserTop + windowH / 2, frontZ + 0.02]}>
         <meshPhysicalMaterial {...paint} />

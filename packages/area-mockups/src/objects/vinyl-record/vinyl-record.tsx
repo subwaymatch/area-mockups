@@ -80,6 +80,35 @@ export function VinylRecord({
 
   React.useEffect(() => () => sleeveGeometry.dispose(), [sleeveGeometry])
 
+  // The groove band painted once into a texture: fine concentric circles from
+  // the lead-in edge down to the dead wax, so the playing surface reads as
+  // grooved vinyl under any light (thin torus rings vanish on a black disc).
+  const grooveTexture = React.useMemo(() => {
+    if (typeof document === 'undefined') return null
+    const size = 1024
+    const canvas = document.createElement('canvas')
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')!
+    const c = size / 2
+    const rOut = c * 0.995
+    const rIn = c * (disc.deadWaxRadius / disc.radius)
+    for (let i = 0; i < 110; i++) {
+      const r = rIn + ((rOut - rIn) * i) / 109
+      // brighter sheen bands at the track gaps, faint lines elsewhere
+      const gap = i % 16 === 0
+      ctx.beginPath()
+      ctx.arc(c, c, r, 0, Math.PI * 2)
+      ctx.strokeStyle = gap ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.05)'
+      ctx.lineWidth = gap ? 2.4 : 1.1
+      ctx.stroke()
+    }
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.anisotropy = 4
+    return texture
+  }, [disc])
+  React.useEffect(() => () => grooveTexture?.dispose(), [grooveTexture])
+
   // Disc peeks out to the upper-right, tucked behind the jacket.
   const discX = sleeve.size / 2 - disc.radius + disc.radius * 2 * discPeek
   const discZ = -sleeve.thickness / 2 - disc.thickness / 2 - 0.006
@@ -140,31 +169,56 @@ export function VinylRecord({
             <cylinderGeometry args={[disc.radius, disc.radius, disc.thickness, 64]} />
             <meshPhysicalMaterial color={vinylColor} metalness={0.1} roughness={0.32} clearcoat={1} clearcoatRoughness={0.25} />
           </mesh>
-          {/* groove sheen rings — the playing surface runs from the lead-in
-              (~146 mm radius) down to the lead-out at ~60 mm (f ≈ 0.42) */}
-          {[0.95, 0.87, 0.79, 0.71, 0.63, 0.55, 0.48, 0.42].map((f) => (
-            <mesh key={f} rotation-x={Math.PI / 2} position-z={0.002}>
-              <torusGeometry args={[disc.radius * f, 0.0035, 6, 80]} />
-              <meshPhysicalMaterial color="#26262a" metalness={0.3} roughness={0.2} clearcoat={1} />
+          {/* the grooved playing surface, lead-in to dead wax */}
+          {grooveTexture && (
+            <mesh position-z={disc.thickness / 2 + 0.001}>
+              <ringGeometry args={[disc.deadWaxRadius, disc.radius * 0.995, 96]} />
+              <meshBasicMaterial map={grooveTexture} transparent opacity={0.55} depthWrite={false} />
             </mesh>
-          ))}
+          )}
           {/* dead-wax ring between grooves and label */}
           <mesh rotation-x={Math.PI / 2} position-z={0.0025}>
             <torusGeometry args={[disc.deadWaxRadius, 0.006, 6, 48]} />
             <meshPhysicalMaterial color={vinylColor} metalness={0.05} roughness={0.5} />
           </mesh>
 
-          {/* live circular label */}
-          <DeviceScreen
-            {...faceProps}
-            width={disc.labelRadius * 2}
-            height={disc.labelRadius * 2}
-            radius={disc.labelRadius}
-            resolution={Math.round(labelPxPerUnit * disc.labelRadius * 2)}
-            position={[0, 0, disc.thickness / 2 + 0.003]}
-          >
-            {label}
-          </DeviceScreen>
+          {/* paper label — the physical print under the (optional) live design */}
+          <mesh position-z={disc.thickness / 2 + 0.0015}>
+            <circleGeometry args={[disc.labelRadius, 48]} />
+            <meshPhysicalMaterial color="#e7e1d3" metalness={0} roughness={0.85} />
+          </mesh>
+
+          {/* live circular label, with the spindle hole punched through the
+              DOM layer (the content would otherwise paint over it) */}
+          {label != null && (
+            <DeviceScreen
+              {...faceProps}
+              width={disc.labelRadius * 2}
+              height={disc.labelRadius * 2}
+              radius={disc.labelRadius}
+              resolution={Math.round(labelPxPerUnit * disc.labelRadius * 2)}
+              position={[0, 0, disc.thickness / 2 + 0.003]}
+              overlay={
+                <div
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: `${((disc.spindleRadius * 2) / (disc.labelRadius * 2)) * 100}%`,
+                    aspectRatio: '1',
+                    borderRadius: '50%',
+                    background: '#050506',
+                    pointerEvents: 'none',
+                    zIndex: 2147483647,
+                  }}
+                />
+              }
+            >
+              {label}
+            </DeviceScreen>
+          )}
 
           {/* spindle hole — unlit black so it reads as a hole, not a plug */}
           <mesh rotation-x={Math.PI / 2} position-z={0.004}>

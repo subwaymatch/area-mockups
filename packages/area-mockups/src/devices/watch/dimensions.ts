@@ -6,14 +6,19 @@
  *
  * - Apple Watch Series 11, 46 mm: 46 x 39 x 9.7 mm squircle case, ~1.96"
  *   416x496 wide-angle OLED with heavily rounded corners, Digital Crown +
- *   flush side button on the right edge, 24 mm lug slots, Sport Band.
+ *   flush side button on the right edge, hidden lug slots in the case's flat
+ *   top/bottom edges, Sport Band.
  * - Galaxy Watch 8, 44 mm: 46.0 x 43.7 x 8.6 mm "cushion" case (squircle
- *   aluminum armor with a flat top), fully ROUND 1.47" 480x480 sAMOLED under
- *   a flat crystal, two flat keys on the right edge, Dynamic Lug band mount.
+ *   aluminum armor with a flat top) carrying a RAISED round dial — the fully
+ *   round 1.47" 480x480 sAMOLED sits on a slightly protruding black puck, so
+ *   the aluminum cushion stays visible around it (unlike the Apple's
+ *   edge-to-edge crystal). Two flat keys on the right edge; the Dynamic Lug
+ *   band is nearly case-wide where it attaches and tapers around the wrist.
  *
- * The wristband is worn: a closed teardrop loop behind the case (product
- * photos show ~72 mm tall x ~62 mm deep for the Sport Band, tapering ~45%
- * toward the back), with the case riding on the loop's front arc.
+ * The wristband is worn: a closed loop that hugs an invisible wrist directly
+ * behind the case (product photos show the strap peeking only a few mm past
+ * the case outline, wrist oval ~55 x 40 mm). It leaves the case through the
+ * band slots in the top/bottom edges rather than wrapping around the back.
  *
  * This is pure, renderer-agnostic data: the 3D model consumes it today and a
  * future 2D (CSS/SVG) renderer can consume the same numbers.
@@ -29,6 +34,8 @@ export interface WatchSpec {
   body: { width: number; height: number; depth: number; radius: number; bevel: number }
   /** Cover crystal. For the round Galaxy display width==height and radius==width/2. */
   glass: { width: number; height: number; radius: number }
+  /** Raised round dial puck under the crystal (Galaxy cushion design only). */
+  dial?: { radius: number; height: number }
   /** Active display area. Content you pass as children maps onto this rect. */
   display: { width: number; height: number; radius: number }
   /** Default CSS px width of the virtual display (the logical pt/dp grid). */
@@ -38,13 +45,17 @@ export interface WatchSpec {
   /** Flat keys on the right edge: Apple's side button, Galaxy's two keys. */
   buttons: { y: number; length: number }[]
   /**
-   * Wristband. The closed teardrop loop is swept behind the case as if worn:
-   * the vertical radius tapers from `ryFront` (at the case) to `ryBack`, `rz`
-   * is the depth radius around `centerZ`, and the sweep starts/ends
-   * `startAngle` degrees off the loop's front axis, buried inside the case.
+   * Wristband, worn as a closed loop hugging the wrist right behind the case.
+   * `width` is the strap width where it leaves the case; `backWidth` lets the
+   * strap taper toward the far side of the wrist (Galaxy's Dynamic Lug band).
+   * The loop is an ovoid: vertical radius eases from `ryFront` (at the case)
+   * to `ryBack`, `rz` is the depth radius around `centerZ`, and the sweep
+   * starts/ends `startAngle` degrees off the loop's front axis so the strap
+   * ends stay buried inside the case, emerging through the band slots.
    */
   band: {
     width: number
+    backWidth?: number
     thickness: number
     loop: { ryFront: number; ryBack: number; rz: number; centerZ: number; startAngle: number }
   }
@@ -62,7 +73,7 @@ const SERIES_11: WatchSpec = {
   band: {
     width: 1.27,
     thickness: 0.165,
-    loop: { ryFront: 2.0, ryBack: 1.2, rz: 1.35, centerZ: -1.2, startAngle: 25 },
+    loop: { ryFront: 1.62, ryBack: 1.3, rz: 1.0, centerZ: -0.72, startAngle: 32 },
   },
 }
 
@@ -70,17 +81,19 @@ const SERIES_11: WatchSpec = {
 const GALAXY_WATCH_8: WatchSpec = {
   style: 'galaxy',
   body: { width: 2.469, height: 2.599, depth: 0.486, radius: 0.92, bevel: 0.13 },
-  glass: { width: 2.2, height: 2.2, radius: 1.1 },
-  display: { width: 2.108, height: 2.108, radius: 1.054 },
+  glass: { width: 2.18, height: 2.18, radius: 1.09 },
+  dial: { radius: 1.09, height: 0.07 },
+  display: { width: 2.0, height: 2.0, radius: 1.0 },
   resolution: 240,
   buttons: [
     { y: 0.36, length: 0.54 },
     { y: -0.32, length: 0.54 },
   ],
   band: {
-    width: 1.13,
-    thickness: 0.15,
-    loop: { ryFront: 2.0, ryBack: 1.2, rz: 1.35, centerZ: -1.2, startAngle: 27 },
+    width: 1.9,
+    backWidth: 1.2,
+    thickness: 0.14,
+    loop: { ryFront: 1.55, ryBack: 1.28, rz: 0.95, centerZ: -0.62, startAngle: 36 },
   },
 }
 

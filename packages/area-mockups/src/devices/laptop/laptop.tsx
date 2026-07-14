@@ -291,12 +291,13 @@ export function Laptop({
           <Keys />
         </group>
 
-        {/* trackpad: flush glass with a hairline seam around it */}
+        {/* trackpad: flush glass with a hairline seam around it. Same finish as
+            the deck — a glossier material here reads as a bright sticker */}
         <mesh geometry={trackpadRimGeometry} rotation-x={-Math.PI / 2} position={[0, deckY + 0.0015, trackpad.offsetZ]}>
-          <meshPhysicalMaterial color="#101216" metalness={0.3} roughness={0.5} />
+          <meshPhysicalMaterial color="#5c5f66" metalness={0.4} roughness={0.5} />
         </mesh>
         <mesh geometry={trackpadGeometry} rotation-x={-Math.PI / 2} position={[0, deckY + 0.003, trackpad.offsetZ]}>
-          <meshPhysicalMaterial color={color} metalness={0.75} roughness={0.22} />
+          <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.36} clearcoat={0.4} clearcoatRoughness={0.3} />
         </mesh>
 
         {/* thumb scoop: the shallow opening recess on the front edge of the deck */}

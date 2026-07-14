@@ -197,7 +197,7 @@ export function MockupCanvas({
       <directionalLight position={[6, 8, 6]} intensity={0.6} />
 
       {environment && (
-        <Environment resolution={256}>
+        <Environment resolution={512}>
           {/* A tiny procedural light studio, rendered once into an env map. */}
           <Lightformer form="rect" intensity={5} position={[0, 6, -9]} scale={[12, 12, 1]} />
           <Lightformer
