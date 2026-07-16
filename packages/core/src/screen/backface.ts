@@ -1,0 +1,31 @@
+import type { Camera, Object3D } from 'three'
+import { Quaternion, Vector3 } from 'three'
+
+/**
+ * Hide the DOM screen whenever its plane faces away from the camera.
+ *
+ * CSS backface-visibility can't see the HTML bridge's transform chain, and two
+ * overlapping DOM planes (a card's front and back) otherwise paint in DOM
+ * order — the reverse face would bleed through, mirrored. Hiding the plane
+ * whenever its normal points away from the camera is deterministic and also
+ * covers `occlude: false` setups.
+ *
+ * Bindings call the returned function once per frame with the screen's anchor
+ * object, its content element, and the active camera.
+ */
+export type BackfaceCuller = (anchor: Object3D, content: HTMLElement, camera: Camera) => void
+
+export function createBackfaceCuller(): BackfaceCuller {
+  // Scratch values reused across frames — no per-frame allocation.
+  const n = new Vector3()
+  const p = new Vector3()
+  const q = new Quaternion()
+  return (anchor, content, camera) => {
+    anchor.getWorldQuaternion(q)
+    anchor.getWorldPosition(p)
+    n.set(0, 0, 1).applyQuaternion(q)
+    p.subVectors(camera.position, p)
+    const visibility = n.dot(p) > 0 ? '' : 'hidden'
+    if (content.style.visibility !== visibility) content.style.visibility = visibility
+  }
+}
