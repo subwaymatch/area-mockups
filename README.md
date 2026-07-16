@@ -30,10 +30,16 @@ export function Hero() {
 
 ## Monorepo layout
 
-| Path | What it is |
-| --- | --- |
-| [`packages/area-mockups`](packages/area-mockups) | The publishable npm package |
-| [`apps/docs`](apps/docs) | Next.js docs & live demos site |
+| Path | npm name | What it is |
+| --- | --- | --- |
+| [`packages/core`](packages/core) | `@area-mockups/core` | Framework-agnostic core: device/object specs, geometry math, screen & stage behaviors (depends on `three` only) |
+| [`packages/react`](packages/react) | `area-mockups` | The React binding — the publishable npm package (bundles the core) |
+| [`apps/docs`](apps/docs) | — | Next.js docs & live demos site |
+
+The project is structured so more framework bindings can be added later —
+`@area-mockups/svelte` (Threlte) and `@area-mockups/vue` (TresJS) are the planned next
+ones — all sharing the same core. See [ARCHITECTURE.md](ARCHITECTURE.md) for the
+layering rule and the step-by-step guide to adding a binding.
 
 ## Development
 
@@ -49,11 +55,12 @@ npm run typecheck  # typechecks both workspaces
 ## Publishing the package
 
 ```bash
-cd packages/area-mockups
+cd packages/react
 npm publish
 ```
 
-The `prepare` script builds `dist/` automatically before publish.
+The `prepare` script builds `dist/` automatically before publish. The core is bundled
+into `area-mockups`, so it does not need to be published separately.
 
 ## License
 

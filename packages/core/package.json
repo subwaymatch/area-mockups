@@ -1,0 +1,56 @@
+{
+  "name": "@area-mockups/core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic core for area-mockups: device/object specs, geometry math, and the screen & stage behaviors shared by every framework binding.",
+  "keywords": [
+    "threejs",
+    "3d",
+    "mockup",
+    "device",
+    "phone",
+    "smartphone",
+    "webgl",
+    "gpu"
+  ],
+  "license": "MIT",
+  "author": "subwaymatch",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subwaymatch/area-mockups.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/subwaymatch/area-mockups#readme",
+  "bugs": {
+    "url": "https://github.com/subwaymatch/area-mockups/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepare": "tsup"
+  },
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.1",
+    "three": "^0.185.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
