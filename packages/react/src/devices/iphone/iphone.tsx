@@ -218,11 +218,13 @@ export function IPhone({
     () => (spec.logo ? createLogoGeometry('apple', spec.logo.width, spec.logo.height) : null),
     [spec.logo]
   )
-  const logoColor = React.useMemo(() => {
-    const c = new THREE.Color(color)
-    const luminance = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
-    return `#${c.lerp(new THREE.Color(luminance > 0.4 ? '#000000' : '#ffffff'), 0.14).getHexString()}`
-  }, [color])
+  // Always a touch darker than the glass with a mirror-gloss finish: on dark
+  // bodies the retail inlay reads darker still, only GLINTING lighter as it
+  // catches light — never a flat lighter gray.
+  const logoColor = React.useMemo(
+    () => `#${new THREE.Color(color).lerp(new THREE.Color('#000000'), 0.15).getHexString()}`,
+    [color]
+  )
   React.useEffect(() => () => logoGeometry?.dispose(), [logoGeometry])
 
   React.useEffect(() => {
@@ -300,7 +302,7 @@ export function IPhone({
             wall, blue-coated glass, glint */}
         {rearCamera.lenses.map(({ x, y, r, h, pupil }, i) => (
           <group key={i} position={[x, y, -pedestalTop]}>
-            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} element="#0d1524" pupil={pupil} />
+            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} element="#0d1524" pupil={pupil} matte />
           </group>
         ))}
 
@@ -342,11 +344,11 @@ export function IPhone({
           >
             <meshPhysicalMaterial
               color={logoColor}
-              metalness={0.5}
-              roughness={0.12}
+              metalness={0.55}
+              roughness={0.08}
               clearcoat={1}
-              clearcoatRoughness={0.08}
-              envMapIntensity={1.15}
+              clearcoatRoughness={0.05}
+              envMapIntensity={1.2}
               polygonOffset
               polygonOffsetFactor={-1}
             />

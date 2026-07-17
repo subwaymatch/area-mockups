@@ -92,13 +92,21 @@ export function DeviceScreen({
   const occludeMeshes = Array.isArray(occlude) ? occlude : undefined
   useFrame(({ camera }) => {
     if (!anchorRef.current || !contentRef.current) return
-    cullBackface(anchorRef.current, contentRef.current, camera)
+    const content = contentRef.current
+    cullBackface(anchorRef.current, content, camera)
     if (
       occludeMeshes?.length &&
-      contentRef.current.style.visibility !== 'hidden' &&
+      content.style.visibility !== 'hidden' &&
       occlusionBlocked(anchorRef.current, width, height, occludeMeshes, camera)
     ) {
-      contentRef.current.style.visibility = 'hidden'
+      content.style.visibility = 'hidden'
+    }
+    // A hidden screen must never intercept pointers either — user content can
+    // re-enable its own `visibility`, which would silently eat drags on the
+    // device's back (visibility alone doesn't stop such children hit-testing).
+    const pointerEvents = content.style.visibility === 'hidden' || !interactive ? 'none' : 'auto'
+    if (content.style.pointerEvents !== pointerEvents) {
+      content.style.pointerEvents = pointerEvents
     }
   })
 

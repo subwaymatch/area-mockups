@@ -91,6 +91,7 @@ export function LensRing({
   frameColor,
   element = '#0b101e',
   pupil = 0.44,
+  matte = false,
 }: {
   r: number
   /** How far the ring wall stands proud of its mounting surface. */
@@ -106,6 +107,11 @@ export function LensRing({
    * folded periscope teles ~0.30.
    */
   pupil?: number
+  /**
+   * Matte anodized collar (the iPhones' body-color rings) instead of the
+   * polished machined metal of the Galaxy rings.
+   */
+  matte?: boolean
 }) {
   const faceZ = -proud
   // Barrel steps sink inward from just behind the bezel; on shallow rings the
@@ -123,8 +129,9 @@ export function LensRing({
         <cylinderGeometry args={[r, r * 0.97, proud + seat, 48, 1, true]} />
         <meshPhysicalMaterial
           color={frameColor}
-          metalness={0.92}
-          roughness={0.22}
+          metalness={matte ? 0.35 : 0.92}
+          roughness={matte ? 0.48 : 0.22}
+          envMapIntensity={matte ? 0.8 : 1}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -133,15 +140,29 @@ export function LensRing({
         <cylinderGeometry args={[r * 0.86, r * 0.97, 0.01, 48, 1, true]} />
         <meshPhysicalMaterial
           color={frameColor}
-          metalness={0.94}
-          roughness={0.18}
-          envMapIntensity={0.9}
+          metalness={matte ? 0.42 : 0.94}
+          roughness={matte ? 0.4 : 0.18}
+          envMapIntensity={matte ? 0.85 : 0.9}
           side={THREE.DoubleSide}
         />
       </mesh>
+      {/* anodized collars present a FLAT annular face to the camera (the
+          product shots show a wide, evenly-lit body-color ring) — the tilted
+          chamfer alone self-shadows and reads near-black from the front */}
+      {matte && (
+        <mesh rotation-y={Math.PI} position-z={faceZ - 0.0005}>
+          <ringGeometry args={[r * 0.8, r * 0.985, 48]} />
+          <meshPhysicalMaterial
+            color={frameColor}
+            metalness={0.3}
+            roughness={0.45}
+            envMapIntensity={0.9}
+          />
+        </mesh>
+      )}
       {/* matte-black bezel ring between the metal and the barrel */}
       <mesh rotation-x={Math.PI / 2} position-z={bezelZ}>
-        <cylinderGeometry args={[r * 0.6, r * 0.86, 0.006, 48, 1, true]} />
+        <cylinderGeometry args={[r * 0.6, r * (matte ? 0.8 : 0.86), 0.006, 48, 1, true]} />
         <meshPhysicalMaterial
           color="#0e0f12"
           metalness={0.2}

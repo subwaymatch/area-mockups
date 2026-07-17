@@ -9,8 +9,8 @@ videos play, iframes scroll.
   Air 13" and MacBook Pro 14" (M5), iPad Pro 13"/11" (M5), Galaxy Tab S11 / S11 Ultra, an
   Apple Watch Series 11 and a Studio Display-style 27" monitor, all procedurally generated
   at runtime. No GLB files, no
-  hosting, no pop-in — importing one device family costs 7.2–44.5 KB gzipped (the whole
-  library, 17 devices + 24 objects: 81.7 KB), peers excluded. The phone, foldable, and
+  hosting, no pop-in — importing one device family costs 7.3–44.7 KB gzipped (the whole
+  library, 17 devices + 24 objects: 82.0 KB), peers excluded. The phone, foldable, and
   laptop families carry a small CSG engine that machines their ports and speaker/mic
   holes into the chassis as real cavities; it tree-shakes away for every other mockup.
 - **True-to-device screens** — each virtual display matches the real device's logical

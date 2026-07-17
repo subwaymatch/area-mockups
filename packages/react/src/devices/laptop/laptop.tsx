@@ -313,7 +313,7 @@ export function Laptop({
   const logoColor = React.useMemo(() => {
     const c = new THREE.Color(color)
     const luminance = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
-    return `#${c.lerp(new THREE.Color(luminance > 0.4 ? '#000000' : '#ffffff'), 0.45).getHexString()}`
+    return `#${c.lerp(new THREE.Color(luminance > 0.4 ? '#000000' : '#ffffff'), 0.32).getHexString()}`
   }, [color])
   const logoGeometry = React.useMemo(
     () => createLogoGeometry('apple', spec.logo.width, spec.logo.height),
@@ -340,8 +340,18 @@ export function Laptop({
   // 90° = upright; larger angles lean the screen back, away from the viewer.
   const lidTilt = -((lidAngle - 90) * Math.PI) / 180
 
+  // Anodized aluminum needs a strong diffuse term — at high metalness any face
+  // angled away from the key light crushes to black (the lid's outer face in
+  // every rear view), where the real finish still reads as body-color metal.
   const aluminum = (
-    <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.38} clearcoat={0.4} clearcoatRoughness={0.3} />
+    <meshPhysicalMaterial
+      color={color}
+      metalness={0.5}
+      roughness={0.42}
+      clearcoat={0.4}
+      clearcoatRoughness={0.3}
+      envMapIntensity={0.9}
+    />
   )
 
   return (
@@ -487,10 +497,10 @@ export function Laptop({
         >
           <meshPhysicalMaterial
             color={logoColor}
-            metalness={0.95}
+            metalness={0.55}
             roughness={0.06}
             clearcoat={1}
-            envMapIntensity={1.4}
+            envMapIntensity={1.2}
             polygonOffset
             polygonOffsetFactor={-1}
           />

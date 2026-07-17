@@ -235,9 +235,11 @@ export function Phone({
 
   const bottomY = -body.height / 2 - 0.002
 
-  // The pill island wears a lighter tint of the colorway, like the retail back.
+  // The pill island is tone-on-tone with the back — on the retail devices it
+  // reads as a subtle seam and a slightly different sheen, never as a
+  // contrasting plate.
   const islandColor = React.useMemo(
-    () => `#${new THREE.Color(color).lerp(new THREE.Color('#ffffff'), 0.26).getHexString()}`,
+    () => `#${new THREE.Color(color).lerp(new THREE.Color('#ffffff'), 0.06).getHexString()}`,
     [color]
   )
 

@@ -284,3 +284,42 @@ Lens interiors matched to macro photography (maintainer comparison feedback):
   S26 Ultra main column [0.40/0.47/0.30] + 0.34 tele column, Z Fold 7
   [0.38/0.48/0.32], Z Flip 7 [0.44/0.39]; the iPhone Pro trio stays equal
   (three identical 48 MP Fusion modules, confirmed against Apple's render).
+
+## Follow-up pass 8 (same day)
+
+Material fixes from maintainer screenshots, a drag-regression hardening, and
+a Studio Display accuracy pass from fresh product photography:
+
+1. **Galaxy camera island no longer reads as a gray plate.** The island
+   plate is tone-on-tone with the back glass (lerp toward white dropped
+   0.26 → 0.06), so the rings sit directly on the colorway like the retail
+   S26 backs.
+2. **iPhone lens collars are matte anodized, not shiny orange.** `LensRing`
+   gained a `matte` mode used by every iPhone: low-metalness anodized wall +
+   chamfer and a new FLAT annular collar face presented to the camera — the
+   tilted chamfer alone self-shadowed and read near-black/orange-glossy
+   where Apple's photos show an evenly-lit body-color ring.
+3. **Apple badge color matched across devices.** The iPhone badge is always
+   a touch darker than the glass (15% toward black) with a mirror-gloss
+   finish whose metalness was tuned down (0.85 → 0.55) so light bodies show
+   the polished-silver read instead of crushing to black; the MacBook lid
+   badge got the same treatment. The shared `aluminum` laptop material also
+   dropped metalness (0.85 → 0.5, env 0.9) — a silver lid seen from behind
+   now reads as light aluminum instead of charcoal (any face angled off the
+   key light used to crush dark).
+4. **Back-of-device drag hardening.** Could not reproduce a hard failure
+   (scripted back-drag vs background-drag both rotate), but `DeviceScreen`
+   now force-syncs `pointerEvents: none` on hidden screens every frame —
+   user screen content that re-enables its own `visibility` could otherwise
+   silently intercept drags aimed at the device's back.
+5. **Studio Display rebuilt against the current product page.** Pulled the
+   March-2026 imagery (front hero, rear lifestyle, tilt-stand side view) and
+   measured: stand widened 1.08 → 1.32 u, thinned 0.1 → 0.07 u, lean 32° →
+   13°, hinge dropped to 76% down the back with larger machined side caps;
+   the cable hole is a real CIRCLE (r 0.195) straddling the enclosure's
+   bottom edge with open air behind it (black recess deleted); the foot
+   protrudes 0.55 u forward on rubber pads; the camera dot shrank to the
+   barely-there retail size; the speaker grille moved to the bottom edge;
+   and the generation's gloss-black Apple mark now sits centered on the
+   upper back. Docs copy + size tables synced (`MonitorMockup` 7.2 → 9.4 KB
+   gzip for the logo geometry).
