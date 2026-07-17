@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { WATCH_VARIANTS, type WatchVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -78,7 +79,7 @@ export function Watch({
   const { body, glass, display, crown, buttons, band } = spec
   const res = resolution ?? spec.resolution
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   // Squircle / cushion case: extruded rounded-rect with a deep bevel for the
   // curved sides (the Galaxy cushion is the same construction, wider and

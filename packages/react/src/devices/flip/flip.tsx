@@ -16,6 +16,7 @@ import {
   USB_CUT_DEPTH,
 } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -131,7 +132,7 @@ export function Flip({
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(state.resolution * (landscape ? aspect : 1))
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   const openBody = spec.open.body
   const half = spec.closed.body

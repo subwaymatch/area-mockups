@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { TABLET_VARIANTS, type TabletVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -82,7 +83,7 @@ export function Tablet({
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(spec.resolution * (landscape ? aspect : 1))
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
   const isPad = rearCamera.style === 'pod'
 
   const bodyGeometry = React.useMemo(() => {

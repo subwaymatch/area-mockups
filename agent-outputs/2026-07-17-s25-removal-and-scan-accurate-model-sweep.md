@@ -182,3 +182,52 @@ looks 'flat'." Decals are gone — every port and hole is now a real cavity:
   (6.3 KB and down); whole library 79.5 KB gzip. Tables updated in
   `devices.mdx` and the react README — accepted per the maintainer's standing
   accuracy-over-size preference.
+
+## Follow-up pass 5 (same day)
+
+Six maintainer requests in one sweep:
+
+1. **`freeRotation` prop (default: limited).** The always-on 360° tumble is
+   now opt-in: `TumbleOrbit` gained polar limits (the classic 0.5..π−0.5
+   clamp, restored as the default via `ORBIT`), `TumbleControls` and
+   `MockupCanvas` (and therefore every `*Mockup` wrapper) expose
+   `freeRotation?: boolean`. Turning limits back on reconciles an
+   upside-down camera into range and snaps up back to world-up. Docs-only
+   toggle: `withPreviewControls` now wraps every live demo with a small
+   "360°" pill (bottom-left) that flips the prop — not part of the npm
+   package.
+2. **Cross-device screen bleed-through fixed.** Screens occluded only against
+   their own body, so a second device's screen showed through the first's
+   back, and the MacBook's screen pierced its own base at low rear angles. A
+   per-scene occluder registry (`useScreenOccluders`) now collects every
+   mockup's chassis meshes, and `DeviceScreen` replaced drei's single
+   center-ray occlusion with a 5-sample (center + inset corners) raycast
+   against all of them — machined chassis geometries carry a `MeshBVH` from
+   the CSG pass so the rays cost microseconds; small object mockups fall back
+   to three's raycast and don't bundle the BVH code.
+3. **Protruding "hole" artifact diagnosed and fixed.** A browser-side mesh
+   sweep traced the light tab under the S26's bottom edge to the SIM tray:
+   a drei `RoundedBox` whose corner radius (0.03) exceeded the plate's
+   half-thickness (0.004), ballooning a 0.2 mm inlay into a ~5 mm slab that
+   bulged out of the edge. The tray is now a thin extruded stadium plate;
+   a repo-wide audit found and fixed one more violation (the Studio
+   Display's port row).
+4. **Camera lenses darkened to match hardware.** The shared `LensRing` barrel
+   funnel was rendering silver under the studio env; it's now near-black, and
+   a smoked cover-glass disc (dark, glossy, semi-transparent) seals the bore
+   under the chamfer — the whole interior reads deep black with one soft
+   window reflection, like the Z Fold 7 press photos, across every device
+   using the ring.
+5. **Apple badge restored on the Pros.** The badge was buried beneath the
+   raised Ceramic Shield back window on the Pro/Pro Max (placed at bare-glass
+   depth); it now clears the window's outer face.
+6. **Docs: every variant demoed on its device page.** New registry demos +
+   sections for iPhone 17 and Pro Max, Galaxy S26 Ultra portrait, iPad
+   Pro 11" and Galaxy Tab S11 (laptop, fold, flip, and watch pages already
+   covered all variants).
+
+Verified with scripted drags (clamped by default; over-the-pole with the
+toggle; reconciliation on toggle-off), low-angle sweeps for the SIM/lens
+fixes, and side-by-side + behind-below scenes for the occlusion fixes. Sizes
+re-measured: screened mockups +~0.7 KB gzip for the occlusion work; whole
+library 80.3 KB gzip.

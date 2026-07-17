@@ -3,6 +3,7 @@ import type * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
 import { BROCHURE } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -70,7 +71,7 @@ export function Brochure({
     React.useRef<THREE.Mesh>(null!),
     React.useRef<THREE.Mesh>(null!),
   ]
-  const occludeRefs = React.useMemo(() => refs, refs)
+  const occludeRefs = useScreenOccluders(...refs)
 
   // Zig-zag accordion: panel yaws alternate +a, -a, +a, hinged edge to edge.
   // Chaining the hinges keeps every panel center on z = 0, so the brochure

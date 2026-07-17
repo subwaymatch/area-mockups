@@ -7,6 +7,7 @@ import { createWordmarkTexture } from '../wordmark'
 import { createLogoGeometry } from '../logos'
 import { UsbC, EdgeSocket, cutGeometry, stadiumCutter, holeCutter } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -236,7 +237,7 @@ export function Laptop({
   const lidAngle = openAngle ?? spec.openAngle
   const baseRef = React.useRef<THREE.Mesh>(null!)
   const lidRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [lidRef, baseRef], [])
+  const occludeRefs = useScreenOccluders(lidRef, baseRef)
 
   // Base chassis: the slab is baked into its resting orientation (footprint in
   // XZ) so every side-wall port opening can be machined out of it in place —

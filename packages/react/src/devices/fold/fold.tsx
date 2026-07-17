@@ -16,6 +16,7 @@ import {
   USB_CUT_DEPTH,
 } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -101,7 +102,7 @@ export function Fold({
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(state.resolution * (landscape ? aspect : 1))
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   // Chassis: an extruded rounded-rect with beveled edges, inset by the bevel so
   // the final silhouette lands exactly on the spec body. The pose's bottom-edge

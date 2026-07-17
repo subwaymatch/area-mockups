@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { VAN } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -184,7 +185,7 @@ export function Van({
 }: VanProps) {
   const { body, rockerY, wheels, profile, wrap, rear: rearSpec } = VAN
   const shellRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [shellRef], [])
+  const occludeRefs = useScreenOccluders(shellRef)
 
   // The side rect the DeviceScreens cover: the classic mid-panel, or the
   // whole side elevation with the hardware carved out via clip-path.

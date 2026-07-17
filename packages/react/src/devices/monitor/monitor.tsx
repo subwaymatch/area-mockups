@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { MONITOR } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -69,7 +70,7 @@ export function Monitor({
 }: MonitorProps) {
   const { body, glass, display, stand, standHeight } = MONITOR
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
@@ -266,7 +267,7 @@ export function Monitor({
         <RoundedBox
           key={i}
           args={[0.11, 0.042, 0.02]}
-          radius={0.018}
+          radius={0.008}
           position={[body.width / 2 - 0.7 - i * 0.2, -body.height / 2 + 0.42, -body.depth / 2 - 0.004]}
         >
           <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />

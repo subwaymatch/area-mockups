@@ -24,12 +24,16 @@ export const CONTACT_SHADOW = { opacity: 0.45, scale: 13, blur: 2.6, far: 4.5 } 
 
 /**
  * Rotation feel shared by all mockups: pan stays disabled (the axis is always
- * the stage center) and motion is damped. Rotation itself is a full,
- * unclamped 360° tumble in every direction — see `TumbleOrbit`.
+ * the stage center) and motion is damped. By default vertical rotation stays
+ * within the classic polar clamp below; opting into free rotation removes the
+ * clamp for a full 360° tumble in every direction — see `TumbleOrbit`.
  */
 export const ORBIT = {
   enablePan: false,
   dampingFactor: 0.08,
+  /** Default polar clamp (radians from the top pole) when free rotation is off. */
+  minPolarAngle: 0.5,
+  maxPolarAngle: Math.PI - 0.5,
 } as const
 
 /** Camera distance from the origin, or the stage default if none is configured. */

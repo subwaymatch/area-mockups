@@ -180,6 +180,11 @@ const DEMOS: Record<string, React.ReactNode> = {
       <MusicPlayer />
     </PhoneMockup>
   ),
+  'phone-s26ultra': (
+    <PhoneMockup variant="s26ultra" color="#a9bdce" frameColor="#c2ccd7" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </PhoneMockup>
+  ),
 
   // ---- Fold (Galaxy Z Fold 7) ---------------------------------------------
   'fold-open': (
@@ -206,8 +211,18 @@ const DEMOS: Record<string, React.ReactNode> = {
   ),
 
   // ---- IPhone ---------------------------------------------------------------
+  'iphone-17': (
+    <IPhoneMockup variant="17" color="#cfc4e6" frameColor="#b9aed3" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </IPhoneMockup>
+  ),
   'iphone-pro': (
     <IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
+      <MusicPlayer />
+    </IPhoneMockup>
+  ),
+  'iphone-promax': (
+    <IPhoneMockup variant="promax" color="#2b3a55" frameColor="#3d4d6b" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <MusicPlayer />
     </IPhoneMockup>
   ),
@@ -247,6 +262,16 @@ const DEMOS: Record<string, React.ReactNode> = {
   // ---- Tablet -------------------------------------------------------------------
   'tablet-landscape': (
     <TabletMockup orientation="landscape" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ipadpro11': (
+    <TabletMockup variant="ipadpro11" color="#e3e4e6" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-tabs11': (
+    <TabletMockup variant="tabs11" color="#4b4f56" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <DesktopScreen />
     </TabletMockup>
   ),

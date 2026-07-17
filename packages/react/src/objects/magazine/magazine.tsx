@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { MAGAZINE } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -57,7 +58,7 @@ export function Magazine({
 }: MagazineProps) {
   const { body, cover } = MAGAZINE
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   const backGeometry = React.useMemo(
     () =>

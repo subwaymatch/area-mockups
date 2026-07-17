@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { MAILER_BOX } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -61,7 +62,7 @@ export function MailerBox({
 }: MailerBoxProps) {
   const { body, tape } = MAILER_BOX
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
   const pxPerUnit = resolution / body.width
 
   // DOM tape overlay: a translucent band with edge shadows, so it reads as

@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { GALAXY_VARIANTS, type GalaxyVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
@@ -18,6 +17,7 @@ import {
 
 type GroupProps = ThreeElements['group']
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the phone screen: React components, an <iframe>, a <video>… */
@@ -99,7 +99,7 @@ export function Phone({
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(spec.resolution * (landscape ? aspect : 1))
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   // Chassis: an extruded rounded-rect with beveled edges. The shape is inset by
   // the bevel size so the final silhouette lands exactly on the spec body. The
@@ -180,6 +180,17 @@ export function Phone({
     [spec.logo]
   )
 
+  // SIM tray: a thin stadium plate whose rounded ends lie in the edge plane —
+  // a RoundedBox can't do that at this aspect (its all-edge radius would
+  // balloon a 0.2 mm plate into a thick slab bulging out of the edge).
+  const simGeometry = React.useMemo(
+    () =>
+      spec.bottomEdge?.sim
+        ? stadiumCutter(spec.bottomEdge.sim.width, spec.bottomEdge.sim.height, 0.004)
+        : null,
+    [spec.bottomEdge]
+  )
+
   React.useEffect(() => {
     return () => {
       bodyGeometry.dispose()
@@ -187,8 +198,9 @@ export function Phone({
       backGeometry.dispose()
       islandGeometry?.dispose()
       logoGeometry?.dispose()
+      simGeometry?.dispose()
     }
-  }, [bodyGeometry, glassGeometry, backGeometry, islandGeometry, logoGeometry])
+  }, [bodyGeometry, glassGeometry, backGeometry, islandGeometry, logoGeometry, simGeometry])
 
   // CSS px per world unit for the virtual display overlay.
   const pxPerUnit = res / (landscape ? display.height : display.width)
@@ -348,15 +360,14 @@ export function Phone({
             {spec.bottomEdge.mics?.map(({ x, r }, i) => (
               <EdgeSocket key={i} position={[x, -body.height / 2, 0]} r={r} depth={0.05} lip={0.008} />
             ))}
-            {spec.bottomEdge.sim && (
-              <RoundedBox
-                args={[spec.bottomEdge.sim.width, 0.008, spec.bottomEdge.sim.height]}
-                radius={Math.min(0.03, spec.bottomEdge.sim.height / 2 - 0.002)}
-                position={[spec.bottomEdge.sim.x, bottomY + 0.005, 0]}
+            {spec.bottomEdge.sim && simGeometry && (
+              <mesh
+                geometry={simGeometry}
+                position={[spec.bottomEdge.sim.x, -body.height / 2 + 0.002, 0]}
               >
                 {/* the SIM tray is frame-toned metal — only its seam reads dark */}
                 <meshStandardMaterial color="#15181d" transparent opacity={0.35} roughness={0.5} />
-              </RoundedBox>
+              </mesh>
             )}
             {spec.bottomEdge.penCap && (
               <group position={[spec.bottomEdge.penCap.x, bottomY, 0]}>

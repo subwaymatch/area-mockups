@@ -15,19 +15,34 @@ export interface TumbleControlsProps {
   /** Slowly spin the stage. */
   autoRotate?: boolean
   autoRotateSpeed?: number
+  /**
+   * Allow the camera to tumble a full 360° vertically — straight over the top
+   * and bottom of the stage. Off by default: vertical rotation stays within
+   * the classic orbit clamp.
+   */
+  freeRotation?: boolean
   minDistance?: number
   maxDistance?: number
 }
 
 /**
- * Drag-to-rotate camera controls with full 360° freedom in every direction:
- * horizontal drags spin the turntable, vertical drags tumble straight over
- * the top and bottom (no pole clamp), and the rotation axis stays at the
- * stage center. Damping, auto-rotation and zoom match the classic orbit feel.
+ * Drag-to-rotate camera controls: horizontal drags spin the turntable,
+ * vertical drags tilt within the classic polar clamp — or, with
+ * `freeRotation`, tumble straight over the top and bottom with no pole clamp.
+ * The rotation axis always stays at the stage center; damping, auto-rotation
+ * and zoom match the classic orbit feel.
  */
 export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleControlsProps>(
   function TumbleControls(
-    { enabled = true, zoom = false, autoRotate = false, autoRotateSpeed = 1, minDistance, maxDistance },
+    {
+      enabled = true,
+      zoom = false,
+      autoRotate = false,
+      autoRotateSpeed = 1,
+      freeRotation = false,
+      minDistance,
+      maxDistance,
+    },
     ref
   ) {
     const camera = useThree((state) => state.camera)
@@ -38,6 +53,11 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
       if (minDistance !== undefined) orbit.minDistance = minDistance
       if (maxDistance !== undefined) orbit.maxDistance = maxDistance
     }, [orbit, minDistance, maxDistance])
+    React.useEffect(() => {
+      orbit.setPolarLimits(
+        freeRotation ? null : { min: ORBIT.minPolarAngle, max: ORBIT.maxPolarAngle }
+      )
+    }, [orbit, freeRotation])
 
     React.useImperativeHandle(
       ref,

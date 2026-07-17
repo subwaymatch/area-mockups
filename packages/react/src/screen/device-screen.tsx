@@ -12,6 +12,7 @@ import {
   screenSurfaceStyle,
   type ScreenRadius,
 } from '@area-mockups/core'
+import { createScreenOcclusionTester } from './occluders'
 
 export type { ScreenRadius }
 
@@ -80,13 +81,24 @@ export function DeviceScreen({
   React.useEffect(() => () => dragHandoff.dispose(), [dragHandoff])
 
   // Backface culling for the DOM plane — hide it whenever its normal points
-  // away from the camera (CSS backface-visibility can't see drei's chain).
+  // away from the camera (CSS backface-visibility can't see drei's chain) —
+  // plus multi-sample raycast occlusion against every registered body in the
+  // scene: one ray to the center (what drei checks) lets a partially covered
+  // screen pierce through chassis edges and neighboring devices.
   const anchorRef = React.useRef<Group>(null!)
   const contentRef = React.useRef<HTMLDivElement>(null!)
   const cullBackface = React.useMemo(() => createBackfaceCuller(), [])
+  const occlusionBlocked = React.useMemo(() => createScreenOcclusionTester(), [])
+  const occludeMeshes = Array.isArray(occlude) ? occlude : undefined
   useFrame(({ camera }) => {
-    if (anchorRef.current && contentRef.current) {
-      cullBackface(anchorRef.current, contentRef.current, camera)
+    if (!anchorRef.current || !contentRef.current) return
+    cullBackface(anchorRef.current, contentRef.current, camera)
+    if (
+      occludeMeshes?.length &&
+      contentRef.current.style.visibility !== 'hidden' &&
+      occlusionBlocked(anchorRef.current, width, height, occludeMeshes, camera)
+    ) {
+      contentRef.current.style.visibility = 'hidden'
     }
   })
 
@@ -101,7 +113,7 @@ export function DeviceScreen({
     <group ref={anchorRef} position={position} rotation={rotation}>
       <Html
         transform
-        occlude={occlude}
+        occlude={occlude === 'blending' ? 'blending' : undefined}
         distanceFactor={screenDistanceFactor(width, resolution)}
         zIndexRange={[10, 0]}
         wrapperClass={screenLayerClass(dragToRotate)}

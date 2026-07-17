@@ -65,11 +65,17 @@ function OverlayIcon({ path }: { path: string }) {
 export interface MockupCanvasProps {
   /** Your scene — typically a device such as `<Phone>`. */
   children: React.ReactNode
-  /** Drag-to-rotate controls — full 360° tumble in every direction, axis at the stage center. */
+  /** Drag-to-rotate controls, axis at the stage center. */
   controls?: boolean
   /** Slowly orbit the camera around the device. */
   autoRotate?: boolean
   autoRotateSpeed?: number
+  /**
+   * Allow the camera to rotate a full 360° vertically — straight over the top
+   * and bottom of the device. Off by default: vertical rotation stays within
+   * the classic orbit clamp so the device never flips upside down by accident.
+   */
+  freeRotation?: boolean
   /**
    * Zoom controls: pinch on touch, scroll wheel on desktop, plus overlay
    * +/− buttons. Off by default so an embedded mockup never hijacks page
@@ -116,6 +122,7 @@ export function MockupCanvas({
   controls = true,
   autoRotate = false,
   autoRotateSpeed = 1,
+  freeRotation = false,
   zoom = false,
   fullscreen = false,
   shadows = true,
@@ -199,6 +206,7 @@ export function MockupCanvas({
           zoom={zoom}
           autoRotate={autoRotate}
           autoRotateSpeed={autoRotateSpeed}
+          freeRotation={freeRotation}
           minDistance={orbitRange.min}
           maxDistance={orbitRange.max}
         />

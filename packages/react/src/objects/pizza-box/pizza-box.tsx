@@ -3,6 +3,7 @@ import type * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
 import { PIZZA_BOX } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -109,7 +110,7 @@ export function PizzaBox({
   const { body, lid, bevel: bev, chamfer, openLean, pizza: pie, front: frontSpec, bevelFace } = PIZZA_BOX
   const lidRef = React.useRef<THREE.Mesh>(null!)
   const trayRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [lidRef, trayRef], [])
+  const occludeRefs = useScreenOccluders(lidRef, trayRef)
 
   const kraft = { color, metalness: 0, roughness: 0.85 }
   const kraftInside = { color: '#e4d4b4', metalness: 0, roughness: 0.9 }

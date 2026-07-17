@@ -16,6 +16,7 @@ import {
   USB_CUT_DEPTH,
 } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -99,7 +100,7 @@ export function IPhone({
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(spec.resolution * (landscape ? aspect : 1))
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   // Chassis: an extruded rounded-rect with lightly beveled edges — the flat
   // aluminum/titanium frame. The shape is inset by the bevel size so the final
@@ -315,9 +316,14 @@ export function IPhone({
           </mesh>
         ))}
 
-        {/* Apple badge */}
+        {/* Apple badge — on the Pros it sits ON the raised Ceramic Shield
+            window, so it must clear that panel's outer face, not the bare glass */}
         {spec.logo && logoGeometry && (
-          <mesh geometry={logoGeometry} rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0085]}>
+          <mesh
+            geometry={logoGeometry}
+            rotation-y={Math.PI}
+            position={[0, spec.logo.y, -body.depth / 2 - (backWindow ? 0.021 : 0.0085)]}
+          >
             <meshPhysicalMaterial
               transparent
               opacity={0.6}

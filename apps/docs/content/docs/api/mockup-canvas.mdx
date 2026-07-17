@@ -1,6 +1,6 @@
 ---
 title: MockupCanvas
-description: The ready-made stage, with a WebGL canvas, studio lighting, soft shadows, and free 360° tumble controls.
+description: The ready-made stage, with a WebGL canvas, studio lighting, soft shadows, and drag-to-rotate controls.
 ---
 
 `<MockupCanvas>` wraps a react-three-fiber `Canvas` with everything a product
@@ -27,7 +27,8 @@ One canvas, two bare devices, one shared studio light rig and shadow plane.
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `children` | `ReactNode` | - | Your scene, typically a device such as `Phone`. |
-| `controls` | `boolean` | `true` | Drag-to-rotate controls: full 360° tumble in every direction — vertical drags continue straight over the top — with the axis fixed at the stage center (pan is always disabled). |
+| `controls` | `boolean` | `true` | Drag-to-rotate controls with the axis fixed at the stage center (pan is always disabled). Vertical rotation stays within the classic orbit clamp by default. |
+| `freeRotation` | `boolean` | `false` | Allow the camera to rotate a full 360° vertically — vertical drags continue straight over the top and bottom of the device instead of clamping. |
 | `autoRotate` | `boolean` | `false` | Slowly spin the camera around the device. |
 | `autoRotateSpeed` | `number` | `1` | Spin speed when `autoRotate` is on. |
 | `zoom` | `boolean` | `false` | Pinch zoom on touch, scroll-wheel zoom on desktop, plus overlay +/− buttons. Off by default so embedded mockups never hijack page scroll; on, the canvas owns two-finger gestures. |

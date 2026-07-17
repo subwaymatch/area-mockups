@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import { Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg'
+import { MeshBVH } from 'three-mesh-bvh'
 import { roundedRectShape } from '@area-mockups/core'
 
 /**
@@ -76,18 +77,19 @@ export function SideKey({
 
 /**
  * A machined camera lens ring, modeled on the reference scans: slightly
- * tapered body-color wall, polished chamfer, a wide charcoal barrel funnel
- * sinking to a black aperture, and a glossy domed lens element bulging at its
- * throat (its specular highlight comes free from the environment map). Mount
- * it in a group at the ring's center on the mounting surface; it builds
- * toward -z (the device back's outward direction).
+ * tapered body-color wall, polished chamfer, a near-black barrel funnel
+ * sinking to a black aperture, a glossy domed lens element at its throat —
+ * and a smoked cover-glass disc sealing the bore, so the whole interior reads
+ * dark with one soft window reflection, like the retail cameras. Mount it in
+ * a group at the ring's center on the mounting surface; it builds toward -z
+ * (the device back's outward direction).
  */
 export function LensRing({
   r,
   proud,
   seat = 0.02,
   frameColor,
-  element = '#1c2a66',
+  element = '#101c3a',
 }: {
   r: number
   /** How far the ring wall stands proud of its mounting surface. */
@@ -95,7 +97,7 @@ export function LensRing({
   /** How deep the wall sinks into the mount. */
   seat?: number
   frameColor: string
-  /** Tint of the domed lens element. */
+  /** Tint of the domed lens element (read through the smoked cover glass). */
   element?: string
 }) {
   // The funnel lives entirely within the ring's protrusion so it never sinks
@@ -126,14 +128,15 @@ export function LensRing({
           side={THREE.DoubleSide}
         />
       </mesh>
-      {/* charcoal barrel funnel, wide at the face, sinking to the aperture */}
+      {/* near-black barrel funnel, wide at the face, sinking to the aperture —
+          the real barrels are matte black, not silver */}
       <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.01 + funnelDepth / 2}>
         <cylinderGeometry args={[r * 0.3, r * 0.86, funnelDepth, 48, 1, true]} />
         <meshPhysicalMaterial
-          color="#4a4e55"
-          metalness={0.05}
-          roughness={0.6}
-          envMapIntensity={0.8}
+          color="#131417"
+          metalness={0.08}
+          roughness={0.5}
+          envMapIntensity={0.45}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -154,6 +157,22 @@ export function LensRing({
           clearcoat={1}
           clearcoatRoughness={0.03}
           envMapIntensity={1.6}
+        />
+      </mesh>
+      {/* smoked cover glass sealing the bore just under the chamfer: darkens
+          the whole interior and carries one soft, glossy window reflection */}
+      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.007}>
+        <cylinderGeometry args={[r * 0.87, r * 0.87, 0.003, 48]} />
+        <meshPhysicalMaterial
+          color="#05070c"
+          transparent
+          opacity={0.62}
+          metalness={0.1}
+          roughness={0.05}
+          clearcoat={1}
+          clearcoatRoughness={0.06}
+          envMapIntensity={1.15}
+          depthWrite={false}
         />
       </mesh>
     </group>
@@ -219,6 +238,11 @@ export function cutGeometry(
     const result = evaluator.evaluate(bodyBrush, cutterBrush, SUBTRACTION).geometry
     cutterBrush.geometry.dispose()
     base.dispose()
+    // A BVH on the machined chassis makes the screens' occlusion rays cost
+    // microseconds (the BVH library is already here for the boolean op).
+    // Untyped assignment: two hoisted copies of three-mesh-bvh's typings
+    // otherwise collide on the BufferGeometry `boundsTree` augmentation.
+    ;(result as unknown as { boundsTree: unknown }).boundsTree = new MeshBVH(result)
     return result
   } catch {
     return base
