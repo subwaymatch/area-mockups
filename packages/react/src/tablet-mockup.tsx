@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedDeviceProps = Pick<
   TabletProps,
   | 'variant'
+  | 'colorway'
   | 'orientation'
   | 'color'
   | 'screenBackground'
@@ -40,6 +41,7 @@ export interface TabletMockupProps
 export function TabletMockup({
   children,
   variant = 'ipadpro13',
+  colorway,
   orientation = 'portrait',
   color,
   screenBackground,
@@ -55,6 +57,7 @@ export function TabletMockup({
   const device = (
     <Tablet
       variant={variant}
+      colorway={colorway}
       orientation={orientation}
       color={color}
       screenBackground={screenBackground}

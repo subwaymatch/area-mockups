@@ -93,7 +93,10 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
 
         if (pointers.size === 1) {
           const height = element.clientHeight || 1
-          orbit.rotate((2 * Math.PI * dx) / height, (2 * Math.PI * dy) / height)
+          // Negative dy: dragging down carries the device's front face down
+          // with the cursor (grab-the-scene feel, like dragging sideways does),
+          // instead of tilting the opposite way.
+          orbit.rotate((2 * Math.PI * dx) / height, (-2 * Math.PI * dy) / height)
         } else if (pointers.size === 2 && zoom) {
           const [a, b] = [...pointers.values()]
           const distance = Math.hypot(a!.x - b!.x, a!.y - b!.y)
@@ -129,10 +132,14 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
       }
     }, [gl, enabled, zoom, orbit, camera])
 
+    // Priority -1: move the camera BEFORE default-priority frame callbacks —
+    // drei's <Html transform> positions the DOM screens in its own useFrame,
+    // and if the camera moves after that, the live screens visibly trail the
+    // WebGL body by one frame during fast drags.
     useFrame((_, delta) => {
       const step = autoRotate ? tumbleAutoRotateStep(delta, autoRotateSpeed) : 0
       orbit.update(camera, step)
-    })
+    }, -1)
 
     return null
   }

@@ -32,9 +32,15 @@ interface FoldRearCamera {
 }
 
 export interface FoldSpec {
-  /** Folded candy-bar: narrow, thick body with a tall cover screen. */
+  /**
+   * Folded candy-bar: two stacked slabs (`body.depth` is the whole stack)
+   * with the visible crevice of `gap` air between them, like the real folded
+   * device's side profile.
+   */
   closed: {
     body: { width: number; height: number; depth: number; radius: number; bevel: number }
+    /** Air gap between the folded halves (the crevice along the rails). */
+    gap: number
     /** Cover display (content maps here when closed). */
     display: { width: number; height: number; radius: number }
     /** Centered front-camera punch hole on the cover screen. */
@@ -68,17 +74,17 @@ export interface FoldSpec {
   hinge: { width: number; overhang: number; emboss: { length: number } }
   /**
    * Bottom-edge machining per pose (x positions in that pose's coordinates).
-   * Folded, the USB lives on the camera half (back slab) and the speaker on
-   * the cover half (front slab) — `z` places each opening on its own slab.
+   * Folded, the USB lives on the camera half (rear slab) and the speaker on
+   * the cover half (front slab) — each opening is machined into its own slab.
    */
   bottomEdge: {
     closed: {
-      usb: { x: number; width: number; height: number; z?: number }
-      speaker: { x: number; width: number; height: number; z?: number }
+      usb: { x: number; width: number; height: number }
+      speaker: { x: number; width: number; height: number }
     }
     open: {
-      usb: { x: number; width: number; height: number; z?: number }
-      speakers: { x: number; width: number; height: number; z?: number }[]
+      usb: { x: number; width: number; height: number }
+      speakers: { x: number; width: number; height: number }[]
       mics?: { x: number; r: number }[]
     }
   }
@@ -89,6 +95,8 @@ export interface FoldSpec {
 const FOLD7: FoldSpec = {
   closed: {
     body: { width: 1.942, height: 4.321, depth: 0.241, radius: 0.081, bevel: 0.018 },
+    // Scan: the folded halves sit 1.3 mm apart — the crevice along the rails.
+    gap: 0.035,
     // 65.98 x 153.03 mm cover panel, centered, sharp scan-true corners.
     display: { width: 1.8, height: 4.174, radius: 0.06 },
     punchHole: { radius: 0.053, offsetY: 0.127 },
@@ -138,8 +146,8 @@ const FOLD7: FoldSpec = {
   bottomEdge: {
     closed: {
       // Both center on the folded width but sit on different slabs of the stack.
-      usb: { x: 0, width: 0.264, height: 0.081, z: -0.069 },
-      speaker: { x: 0, width: 0.366, height: 0.045, z: 0.069 },
+      usb: { x: 0, width: 0.264, height: 0.081 },
+      speaker: { x: 0, width: 0.366, height: 0.045 },
     },
     open: {
       // USB on the camera half, speaker centered on the cover half.

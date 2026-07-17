@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { TABLET_VARIANTS, type TabletVariant } from '@area-mockups/core'
+import { TABLET_COLORWAYS, findColorway, TABLET_VARIANTS, type TabletVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -18,6 +18,11 @@ export interface TabletProps extends Omit<GroupProps, 'children' | 'color'> {
    * notch, dual camera rings).
    */
   variant?: TabletVariant
+  /**
+   * A retail colorway id from `TABLET_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /**
    * `landscape` lays the device on its side and swaps the virtual display to
    * H×W with upright content — exactly like rotating the real tablet.
@@ -68,7 +73,8 @@ export function Tablet({
   children,
   variant = 'ipadpro13',
   orientation = 'portrait',
-  color = '#3a3c40',
+  colorway,
+  color: colorProp,
   screenBackground = '#000000',
   resolution,
   interactive = true,
@@ -78,6 +84,8 @@ export function Tablet({
   ...groupProps
 }: TabletProps) {
   const spec = TABLET_VARIANTS[variant]
+  const retail = findColorway(TABLET_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#3a3c40'
   const { body, glass, display, rearCamera, stylus, notch, pogo } = spec
   const landscape = orientation === 'landscape'
   const aspect = display.height / display.width

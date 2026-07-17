@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { IPHONE_VARIANTS, type IPhoneVariant } from '@area-mockups/core'
+import { IPHONE_COLORWAYS, findColorway, IPHONE_VARIANTS, type IPhoneVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
 import {
@@ -30,6 +30,11 @@ export interface IPhoneProps extends Omit<GroupProps, 'children' | 'color'> {
    * triple-lens plateau.
    */
   variant?: IPhoneVariant
+  /**
+   * A retail colorway id from `IPHONE_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /**
    * `landscape` lays the device on its side and swaps the virtual display to
    * H×W with upright content — exactly like rotating the real phone.
@@ -83,8 +88,9 @@ export function IPhone({
   children,
   variant = '17',
   orientation = 'portrait',
-  color = '#1a1c20',
-  frameColor = '#3f434b',
+  colorway,
+  color: colorProp,
+  frameColor: frameColorProp,
   screenBackground = '#000000',
   resolution,
   dynamicIsland = true,
@@ -95,6 +101,9 @@ export function IPhone({
   ...groupProps
 }: IPhoneProps) {
   const spec = IPHONE_VARIANTS[variant]
+  const retail = findColorway(IPHONE_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#1a1c20'
+  const frameColor = frameColorProp ?? retail?.frameColor ?? '#3f434b'
   const { body, glass, display, island, rearCamera, backWindow, buttons, buttonProfile } = spec
   const landscape = orientation === 'landscape'
   const aspect = display.height / display.width
@@ -202,11 +211,18 @@ export function IPhone({
 
   // Every lens ring mounts on the pedestal face and stands `h` proud of it.
   const pedestalTop = body.depth / 2 + (rearCamera.frame.raise ?? 0.048)
-  // Apple badge — real vector geometry from the SVG.
+  // Apple badge — real vector geometry from the SVG. The retail logo is
+  // tone-on-tone in the back glass ("practically invisible in some light"):
+  // a slight tone shift plus a glossier finish, no printed color.
   const logoGeometry = React.useMemo(
     () => (spec.logo ? createLogoGeometry('apple', spec.logo.width, spec.logo.height) : null),
     [spec.logo]
   )
+  const logoColor = React.useMemo(() => {
+    const c = new THREE.Color(color)
+    const luminance = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+    return `#${c.lerp(new THREE.Color(luminance > 0.4 ? '#000000' : '#ffffff'), 0.14).getHexString()}`
+  }, [color])
   React.useEffect(() => () => logoGeometry?.dispose(), [logoGeometry])
 
   React.useEffect(() => {
@@ -325,12 +341,12 @@ export function IPhone({
             position={[0, spec.logo.y, -body.depth / 2 - (backWindow ? 0.021 : 0.0085)]}
           >
             <meshPhysicalMaterial
-              transparent
-              opacity={0.6}
-              color="#3a3d44"
-              metalness={0.9}
+              color={logoColor}
+              metalness={0.5}
               roughness={0.12}
               clearcoat={1}
+              clearcoatRoughness={0.08}
+              envMapIntensity={1.15}
               polygonOffset
               polygonOffsetFactor={-1}
             />

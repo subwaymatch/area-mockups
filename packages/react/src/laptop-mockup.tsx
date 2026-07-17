@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedDeviceProps = Pick<
   LaptopProps,
   | 'variant'
+  | 'colorway'
   | 'color'
   | 'screenBackground'
   | 'resolution'
@@ -47,6 +48,7 @@ const STAGE_OFFSET_Y = -1.15
 export function LaptopMockup({
   children,
   variant = 'air13',
+  colorway,
   color,
   screenBackground,
   resolution,
@@ -63,6 +65,7 @@ export function LaptopMockup({
   const device = (
     <Laptop
       variant={variant}
+      colorway={colorway}
       color={color}
       screenBackground={screenBackground}
       resolution={resolution}

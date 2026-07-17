@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedDeviceProps = Pick<
   FoldProps,
   | 'variant'
+  | 'colorway'
   | 'open'
   | 'orientation'
   | 'color'
@@ -48,6 +49,7 @@ export interface FoldMockupProps
 export function FoldMockup({
   children,
   variant = 'fold7',
+  colorway,
   open = true,
   orientation = 'portrait',
   color,
@@ -66,6 +68,7 @@ export function FoldMockup({
   const device = (
     <Fold
       variant={variant}
+      colorway={colorway}
       open={open}
       orientation={orientation}
       color={color}

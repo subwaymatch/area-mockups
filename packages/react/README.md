@@ -9,8 +9,8 @@ videos play, iframes scroll.
   Air 13" and MacBook Pro 14" (M5), iPad Pro 13"/11" (M5), Galaxy Tab S11 / S11 Ultra, an
   Apple Watch Series 11 and a Studio Display-style 27" monitor, all procedurally generated
   at runtime. No GLB files, no
-  hosting, no pop-in — importing one device family costs 7.0–44.1 KB gzipped (the whole
-  library, 17 devices + 24 objects: 80.3 KB), peers excluded. The phone, foldable, and
+  hosting, no pop-in — importing one device family costs 7.2–44.5 KB gzipped (the whole
+  library, 17 devices + 24 objects: 81.7 KB), peers excluded. The phone, foldable, and
   laptop families carry a small CSG engine that machines their ports and speaker/mic
   holes into the chassis as real cavities; it tree-shakes away for every other mockup.
 - **True-to-device screens** — each virtual display matches the real device's logical
@@ -89,6 +89,7 @@ Render inside any r3f `<Canvas>`. Accepts all group props (`position`, `rotation
 | `frameColor` | `string` | `'#4a4f59'` | Frame, buttons, camera rings |
 | `screenBackground` | `string` | `'#000000'` | CSS background behind your content |
 | `variant` | `'s26' \| 's26ultra'` | `'s26'` | Which Galaxy S26-family device (true relative sizes + per-model cameras) |
+| `colorway` | `string` | — | Retail colorway id (see `GALAXY_COLORWAYS` — every device family ships its catalog); presets `color`/`frameColor`, explicit props override |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device sideways and swaps the virtual display |
 | `resolution` | `number` | per variant | Virtual display width in CSS px (see resolution table) |
 | `punchHole` | `boolean` | `true` | Front-camera punch hole overlay |

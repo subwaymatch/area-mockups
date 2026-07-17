@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { MONITOR } from '@area-mockups/core'
+import { MONITOR, MONITOR_COLORWAYS, findColorway } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -12,6 +12,11 @@ type GroupProps = ThreeElements['group']
 export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the monitor: React components, an <iframe>, a <video>… */
   children?: React.ReactNode
+  /**
+   * A retail colorway id from `MONITOR_COLORWAYS` presetting the enclosure
+   * color. An explicit `color` prop overrides it.
+   */
+  colorway?: string
   /** Aluminum colorway (enclosure + stand). */
   color?: string
   /** CSS background painted behind your screen content. */
@@ -59,7 +64,8 @@ export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
  */
 export function Monitor({
   children,
-  color = '#c8cbd0',
+  colorway,
+  color: colorProp,
   screenBackground = '#000000',
   resolution = MONITOR.resolution,
   interactive = true,
@@ -68,6 +74,8 @@ export function Monitor({
   screenStyle,
   ...groupProps
 }: MonitorProps) {
+  const retail = findColorway(MONITOR_COLORWAYS, colorway)
+  const color = colorProp ?? retail?.color ?? '#c8cbd0'
   const { body, glass, display, stand, standHeight } = MONITOR
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)

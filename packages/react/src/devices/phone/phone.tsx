@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
-import { GALAXY_VARIANTS, type GalaxyVariant } from '@area-mockups/core'
+import { GALAXY_COLORWAYS, GALAXY_VARIANTS, findColorway, type GalaxyVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
 import {
@@ -29,6 +29,11 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
    * S Pen silo).
    */
   variant?: GalaxyVariant
+  /**
+   * A retail colorway id from `GALAXY_COLORWAYS` (e.g. `'icyblue'`) presetting
+   * `color` and `frameColor`. Explicit color props override it.
+   */
+  colorway?: string
   /**
    * `landscape` lays the device on its side and swaps the virtual display to
    * H×W with upright content — exactly like rotating the real phone.
@@ -81,9 +86,10 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
 export function Phone({
   children,
   variant = 's26',
+  colorway,
   orientation = 'portrait',
-  color = '#101216',
-  frameColor = '#4a4f59',
+  color: colorProp,
+  frameColor: frameColorProp,
   screenBackground = '#000000',
   resolution,
   punchHole = true,
@@ -94,6 +100,9 @@ export function Phone({
   ...groupProps
 }: PhoneProps) {
   const spec = GALAXY_VARIANTS[variant]
+  const retail = findColorway(GALAXY_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#101216'
+  const frameColor = frameColorProp ?? retail?.frameColor ?? '#4a4f59'
   const { body, glass, display, punchHole: hole, rearCamera, buttons, buttonProfile } = spec
   const landscape = orientation === 'landscape'
   const aspect = display.height / display.width
@@ -175,10 +184,17 @@ export function Phone({
   }, [rearCamera.island])
 
   // SAMSUNG wordmark on the lower back — real vector geometry from the SVG.
+  // The retail print is a low-contrast gray: mostly neutral, keeping a hint
+  // of the colorway, legible without jumping off the glass.
   const logoGeometry = React.useMemo(
     () => (spec.logo ? createLogoGeometry('samsung', spec.logo.width, spec.logo.height) : null),
     [spec.logo]
   )
+  const logoColor = React.useMemo(() => {
+    const c = new THREE.Color(color)
+    const luminance = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+    return `#${c.lerp(new THREE.Color(luminance > 0.45 ? '#14161a' : '#dfe3e9'), 0.55).getHexString()}`
+  }, [color])
 
   // SIM tray: a thin stadium plate whose rounded ends lie in the edge plane —
   // a RoundedBox can't do that at this aspect (its all-edge radius would
@@ -300,11 +316,10 @@ export function Phone({
         {spec.logo && logoGeometry && (
           <mesh geometry={logoGeometry} rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0035]}>
             <meshPhysicalMaterial
-              transparent
-              opacity={0.5}
-              color="#c8cdd6"
-              metalness={0.85}
-              roughness={0.25}
+              color={logoColor}
+              metalness={0.45}
+              roughness={0.32}
+              envMapIntensity={0.7}
               polygonOffset
               polygonOffsetFactor={-1}
             />

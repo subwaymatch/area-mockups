@@ -65,6 +65,20 @@ export {
   EXIT_FULLSCREEN_ICON_PATH,
 } from './stage/overlay'
 
+// Retail colorway catalogs (pure data) + the `colorway` prop resolver.
+export {
+  type Colorway,
+  GALAXY_COLORWAYS,
+  IPHONE_COLORWAYS,
+  FOLD_COLORWAYS,
+  FLIP_COLORWAYS,
+  LAPTOP_COLORWAYS,
+  TABLET_COLORWAYS,
+  WATCH_COLORWAYS,
+  MONITOR_COLORWAYS,
+  findColorway,
+} from './colorways'
+
 // Device specs (physical dimensions, cameras, displays — pure data).
 export * from './devices/phone/dimensions'
 export * from './devices/iphone/dimensions'

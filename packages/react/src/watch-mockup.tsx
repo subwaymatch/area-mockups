@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedDeviceProps = Pick<
   WatchProps,
   | 'variant'
+  | 'colorway'
   | 'color'
   | 'bandColor'
   | 'screenBackground'
@@ -41,6 +42,7 @@ export interface WatchMockupProps
 export function WatchMockup({
   children,
   variant = 'series11',
+  colorway,
   color,
   bandColor,
   screenBackground,
@@ -56,6 +58,7 @@ export function WatchMockup({
   const device = (
     <Watch
       variant={variant}
+      colorway={colorway}
       color={color}
       bandColor={bandColor}
       screenBackground={screenBackground}

@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { FLIP_VARIANTS, type FlipVariant } from '@area-mockups/core'
+import { FLIP_COLORWAYS, findColorway, FLIP_VARIANTS, type FlipVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
 import {
@@ -25,6 +25,11 @@ export interface FlipProps extends Omit<GroupProps, 'children' | 'color'> {
   children?: React.ReactNode
   /** Which Galaxy Z Flip device to render. */
   variant?: FlipVariant
+  /**
+   * A retail colorway id from `FLIP_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /**
    * `true` (default) renders the unfolded tall phone — your content fills the
    * 6.85" main display. `false` renders the folded compact — your content
@@ -113,8 +118,9 @@ export function Flip({
   variant = 'flip7',
   open = true,
   orientation = 'portrait',
-  color = '#22252b',
-  frameColor = '#4a4f59',
+  colorway,
+  color: colorProp,
+  frameColor: frameColorProp,
   screenBackground = '#000000',
   resolution,
   punchHole = true,
@@ -125,6 +131,9 @@ export function Flip({
   ...groupProps
 }: FlipProps) {
   const spec = FLIP_VARIANTS[variant]
+  const retail = findColorway(FLIP_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#22252b'
+  const frameColor = frameColorProp ?? retail?.frameColor ?? '#4a4f59'
   const state = open ? spec.open : spec.closed
   const { display } = state
   const cam = spec.rearCamera
@@ -337,7 +346,7 @@ export function Flip({
       >
         <meshPhysicalMaterial
           transparent
-          opacity={0.55}
+          opacity={0.45}
           color="#33363c"
           metalness={0.7}
           roughness={0.35}

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
-import { LAPTOP_VARIANTS, type LaptopVariant } from '@area-mockups/core'
+import { LAPTOP_COLORWAYS, findColorway, LAPTOP_VARIANTS, type LaptopVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createWordmarkTexture } from '../wordmark'
 import { createLogoGeometry } from '../logos'
@@ -20,6 +20,11 @@ export interface LaptopProps extends Omit<GroupProps, 'children' | 'color'> {
    * larger feet and a deeper notch). True relative sizes.
    */
   variant?: LaptopVariant
+  /**
+   * A retail colorway id from `LAPTOP_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /** Aluminum colorway (lid, deck, bottom). MacBook Air M5 finishes work well:
    * Silver `#e3e4e6` (default), Sky Blue `#aec6d9`, Starlight `#e8e0d4`, Midnight `#2e3642`. */
   color?: string
@@ -219,7 +224,8 @@ function Keys({ keyboard }: { keyboard: { width: number; depth: number; offsetZ:
 export function Laptop({
   children,
   variant = 'air13',
-  color = '#e3e4e6',
+  colorway,
+  color: colorProp,
   screenBackground = '#000000',
   resolution,
   notch = true,
@@ -231,6 +237,8 @@ export function Laptop({
   ...groupProps
 }: LaptopProps) {
   const spec = LAPTOP_VARIANTS[variant]
+  const retail = findColorway(LAPTOP_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#e3e4e6'
   const { footprint, base, lid, display, notch: notchDims, keyboard, trackpad } = spec
   // Default scaled desktop: 1280x832 on the Air, 1512x982 on the Pro 14.
   const res = resolution ?? (variant === 'pro14' ? 1512 : 1280)

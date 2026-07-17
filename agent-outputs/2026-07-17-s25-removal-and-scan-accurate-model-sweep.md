@@ -231,3 +231,39 @@ toggle; reconciliation on toggle-off), low-angle sweeps for the SIM/lens
 fixes, and side-by-side + behind-below scenes for the occlusion fixes. Sizes
 re-measured: screened mockups +~0.7 KB gzip for the occlusion work; whole
 library 80.3 KB gzip.
+
+## Follow-up pass 6 (same day)
+
+Six more maintainer requests:
+
+1. **Vertical drag now follows the cursor.** The screen-to-angle mapping in
+   `TumbleControls` negates dy, giving vertical drags the same
+   grab-the-scene feel as horizontal ones (classic orbit convention) in both
+   the clamped and free modes.
+2. **Screens no longer trail the body during fast drags.** The controls'
+   camera update runs at frame priority -1, before drei's `<Html transform>`
+   positions the DOM screens — previously the camera moved after the screens
+   were placed, so they lagged the WebGL body by one frame.
+3. **Logo subtlety matched to product photography.** Researched retail
+   imagery (reviewers: the 17 Pro's logo is "practically invisible in some
+   light"). The Apple badge is now tone-on-tone (body color lerped 14%
+   toward black/white by luminance, glossy) instead of printed gray; the
+   SAMSUNG wordmark is a low-contrast gray print mixed from the colorway;
+   hinge engravings softened.
+4. **The folded Fold has its real crevice.** The closed pose is now two
+   stacked slabs with the scan's 1.3 mm air gap (like the folded Flip):
+   cover slab carries the screen + speaker cut, camera slab carries the
+   camera stack, buttons and USB-C cut, hinge band bridges the hinge side —
+   matching the retail side profile photo.
+5. **Retail colorway catalogs + `colorway` prop.** Researched the well-known
+   colors of every device (iPhone 17/Air/Pro, Galaxy S26 line, Z Fold 7 /
+   Z Flip 7, MacBook Air/Pro, iPads, Galaxy Tabs, Apple/Galaxy watches) into
+   `*_COLORWAYS` catalogs in core (pure data, exported), with a `colorway`
+   prop on every device + Mockup wrapper. Explicit `color`/`frameColor`
+   props still override. Docs-only colorway dropdown on every single-device
+   demo (injected by `withPreviewControls`, next to the 360° toggle).
+6. **Side-by-side comparisons.** Official product images (Apple's iPhone 17
+   Pro and MacBook Air renders, a Fold 7 retail photo) recreated at matching
+   angles with the mockups and composed into comparison sheets for review.
+
+Sizes re-measured (+~0.4 KB gzip for the catalogs); tables synced.

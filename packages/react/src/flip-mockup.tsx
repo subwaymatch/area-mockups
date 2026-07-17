@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedDeviceProps = Pick<
   FlipProps,
   | 'variant'
+  | 'colorway'
   | 'open'
   | 'orientation'
   | 'color'
@@ -48,6 +49,7 @@ export interface FlipMockupProps
 export function FlipMockup({
   children,
   variant = 'flip7',
+  colorway,
   open = true,
   orientation = 'portrait',
   color,
@@ -66,6 +68,7 @@ export function FlipMockup({
   const device = (
     <Flip
       variant={variant}
+      colorway={colorway}
       open={open}
       orientation={orientation}
       color={color}
