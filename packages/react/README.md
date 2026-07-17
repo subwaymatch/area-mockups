@@ -9,8 +9,8 @@ videos play, iframes scroll.
   Air 13" and MacBook Pro 14" (M5), iPad Pro 13"/11" (M5), Galaxy Tab S11 / S11 Ultra, an
   Apple Watch Series 11 and a Studio Display-style 27" monitor, all procedurally generated
   at runtime. No GLB files, no
-  hosting, no pop-in — importing one device family costs 5.5–7.3 KB gzipped (the whole
-  library, 17 devices + 24 objects: 43.2 KB), peers excluded.
+  hosting, no pop-in — importing one device family costs 5.5–9.3 KB gzipped (the whole
+  library, 17 devices + 24 objects: 45.3 KB), peers excluded.
 - **True-to-device screens** — each virtual display matches the real device's logical
   resolution in portrait *and* landscape (table below), so your layouts and breakpoints
   behave exactly like on the hardware.

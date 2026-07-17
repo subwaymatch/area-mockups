@@ -4,7 +4,8 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { FOLD_VARIANTS, type FoldVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
-import { createWordmarkTexture } from '../wordmark'
+import { createLogoGeometry } from '../logos'
+import { SideKey, LensRing, UsbC } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -159,8 +160,11 @@ export function Fold({
   }, [open, spec.closed])
   React.useEffect(() => () => coverGlassGeometry?.dispose(), [coverGlassGeometry])
 
-  // The vertical SAMSUNG emboss on the hinge spine.
-  const spineTexture = React.useMemo(() => createWordmarkTexture('SAMSUNG'), [])
+  // The vertical SAMSUNG emboss on the hinge spine — vector geometry from the SVG.
+  const spineLogoGeometry = React.useMemo(
+    () => createLogoGeometry('samsung', spec.hinge.emboss.length, spec.hinge.emboss.length * 0.155),
+    [spec.hinge.emboss.length]
+  )
 
   React.useEffect(() => {
     return () => {
@@ -169,9 +173,9 @@ export function Fold({
       glassGeometry.dispose()
       plateauGeometry.dispose()
       islandGeometry.dispose()
-      spineTexture?.dispose()
+      spineLogoGeometry.dispose()
     }
-  }, [bodyGeometry, backGeometry, glassGeometry, plateauGeometry, islandGeometry, spineTexture])
+  }, [bodyGeometry, backGeometry, glassGeometry, plateauGeometry, islandGeometry, spineLogoGeometry])
 
   // CSS px per world unit for display overlays.
   const pxPerUnit = res / (landscape ? display.height : display.width)
@@ -213,21 +217,21 @@ export function Fold({
               <planeGeometry args={[spec.hinge.width, body.height - 0.3]} />
               <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} />
             </mesh>
-            {spineTexture && (
-              <mesh rotation={[0, Math.PI, Math.PI / 2]} position={[0, 0, -body.depth / 2 - 0.006]}>
-                <planeGeometry args={[spec.hinge.emboss.length, spec.hinge.emboss.length * 0.14]} />
-                <meshPhysicalMaterial
-                  map={spineTexture}
-                  transparent
-                  opacity={0.5}
-                  color="#3c4046"
-                  metalness={0.6}
-                  roughness={0.4}
-                  polygonOffset
-                  polygonOffsetFactor={-1}
-                />
-              </mesh>
-            )}
+            <mesh
+              geometry={spineLogoGeometry}
+              rotation={[0, Math.PI, Math.PI / 2]}
+              position={[0, 0, -body.depth / 2 - 0.006]}
+            >
+              <meshPhysicalMaterial
+                transparent
+                opacity={0.55}
+                color="#3c4046"
+                metalness={0.7}
+                roughness={0.35}
+                polygonOffset
+                polygonOffsetFactor={-1}
+              />
+            </mesh>
           </>
         )}
 
@@ -238,21 +242,21 @@ export function Fold({
             <RoundedBox args={[spec.hinge.overhang + 0.05, body.height - 0.02, spec.hinge.width]} radius={0.024}>
               <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.38} />
             </RoundedBox>
-            {spineTexture && (
-              <mesh rotation={[0, -Math.PI / 2, Math.PI / 2]} position-x={-(spec.hinge.overhang + 0.05) / 2 - 0.002}>
-                <planeGeometry args={[spec.hinge.emboss.length, spec.hinge.emboss.length * 0.14]} />
-                <meshPhysicalMaterial
-                  map={spineTexture}
-                  transparent
-                  opacity={0.5}
-                  color="#3c4046"
-                  metalness={0.6}
-                  roughness={0.4}
-                  polygonOffset
-                  polygonOffsetFactor={-1}
-                />
-              </mesh>
-            )}
+            <mesh
+              geometry={spineLogoGeometry}
+              rotation={[0, -Math.PI / 2, Math.PI / 2]}
+              position-x={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
+            >
+              <meshPhysicalMaterial
+                transparent
+                opacity={0.55}
+                color="#3c4046"
+                metalness={0.7}
+                roughness={0.35}
+                polygonOffset
+                polygonOffsetFactor={-1}
+              />
+            </mesh>
           </group>
         )}
 
@@ -296,18 +300,7 @@ export function Fold({
             key={i}
             position={[cam.island.x, y, -body.depth / 2 - cam.plateau.raise - cam.island.raise]}
           >
-            <mesh rotation-x={Math.PI / 2} position-z={0.005}>
-              <cylinderGeometry args={[r, r, 0.05, 40]} />
-              <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.25} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.022}>
-              <cylinderGeometry args={[r * 0.9, r * 0.9, 0.008, 40]} />
-              <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.028}>
-              <cylinderGeometry args={[r * 0.42, r * 0.42, 0.008, 32]} />
-              <meshPhysicalMaterial color="#10182e" metalness={0.4} roughness={0.1} clearcoat={1} />
-            </mesh>
+            <LensRing r={r} proud={0.028} seat={0.03} frameColor={frameColor} />
           </group>
         ))}
 
@@ -324,14 +317,16 @@ export function Fold({
 
         {/* side keys on the right edge, scan-accurate */}
         {spec.buttons.map(({ y, length }, i) => (
-          <RoundedBox
+          <SideKey
             key={i}
-            args={[0.06, length, spec.buttonProfile.thickness]}
-            radius={Math.min(0.028, spec.buttonProfile.thickness / 2 - 0.004)}
-            position={[body.width / 2 - 0.03 + spec.buttonProfile.protrusion, y, 0]}
-          >
-            <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-          </RoundedBox>
+            side={1}
+            railX={body.width / 2}
+            y={y}
+            length={length}
+            thickness={spec.buttonProfile.thickness}
+            protrusion={spec.buttonProfile.protrusion}
+            color={frameColor}
+          />
         ))}
 
         {/* antenna seams on both rails */}
@@ -352,13 +347,7 @@ export function Fold({
           const edge = open ? spec.bottomEdge.open : spec.bottomEdge.closed
           return (
             <>
-              <RoundedBox
-                args={[edge.usb.width, 0.016, edge.usb.height]}
-                radius={Math.min(0.028, edge.usb.height / 2 - 0.004)}
-                position={[edge.usb.x, bottomY, 0]}
-              >
-                <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
-              </RoundedBox>
+              <UsbC x={edge.usb.x} y={bottomY} width={edge.usb.width} height={edge.usb.height} />
               {('speakers' in edge ? edge.speakers : [edge.speaker]).map((sp, i) => (
                 <RoundedBox
                   key={i}

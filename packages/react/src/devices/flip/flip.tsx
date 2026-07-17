@@ -4,7 +4,8 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { FLIP_VARIANTS, type FlipVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
-import { createWordmarkTexture } from '../wordmark'
+import { createLogoGeometry } from '../logos'
+import { SideKey, LensRing, UsbC } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -149,15 +150,18 @@ export function Flip({
     })
   }, [cam.island])
 
-  const hingeTexture = React.useMemo(() => createWordmarkTexture('SAMSUNG'), [])
+  const hingeLogoGeometry = React.useMemo(
+    () => createLogoGeometry('samsung', spec.hinge.emboss.length, spec.hinge.emboss.length * 0.155),
+    [spec.hinge.emboss.length]
+  )
 
   React.useEffect(() => {
     return () => {
       coverGlassGeometry.dispose()
       islandGeometry.dispose()
-      hingeTexture?.dispose()
+      hingeLogoGeometry.dispose()
     }
-  }, [coverGlassGeometry, islandGeometry, hingeTexture])
+  }, [coverGlassGeometry, islandGeometry, hingeLogoGeometry])
 
   // CSS px per world unit for display overlays.
   const pxPerUnit = res / (landscape ? display.height : display.width)
@@ -201,18 +205,7 @@ export function Flip({
       </mesh>
       {cam.rings.map(({ x, y, r }, i) => (
         <group key={i} position={[x, y, surfaceZ + sign * cam.island.raise]}>
-          <mesh rotation-x={Math.PI / 2} position-z={-sign * 0.004}>
-            <cylinderGeometry args={[r, r, 0.03, 40]} />
-            <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.25} />
-          </mesh>
-          <mesh rotation-x={Math.PI / 2} position-z={sign * 0.014}>
-            <cylinderGeometry args={[r * 0.9, r * 0.9, 0.008, 40]} />
-            <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
-          </mesh>
-          <mesh rotation-x={Math.PI / 2} position-z={sign * 0.02}>
-            <cylinderGeometry args={[r * 0.45, r * 0.45, 0.008, 32]} />
-            <meshPhysicalMaterial color="#10182e" metalness={0.4} roughness={0.1} clearcoat={1} />
-          </mesh>
+          <LensRing r={r} proud={0.016} seat={0.03} frameColor={frameColor} />
         </group>
       ))}
       <mesh rotation-x={Math.PI / 2} position={[cam.flash.x, cam.flash.y, surfaceZ + sign * 0.006]}>
@@ -232,14 +225,16 @@ export function Flip({
   const rails = (
     <group>
       {spec.buttons.map(({ y, length }, i) => (
-        <RoundedBox
+        <SideKey
           key={i}
-          args={[0.05, length, spec.buttonProfile.thickness]}
-          radius={Math.min(0.022, spec.buttonProfile.thickness / 2 - 0.004)}
-          position={[half.width / 2 - 0.025 + spec.buttonProfile.protrusion, y, 0]}
-        >
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
+          side={1}
+          railX={half.width / 2}
+          y={y}
+          length={length}
+          thickness={spec.buttonProfile.thickness}
+          protrusion={spec.buttonProfile.protrusion}
+          color={frameColor}
+        />
       ))}
       <RoundedBox
         args={[0.012, spec.sim.length, 0.074]}
@@ -255,13 +250,13 @@ export function Flip({
   // `edgeY` is that edge's y in the current pose; features stay at their x.
   const freeEdgeKit = (edgeY: number) => (
     <group>
-      <RoundedBox
-        args={[spec.bottomEdge.usb.width, 0.016, spec.bottomEdge.usb.height]}
-        radius={Math.min(0.028, spec.bottomEdge.usb.height / 2 - 0.004)}
-        position={[spec.bottomEdge.usb.x, edgeY, 0]}
-      >
-        <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
-      </RoundedBox>
+      <UsbC
+        x={spec.bottomEdge.usb.x}
+        y={edgeY}
+        width={spec.bottomEdge.usb.width}
+        height={spec.bottomEdge.usb.height}
+        up={edgeY > 0}
+      />
       <RoundedBox
         args={[spec.bottomEdge.speaker.width, 0.014, spec.bottomEdge.speaker.height]}
         radius={Math.min(0.016, spec.bottomEdge.speaker.height / 2 - 0.002)}
@@ -287,24 +282,21 @@ export function Flip({
       >
         <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.4} />
       </RoundedBox>
-      {hingeTexture && (
-        <mesh
-          rotation-x={Math.PI / 2}
-          position-y={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
-        >
-          <planeGeometry args={[spec.hinge.emboss.length, spec.hinge.emboss.length * 0.14]} />
-          <meshPhysicalMaterial
-            map={hingeTexture}
-            transparent
-            opacity={0.5}
-            color="#33363c"
-            metalness={0.6}
-            roughness={0.4}
-            polygonOffset
-            polygonOffsetFactor={-1}
-          />
-        </mesh>
-      )}
+      <mesh
+        geometry={hingeLogoGeometry}
+        rotation-x={Math.PI / 2}
+        position-y={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
+      >
+        <meshPhysicalMaterial
+          transparent
+          opacity={0.55}
+          color="#33363c"
+          metalness={0.7}
+          roughness={0.35}
+          polygonOffset
+          polygonOffsetFactor={-1}
+        />
+      </mesh>
     </group>
   )
 

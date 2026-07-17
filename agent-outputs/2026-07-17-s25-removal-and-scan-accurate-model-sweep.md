@@ -85,3 +85,32 @@ deeper 36.8 mm notch, 1512×982 default desktop, glossy lid badge and embossed
 - Detail geometry: maintainer-supplied Sketchfab scans (CC-licensed), measured
   with a purpose-built GLTF analysis toolkit (world-space bounding boxes,
   connected-component lens/button clustering, corner-radius circle fits).
+
+## Follow-up pass (same day)
+
+Maintainer feedback after reviewing against pressroom photography:
+
+1. **Free orbit.** The shared `ORBIT` stage config no longer clamps the polar
+   angle (was 0.5..π−0.5), so every mockup can be tipped fully to inspect
+   bottom edges — USB-C, speaker drilling, S Pen cap — with the target still
+   centered.
+2. **True pill side keys.** All devices now share a `SideKey` component: an
+   extruded stadium profile (semicircular ends along the key's length) with a
+   crowned outer face, matching the machined keys in Samsung's S26 Ultra
+   pressroom shots. Replaces the old rounded-box approximation on the Galaxy
+   phones, both foldables, and all four iPhones (Camera Control stays flush).
+3. **Machined lens rings.** A shared `LensRing` replaces the flat-disc stacks:
+   tapered outer wall, polished chamfer shell, dark bezel funnel and truly
+   recessed optics (barrel floor, coated element, glint) — used by the Galaxy
+   S line, Z Fold, Z Flip and the iPhone trio.
+4. **Real USB-C ports.** A shared `UsbC` renders rim ring + dark pill cavity +
+   gold connector tongue on every phone/foldable bottom edge (and the folded
+   Flip's top edge).
+5. **SVG brand marks.** The canvas-drawn SAMSUNG text and hand-drawn apple
+   are gone; the maintainer-supplied Samsung wordmark and Apple logo SVGs are
+   parsed once (inlined path data, `SVGLoader`) into crisp vector geometry on
+   the Galaxy backs, the foldables' hinge embosses, the iPhone backs and the
+   MacBook lids (contrast-aware tone so the badge reads in every colorway).
+
+Import costs re-measured after the detail pass: Galaxy 8.7 KB gz, iPhone
+9.3 KB gz, Fold 8.7 / Flip 8.9 / Laptop 9.2 KB gz; whole library 45.3 KB gz.

@@ -4,7 +4,8 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { LAPTOP_VARIANTS, type LaptopVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
-import { createWordmarkTexture, createAppleMarkTexture } from '../wordmark'
+import { createWordmarkTexture } from '../wordmark'
+import { createLogoGeometry } from '../logos'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -273,18 +274,28 @@ export function Laptop({
     }
   }, [wellGeometry, trackpadGeometry, trackpadRimGeometry, bottomPlateGeometry, glassGeometry])
 
-  // Lid badge + underside wordmark, canvas-drawn once.
-  const logoTexture = React.useMemo(() => createAppleMarkTexture(), [])
+  // Lid badge (vector geometry from the SVG) + underside wordmark (canvas text).
+  // The badge is glossy tone-on-tone: darker on light finishes, lighter on dark
+  // ones, so it reads in every colorway.
+  const logoColor = React.useMemo(() => {
+    const c = new THREE.Color(color)
+    const luminance = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+    return `#${c.lerp(new THREE.Color(luminance > 0.4 ? '#000000' : '#ffffff'), 0.45).getHexString()}`
+  }, [color])
+  const logoGeometry = React.useMemo(
+    () => createLogoGeometry('apple', spec.logo.width, spec.logo.height),
+    [spec.logo]
+  )
   const bottomTextTexture = React.useMemo(
     () => (spec.bottomText ? createWordmarkTexture(spec.bottomText.text, { letterSpacing: 0.06, weight: 600 }) : null),
     [spec.bottomText]
   )
   React.useEffect(
     () => () => {
-      logoTexture?.dispose()
+      logoGeometry.dispose()
       bottomTextTexture?.dispose()
     },
-    [logoTexture, bottomTextTexture]
+    [logoGeometry, bottomTextTexture]
   )
 
   // CSS px per world unit for the display overlay (notch).
@@ -417,24 +428,21 @@ export function Laptop({
         </mesh>
 
         {/* the badge on the lid's outer face */}
-        {logoTexture && (
-          <mesh
-            rotation-y={Math.PI}
-            position={[0, footprint.depth / 2 + spec.logo.offsetY, -lid.thickness / 2 - 0.003]}
-          >
-            <planeGeometry args={[spec.logo.width, spec.logo.height]} />
-            <meshPhysicalMaterial
-              map={logoTexture}
-              transparent
-              color="#101013"
-              metalness={0.9}
-              roughness={0.08}
-              clearcoat={1}
-              polygonOffset
-              polygonOffsetFactor={-1}
-            />
-          </mesh>
-        )}
+        <mesh
+          geometry={logoGeometry}
+          rotation-y={Math.PI}
+          position={[0, footprint.depth / 2 + spec.logo.offsetY, -lid.thickness / 2 - 0.003]}
+        >
+          <meshPhysicalMaterial
+            color={logoColor}
+            metalness={0.95}
+            roughness={0.06}
+            clearcoat={1}
+            envMapIntensity={1.4}
+            polygonOffset
+            polygonOffsetFactor={-1}
+          />
+        </mesh>
 
         {/* edge-to-edge cover glass on the inner face */}
         <mesh geometry={glassGeometry} position={[0, footprint.depth / 2, lid.thickness / 2 + 0.002]}>

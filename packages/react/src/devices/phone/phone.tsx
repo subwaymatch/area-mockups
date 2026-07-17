@@ -4,7 +4,8 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { GALAXY_VARIANTS, type GalaxyVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
-import { createWordmarkTexture } from '../wordmark'
+import { createLogoGeometry } from '../logos'
+import { SideKey, LensRing, UsbC } from '../details'
 
 type GroupProps = ThreeElements['group']
 import { roundedRectShape } from '@area-mockups/core'
@@ -147,9 +148,9 @@ export function Phone({
     return geometry
   }, [rearCamera.island])
 
-  // "SAMSUNG" imprint on the lower back.
-  const logoTexture = React.useMemo(
-    () => (spec.logo ? createWordmarkTexture('SAMSUNG') : null),
+  // SAMSUNG wordmark on the lower back — real vector geometry from the SVG.
+  const logoGeometry = React.useMemo(
+    () => (spec.logo ? createLogoGeometry('samsung', spec.logo.width, spec.logo.height) : null),
     [spec.logo]
   )
 
@@ -159,9 +160,9 @@ export function Phone({
       glassGeometry.dispose()
       backGeometry.dispose()
       islandGeometry?.dispose()
-      logoTexture?.dispose()
+      logoGeometry?.dispose()
     }
-  }, [bodyGeometry, glassGeometry, backGeometry, islandGeometry, logoTexture])
+  }, [bodyGeometry, glassGeometry, backGeometry, islandGeometry, logoGeometry])
 
   // CSS px per world unit for the virtual display overlay.
   const pxPerUnit = res / (landscape ? display.height : display.width)
@@ -223,31 +224,14 @@ export function Phone({
             <meshPhysicalMaterial color={islandColor} metalness={0.4} roughness={0.3} clearcoat={0.9} />
           </mesh>
         )}
-        {rearCamera.rings.map(({ x, y, r, h }, i) => {
-          const proud = h ?? rearCamera.ringHeight ?? 0.034
-          const seat = 0.02 // how far the ring wall sinks into its mounting surface
-          return (
-            <group
-              key={i}
-              position={[x ?? rearCamera.ringsX, y, backZ(x ?? rearCamera.ringsX, y, 0, raise)]}
-            >
-              {/* machined outer ring wall, standing proud of the mount */}
-              <mesh rotation-x={Math.PI / 2} position-z={-(proud - seat) / 2}>
-                <cylinderGeometry args={[r, r, proud + seat, 48]} />
-                <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.25} />
-              </mesh>
-              {/* dark bezel + lens glass layered on the ring's face */}
-              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.002}>
-                <cylinderGeometry args={[r * 0.8, r * 0.8, 0.008, 48]} />
-                <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
-              </mesh>
-              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.008}>
-                <cylinderGeometry args={[r * 0.42, r * 0.42, 0.008, 32]} />
-                <meshPhysicalMaterial color="#10182e" metalness={0.4} roughness={0.1} clearcoat={1} />
-              </mesh>
-            </group>
-          )
-        })}
+        {rearCamera.rings.map(({ x, y, r, h }, i) => (
+          <group
+            key={i}
+            position={[x ?? rearCamera.ringsX, y, backZ(x ?? rearCamera.ringsX, y, 0, raise)]}
+          >
+            <LensRing r={r} proud={h ?? rearCamera.ringHeight ?? 0.034} frameColor={frameColor} />
+          </group>
+        ))}
         <mesh
           rotation-x={Math.PI / 2}
           position={[
@@ -275,17 +259,15 @@ export function Phone({
           </mesh>
         ))}
 
-        {/* "SAMSUNG" imprint on the lower back */}
-        {spec.logo && logoTexture && (
-          <mesh rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0035]}>
-            <planeGeometry args={[spec.logo.width, spec.logo.height]} />
+        {/* SAMSUNG wordmark imprint on the lower back */}
+        {spec.logo && logoGeometry && (
+          <mesh geometry={logoGeometry} rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0035]}>
             <meshPhysicalMaterial
-              map={logoTexture}
               transparent
-              opacity={0.42}
+              opacity={0.5}
               color="#c8cdd6"
-              metalness={0.8}
-              roughness={0.3}
+              metalness={0.85}
+              roughness={0.25}
               polygonOffset
               polygonOffsetFactor={-1}
             />
@@ -295,14 +277,16 @@ export function Phone({
         {/* side keys on the right rail — machined pills seated in the frame,
             protruding ~0.5 mm like the real keys (positions from the scan) */}
         {buttons.map(({ y, length }, i) => (
-          <RoundedBox
+          <SideKey
             key={i}
-            args={[0.06, length, buttonProfile.thickness]}
-            radius={Math.min(0.028, buttonProfile.thickness / 2 - 0.004)}
-            position={[body.width / 2 - 0.03 + buttonProfile.protrusion, y, 0]}
-          >
-            <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-          </RoundedBox>
+            side={1}
+            railX={body.width / 2}
+            y={y}
+            length={length}
+            thickness={buttonProfile.thickness}
+            protrusion={buttonProfile.protrusion}
+            color={frameColor}
+          />
         ))}
 
         {/* antenna seams wrapping the side rails */}
@@ -320,13 +304,12 @@ export function Phone({
         {/* bottom-edge machining: USB-C, speaker slot, mics, SIM tray, S Pen cap */}
         {spec.bottomEdge && (
           <>
-            <RoundedBox
-              args={[spec.bottomEdge.usb.width, 0.016, spec.bottomEdge.usb.height]}
-              radius={Math.min(0.03, spec.bottomEdge.usb.height / 2 - 0.004)}
-              position={[spec.bottomEdge.usb.x, bottomY, 0]}
-            >
-              <meshPhysicalMaterial color={edgeDark} metalness={0.4} roughness={0.4} />
-            </RoundedBox>
+            <UsbC
+              x={spec.bottomEdge.usb.x}
+              y={bottomY}
+              width={spec.bottomEdge.usb.width}
+              height={spec.bottomEdge.usb.height}
+            />
             {spec.bottomEdge.speaker && (
               <RoundedBox
                 args={[spec.bottomEdge.speaker.width, 0.016, spec.bottomEdge.speaker.height]}

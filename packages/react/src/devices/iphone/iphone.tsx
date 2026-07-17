@@ -4,7 +4,8 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { IPHONE_VARIANTS, type IPhoneVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
-import { createAppleMarkTexture } from '../wordmark'
+import { createLogoGeometry } from '../logos'
+import { SideKey, LensRing, UsbC } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -177,9 +178,12 @@ export function IPhone({
 
   // Every lens ring mounts on the pedestal face and stands `h` proud of it.
   const pedestalTop = body.depth / 2 + (rearCamera.frame.raise ?? 0.048)
-  // Apple badge, canvas-drawn once.
-  const logoTexture = React.useMemo(() => (spec.logo ? createAppleMarkTexture() : null), [spec.logo])
-  React.useEffect(() => () => logoTexture?.dispose(), [logoTexture])
+  // Apple badge — real vector geometry from the SVG.
+  const logoGeometry = React.useMemo(
+    () => (spec.logo ? createLogoGeometry('apple', spec.logo.width, spec.logo.height) : null),
+    [spec.logo]
+  )
+  React.useEffect(() => () => logoGeometry?.dispose(), [logoGeometry])
 
   React.useEffect(() => {
     return () => {
@@ -254,34 +258,11 @@ export function IPhone({
 
         {/* lens stacks: machined ring standing proud of the pedestal, dark bezel
             wall, blue-coated glass, glint */}
-        {rearCamera.lenses.map(({ x, y, r, h }, i) => {
-          const proud = h ?? 0.05
-          return (
-            <group key={i} position={[x, y, -pedestalTop]}>
-              <mesh rotation-x={Math.PI / 2} position-z={-(proud - 0.02) / 2}>
-                <cylinderGeometry args={[r, r, proud + 0.02, 56]} />
-                <meshPhysicalMaterial color={frameColor} metalness={1} roughness={0.22} envMapIntensity={1.2} />
-              </mesh>
-              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.002}>
-                <cylinderGeometry args={[r * 0.84, r * 0.84, 0.01, 56]} />
-                <meshPhysicalMaterial color="#17191d" metalness={0.7} roughness={0.3} />
-              </mesh>
-              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.008}>
-                <cylinderGeometry args={[r * 0.72, r * 0.72, 0.012, 56]} />
-                <meshPhysicalMaterial color="#0b1c3f" metalness={0.5} roughness={0.06} clearcoat={1} clearcoatRoughness={0.04} envMapIntensity={0.5} />
-              </mesh>
-              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.014}>
-                <cylinderGeometry args={[r * 0.34, r * 0.34, 0.01, 40]} />
-                <meshPhysicalMaterial color="#152a55" metalness={0.6} roughness={0.15} clearcoat={1} envMapIntensity={0.6} />
-              </mesh>
-              {/* specular glint on the lens glass */}
-              <mesh rotation-x={Math.PI / 2} position={[-r * 0.24, r * 0.24, -proud - 0.018]}>
-                <cylinderGeometry args={[r * 0.1, r * 0.1, 0.004, 20]} />
-                <meshPhysicalMaterial color="#9fb6e0" metalness={0.4} roughness={0.1} clearcoat={1} />
-              </mesh>
-            </group>
-          )
-        })}
+        {rearCamera.lenses.map(({ x, y, r, h }, i) => (
+          <group key={i} position={[x, y, -pedestalTop]}>
+            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} glass="#0b1c3f" element="#152a55" />
+          </group>
+        ))}
 
         {/* flash + auxiliary sensors on the back panel or plateau */}
         <mesh
@@ -312,13 +293,11 @@ export function IPhone({
         ))}
 
         {/* Apple badge */}
-        {spec.logo && logoTexture && (
-          <mesh rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0085]}>
-            <planeGeometry args={[spec.logo.width, spec.logo.height]} />
+        {spec.logo && logoGeometry && (
+          <mesh geometry={logoGeometry} rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0085]}>
             <meshPhysicalMaterial
-              map={logoTexture}
               transparent
-              opacity={0.55}
+              opacity={0.6}
               color="#3a3d44"
               metalness={0.9}
               roughness={0.12}
@@ -332,24 +311,19 @@ export function IPhone({
         {/* side keys, spec-accurate: Action + volume on the left rail, side button
             + the flush Camera Control on the right — pills protruding a scan-true
             ~0.3-0.45 mm (Camera Control sits flush, seated in the rail) */}
-        {buttons.map(({ edge, y, length, flush }, i) => {
-          const dir = edge === 'right' ? 1 : -1
-          const proud = flush ? 0.002 : buttonProfile.protrusion
-          return (
-            <RoundedBox
-              key={i}
-              args={[0.06, length, buttonProfile.thickness]}
-              radius={Math.min(0.026, buttonProfile.thickness / 2 - 0.004)}
-              position={[dir * (body.width / 2 - 0.03 + proud), y, 0]}
-            >
-              <meshPhysicalMaterial
-                color={frameColor}
-                metalness={flush ? 0.94 : 0.9}
-                roughness={flush ? 0.16 : 0.24}
-              />
-            </RoundedBox>
-          )
-        })}
+        {buttons.map(({ edge, y, length, flush }, i) => (
+          <SideKey
+            key={i}
+            side={edge === 'right' ? 1 : -1}
+            railX={body.width / 2}
+            y={y}
+            length={length}
+            thickness={buttonProfile.thickness}
+            protrusion={buttonProfile.protrusion}
+            color={frameColor}
+            flush={flush}
+          />
+        ))}
 
         {/* antenna strips crossing both rails */}
         {spec.antennaLines?.map((y, i) => (
@@ -377,13 +351,12 @@ export function IPhone({
         {/* bottom edge: USB-C between two screws, speaker/mic hole rows */}
         {spec.bottomEdge && (
           <>
-            <RoundedBox
-              args={[spec.bottomEdge.usb.width, 0.016, spec.bottomEdge.usb.height]}
-              radius={Math.min(0.028, spec.bottomEdge.usb.height / 2 - 0.004)}
-              position={[spec.bottomEdge.usb.x, -body.height / 2 - 0.002, 0]}
-            >
-              <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
-            </RoundedBox>
+            <UsbC
+              x={spec.bottomEdge.usb.x}
+              y={-body.height / 2 - 0.002}
+              width={spec.bottomEdge.usb.width}
+              height={spec.bottomEdge.usb.height}
+            />
             {spec.bottomEdge.screws?.map(({ x, r }, i) => (
               <mesh key={`s${i}`} position={[x, -body.height / 2 - 0.002, 0]}>
                 <cylinderGeometry args={[r, r, 0.012, 16]} />
