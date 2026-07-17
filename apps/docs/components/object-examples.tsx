@@ -41,6 +41,7 @@ import {
   VinylRecord,
   VinylRecordMockup,
   WatchMockup,
+  FlipMockup,
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import { withPreviewControls } from './preview-controls'
@@ -170,7 +171,7 @@ const DEMOS: Record<string, React.ReactNode> = {
     </PhoneMockup>
   ),
   'phone-landscape': (
-    <PhoneMockup variant="s25ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
+    <PhoneMockup variant="s26ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
       <MusicPlayer />
     </PhoneMockup>
   ),
@@ -192,6 +193,18 @@ const DEMOS: Record<string, React.ReactNode> = {
     </FoldMockup>
   ),
 
+  // ---- Flip (Galaxy Z Flip 7) -----------------------------------------------
+  'flip-open': (
+    <FlipMockup color="#e5502e" frameColor="#f06a45" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </FlipMockup>
+  ),
+  'flip-closed': (
+    <FlipMockup open={false} autoRotate float color="#e5502e" frameColor="#f06a45" screenBackground="#000">
+      <LockScreen />
+    </FlipMockup>
+  ),
+
   // ---- IPhone ---------------------------------------------------------------
   'iphone-pro': (
     <IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
@@ -205,7 +218,7 @@ const DEMOS: Record<string, React.ReactNode> = {
   ),
   'phone-duo': (
     <MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
-      <Phone variant="s25ultra" color="#2e3238" frameColor="#565b64" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
+      <Phone variant="s26ultra" color="#2e3238" frameColor="#565b64" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
         <TapCounter />
       </Phone>
       <IPhone variant="promax" color="#2b3a55" frameColor="#3d4d6b" position={[1.6, 0, 0]} rotation={[0, -0.3, 0]}>
@@ -222,6 +235,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   ),
   'laptop-midnight': (
     <LaptopMockup color="#2e3642" openAngle={100} float deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
+  'laptop-pro14': (
+    <LaptopMockup variant="pro14" color="#4a484b" deviceProps={{ rotation: [0, -0.35, 0] }}>
       <DesktopScreen />
     </LaptopMockup>
   ),

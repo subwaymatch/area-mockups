@@ -8,11 +8,12 @@ import { gzipSync } from 'node:zlib'
 const ENTRIES = {
   'PhoneMockup (Galaxy family)': "export { PhoneMockup } from './src/index'",
   'IPhoneMockup (iPhone family)': "export { IPhoneMockup } from './src/index'",
-  'LaptopMockup (MacBook Air)': "export { LaptopMockup } from './src/index'",
+  'LaptopMockup (MacBook Air + Pro)': "export { LaptopMockup } from './src/index'",
   'TabletMockup (iPad + Galaxy Tab)': "export { TabletMockup } from './src/index'",
   'WatchMockup (Apple Watch)': "export { WatchMockup } from './src/index'",
   'MonitorMockup (Studio Display)': "export { MonitorMockup } from './src/index'",
   'FoldMockup (Galaxy Z Fold 7)': "export { FoldMockup } from './src/index'",
+  'FlipMockup (Galaxy Z Flip 7)': "export { FlipMockup } from './src/index'",
   'BookMockup (hardcover)': "export { BookMockup } from './src/index'",
   'MagazineMockup (glossy monthly)': "export { MagazineMockup } from './src/index'",
   'BrochureMockup (tri-fold)': "export { BrochureMockup } from './src/index'",

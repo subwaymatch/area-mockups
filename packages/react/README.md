@@ -4,12 +4,13 @@ Interactive, GPU-accelerated **3D device mockups for React**. Put any content on
 of a 3D device — real DOM, projected onto WebGL glass, so it stays fully live: buttons click,
 videos play, iframes scroll.
 
-- **Fifteen devices** — the full Galaxy S25 family (S25, S25+, S25 Ultra, S25 Edge), the
-  full iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max), a MacBook Air 13" (M5), iPad Pro
-  13"/11" (M5), Galaxy Tab S11 / S11 Ultra, an Apple Watch Series 11 and a Studio
-  Display-style 27" monitor, all procedurally generated at runtime. No GLB files, no
-  hosting, no pop-in — importing one device family costs 5.1–6.1 KB gzipped (the whole
-  library, 18 devices + 24 objects: 37.8 KB), peers excluded.
+- **Seventeen devices** — the Galaxy S26 line (S26, S26 Ultra), the Galaxy Z Fold 7 and
+  Z Flip 7 foldables, the full iPhone 17 family (17, 17 Air, 17 Pro, 17 Pro Max), MacBook
+  Air 13" and MacBook Pro 14" (M5), iPad Pro 13"/11" (M5), Galaxy Tab S11 / S11 Ultra, an
+  Apple Watch Series 11 and a Studio Display-style 27" monitor, all procedurally generated
+  at runtime. No GLB files, no
+  hosting, no pop-in — importing one device family costs 5.5–7.3 KB gzipped (the whole
+  library, 17 devices + 24 objects: 43.2 KB), peers excluded.
 - **True-to-device screens** — each virtual display matches the real device's logical
   resolution in portrait *and* landscape (table below), so your layouts and breakpoints
   behave exactly like on the hardware.
@@ -84,7 +85,7 @@ Render inside any r3f `<Canvas>`. Accepts all group props (`position`, `rotation
 | `color` | `string` | `'#101216'` | Back-panel colorway |
 | `frameColor` | `string` | `'#4a4f59'` | Frame, buttons, camera rings |
 | `screenBackground` | `string` | `'#000000'` | CSS background behind your content |
-| `variant` | `'s25' \| 's25plus' \| 's25ultra' \| 's25edge'` | `'s25'` | Which Galaxy S25-family device (true relative sizes + per-model cameras) |
+| `variant` | `'s26' \| 's26ultra'` | `'s26'` | Which Galaxy S26-family device (true relative sizes + per-model cameras) |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device sideways and swaps the virtual display |
 | `resolution` | `number` | per variant | Virtual display width in CSS px (see resolution table) |
 | `punchHole` | `boolean` | `true` | Front-camera punch hole overlay |
@@ -101,11 +102,11 @@ point grid (see resolution table). Camera architecture follows the real devices:
 pill (17), ultra-thin single-lens bar (Air), full-width triple-lens plateau with flash +
 LiDAR (Pro / Pro Max).
 
-### `<Laptop>` — MacBook Air (M5)-style
+### `<Laptop>` — MacBook Air 13" / MacBook Pro 14" (M5)-style
 
 Same screen/interaction API (`interactive`, `dragToRotate`, `occlude`, `screenStyle`), plus
 `notch` (camera notch overlay), `openAngle` (lid angle, default `110`), and `resolution`
-defaulting to `1280` (→ 1280×832, the Air's default scaled resolution — desktop breakpoints
+defaulting to the variant's scaled desktop (Air 1280×832, Pro 14 1512×982 — desktop breakpoints
 apply). `color` sets the aluminum finish (Sky Blue `#aec6d9`, Starlight `#e8e0d4`,
 Midnight `#2e3642`).
 
@@ -115,15 +116,16 @@ Every variant's screen defaults to the real device's logical resolution (CSS px)
 
 | Device | `variant` | Portrait | Landscape | Basis |
 | --- | --- | --- | --- | --- |
-| Galaxy S25 | `s25` | 360×780 | 780×360 | 2340×1080 panel at ⅓ (3x) |
-| Galaxy S25+ | `s25plus` | 384×832 | 832×384 | One UI default FHD+ render @ 450 dpi |
-| Galaxy S25 Ultra | `s25ultra` | 384×832 | 832×384 | One UI default FHD+ render @ 450 dpi |
-| Galaxy S25 Edge | `s25edge` | 384×832 | 832×384 | One UI default FHD+ render @ 450 dpi |
+| Galaxy S26 | `s26` | 360×780 | 780×360 | 2340×1080 panel at ⅓ (3x) |
+| Galaxy S26 Ultra | `s26ultra` | 384×833 | 833×384 | One UI default FHD+ render @ 450 dpi |
+| Galaxy Z Fold 7 (open / folded) | `fold7` | 820×910 / 360×835 | swapped | inner 2184×1968, cover 2520×1080 |
+| Galaxy Z Flip 7 (open / folded) | `flip7` | 360×838 / 316×353 | swapped | main 2520×1080, cover 948×1048 |
 | iPhone 17 | `17` | 402×874 | 874×402 | 2622×1206 @ 3x point grid |
 | iPhone 17 Air | `air` | 420×912 | 912×420 | 2736×1260 @ 3x point grid |
 | iPhone 17 Pro | `pro` | 402×874 | 874×402 | 2622×1206 @ 3x point grid |
 | iPhone 17 Pro Max | `promax` | 440×956 | 956×440 | 2868×1320 @ 3x point grid |
-| MacBook Air 13" (M5) | — | — | 1280×832 | 2560×1664 @ 2x default scaled |
+| MacBook Air 13" (M5) | `air13` | — | 1280×832 | 2560×1664 @ 2x default scaled |
+| MacBook Pro 14" (M5) | `pro14` | — | 1512×982 | 3024×1964 @ 2x default scaled |
 | iPad Pro 13" (M5) | `ipadpro13` | 1032×1376 | 1376×1032 | 2752×2064 @ 2x point grid |
 | iPad Pro 11" (M5) | `ipadpro11` | 834×1210 | 1210×834 | 2420×1668 @ 2x point grid |
 | Galaxy Tab S11 | `tabs11` | 800×1280 | 1280×800 | 2560×1600 panel at ½ (xhdpi) |

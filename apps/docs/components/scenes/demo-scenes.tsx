@@ -19,6 +19,7 @@ import {
   TabletMockup,
   VanMockup,
   WatchMockup,
+  FlipMockup,
 } from 'area-mockups'
 import { TapCounter } from '../screens/tap-counter'
 import { LockScreen } from '../screens/lock-screen'
@@ -172,71 +173,44 @@ export default function DemoScenes() {
       </DemoCard>
 
       <DemoCard
-        title="Galaxy S25"
+        title="MacBook Pro 14&quot; (M5)"
         description={
           <>
-            <code>variant=&quot;s25&quot;</code> in Navy: the 6.2″ baseline model with its
-            device-accurate 360×780 virtual screen.
+            <code>variant=&quot;pro14&quot;</code> in Space Black — deeper body, HDMI/SDXC
+            port array, speaker grilles, and the 1512×982 point grid.
           </>
         }
       >
-        <PhoneMockup variant="s25" color="#1b2a41" frameColor="#44506b" deviceProps={{ rotation: [0, -0.3, 0] }}>
-          <MusicPlayer />
-        </PhoneMockup>
-      </DemoCard>
-
-      <DemoCard
-        title="Galaxy S25+"
-        description={
-          <>
-            <code>variant=&quot;s25plus&quot;</code> in Icyblue — same camera architecture,
-            larger 6.7″ body at true relative size.
-          </>
-        }
-      >
-        <PhoneMockup variant="s25plus" color="#bcd3e8" frameColor="#9fb4c9" deviceProps={{ rotation: [0, -0.3, 0] }}>
-          <MusicPlayer />
-        </PhoneMockup>
-      </DemoCard>
-
-      <DemoCard
-        title="Galaxy S25 Ultra"
-        description={
-          <>
-            <code>variant=&quot;s25ultra&quot;</code> in Titanium Black: squared corners,
-            the quad-camera cluster, and a 384×832 virtual screen.
-          </>
-        }
-      >
-        <PhoneMockup variant="s25ultra" color="#2e3238" frameColor="#565b64" deviceProps={{ rotation: [0, -0.3, 0] }}>
-          <MusicPlayer />
-        </PhoneMockup>
-      </DemoCard>
-
-      <DemoCard
-        title="Galaxy S25 Edge"
-        description={
-          <>
-            <code>variant=&quot;s25edge&quot;</code> in Titanium Silver — the 5.8 mm-thin
-            model with its dual camera.
-          </>
-        }
-      >
-        <PhoneMockup variant="s25edge" color="#c8cdd4" frameColor="#aab0b9" deviceProps={{ rotation: [0, -0.3, 0] }}>
-          <MusicPlayer />
-        </PhoneMockup>
+        <LaptopMockup variant="pro14" color="#4a484b" deviceProps={{ rotation: [0, 0.35, 0] }}>
+          <DesktopScreen />
+        </LaptopMockup>
       </DemoCard>
 
       <DemoCard
         title="Galaxy S26"
         description={
           <>
-            <code>variant=&quot;s26&quot;</code> in Cobalt Violet — the next-gen 6.3″ model
-            that consolidates the camera into a single vertical pill island.
+            <code>variant=&quot;s26&quot;</code> in Cobalt Violet — the 6.3″ baseline model:
+            vertical pill camera island and a device-accurate 360×780 virtual screen.
           </>
         }
       >
         <PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <MusicPlayer />
+        </PhoneMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Galaxy S26 Ultra"
+        description={
+          <>
+            <code>variant=&quot;s26ultra&quot;</code> in Titanium Silverblue: boxier corners,
+            three proud rings on the pill island with the tele column beside it, the
+            S Pen silo, and a 384×832 virtual screen.
+          </>
+        }
+      >
+        <PhoneMockup variant="s26ultra" color="#a9bdce" frameColor="#c2ccd7" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <MusicPlayer />
         </PhoneMockup>
       </DemoCard>
@@ -254,6 +228,20 @@ export default function DemoScenes() {
         <FoldMockup color="#c9ccce" frameColor="#b9bcbe" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <DesktopScreen />
         </FoldMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="Galaxy Z Flip 7"
+        description={
+          <>
+            <code>&lt;FlipMockup&gt;</code> in Coral Red, folded: the square cover screen
+            wraps around the dual camera island, exactly like the FlexWindow.
+          </>
+        }
+      >
+        <FlipMockup open={false} color="#e5502e" frameColor="#f06a45" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <LockScreen />
+        </FlipMockup>
       </DemoCard>
 
       <DemoCard

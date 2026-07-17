@@ -72,6 +72,7 @@ export * from './devices/tablet/dimensions'
 export * from './devices/watch/dimensions'
 export * from './devices/monitor/dimensions'
 export * from './devices/fold/dimensions'
+export * from './devices/flip/dimensions'
 
 // Object specs (print, packaging, out-of-home, vehicles — pure data).
 export * from './objects/book/dimensions'

@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { FOLD_VARIANTS, type FoldVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { createWordmarkTexture } from '../wordmark'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -131,32 +132,46 @@ export function Fold({
     [body]
   )
 
-  // Raised camera island (a vertical pill seating the three stacked lenses).
-  const islandGeometry = React.useMemo(() => {
-    const bevel = 0.016
-    const shape = roundedRectShape(
-      cam.island.width - bevel * 2,
-      cam.island.height - bevel * 2,
-      cam.island.radius - bevel
-    )
+  // Camera pedestal: the light plateau plate with the dark pill on top of it.
+  const pillGeometry = (part: { width: number; height: number; radius: number; raise: number }) => {
+    const bevel = 0.014
+    const shape = roundedRectShape(part.width - bevel * 2, part.height - bevel * 2, part.radius - bevel)
     return new THREE.ExtrudeGeometry(shape, {
-      depth: 0.024,
+      depth: Math.max(0.008, part.raise - bevel),
       bevelEnabled: true,
       bevelThickness: bevel,
       bevelSize: bevel,
       bevelSegments: 3,
       curveSegments: 16,
     })
-  }, [cam.island])
+  }
+  const plateauGeometry = React.useMemo(() => pillGeometry(cam.plateau), [cam.plateau])
+  const islandGeometry = React.useMemo(() => pillGeometry(cam.island), [cam.island])
+
+  // The (off) cover-display glass on the back of the open pose's left half.
+  const coverGlassGeometry = React.useMemo(() => {
+    if (!open) return null
+    const c = spec.closed
+    return new THREE.ShapeGeometry(
+      roundedRectShape(c.display.width + 0.03, c.display.height + 0.06, c.display.radius + 0.02),
+      16
+    )
+  }, [open, spec.closed])
+  React.useEffect(() => () => coverGlassGeometry?.dispose(), [coverGlassGeometry])
+
+  // The vertical SAMSUNG emboss on the hinge spine.
+  const spineTexture = React.useMemo(() => createWordmarkTexture('SAMSUNG'), [])
 
   React.useEffect(() => {
     return () => {
       bodyGeometry.dispose()
       backGeometry.dispose()
       glassGeometry.dispose()
+      plateauGeometry.dispose()
       islandGeometry.dispose()
+      spineTexture?.dispose()
     }
-  }, [bodyGeometry, backGeometry, glassGeometry, islandGeometry])
+  }, [bodyGeometry, backGeometry, glassGeometry, plateauGeometry, islandGeometry, spineTexture])
 
   // CSS px per world unit for display overlays.
   const pxPerUnit = res / (landscape ? display.height : display.width)
@@ -190,44 +205,115 @@ export function Fold({
           <meshPhysicalMaterial color="#040507" metalness={0.1} roughness={0.09} clearcoat={1} />
         </mesh>
 
-        {/* the hinge spine running down the center of the unfolded back */}
+        {/* the recessed hinge spine down the center of the unfolded back,
+            carrying the vertical SAMSUNG emboss */}
         {open && (
-          <mesh position={[0, 0, -body.depth / 2 - 0.004]}>
-            <boxGeometry args={[0.05, body.height - 0.36, 0.01]} />
-            <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
-          </mesh>
+          <>
+            <mesh rotation-y={Math.PI} position={[0, 0, -body.depth / 2 - 0.0045]}>
+              <planeGeometry args={[spec.hinge.width, body.height - 0.3]} />
+              <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} />
+            </mesh>
+            {spineTexture && (
+              <mesh rotation={[0, Math.PI, Math.PI / 2]} position={[0, 0, -body.depth / 2 - 0.006]}>
+                <planeGeometry args={[spec.hinge.emboss.length, spec.hinge.emboss.length * 0.14]} />
+                <meshPhysicalMaterial
+                  map={spineTexture}
+                  transparent
+                  opacity={0.5}
+                  color="#3c4046"
+                  metalness={0.6}
+                  roughness={0.4}
+                  polygonOffset
+                  polygonOffsetFactor={-1}
+                />
+              </mesh>
+            )}
+          </>
         )}
 
-        {/* raised camera island */}
+        {/* folded: the flat hinge band capping the left edge, slightly proud,
+            with the same vertical emboss */}
+        {!open && (
+          <group position={[-body.width / 2 - spec.hinge.overhang / 2, 0, 0]}>
+            <RoundedBox args={[spec.hinge.overhang + 0.05, body.height - 0.02, spec.hinge.width]} radius={0.024}>
+              <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.38} />
+            </RoundedBox>
+            {spineTexture && (
+              <mesh rotation={[0, -Math.PI / 2, Math.PI / 2]} position-x={-(spec.hinge.overhang + 0.05) / 2 - 0.002}>
+                <planeGeometry args={[spec.hinge.emboss.length, spec.hinge.emboss.length * 0.14]} />
+                <meshPhysicalMaterial
+                  map={spineTexture}
+                  transparent
+                  opacity={0.5}
+                  color="#3c4046"
+                  metalness={0.6}
+                  roughness={0.4}
+                  polygonOffset
+                  polygonOffsetFactor={-1}
+                />
+              </mesh>
+            )}
+          </group>
+        )}
+
+        {/* the cover display, dark, on the back of the left half (open only) */}
+        {open && coverGlassGeometry && (
+          <group position={[-0.982, 0, 0]}>
+            <mesh
+              geometry={coverGlassGeometry}
+              rotation-y={Math.PI}
+              position-z={-body.depth / 2 - 0.003}
+            >
+              <meshPhysicalMaterial color="#0a0b0f" metalness={0.15} roughness={0.14} clearcoat={1} clearcoatRoughness={0.1} />
+            </mesh>
+            {/* its punch camera, top center of the cover panel */}
+            <mesh rotation-x={Math.PI / 2} position={[0, 1.961, -body.depth / 2 - 0.005]}>
+              <cylinderGeometry args={[0.053, 0.053, 0.004, 20]} />
+              <meshPhysicalMaterial color="#1a2130" metalness={0.4} roughness={0.2} clearcoat={1} />
+            </mesh>
+          </group>
+        )}
+
+        {/* camera pedestal: light plateau plate + the dark pill on it */}
+        <mesh
+          geometry={plateauGeometry}
+          rotation-y={Math.PI}
+          position={[cam.plateau.x, cam.plateau.y, -body.depth / 2 - 0.002]}
+        >
+          <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.32} clearcoat={0.8} />
+        </mesh>
         <mesh
           geometry={islandGeometry}
           rotation-y={Math.PI}
-          position={[cam.island.x, cam.island.y, -body.depth / 2 - 0.002]}
+          position={[cam.island.x, cam.island.y, -body.depth / 2 - cam.plateau.raise]}
         >
-          <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.3} clearcoat={0.9} />
+          <meshPhysicalMaterial color="#26282d" metalness={0.5} roughness={0.35} clearcoat={0.7} />
         </mesh>
 
-        {/* three stacked lens rings on the island */}
+        {/* three stacked lens collars rising to the island top */}
         {cam.rings.map(({ y, r }, i) => (
-          <group key={i} position={[cam.island.x, y, -body.depth / 2 - 0.026]}>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.02}>
-              <cylinderGeometry args={[r, r, 0.06, 40]} />
+          <group
+            key={i}
+            position={[cam.island.x, y, -body.depth / 2 - cam.plateau.raise - cam.island.raise]}
+          >
+            <mesh rotation-x={Math.PI / 2} position-z={0.005}>
+              <cylinderGeometry args={[r, r, 0.05, 40]} />
               <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.25} />
             </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.048}>
-              <cylinderGeometry args={[r * 0.77, r * 0.77, 0.008, 40]} />
+            <mesh rotation-x={Math.PI / 2} position-z={-0.022}>
+              <cylinderGeometry args={[r * 0.9, r * 0.9, 0.008, 40]} />
               <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
             </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.054}>
-              <cylinderGeometry args={[r * 0.35, r * 0.35, 0.008, 32]} />
+            <mesh rotation-x={Math.PI / 2} position-z={-0.028}>
+              <cylinderGeometry args={[r * 0.42, r * 0.42, 0.008, 32]} />
               <meshPhysicalMaterial color="#10182e" metalness={0.4} roughness={0.1} clearcoat={1} />
             </mesh>
           </group>
         ))}
 
-        {/* LED flash on the flat back beside the island */}
+        {/* fresnel flash disc, flush on the flat back beside the pedestal */}
         <mesh rotation-x={Math.PI / 2} position={[cam.flash.x, cam.flash.y, -body.depth / 2 - 0.008]}>
-          <cylinderGeometry args={[0.05, 0.05, 0.016, 32]} />
+          <cylinderGeometry args={[cam.flash.r, cam.flash.r, 0.016, 32]} />
           <meshPhysicalMaterial
             color="#efe9da"
             emissive="#fff3d6"
@@ -236,21 +322,63 @@ export function Fold({
           />
         </mesh>
 
-        {/* side buttons: volume rocker + power on the right edge */}
-        <RoundedBox
-          args={[0.06, 0.5, 0.09]}
-          radius={0.026}
-          position={[body.width / 2 - 0.012, body.height * 0.2, 0]}
-        >
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
-        <RoundedBox
-          args={[0.06, 0.28, 0.09]}
-          radius={0.026}
-          position={[body.width / 2 - 0.012, body.height * 0.075, 0]}
-        >
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
+        {/* side keys on the right edge, scan-accurate */}
+        {spec.buttons.map(({ y, length }, i) => (
+          <RoundedBox
+            key={i}
+            args={[0.06, length, spec.buttonProfile.thickness]}
+            radius={Math.min(0.028, spec.buttonProfile.thickness / 2 - 0.004)}
+            position={[body.width / 2 - 0.03 + spec.buttonProfile.protrusion, y, 0]}
+          >
+            <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
+          </RoundedBox>
+        ))}
+
+        {/* antenna seams on both rails */}
+        {spec.antennaLines?.map((y, i) => (
+          <React.Fragment key={i}>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[side * (body.width / 2 - 0.005), y, 0]}>
+                <boxGeometry args={[0.012, 0.026, body.depth * 0.8]} />
+                <meshStandardMaterial color="#22262c" transparent opacity={0.35} roughness={0.65} />
+              </mesh>
+            ))}
+          </React.Fragment>
+        ))}
+
+        {/* bottom edge: USB-C + speaker slot(s) + mics */}
+        {(() => {
+          const bottomY = -body.height / 2 - 0.002
+          const edge = open ? spec.bottomEdge.open : spec.bottomEdge.closed
+          return (
+            <>
+              <RoundedBox
+                args={[edge.usb.width, 0.016, edge.usb.height]}
+                radius={Math.min(0.028, edge.usb.height / 2 - 0.004)}
+                position={[edge.usb.x, bottomY, 0]}
+              >
+                <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
+              </RoundedBox>
+              {('speakers' in edge ? edge.speakers : [edge.speaker]).map((sp, i) => (
+                <RoundedBox
+                  key={i}
+                  args={[sp.width, 0.014, sp.height]}
+                  radius={Math.min(0.016, sp.height / 2 - 0.002)}
+                  position={[sp.x, bottomY, 0]}
+                >
+                  <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
+                </RoundedBox>
+              ))}
+              {'mics' in edge &&
+                edge.mics?.map(({ x, r }, i) => (
+                  <mesh key={i} position={[x, bottomY, 0]}>
+                    <cylinderGeometry args={[r, r, 0.012, 12]} />
+                    <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
+                  </mesh>
+                ))}
+            </>
+          )
+        })()}
 
         {/* the live screen: real DOM, CSS3D-transformed onto the active display */}
         <DeviceScreen

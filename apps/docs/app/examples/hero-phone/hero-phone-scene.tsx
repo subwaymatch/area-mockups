@@ -14,7 +14,7 @@ import { StrideApp } from '@/components/screens/stride-app'
 export default function HeroPhoneScene() {
   return (
     <PhoneMockup
-      variant="s25ultra"
+      variant="s26ultra"
       float
       camera={{ position: [0, 0.1, 6.6], fov: 38 }}
       shadows={false}

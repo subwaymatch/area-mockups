@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { GALAXY_VARIANTS, type GalaxyVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { createWordmarkTexture } from '../wordmark'
 
 type GroupProps = ThreeElements['group']
 import { roundedRectShape } from '@area-mockups/core'
@@ -13,9 +14,9 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
   children?: React.ReactNode
   /**
    * Which Galaxy device to render. All variants use their true relative sizes:
-   * `s25` (6.2"), `s25plus` (6.7"), `s25ultra` (6.9", boxier corners,
-   * five-element camera), `s25edge` (6.7", ultra-thin, two-lens island), and
-   * `s26` (6.3", three lenses in a vertical pill island).
+   * `s26` (6.3", three lenses in a vertical pill island) and `s26ultra`
+   * (6.9", boxier corners, large proud rings on the pill + tele column and
+   * S Pen silo).
    */
   variant?: GalaxyVariant
   /**
@@ -32,7 +33,7 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
   /**
    * CSS pixel width of the virtual display in the current orientation. Height
    * follows the panel aspect. Defaults to the device's logical resolution —
-   * e.g. the S25 gives 360×780 in portrait and 780×360 in landscape — so
+   * e.g. the S26 gives 360×780 in portrait and 780×360 in landscape — so
    * content lays out just like it would on the real device.
    */
   resolution?: number
@@ -59,15 +60,17 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
 }
 
 /**
- * A procedurally built Samsung Galaxy S25-family phone. No 3D asset files are
+ * A procedurally built Samsung Galaxy S26-family phone. No 3D asset files are
  * loaded — the whole device is generated from geometry at runtime, so it
- * tree-shakes, ships in a few KB and never pops in.
+ * tree-shakes, ships in a few KB and never pops in. Detail geometry (button
+ * pills, camera island, port and speaker cutouts, antenna seams) follows
+ * reference scans of the retail devices.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function Phone({
   children,
-  variant = 's25',
+  variant = 's26',
   orientation = 'portrait',
   color = '#101216',
   frameColor = '#4a4f59',
@@ -81,7 +84,7 @@ export function Phone({
   ...groupProps
 }: PhoneProps) {
   const spec = GALAXY_VARIANTS[variant]
-  const { body, glass, display, punchHole: hole, rearCamera } = spec
+  const { body, glass, display, punchHole: hole, rearCamera, buttons, buttonProfile } = spec
   const landscape = orientation === 'landscape'
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(spec.resolution * (landscape ? aspect : 1))
@@ -123,7 +126,7 @@ export function Phone({
     [body]
   )
 
-  // Optional raised camera island (Galaxy S25 Edge style).
+  // Raised camera island (the S26 line's stadium pill).
   const islandGeometry = React.useMemo(() => {
     const island = rearCamera.island
     if (!island) return null
@@ -134,7 +137,7 @@ export function Phone({
       island.radius - bevel
     )
     const geometry = new THREE.ExtrudeGeometry(shape, {
-      depth: 0.024,
+      depth: (island.raise ?? 0.024) - bevel,
       bevelEnabled: true,
       bevelThickness: bevel,
       bevelSize: bevel,
@@ -144,30 +147,45 @@ export function Phone({
     return geometry
   }, [rearCamera.island])
 
+  // "SAMSUNG" imprint on the lower back.
+  const logoTexture = React.useMemo(
+    () => (spec.logo ? createWordmarkTexture('SAMSUNG') : null),
+    [spec.logo]
+  )
+
   React.useEffect(() => {
     return () => {
       bodyGeometry.dispose()
       glassGeometry.dispose()
       backGeometry.dispose()
       islandGeometry?.dispose()
+      logoTexture?.dispose()
     }
-  }, [bodyGeometry, glassGeometry, backGeometry, islandGeometry])
+  }, [bodyGeometry, glassGeometry, backGeometry, islandGeometry, logoTexture])
 
   // CSS px per world unit for the virtual display overlay.
   const pxPerUnit = res / (landscape ? display.height : display.width)
   const px = (units: number) => units * pxPerUnit
 
-  // A back element (flash, sensor) rides on the raised island only when it
-  // actually sits within the island footprint; otherwise it's flush on the flat
-  // back. The S25 Edge tucks its flash inside the island; the S26 keeps it on
-  // the back beside the pill.
+  // A back element (ring, flash, sensor) mounts on the raised island only when
+  // it sits within the island footprint; otherwise it's flush on the flat back.
   const island = rearCamera.island
+  const raise = island?.raise ?? 0.024
   const onIsland = (x: number, y: number) =>
     !!island &&
     Math.abs(x - island.x) <= island.width / 2 &&
     Math.abs(y - island.y) <= island.height / 2
   const backZ = (x: number, y: number, flat: number, raised: number) =>
     -body.depth / 2 - (onIsland(x, y) ? raised : flat)
+
+  const bottomY = -body.height / 2 - 0.002
+  const edgeDark = '#0a0b0e'
+
+  // The pill island wears a lighter tint of the colorway, like the retail back.
+  const islandColor = React.useMemo(
+    () => `#${new THREE.Color(color).lerp(new THREE.Color('#ffffff'), 0.26).getHexString()}`,
+    [color]
+  )
 
   return (
     <group {...groupProps}>
@@ -195,41 +213,47 @@ export function Phone({
           <meshPhysicalMaterial color="#020205" metalness={0.1} roughness={0.08} clearcoat={1} />
         </mesh>
 
-        {/* rear camera: optional island pedestal (S25 Edge), floating rings, flash, sensors */}
-        {rearCamera.island && islandGeometry && (
+        {/* rear camera: raised pill island, lens rings, flash, sensors */}
+        {island && islandGeometry && (
           <mesh
             geometry={islandGeometry}
             rotation-y={Math.PI}
-            position={[rearCamera.island.x, rearCamera.island.y, -body.depth / 2 - 0.002]}
+            position={[island.x, island.y, -body.depth / 2 - 0.002]}
           >
-            <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.3} clearcoat={0.9} />
+            <meshPhysicalMaterial color={islandColor} metalness={0.4} roughness={0.3} clearcoat={0.9} />
           </mesh>
         )}
-        {rearCamera.rings.map(({ x, y, r }, i) => (
-          <group
-            key={i}
-            position={[x ?? rearCamera.ringsX, y, backZ(x ?? rearCamera.ringsX, y, 0, 0.026)]}
-          >
-            <mesh rotation-x={Math.PI / 2} position-z={-0.02}>
-              <cylinderGeometry args={[r, r, 0.06, 40]} />
-              <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.25} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.048}>
-              <cylinderGeometry args={[r * 0.77, r * 0.77, 0.008, 40]} />
-              <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.054}>
-              <cylinderGeometry args={[r * 0.35, r * 0.35, 0.008, 32]} />
-              <meshPhysicalMaterial color="#10182e" metalness={0.4} roughness={0.1} clearcoat={1} />
-            </mesh>
-          </group>
-        ))}
+        {rearCamera.rings.map(({ x, y, r, h }, i) => {
+          const proud = h ?? rearCamera.ringHeight ?? 0.034
+          const seat = 0.02 // how far the ring wall sinks into its mounting surface
+          return (
+            <group
+              key={i}
+              position={[x ?? rearCamera.ringsX, y, backZ(x ?? rearCamera.ringsX, y, 0, raise)]}
+            >
+              {/* machined outer ring wall, standing proud of the mount */}
+              <mesh rotation-x={Math.PI / 2} position-z={-(proud - seat) / 2}>
+                <cylinderGeometry args={[r, r, proud + seat, 48]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.25} />
+              </mesh>
+              {/* dark bezel + lens glass layered on the ring's face */}
+              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.002}>
+                <cylinderGeometry args={[r * 0.8, r * 0.8, 0.008, 48]} />
+                <meshPhysicalMaterial color="#05070d" metalness={0.2} roughness={0.05} clearcoat={1} />
+              </mesh>
+              <mesh rotation-x={Math.PI / 2} position-z={-proud - 0.008}>
+                <cylinderGeometry args={[r * 0.42, r * 0.42, 0.008, 32]} />
+                <meshPhysicalMaterial color="#10182e" metalness={0.4} roughness={0.1} clearcoat={1} />
+              </mesh>
+            </group>
+          )
+        })}
         <mesh
           rotation-x={Math.PI / 2}
           position={[
             rearCamera.flash.x,
             rearCamera.flash.y,
-            backZ(rearCamera.flash.x, rearCamera.flash.y, 0.008, 0.036),
+            backZ(rearCamera.flash.x, rearCamera.flash.y, 0.008, raise + 0.01),
           ]}
         >
           <cylinderGeometry args={[0.05, 0.05, 0.016, 32]} />
@@ -244,29 +268,109 @@ export function Phone({
           <mesh
             key={i}
             rotation-x={Math.PI / 2}
-            position={[x, y, backZ(x, y, 0.006, 0.034)]}
+            position={[x, y, backZ(x, y, 0.006, raise + 0.008)]}
           >
             <cylinderGeometry args={[r, r, 0.012, 16]} />
             <meshPhysicalMaterial color="#07080c" metalness={0.3} roughness={0.45} />
           </mesh>
         ))}
 
-        {/* side buttons: volume rocker + power on the right edge — machined
-            pills seated in the frame, protruding ~0.7mm like the real keys */}
-        <RoundedBox
-          args={[0.06, 0.52, 0.082]}
-          radius={0.026}
-          position={[body.width / 2 - 0.012, body.height * 0.2125, 0]}
-        >
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
-        <RoundedBox
-          args={[0.06, 0.3, 0.082]}
-          radius={0.026}
-          position={[body.width / 2 - 0.012, body.height * 0.08, 0]}
-        >
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
+        {/* "SAMSUNG" imprint on the lower back */}
+        {spec.logo && logoTexture && (
+          <mesh rotation-y={Math.PI} position={[0, spec.logo.y, -body.depth / 2 - 0.0035]}>
+            <planeGeometry args={[spec.logo.width, spec.logo.height]} />
+            <meshPhysicalMaterial
+              map={logoTexture}
+              transparent
+              opacity={0.42}
+              color="#c8cdd6"
+              metalness={0.8}
+              roughness={0.3}
+              polygonOffset
+              polygonOffsetFactor={-1}
+            />
+          </mesh>
+        )}
+
+        {/* side keys on the right rail — machined pills seated in the frame,
+            protruding ~0.5 mm like the real keys (positions from the scan) */}
+        {buttons.map(({ y, length }, i) => (
+          <RoundedBox
+            key={i}
+            args={[0.06, length, buttonProfile.thickness]}
+            radius={Math.min(0.028, buttonProfile.thickness / 2 - 0.004)}
+            position={[body.width / 2 - 0.03 + buttonProfile.protrusion, y, 0]}
+          >
+            <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
+          </RoundedBox>
+        ))}
+
+        {/* antenna seams wrapping the side rails */}
+        {spec.antennaLines?.map((y, i) => (
+          <React.Fragment key={i}>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[side * (body.width / 2 - 0.005), y, 0]}>
+                <boxGeometry args={[0.012, 0.008, body.depth * 0.82]} />
+                <meshStandardMaterial color="#22262c" transparent opacity={0.38} roughness={0.6} />
+              </mesh>
+            ))}
+          </React.Fragment>
+        ))}
+
+        {/* bottom-edge machining: USB-C, speaker slot, mics, SIM tray, S Pen cap */}
+        {spec.bottomEdge && (
+          <>
+            <RoundedBox
+              args={[spec.bottomEdge.usb.width, 0.016, spec.bottomEdge.usb.height]}
+              radius={Math.min(0.03, spec.bottomEdge.usb.height / 2 - 0.004)}
+              position={[spec.bottomEdge.usb.x, bottomY, 0]}
+            >
+              <meshPhysicalMaterial color={edgeDark} metalness={0.4} roughness={0.4} />
+            </RoundedBox>
+            {spec.bottomEdge.speaker && (
+              <RoundedBox
+                args={[spec.bottomEdge.speaker.width, 0.016, spec.bottomEdge.speaker.height]}
+                radius={Math.min(0.014, spec.bottomEdge.speaker.height / 2 - 0.002)}
+                position={[spec.bottomEdge.speaker.x, bottomY, 0]}
+              >
+                <meshPhysicalMaterial color={edgeDark} metalness={0.3} roughness={0.5} />
+              </RoundedBox>
+            )}
+            {spec.bottomEdge.mics?.map(({ x, r }, i) => (
+              <mesh key={i} position={[x, bottomY, 0]}>
+                <cylinderGeometry args={[r, r, 0.014, 16]} />
+                <meshPhysicalMaterial color={edgeDark} metalness={0.3} roughness={0.5} />
+              </mesh>
+            ))}
+            {spec.bottomEdge.sim && (
+              <RoundedBox
+                args={[spec.bottomEdge.sim.width, 0.012, spec.bottomEdge.sim.height]}
+                radius={Math.min(0.03, spec.bottomEdge.sim.height / 2 - 0.002)}
+                position={[spec.bottomEdge.sim.x, bottomY + 0.004, 0]}
+              >
+                {/* the SIM tray is frame-toned metal — only its seam reads dark */}
+                <meshStandardMaterial color="#15181d" transparent opacity={0.35} roughness={0.5} />
+              </RoundedBox>
+            )}
+            {spec.bottomEdge.penCap && (
+              <group position={[spec.bottomEdge.penCap.x, bottomY, 0]}>
+                {/* S Pen cap: a frame-toned plug with its seam ring */}
+                <mesh>
+                  <cylinderGeometry
+                    args={[spec.bottomEdge.penCap.r, spec.bottomEdge.penCap.r, 0.014, 24]}
+                  />
+                  <meshPhysicalMaterial color="#15181d" metalness={0.5} roughness={0.4} />
+                </mesh>
+                <mesh position-y={-0.002}>
+                  <cylinderGeometry
+                    args={[spec.bottomEdge.penCap.r * 0.8, spec.bottomEdge.penCap.r * 0.8, 0.014, 24]}
+                  />
+                  <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.3} />
+                </mesh>
+              </group>
+            )}
+          </>
+        )}
 
         {/* the live screen: real DOM, CSS3D-transformed onto the display */}
         <DeviceScreen
