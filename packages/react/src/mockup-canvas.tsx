@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Canvas, useFrame, useThree, type CanvasProps } from '@react-three/fiber'
-import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei'
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import { ContactShadows, Environment, Lightformer } from '@react-three/drei'
+import { TumbleControls, type TumbleControlsHandle } from './tumble-controls'
 import {
   CONTACT_SHADOW,
   DEFAULT_CAMERA_FOV,
@@ -9,7 +9,6 @@ import {
   DEFAULT_SHADOW_Y,
   ENTER_FULLSCREEN_ICON_PATH,
   EXIT_FULLSCREEN_ICON_PATH,
-  ORBIT,
   OVERLAY_BUTTON_STYLE,
   OVERLAY_ICON_VIEWBOX,
   STAGE_AMBIENT_LIGHT,
@@ -20,7 +19,6 @@ import {
   cameraDistance,
   canvasTouchAction,
   orbitDistanceRange,
-  orbitZoomBy,
   toggleFullscreen,
 } from '@area-mockups/core'
 
@@ -67,7 +65,7 @@ function OverlayIcon({ path }: { path: string }) {
 export interface MockupCanvasProps {
   /** Your scene — typically a device such as `<Phone>`. */
   children: React.ReactNode
-  /** Drag-to-orbit controls. */
+  /** Drag-to-rotate controls — full 360° tumble in every direction, axis at the stage center. */
   controls?: boolean
   /** Slowly orbit the camera around the device. */
   autoRotate?: boolean
@@ -154,9 +152,9 @@ export function MockupCanvas({
     }
   }, [fullscreen])
 
-  const controlsRef = React.useRef<OrbitControlsImpl>(null)
+  const controlsRef = React.useRef<TumbleControlsHandle>(null)
   const zoomBy = (factor: number) => {
-    if (controlsRef.current) orbitZoomBy(controlsRef.current, factor)
+    controlsRef.current?.zoomBy(factor)
   }
 
   const canvas = (
@@ -196,17 +194,11 @@ export function MockupCanvas({
       {shadows && <ContactShadows position={[0, shadowY, 0]} {...CONTACT_SHADOW} />}
 
       {controls && (
-        <OrbitControls
+        <TumbleControls
           ref={controlsRef}
-          makeDefault
-          enablePan={ORBIT.enablePan}
-          enableZoom={zoom}
-          enableDamping
-          dampingFactor={ORBIT.dampingFactor}
+          zoom={zoom}
           autoRotate={autoRotate}
           autoRotateSpeed={autoRotateSpeed}
-          minPolarAngle={ORBIT.minPolarAngle}
-          maxPolarAngle={ORBIT.maxPolarAngle}
           minDistance={orbitRange.min}
           maxDistance={orbitRange.max}
         />

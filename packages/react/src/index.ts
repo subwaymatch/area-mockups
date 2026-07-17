@@ -7,6 +7,7 @@ export { WatchMockup, type WatchMockupProps } from './watch-mockup'
 export { MonitorMockup, type MonitorMockupProps } from './monitor-mockup'
 export { FoldMockup, type FoldMockupProps } from './fold-mockup'
 export { FlipMockup, type FlipMockupProps } from './flip-mockup'
+export { TumbleControls, type TumbleControlsProps, type TumbleControlsHandle } from './tumble-controls'
 
 // All-in-one 3D object mockups (print, packaging, out-of-home, vehicles).
 export { BookMockup, type BookMockupProps } from './book-mockup'

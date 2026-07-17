@@ -1,6 +1,6 @@
 ---
 title: MockupCanvas
-description: The ready-made stage, with a WebGL canvas, studio lighting, soft shadows, and orbit controls.
+description: The ready-made stage, with a WebGL canvas, studio lighting, soft shadows, and free 360° tumble controls.
 ---
 
 `<MockupCanvas>` wraps a react-three-fiber `Canvas` with everything a product
@@ -27,9 +27,9 @@ One canvas, two bare devices, one shared studio light rig and shadow plane.
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `children` | `ReactNode` | - | Your scene, typically a device such as `Phone`. |
-| `controls` | `boolean` | `true` | Drag-to-orbit controls (pan is always disabled). |
-| `autoRotate` | `boolean` | `false` | Slowly orbit the camera around the device. |
-| `autoRotateSpeed` | `number` | `1` | Orbit speed when `autoRotate` is on. |
+| `controls` | `boolean` | `true` | Drag-to-rotate controls: full 360° tumble in every direction — vertical drags continue straight over the top — with the axis fixed at the stage center (pan is always disabled). |
+| `autoRotate` | `boolean` | `false` | Slowly spin the camera around the device. |
+| `autoRotateSpeed` | `number` | `1` | Spin speed when `autoRotate` is on. |
 | `zoom` | `boolean` | `false` | Pinch zoom on touch, scroll-wheel zoom on desktop, plus overlay +/− buttons. Off by default so embedded mockups never hijack page scroll; on, the canvas owns two-finger gestures. |
 | `fullscreen` | `boolean` | `false` | Adds an overlay button that expands the mockup to fill the screen via the Fullscreen API (and collapses it back). Off by default. |
 | `shadows` | `boolean` | `true` | Soft contact shadow under the device. |

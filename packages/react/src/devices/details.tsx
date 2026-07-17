@@ -159,10 +159,76 @@ export function LensRing({
 }
 
 /**
- * A USB-C opening on a bottom edge (xz plane), matching the reference scans:
- * a flat dark stadium hole with a hairline seam, the receptacle shield just
- * visible inside, and the thin gold pin row deeper still. Reads as a cutout
- * rather than a fixture — total relief is under 0.2 mm.
+ * The USB-C interior drawn once as a crisp decal: stadium cutout with a
+ * hairline seam, depth-shaded cavity, receptacle shield outline and the gold
+ * pin row — matching macro photography of the real ports without any visible
+ * geometry stacking.
+ */
+function createUsbCTexture(aspect: number): THREE.CanvasTexture | null {
+  if (typeof document === 'undefined') return null
+  const H = 192
+  const W = Math.round(H * aspect)
+  const canvas = document.createElement('canvas')
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  const stadium = (x: number, y: number, w: number, h: number) => {
+    const r = h / 2
+    ctx.beginPath()
+    ctx.moveTo(x + r, y)
+    ctx.lineTo(x + w - r, y)
+    ctx.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2)
+    ctx.lineTo(x + r, y + h)
+    ctx.arc(x + r, y + r, r, Math.PI / 2, (3 * Math.PI) / 2)
+    ctx.closePath()
+  }
+
+  // Hairline seam where the cutout meets the rail.
+  stadium(2, 2, W - 4, H - 4)
+  ctx.fillStyle = '#3c4046'
+  ctx.fill()
+
+  // The opening: depth-shaded cavity (darkest just inside the top wall, a
+  // faint light catch on the lower inner wall).
+  const inset = H * 0.055
+  stadium(inset, inset, W - inset * 2, H - inset * 2)
+  const g = ctx.createLinearGradient(0, inset, 0, H - inset)
+  g.addColorStop(0, '#08090c')
+  g.addColorStop(0.22, '#050609')
+  g.addColorStop(0.75, '#0b0d11')
+  g.addColorStop(1, '#181b20')
+  ctx.fillStyle = g
+  ctx.fill()
+
+  // Receptacle shield: a thin metal outline floating inside the opening.
+  const sx = W * 0.115
+  const sy = H * 0.26
+  stadium(sx, sy, W - sx * 2, H - sy * 2)
+  ctx.strokeStyle = '#43474e'
+  ctx.lineWidth = H * 0.05
+  ctx.stroke()
+
+  // Gold pin-row tongue, centered, with a darker root line under it.
+  const tw = W * 0.5
+  const th = H * 0.15
+  stadium((W - tw) / 2, H * 0.45, tw, th)
+  ctx.fillStyle = '#8f7a4e'
+  ctx.fill()
+  stadium((W - tw) / 2 + th * 0.4, H * 0.47, tw - th * 0.8, th * 0.55)
+  ctx.fillStyle = '#b9a066'
+  ctx.fill()
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.anisotropy = 8
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+/**
+ * A USB-C opening on a bottom edge (xz plane): a single flush decal of the
+ * cutout — no stacked slabs, under 1/10 mm of relief.
  */
 export function UsbC({
   x,
@@ -179,39 +245,23 @@ export function UsbC({
   /** Set when the port lives on a top edge (the folded Flip). */
   up?: boolean
 }) {
-  const dir = up ? 1 : -1
-  const pill = (w: number, h: number) => Math.min(0.03, h / 2 - 0.001)
+  const w = width + 0.012
+  const h = height + 0.012
+  const texture = React.useMemo(() => createUsbCTexture(w / h), [w, h])
+  React.useEffect(() => () => texture?.dispose(), [texture])
+  if (!texture) return null
   return (
-    <group position={[x, y, 0]}>
-      {/* hairline seam where the cutout meets the rail */}
-      <RoundedBox args={[width + 0.008, 0.003, height + 0.008]} radius={pill(width, height + 0.008)}>
-        <meshStandardMaterial color="#31343a" roughness={0.5} />
-      </RoundedBox>
-      {/* the opening itself */}
-      <RoundedBox args={[width, 0.0045, height]} radius={pill(width, height)} position-y={dir * 0.001}>
-        <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
-      </RoundedBox>
-      {/* receptacle shield, faintly visible inside the opening */}
-      <RoundedBox
-        args={[width * 0.8, 0.0055, height * 0.5]}
-        radius={pill(width * 0.8, height * 0.5)}
-        position-y={dir * 0.0018}
-      >
-        <meshPhysicalMaterial color="#2b2e34" metalness={0.6} roughness={0.4} />
-      </RoundedBox>
-      {/* cavity around the tongue */}
-      <RoundedBox
-        args={[width * 0.72, 0.0065, height * 0.34]}
-        radius={pill(width * 0.72, height * 0.34)}
-        position-y={dir * 0.0026}
-      >
-        <meshPhysicalMaterial color="#050608" metalness={0.2} roughness={0.5} />
-      </RoundedBox>
-      {/* gold pin row on the connector tongue */}
-      <mesh position-y={dir * 0.0034}>
-        <boxGeometry args={[width * 0.52, 0.0065, height * 0.13]} />
-        <meshPhysicalMaterial color="#a08850" metalness={0.7} roughness={0.4} />
-      </mesh>
-    </group>
+    <mesh position={[x, y + (up ? 0.002 : -0.002), 0]} rotation-x={up ? -Math.PI / 2 : Math.PI / 2}>
+      <planeGeometry args={[w, h]} />
+      <meshPhysicalMaterial
+        map={texture}
+        transparent
+        alphaTest={0.4}
+        metalness={0.3}
+        roughness={0.55}
+        polygonOffset
+        polygonOffsetFactor={-2}
+      />
+    </mesh>
   )
 }

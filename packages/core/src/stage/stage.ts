@@ -23,15 +23,13 @@ export const DEFAULT_SHADOW_Y = -2.05
 export const CONTACT_SHADOW = { opacity: 0.45, scale: 13, blur: 2.6, far: 4.5 } as const
 
 /**
- * Orbit-control feel shared by all mockups (pan disabled, damped). The pitch
- * is unclamped so devices can be inspected from straight above or below —
- * bottom edges (ports, speaker drilling) included. The target stays centered.
+ * Rotation feel shared by all mockups: pan stays disabled (the axis is always
+ * the stage center) and motion is damped. Rotation itself is a full,
+ * unclamped 360° tumble in every direction — see `TumbleOrbit`.
  */
 export const ORBIT = {
   enablePan: false,
   dampingFactor: 0.08,
-  minPolarAngle: 0,
-  maxPolarAngle: Math.PI,
 } as const
 
 /** Camera distance from the origin, or the stage default if none is configured. */

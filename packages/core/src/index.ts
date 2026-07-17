@@ -56,6 +56,7 @@ export {
   type StudioLightformer,
   STUDIO_LIGHTFORMERS,
 } from './stage/lights'
+export { TumbleOrbit, tumbleAutoRotateStep } from './stage/tumble'
 export { type FloatPose, floatPose, randomFloatPhase } from './stage/float'
 export {
   OVERLAY_BUTTON_STYLE,

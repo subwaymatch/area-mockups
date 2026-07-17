@@ -131,3 +131,20 @@ Maintainer review against the reference scans' own renders:
   navy element bulging through it (its specular highlight comes free from the
   environment map). Verified with an isolated three.js harness, then across
   the Air, both Galaxy phones, both foldables and the Pro/Pro Max.
+
+## Follow-up pass 3 (same day)
+
+- **Full 360° tumble controls.** OrbitControls' spherical model clamps at the
+  poles, so vertical rotation could never go over the top. New `TumbleOrbit`
+  (core) + `TumbleControls` (react) replace it in `MockupCanvas`: horizontal
+  drags spin the turntable about the world's vertical, vertical drags tumble
+  the camera straight over the poles carrying its up vector along — unclamped
+  360° in every direction, axis fixed at the stage center. Damping, pointer
+  pinch/wheel zoom, the +/- overlay buttons and autoRotate all carry over.
+  Verified with scripted Playwright drags: 90° (looking straight down at the
+  bottom edge), 180° (upside-down back), 360° (returns home), yaw spin, and
+  the screen drag-handoff path.
+- **USB-C rebuilt as a decal.** The stacked-slab port read as onion layers up
+  close; it's now a single crisp canvas-drawn decal (hairline seam,
+  depth-shaded cavity, receptacle shield outline, gold pin row) flush on the
+  edge — indistinguishable from the scan reference in zoomed renders.
