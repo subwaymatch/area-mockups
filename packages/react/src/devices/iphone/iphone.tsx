@@ -260,7 +260,7 @@ export function IPhone({
             wall, blue-coated glass, glint */}
         {rearCamera.lenses.map(({ x, y, r, h }, i) => (
           <group key={i} position={[x, y, -pedestalTop]}>
-            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} glass="#0b1c3f" element="#152a55" />
+            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} element="#152a55" />
           </group>
         ))}
 

@@ -73,19 +73,19 @@ export function SideKey({
 }
 
 /**
- * A machined camera lens ring: slightly tapered outer wall, polished chamfer
- * lip, flat black bezel ring and truly recessed optics (dark barrel floor,
- * coated lens element, glint) behind a faint glass cover. Mount it in a group
- * at the ring's center on the mounting surface; it builds toward -z (the
- * device back's outward direction).
+ * A machined camera lens ring, modeled on the reference scans: slightly
+ * tapered body-color wall, polished chamfer, a wide charcoal barrel funnel
+ * sinking to a black aperture, and a glossy domed lens element bulging at its
+ * throat (its specular highlight comes free from the environment map). Mount
+ * it in a group at the ring's center on the mounting surface; it builds
+ * toward -z (the device back's outward direction).
  */
 export function LensRing({
   r,
   proud,
   seat = 0.02,
   frameColor,
-  glass = '#0e1a36',
-  element = '#1b2f5e',
+  element = '#1c2a66',
 }: {
   r: number
   /** How far the ring wall stands proud of its mounting surface. */
@@ -93,19 +93,29 @@ export function LensRing({
   /** How deep the wall sinks into the mount. */
   seat?: number
   frameColor: string
-  glass?: string
+  /** Tint of the domed lens element. */
   element?: string
 }) {
+  // The funnel lives entirely within the ring's protrusion so it never sinks
+  // behind the mounting surface (the mount is solid geometry).
+  const funnelDepth = Math.max(0.014, proud - 0.014)
+  const throatZ = -proud + 0.01 + funnelDepth
   return (
     <group>
-      {/* tapered outer wall, a touch narrower at the top like a machined boss */}
+      {/* tapered outer wall — an open tube so the bore stays visible; the
+          chamfer shell below closes its face */}
       <mesh rotation-x={Math.PI / 2} position-z={-(proud - seat) / 2}>
-        <cylinderGeometry args={[r * 0.97, r, proud + seat, 48]} />
-        <meshPhysicalMaterial color={frameColor} metalness={0.92} roughness={0.22} />
+        <cylinderGeometry args={[r, r * 0.97, proud + seat, 48, 1, true]} />
+        <meshPhysicalMaterial
+          color={frameColor}
+          metalness={0.92}
+          roughness={0.22}
+          side={THREE.DoubleSide}
+        />
       </mesh>
       {/* polished chamfer stepping down from the wall's face (open cone shell) */}
       <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.005}>
-        <cylinderGeometry args={[r * 0.88, r * 0.97, 0.01, 48, 1, true]} />
+        <cylinderGeometry args={[r * 0.86, r * 0.97, 0.01, 48, 1, true]} />
         <meshPhysicalMaterial
           color={frameColor}
           metalness={0.94}
@@ -114,49 +124,45 @@ export function LensRing({
           side={THREE.DoubleSide}
         />
       </mesh>
-      {/* dark bezel funnel from the chamfer down into the barrel */}
-      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.012}>
-        <cylinderGeometry args={[r * 0.61, r * 0.88, 0.008, 48, 1, true]} />
+      {/* charcoal barrel funnel, wide at the face, sinking to the aperture */}
+      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.01 + funnelDepth / 2}>
+        <cylinderGeometry args={[r * 0.3, r * 0.86, funnelDepth, 48, 1, true]} />
         <meshPhysicalMaterial
-          color="#07090e"
-          metalness={0.35}
-          roughness={0.3}
+          color="#4a4e55"
+          metalness={0.05}
+          roughness={0.6}
+          envMapIntensity={0.8}
           side={THREE.DoubleSide}
         />
       </mesh>
-      {/* recessed barrel: dark floor sunk below the bezel */}
-      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.014}>
-        <cylinderGeometry args={[r * 0.61, r * 0.61, 0.012, 40]} />
-        <meshPhysicalMaterial color="#04050a" metalness={0.25} roughness={0.4} />
+      {/* black aperture plate at the funnel throat */}
+      <mesh rotation-x={Math.PI / 2} position-z={throatZ - 0.002}>
+        <cylinderGeometry args={[r * 0.33, r * 0.33, 0.006, 40]} />
+        <meshPhysicalMaterial color="#0a0b0d" metalness={0.3} roughness={0.4} />
       </mesh>
-      {/* coated lens element on the barrel floor */}
-      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.011}>
-        <cylinderGeometry args={[r * 0.42, r * 0.42, 0.006, 36]} />
+      {/* glossy domed lens element, its cap emerging from the aperture — kept
+          fully in front of the (solid) mounting surface so it never gets
+          swallowed by the mount's own faces */}
+      <mesh position-z={throatZ - r * 0.05} scale={[1, 1, 0.6]}>
+        <sphereGeometry args={[r * 0.17, 32, 20]} />
         <meshPhysicalMaterial
-          color={glass}
-          metalness={0.5}
-          roughness={0.05}
+          color={element}
+          metalness={0.15}
+          roughness={0.03}
           clearcoat={1}
-          clearcoatRoughness={0.04}
-          envMapIntensity={0.8}
+          clearcoatRoughness={0.03}
+          envMapIntensity={1.6}
         />
-      </mesh>
-      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.007}>
-        <cylinderGeometry args={[r * 0.2, r * 0.2, 0.005, 24]} />
-        <meshPhysicalMaterial color={element} metalness={0.6} roughness={0.1} clearcoat={1} />
-      </mesh>
-      {/* AR-coating glint */}
-      <mesh rotation-x={Math.PI / 2} position={[-r * 0.24, r * 0.24, -proud + 0.009]}>
-        <cylinderGeometry args={[r * 0.08, r * 0.08, 0.003, 16]} />
-        <meshPhysicalMaterial color="#8fb0dc" metalness={0.4} roughness={0.1} clearcoat={1} />
       </mesh>
     </group>
   )
 }
 
 /**
- * A USB-C opening on a bottom edge (xz plane): brushed rim ring, dark pill
- * cavity and the gold connector tongue peeking out of it.
+ * A USB-C opening on a bottom edge (xz plane), matching the reference scans:
+ * a flat dark stadium hole with a hairline seam, the receptacle shield just
+ * visible inside, and the thin gold pin row deeper still. Reads as a cutout
+ * rather than a fixture — total relief is under 0.2 mm.
  */
 export function UsbC({
   x,
@@ -174,25 +180,37 @@ export function UsbC({
   up?: boolean
 }) {
   const dir = up ? 1 : -1
+  const pill = (w: number, h: number) => Math.min(0.03, h / 2 - 0.001)
   return (
     <group position={[x, y, 0]}>
-      <RoundedBox
-        args={[width + 0.02, 0.01, height + 0.02]}
-        radius={Math.min(0.032, (height + 0.02) / 2 - 0.002)}
-      >
-        <meshPhysicalMaterial color="#5a5e66" metalness={0.9} roughness={0.35} />
+      {/* hairline seam where the cutout meets the rail */}
+      <RoundedBox args={[width + 0.008, 0.003, height + 0.008]} radius={pill(width, height + 0.008)}>
+        <meshStandardMaterial color="#31343a" roughness={0.5} />
       </RoundedBox>
-      <RoundedBox
-        args={[width, 0.016, height]}
-        radius={Math.min(0.028, height / 2 - 0.003)}
-        position-y={dir * 0.002}
-      >
-        <meshPhysicalMaterial color="#050609" metalness={0.4} roughness={0.45} />
+      {/* the opening itself */}
+      <RoundedBox args={[width, 0.0045, height]} radius={pill(width, height)} position-y={dir * 0.001}>
+        <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
       </RoundedBox>
-      {/* connector tongue */}
-      <mesh position-y={dir * 0.0105}>
-        <boxGeometry args={[width * 0.52, 0.004, height * 0.24]} />
-        <meshPhysicalMaterial color="#b59b62" metalness={0.8} roughness={0.35} />
+      {/* receptacle shield, faintly visible inside the opening */}
+      <RoundedBox
+        args={[width * 0.8, 0.0055, height * 0.5]}
+        radius={pill(width * 0.8, height * 0.5)}
+        position-y={dir * 0.0018}
+      >
+        <meshPhysicalMaterial color="#2b2e34" metalness={0.6} roughness={0.4} />
+      </RoundedBox>
+      {/* cavity around the tongue */}
+      <RoundedBox
+        args={[width * 0.72, 0.0065, height * 0.34]}
+        radius={pill(width * 0.72, height * 0.34)}
+        position-y={dir * 0.0026}
+      >
+        <meshPhysicalMaterial color="#050608" metalness={0.2} roughness={0.5} />
+      </RoundedBox>
+      {/* gold pin row on the connector tongue */}
+      <mesh position-y={dir * 0.0034}>
+        <boxGeometry args={[width * 0.52, 0.0065, height * 0.13]} />
+        <meshPhysicalMaterial color="#a08850" metalness={0.7} roughness={0.4} />
       </mesh>
     </group>
   )

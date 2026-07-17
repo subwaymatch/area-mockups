@@ -114,3 +114,20 @@ Maintainer feedback after reviewing against pressroom photography:
 
 Import costs re-measured after the detail pass: Galaxy 8.7 KB gz, iPhone
 9.3 KB gz, Fold 8.7 / Flip 8.9 / Laptop 9.2 KB gz; whole library 45.3 KB gz.
+
+## Follow-up pass 2 (same day)
+
+Maintainer review against the reference scans' own renders:
+
+- **USB-C rebuilt.** The proud rim-puck look is gone; ports now render as the
+  scans do — a flat dark stadium cutout with a hairline seam, the receptacle
+  shield faintly visible inside and the thin gold pin row deeper still
+  (total relief < 0.2 mm). Shared `UsbC` used by every phone/foldable edge.
+- **Lens rings rebuilt (and a real bug fixed).** The ring wall was a capped
+  cylinder, so its end face silently covered the entire bore — every "recessed
+  optic" was hidden behind body-colored metal. The wall is now an open tube
+  closed by the chamfer shell, revealing the new interior modeled on the scans:
+  charcoal barrel funnel sinking to a black aperture plate, with a glossy domed
+  navy element bulging through it (its specular highlight comes free from the
+  environment map). Verified with an isolated three.js harness, then across
+  the Air, both Galaxy phones, both foldables and the Pro/Pro Max.

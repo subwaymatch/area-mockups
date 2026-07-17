@@ -21,7 +21,7 @@ export type LogoName = keyof typeof SVGS
  */
 export function createLogoGeometry(name: LogoName, width: number, height: number): THREE.BufferGeometry {
   const data = new SVGLoader().parse(SVGS[name])
-  const shapes = data.paths.flatMap((path) => SVGLoader.createShapes(path))
+  const shapes = data.paths.flatMap((path) => path.toShapes(true))
   const geometry = new THREE.ShapeGeometry(shapes, 8)
   geometry.computeBoundingBox()
   const box = geometry.boundingBox!
