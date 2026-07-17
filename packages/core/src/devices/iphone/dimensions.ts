@@ -204,19 +204,22 @@ const IPHONE_17_PRO: IPhoneSpec = {
     usb: { x: 0, width: 0.239, height: 0.073 },
     screws: [{ x: 0.183, r: 0.02 }, { x: -0.183, r: 0.02 }],
     speakers: [
-      // Scan: six drilled holes per side, slightly asymmetric groups.
-      { x: -0.552, r: 0.032 },
-      { x: -0.485, r: 0.032 },
-      { x: -0.425, r: 0.032 },
-      { x: -0.358, r: 0.032 },
-      { x: -0.283, r: 0.032 },
-      { x: -0.231, r: 0.032 },
-      { x: 0.312, r: 0.032 },
-      { x: 0.374, r: 0.032 },
-      { x: 0.436, r: 0.032 },
-      { x: 0.503, r: 0.032 },
-      { x: 0.573, r: 0.032 },
-      { x: 0.63, r: 0.032 },
+      // Scan: six drilled holes per side, slightly asymmetric groups. Hole
+      // radius from the retail drilling (~1.8 mm bore) — the scan's clusters
+      // read wider because they include each hole's chamfer, which would make
+      // neighboring cavities intersect.
+      { x: -0.552, r: 0.024 },
+      { x: -0.485, r: 0.024 },
+      { x: -0.425, r: 0.024 },
+      { x: -0.358, r: 0.024 },
+      { x: -0.283, r: 0.024 },
+      { x: -0.231, r: 0.024 },
+      { x: 0.312, r: 0.024 },
+      { x: 0.374, r: 0.024 },
+      { x: 0.436, r: 0.024 },
+      { x: 0.503, r: 0.024 },
+      { x: 0.573, r: 0.024 },
+      { x: 0.63, r: 0.024 },
     ],
   },
   antennaLines: [1.62, -1.62],

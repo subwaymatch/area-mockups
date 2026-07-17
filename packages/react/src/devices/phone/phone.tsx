@@ -5,7 +5,16 @@ import type { ThreeElements } from '@react-three/fiber'
 import { GALAXY_VARIANTS, type GalaxyVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
-import { SideKey, LensRing, UsbC } from '../details'
+import {
+  SideKey,
+  LensRing,
+  UsbC,
+  EdgeSocket,
+  cutGeometry,
+  stadiumCutter,
+  holeCutter,
+  USB_CUT_DEPTH,
+} from '../details'
 
 type GroupProps = ThreeElements['group']
 import { roundedRectShape } from '@area-mockups/core'
@@ -63,7 +72,7 @@ export interface PhoneProps extends Omit<GroupProps, 'children' | 'color'> {
 /**
  * A procedurally built Samsung Galaxy S26-family phone. No 3D asset files are
  * loaded — the whole device is generated from geometry at runtime, so it
- * tree-shakes, ships in a few KB and never pops in. Detail geometry (button
+ * tree-shakes and never pops in. Detail geometry (button
  * pills, camera island, port and speaker cutouts, antenna seams) follows
  * reference scans of the retail devices.
  *
@@ -93,7 +102,10 @@ export function Phone({
   const occludeRefs = React.useMemo(() => [bodyRef], [])
 
   // Chassis: an extruded rounded-rect with beveled edges. The shape is inset by
-  // the bevel size so the final silhouette lands exactly on the spec body.
+  // the bevel size so the final silhouette lands exactly on the spec body. The
+  // bottom-edge port, speaker slot and mic holes are then machined out of it
+  // with CSG so every opening is a real cavity (SIM tray and S Pen cap stay
+  // flush — they're covers, not holes).
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
       body.width - body.bevel * 2,
@@ -110,8 +122,22 @@ export function Phone({
       curveSegments: 16,
     })
     geometry.translate(0, 0, -depth / 2)
-    return geometry
-  }, [body])
+    const edge = spec.bottomEdge
+    if (!edge) return geometry
+    const bottom = -body.height / 2
+    const cutters = [
+      stadiumCutter(edge.usb.width, edge.usb.height, USB_CUT_DEPTH).translate(edge.usb.x, bottom, 0),
+    ]
+    if (edge.speaker) {
+      cutters.push(
+        stadiumCutter(edge.speaker.width, edge.speaker.height, 0.06).translate(edge.speaker.x, bottom, 0)
+      )
+    }
+    for (const mic of edge.mics ?? []) {
+      cutters.push(holeCutter(mic.r, 0.05).translate(mic.x, bottom, 0))
+    }
+    return cutGeometry(geometry, cutters)
+  }, [body, spec.bottomEdge])
 
   const glassGeometry = React.useMemo(
     () => new THREE.ShapeGeometry(roundedRectShape(glass.width, glass.height, glass.radius), 16),
@@ -180,7 +206,6 @@ export function Phone({
     -body.depth / 2 - (onIsland(x, y) ? raised : flat)
 
   const bottomY = -body.height / 2 - 0.002
-  const edgeDark = '#0a0b0e'
 
   // The pill island wears a lighter tint of the colorway, like the retail back.
   const islandColor = React.useMemo(
@@ -301,35 +326,33 @@ export function Phone({
           </React.Fragment>
         ))}
 
-        {/* bottom-edge machining: USB-C, speaker slot, mics, SIM tray, S Pen cap */}
+        {/* bottom-edge machining: the USB-C, speaker slot and mic holes are real
+            cavities cut from the chassis above — these are their interiors.
+            SIM tray and S Pen cap are flush covers with a seam. */}
         {spec.bottomEdge && (
           <>
             <UsbC
               x={spec.bottomEdge.usb.x}
-              y={bottomY}
+              y={-body.height / 2}
               width={spec.bottomEdge.usb.width}
               height={spec.bottomEdge.usb.height}
             />
             {spec.bottomEdge.speaker && (
-              <RoundedBox
-                args={[spec.bottomEdge.speaker.width, 0.016, spec.bottomEdge.speaker.height]}
-                radius={Math.min(0.014, spec.bottomEdge.speaker.height / 2 - 0.002)}
-                position={[spec.bottomEdge.speaker.x, bottomY, 0]}
-              >
-                <meshPhysicalMaterial color={edgeDark} metalness={0.3} roughness={0.5} />
-              </RoundedBox>
+              <EdgeSocket
+                position={[spec.bottomEdge.speaker.x, -body.height / 2, 0]}
+                width={spec.bottomEdge.speaker.width}
+                height={spec.bottomEdge.speaker.height}
+                depth={0.06}
+              />
             )}
             {spec.bottomEdge.mics?.map(({ x, r }, i) => (
-              <mesh key={i} position={[x, bottomY, 0]}>
-                <cylinderGeometry args={[r, r, 0.014, 16]} />
-                <meshPhysicalMaterial color={edgeDark} metalness={0.3} roughness={0.5} />
-              </mesh>
+              <EdgeSocket key={i} position={[x, -body.height / 2, 0]} r={r} depth={0.05} lip={0.008} />
             ))}
             {spec.bottomEdge.sim && (
               <RoundedBox
-                args={[spec.bottomEdge.sim.width, 0.012, spec.bottomEdge.sim.height]}
+                args={[spec.bottomEdge.sim.width, 0.008, spec.bottomEdge.sim.height]}
                 radius={Math.min(0.03, spec.bottomEdge.sim.height / 2 - 0.002)}
-                position={[spec.bottomEdge.sim.x, bottomY + 0.004, 0]}
+                position={[spec.bottomEdge.sim.x, bottomY + 0.005, 0]}
               >
                 {/* the SIM tray is frame-toned metal — only its seam reads dark */}
                 <meshStandardMaterial color="#15181d" transparent opacity={0.35} roughness={0.5} />

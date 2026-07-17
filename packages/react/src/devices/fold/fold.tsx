@@ -5,7 +5,16 @@ import type { ThreeElements } from '@react-three/fiber'
 import { FOLD_VARIANTS, type FoldVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
-import { SideKey, LensRing, UsbC } from '../details'
+import {
+  SideKey,
+  LensRing,
+  UsbC,
+  EdgeSocket,
+  cutGeometry,
+  stadiumCutter,
+  holeCutter,
+  USB_CUT_DEPTH,
+} from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -95,7 +104,9 @@ export function Fold({
   const occludeRefs = React.useMemo(() => [bodyRef], [])
 
   // Chassis: an extruded rounded-rect with beveled edges, inset by the bevel so
-  // the final silhouette lands exactly on the spec body.
+  // the final silhouette lands exactly on the spec body. The pose's bottom-edge
+  // USB-C, speaker slot(s) and mic holes are then machined out with CSG so each
+  // opening is a real cavity.
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
       body.width - body.bevel * 2,
@@ -112,8 +123,25 @@ export function Fold({
       curveSegments: 16,
     })
     geometry.translate(0, 0, -depth / 2)
-    return geometry
-  }, [body])
+    const edge = open ? spec.bottomEdge.open : spec.bottomEdge.closed
+    const bottom = -body.height / 2
+    const cutters = [
+      stadiumCutter(edge.usb.width, edge.usb.height, USB_CUT_DEPTH).translate(
+        edge.usb.x,
+        bottom,
+        edge.usb.z ?? 0
+      ),
+    ]
+    for (const sp of 'speakers' in edge ? edge.speakers : [edge.speaker]) {
+      cutters.push(stadiumCutter(sp.width, sp.height, 0.06).translate(sp.x, bottom, sp.z ?? 0))
+    }
+    if ('mics' in edge) {
+      for (const mic of edge.mics ?? []) {
+        cutters.push(holeCutter(mic.r, 0.05).translate(mic.x, bottom, 0))
+      }
+    }
+    return cutGeometry(geometry, cutters)
+  }, [body, open, spec.bottomEdge])
 
   const backGeometry = React.useMemo(
     () =>
@@ -341,29 +369,32 @@ export function Fold({
           </React.Fragment>
         ))}
 
-        {/* bottom edge: USB-C + speaker slot(s) + mics */}
+        {/* bottom edge: the USB-C, speaker slot(s) and mic holes are real
+            cavities cut from the chassis above — these are their interiors */}
         {(() => {
-          const bottomY = -body.height / 2 - 0.002
+          const bottomY = -body.height / 2
           const edge = open ? spec.bottomEdge.open : spec.bottomEdge.closed
           return (
             <>
-              <UsbC x={edge.usb.x} y={bottomY} width={edge.usb.width} height={edge.usb.height} />
+              <UsbC
+                x={edge.usb.x}
+                y={bottomY}
+                z={edge.usb.z ?? 0}
+                width={edge.usb.width}
+                height={edge.usb.height}
+              />
               {('speakers' in edge ? edge.speakers : [edge.speaker]).map((sp, i) => (
-                <RoundedBox
+                <EdgeSocket
                   key={i}
-                  args={[sp.width, 0.014, sp.height]}
-                  radius={Math.min(0.016, sp.height / 2 - 0.002)}
-                  position={[sp.x, bottomY, 0]}
-                >
-                  <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
-                </RoundedBox>
+                  position={[sp.x, bottomY, sp.z ?? 0]}
+                  width={sp.width}
+                  height={sp.height}
+                  depth={0.06}
+                />
               ))}
               {'mics' in edge &&
                 edge.mics?.map(({ x, r }, i) => (
-                  <mesh key={i} position={[x, bottomY, 0]}>
-                    <cylinderGeometry args={[r, r, 0.012, 12]} />
-                    <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
-                  </mesh>
+                  <EdgeSocket key={i} position={[x, bottomY, 0]} r={r} depth={0.05} lip={0.008} />
                 ))}
             </>
           )

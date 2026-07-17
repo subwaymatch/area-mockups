@@ -66,12 +66,19 @@ export interface FoldSpec {
    * the frame). `emboss` is the vertical SAMSUNG wordmark on the spine.
    */
   hinge: { width: number; overhang: number; emboss: { length: number } }
-  /** Bottom-edge machining per pose (x positions in that pose's coordinates). */
+  /**
+   * Bottom-edge machining per pose (x positions in that pose's coordinates).
+   * Folded, the USB lives on the camera half (back slab) and the speaker on
+   * the cover half (front slab) — `z` places each opening on its own slab.
+   */
   bottomEdge: {
-    closed: { usb: { x: number; width: number; height: number }; speaker: { x: number; width: number; height: number } }
+    closed: {
+      usb: { x: number; width: number; height: number; z?: number }
+      speaker: { x: number; width: number; height: number; z?: number }
+    }
     open: {
-      usb: { x: number; width: number; height: number }
-      speakers: { x: number; width: number; height: number }[]
+      usb: { x: number; width: number; height: number; z?: number }
+      speakers: { x: number; width: number; height: number; z?: number }[]
       mics?: { x: number; r: number }[]
     }
   }
@@ -130,8 +137,9 @@ const FOLD7: FoldSpec = {
   hinge: { width: 0.166, overhang: 0.03, emboss: { length: 0.456 } },
   bottomEdge: {
     closed: {
-      usb: { x: 0, width: 0.264, height: 0.081 },
-      speaker: { x: 0, width: 0.366, height: 0.045 },
+      // Both center on the folded width but sit on different slabs of the stack.
+      usb: { x: 0, width: 0.264, height: 0.081, z: -0.069 },
+      speaker: { x: 0, width: 0.366, height: 0.045, z: 0.069 },
     },
     open: {
       // USB on the camera half, speaker centered on the cover half.

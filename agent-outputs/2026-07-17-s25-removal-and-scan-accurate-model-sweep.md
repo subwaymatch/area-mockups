@@ -148,3 +148,37 @@ Maintainer review against the reference scans' own renders:
   close; it's now a single crisp canvas-drawn decal (hairline seam,
   depth-shaded cavity, receptacle shield outline, gold pin row) flush on the
   edge — indistinguishable from the scan reference in zoomed renders.
+
+## Follow-up pass 4 (same day)
+
+Maintainer: "Can you 'cut out' the usb-c port and other holes? Currently, it
+looks 'flat'." Decals are gone — every port and hole is now a real cavity:
+
+- **CSG machining.** `three-bvh-csg` (bundled, tree-shaken away for non-phone
+  mockups) subtracts real cutter solids from the chassis geometry in a single
+  boolean pass per body (`cutGeometry` + `stadiumCutter`/`holeCutter` in the
+  shared details module, with a fallback to the uncut body if the op ever
+  fails). Openings now have machined lips, interior walls and true parallax.
+- **USB-C receptacles.** The shared `UsbC` renders the inside of the cavity:
+  stainless shell (its rim ring visible just past the machined lip), matte
+  cavity floor, and the gold pin tongue at scan depth — on every Galaxy,
+  iPhone, foldable edge and the MacBooks' Thunderbolt ports.
+- **Dark sockets.** Speaker slots get a dark sleeve + recessed floor, mic and
+  speaker drillings get recessed plugs, iPhone screws sit as real silver heads
+  inside shallow bores (`EdgeSocket`). SIM trays and the S Pen cap stay flush —
+  they're covers, not holes.
+- **Cut targets.** Galaxy S26/S26 Ultra bottom edges; iPhone 17/Air/Pro/Pro Max
+  (USB + 12 drilled speaker holes + screw recesses); Z Fold 7 and Z Flip 7 in
+  both poses (the folded Flip's kit cuts the rear half's top edge; the folded
+  Fold's USB and speaker sit on *different slabs* of the stack, now modeled
+  with per-slab z offsets straight from the scan); MacBook Air/Pro side walls
+  (MagSafe, Thunderbolt, jack, HDMI, SDXC).
+- **Spec fixes surfaced by real cavities.** The iPhone 17 Pro's scan-measured
+  speaker-hole radius included each hole's chamfer, which made neighboring
+  cavities intersect — corrected to the real ~1.8 mm bore. The folded Fold's
+  USB/speaker overlap at x=0 was resolved with the per-slab z placement above.
+- Import costs re-measured: the five machined families now cost 42.6–43.4 KB
+  gzip (the CSG engine is ~33 KB of that); everything else is unchanged
+  (6.3 KB and down); whole library 79.5 KB gzip. Tables updated in
+  `devices.mdx` and the react README — accepted per the maintainer's standing
+  accuracy-over-size preference.

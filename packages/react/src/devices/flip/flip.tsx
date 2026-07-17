@@ -5,7 +5,16 @@ import type { ThreeElements } from '@react-three/fiber'
 import { FLIP_VARIANTS, type FlipVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
-import { SideKey, LensRing, UsbC } from '../details'
+import {
+  SideKey,
+  LensRing,
+  UsbC,
+  EdgeSocket,
+  cutGeometry,
+  stadiumCutter,
+  holeCutter,
+  USB_CUT_DEPTH,
+} from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -61,23 +70,31 @@ export interface FlipProps extends Omit<GroupProps, 'children' | 'color'> {
 }
 
 /** An extruded rounded-rect slab with a soft edge bevel (one flip half / body). */
-function useSlab(width: number, height: number, radius: number, depth: number, bevel: number) {
-  const geometry = React.useMemo(() => {
-    const shape = roundedRectShape(width - bevel * 2, height - bevel * 2, radius - bevel)
-    const core = depth - bevel * 2
-    const g = new THREE.ExtrudeGeometry(shape, {
-      depth: core,
-      bevelEnabled: true,
-      bevelThickness: bevel,
-      bevelSize: bevel,
-      bevelSegments: 4,
-      curveSegments: 16,
-    })
-    g.translate(0, 0, -core / 2)
-    return g
-  }, [width, height, radius, depth, bevel])
-  React.useEffect(() => () => geometry.dispose(), [geometry])
-  return geometry
+function slabGeometry(width: number, height: number, radius: number, depth: number, bevel: number) {
+  const shape = roundedRectShape(width - bevel * 2, height - bevel * 2, radius - bevel)
+  const core = depth - bevel * 2
+  const g = new THREE.ExtrudeGeometry(shape, {
+    depth: core,
+    bevelEnabled: true,
+    bevelThickness: bevel,
+    bevelSize: bevel,
+    bevelSegments: 4,
+    curveSegments: 16,
+  })
+  g.translate(0, 0, -core / 2)
+  return g
+}
+
+/** Cutters for the free edge's machining (USB-C, speaker slot, mic holes) at `edgeY`. */
+function freeEdgeCutters(
+  edge: { usb: { x: number; width: number; height: number }; speaker: { x: number; width: number; height: number }; mics: { x: number; r: number }[] },
+  edgeY: number
+): THREE.BufferGeometry[] {
+  return [
+    stadiumCutter(edge.usb.width, edge.usb.height, USB_CUT_DEPTH).translate(edge.usb.x, edgeY, 0),
+    stadiumCutter(edge.speaker.width, edge.speaker.height, 0.06).translate(edge.speaker.x, edgeY, 0),
+    ...edge.mics.map(({ x, r }) => holeCutter(r, 0.05).translate(x, edgeY, 0)),
+  ]
 }
 
 /**
@@ -121,8 +138,37 @@ export function Flip({
   // Cover-half center offset from the open body's center (+y = upper half).
   const halfOffsetY = openBody.height / 2 - half.height / 2
 
-  const openGeometry = useSlab(openBody.width, openBody.height, openBody.radius, openBody.depth, openBody.bevel)
-  const halfGeometry = useSlab(half.width, half.height, half.radius, half.depth, half.bevel)
+  // The open slab with the free-edge kit machined out of its bottom edge.
+  const openGeometry = React.useMemo(
+    () =>
+      cutGeometry(
+        slabGeometry(openBody.width, openBody.height, openBody.radius, openBody.depth, openBody.bevel),
+        freeEdgeCutters(spec.bottomEdge, -openBody.height / 2)
+      ),
+    [openBody, spec.bottomEdge]
+  )
+  // Folded halves: the front (cover) half is uncut; the rear half carries the
+  // same kit machined into what becomes the TOP edge of the folded stack.
+  const halfGeometry = React.useMemo(
+    () => slabGeometry(half.width, half.height, half.radius, half.depth, half.bevel),
+    [half]
+  )
+  const rearHalfGeometry = React.useMemo(
+    () =>
+      cutGeometry(
+        slabGeometry(half.width, half.height, half.radius, half.depth, half.bevel),
+        freeEdgeCutters(spec.bottomEdge, half.height / 2)
+      ),
+    [half, spec.bottomEdge]
+  )
+  React.useEffect(
+    () => () => {
+      openGeometry.dispose()
+      halfGeometry.dispose()
+      rearHalfGeometry.dispose()
+    },
+    [openGeometry, halfGeometry, rearHalfGeometry]
+  )
 
   const coverGlassGeometry = React.useMemo(
     () =>
@@ -246,32 +292,33 @@ export function Flip({
     </group>
   )
 
-  // Free-edge machining of the lower half: USB-C, speaker slot, mic dots.
-  // `edgeY` is that edge's y in the current pose; features stay at their x.
-  const freeEdgeKit = (edgeY: number) => (
-    <group>
-      <UsbC
-        x={spec.bottomEdge.usb.x}
-        y={edgeY}
-        width={spec.bottomEdge.usb.width}
-        height={spec.bottomEdge.usb.height}
-        up={edgeY > 0}
-      />
-      <RoundedBox
-        args={[spec.bottomEdge.speaker.width, 0.014, spec.bottomEdge.speaker.height]}
-        radius={Math.min(0.016, spec.bottomEdge.speaker.height / 2 - 0.002)}
-        position={[spec.bottomEdge.speaker.x, edgeY, 0]}
-      >
-        <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
-      </RoundedBox>
-      {spec.bottomEdge.mics.map(({ x, r }, i) => (
-        <mesh key={i} position={[x, edgeY, 0]}>
-          <cylinderGeometry args={[r, r, 0.012, 12]} />
-          <meshPhysicalMaterial color="#0a0b0e" metalness={0.3} roughness={0.5} />
-        </mesh>
-      ))}
-    </group>
-  )
+  // Interiors for the free edge's machined cavities (the cavities themselves
+  // are cut from the slab geometry): USB-C receptacle, speaker sleeve, mic
+  // plugs. `edgeY` is that edge's y in the current pose.
+  const freeEdgeKit = (edgeY: number) => {
+    const inward: 1 | -1 = edgeY > 0 ? -1 : 1
+    return (
+      <group>
+        <UsbC
+          x={spec.bottomEdge.usb.x}
+          y={edgeY}
+          width={spec.bottomEdge.usb.width}
+          height={spec.bottomEdge.usb.height}
+          inward={inward}
+        />
+        <EdgeSocket
+          position={[spec.bottomEdge.speaker.x, edgeY, 0]}
+          width={spec.bottomEdge.speaker.width}
+          height={spec.bottomEdge.speaker.height}
+          depth={0.06}
+          inward={inward}
+        />
+        {spec.bottomEdge.mics.map(({ x, r }, i) => (
+          <EdgeSocket key={i} position={[x, edgeY, 0]} r={r} depth={0.05} lip={0.008} inward={inward} />
+        ))}
+      </group>
+    )
+  }
 
   // The rust-toned hinge band capping the folded bottom, with its engraving.
   const hingeBand = (y: number) => (
@@ -413,7 +460,7 @@ export function Flip({
           ))}
           {endSeams([openBody.height / 2 - spec.endSeamInset, -openBody.height / 2 + spec.endSeamInset], openBody.depth)}
 
-          {freeEdgeKit(-openBody.height / 2 - 0.002)}
+          {freeEdgeKit(-openBody.height / 2)}
           {screen}
         </group>
       </group>
@@ -435,7 +482,7 @@ export function Flip({
           {screen}
         </group>
         <group position-z={-halfZ}>
-          <mesh geometry={halfGeometry}>
+          <mesh geometry={rearHalfGeometry}>
             <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.32} />
           </mesh>
           {/* back glass colorway on the rear half */}
@@ -445,7 +492,7 @@ export function Flip({
         </group>
 
         {/* the lower half's edge kit lands on the TOP edge when folded */}
-        <group position-z={-halfZ}>{freeEdgeKit(half.height / 2 + 0.002)}</group>
+        <group position-z={-halfZ}>{freeEdgeKit(half.height / 2)}</group>
 
         {/* hinge band capping the bottom */}
         {hingeBand(stackBottom - spec.hinge.overhang / 2 - 0.006)}

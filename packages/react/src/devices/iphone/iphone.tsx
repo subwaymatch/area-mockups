@@ -5,7 +5,16 @@ import type { ThreeElements } from '@react-three/fiber'
 import { IPHONE_VARIANTS, type IPhoneVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createLogoGeometry } from '../logos'
-import { SideKey, LensRing, UsbC } from '../details'
+import {
+  SideKey,
+  LensRing,
+  UsbC,
+  EdgeSocket,
+  cutGeometry,
+  stadiumCutter,
+  holeCutter,
+  USB_CUT_DEPTH,
+} from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -94,7 +103,9 @@ export function IPhone({
 
   // Chassis: an extruded rounded-rect with lightly beveled edges — the flat
   // aluminum/titanium frame. The shape is inset by the bevel size so the final
-  // silhouette lands exactly on the spec body.
+  // silhouette lands exactly on the spec body. The bottom edge's USB-C, the
+  // drilled speaker/mic holes and the two screw recesses are then machined out
+  // with CSG so each opening is a real cavity.
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
       body.width - body.bevel * 2,
@@ -111,8 +122,20 @@ export function IPhone({
       curveSegments: 16,
     })
     geometry.translate(0, 0, -depth / 2)
-    return geometry
-  }, [body])
+    const edge = spec.bottomEdge
+    if (!edge) return geometry
+    const bottom = -body.height / 2
+    const cutters = [
+      stadiumCutter(edge.usb.width, edge.usb.height, USB_CUT_DEPTH).translate(edge.usb.x, bottom, 0),
+    ]
+    for (const screw of edge.screws ?? []) {
+      cutters.push(holeCutter(screw.r, 0.028).translate(screw.x, bottom, 0))
+    }
+    for (const hole of edge.speakers ?? []) {
+      cutters.push(holeCutter(hole.r, 0.05).translate(hole.x, bottom, 0))
+    }
+    return cutGeometry(geometry, cutters)
+  }, [body, spec.bottomEdge])
 
   const glassGeometry = React.useMemo(
     () => new THREE.ShapeGeometry(roundedRectShape(glass.width, glass.height, glass.radius), 16),
@@ -348,26 +371,31 @@ export function IPhone({
           </RoundedBox>
         )}
 
-        {/* bottom edge: USB-C between two screws, speaker/mic hole rows */}
+        {/* bottom edge: the USB-C, drilled speaker holes and screw recesses are
+            real cavities cut from the chassis above — these are their interiors */}
         {spec.bottomEdge && (
           <>
             <UsbC
               x={spec.bottomEdge.usb.x}
-              y={-body.height / 2 - 0.002}
+              y={-body.height / 2}
               width={spec.bottomEdge.usb.width}
               height={spec.bottomEdge.usb.height}
             />
+            {/* pentalobe screw heads, seated just inside their recesses */}
             {spec.bottomEdge.screws?.map(({ x, r }, i) => (
-              <mesh key={`s${i}`} position={[x, -body.height / 2 - 0.002, 0]}>
-                <cylinderGeometry args={[r, r, 0.012, 16]} />
+              <mesh key={`s${i}`} position={[x, -body.height / 2 + 0.013, 0]}>
+                <cylinderGeometry args={[r - 0.0025, r - 0.0025, 0.008, 16]} />
                 <meshPhysicalMaterial color="#caccd0" metalness={0.9} roughness={0.35} />
               </mesh>
             ))}
             {spec.bottomEdge.speakers?.map(({ x, r }, i) => (
-              <mesh key={`h${i}`} position={[x, -body.height / 2 - 0.002, 0]}>
-                <cylinderGeometry args={[r, r, 0.012, 12]} />
-                <meshPhysicalMaterial color="#07080c" metalness={0.3} roughness={0.5} />
-              </mesh>
+              <EdgeSocket
+                key={`h${i}`}
+                position={[x, -body.height / 2, 0]}
+                r={r}
+                depth={0.05}
+                lip={0.006}
+              />
             ))}
           </>
         )}

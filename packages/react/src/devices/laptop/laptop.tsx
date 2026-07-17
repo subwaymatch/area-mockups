@@ -1,11 +1,11 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { LAPTOP_VARIANTS, type LaptopVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { createWordmarkTexture } from '../wordmark'
 import { createLogoGeometry } from '../logos'
+import { UsbC, EdgeSocket, cutGeometry, stadiumCutter, holeCutter } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
 
 type GroupProps = ThreeElements['group']
@@ -55,21 +55,27 @@ export interface LaptopProps extends Omit<GroupProps, 'children' | 'color'> {
 }
 
 /** One flat, rounded slab (base or lid), extruded with a soft edge bevel. */
+function slabGeometry(width: number, depth: number, radius: number, thickness: number, bevel: number) {
+  const shape = roundedRectShape(width - bevel * 2, depth - bevel * 2, radius - bevel)
+  const core = thickness - bevel * 2
+  const g = new THREE.ExtrudeGeometry(shape, {
+    depth: core,
+    bevelEnabled: true,
+    bevelThickness: bevel,
+    bevelSize: bevel,
+    bevelSegments: 3,
+    curveSegments: 16,
+  })
+  g.translate(0, 0, -core / 2)
+  return g
+}
+
+/** Memoized slab with disposal (the lid). */
 function useSlabGeometry(width: number, depth: number, radius: number, thickness: number, bevel: number) {
-  const geometry = React.useMemo(() => {
-    const shape = roundedRectShape(width - bevel * 2, depth - bevel * 2, radius - bevel)
-    const core = thickness - bevel * 2
-    const g = new THREE.ExtrudeGeometry(shape, {
-      depth: core,
-      bevelEnabled: true,
-      bevelThickness: bevel,
-      bevelSize: bevel,
-      bevelSegments: 3,
-      curveSegments: 16,
-    })
-    g.translate(0, 0, -core / 2)
-    return g
-  }, [width, depth, radius, thickness, bevel])
+  const geometry = React.useMemo(
+    () => slabGeometry(width, depth, radius, thickness, bevel),
+    [width, depth, radius, thickness, bevel]
+  )
   React.useEffect(() => () => geometry.dispose(), [geometry])
   return geometry
 }
@@ -232,7 +238,25 @@ export function Laptop({
   const lidRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = React.useMemo(() => [lidRef, baseRef], [])
 
-  const baseGeometry = useSlabGeometry(footprint.width, footprint.depth, footprint.radius, base.thickness, base.bevel)
+  // Base chassis: the slab is baked into its resting orientation (footprint in
+  // XZ) so every side-wall port opening can be machined out of it in place —
+  // each port is a real cavity in the aluminum, not a dark inlay.
+  const baseGeometry = React.useMemo(() => {
+    const g = slabGeometry(footprint.width, footprint.depth, footprint.radius, base.thickness, base.bevel)
+    g.rotateX(-Math.PI / 2)
+    const cutters: THREE.BufferGeometry[] = []
+    for (const [side, dir] of [['left', -1], ['right', 1]] as const) {
+      for (const port of spec.ports[side]) {
+        const cutter =
+          port.shape === 'round'
+            ? holeCutter(port.height / 2, 0.1, 'x')
+            : stadiumCutter(port.width, port.height, 0.1, 'x')
+        cutters.push(cutter.translate(dir * (footprint.width / 2), -0.004, port.z))
+      }
+    }
+    return cutGeometry(g, cutters)
+  }, [footprint, base, spec.ports])
+  React.useEffect(() => () => baseGeometry.dispose(), [baseGeometry])
   const lidGeometry = useSlabGeometry(footprint.width, footprint.depth, footprint.radius, lid.thickness, lid.bevel)
 
   const wellGeometry = React.useMemo(
@@ -315,7 +339,7 @@ export function Laptop({
     <group {...groupProps}>
       {/* ---------------- base: unibody chassis with the keyboard deck ---------------- */}
       <group>
-        <mesh ref={baseRef} geometry={baseGeometry} rotation-x={-Math.PI / 2}>
+        <mesh ref={baseRef} geometry={baseGeometry}>
           {aluminum}
         </mesh>
 
@@ -360,29 +384,48 @@ export function Laptop({
             </mesh>
           ))}
 
-        {/* port openings, spec-accurate per side wall */}
+        {/* port interiors — the openings are real cavities machined from the
+            base above. Thunderbolt gets the full USB-C receptacle (shell +
+            gold tongue); MagSafe, HDMI, SDXC and the jack get dark sockets. */}
         {([['left', -1], ['right', 1]] as const).map(([side, dir]) =>
-          spec.ports[side].map((port, i) =>
-            port.shape === 'round' ? (
-              <mesh
+          spec.ports[side].map((port, i) => {
+            const inward: 1 | -1 = dir === -1 ? 1 : -1
+            const x = dir * (footprint.width / 2)
+            return port.shape === 'round' ? (
+              <EdgeSocket
                 key={`${side}${i}`}
-                position={[dir * (footprint.width / 2 - 0.004), -0.004, port.z]}
-                rotation-z={Math.PI / 2}
-              >
-                <cylinderGeometry args={[port.height / 2, port.height / 2, 0.014, 20]} />
-                <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
-              </mesh>
+                position={[x, -0.004, port.z]}
+                r={port.height / 2}
+                depth={0.1}
+                lip={0.012}
+                axis="x"
+                inward={inward}
+              />
+            ) : port.width <= 0.13 ? (
+              <UsbC
+                key={`${side}${i}`}
+                x={x}
+                y={-0.004}
+                z={port.z}
+                width={port.width}
+                height={port.height}
+                depth={0.1}
+                axis="x"
+                inward={inward}
+              />
             ) : (
-              <RoundedBox
+              <EdgeSocket
                 key={`${side}${i}`}
-                args={[0.016, port.height, port.width]}
-                radius={Math.min(0.014, port.height / 2 - 0.002)}
-                position={[dir * (footprint.width / 2 - 0.004), -0.004, port.z]}
-              >
-                <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
-              </RoundedBox>
+                position={[x, -0.004, port.z]}
+                width={port.width}
+                height={port.height}
+                depth={0.1}
+                lip={0.012}
+                axis="x"
+                inward={inward}
+              />
             )
-          )
+          })
         )}
 
         {/* rubber feet */}

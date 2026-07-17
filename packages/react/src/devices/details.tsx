@@ -1,11 +1,13 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { RoundedBox } from '@react-three/drei'
+import { Brush, Evaluator, SUBTRACTION } from 'three-bvh-csg'
 import { roundedRectShape } from '@area-mockups/core'
 
 /**
  * Shared machined hardware details used across the device models: side keys,
- * camera lens rings and USB-C ports. Everything is procedural geometry.
+ * camera lens rings, and real machined cavities (USB-C ports, speaker slots,
+ * mic drillings) cut straight into the chassis geometry with CSG. Everything
+ * is procedural geometry.
  */
 
 /**
@@ -158,110 +160,274 @@ export function LensRing({
   )
 }
 
+/* -------------------------------------------------------------------------
+ * Real cutouts: ports and holes are machined into the chassis with CSG, so
+ * every opening is a true cavity with a lip, interior walls and parallax —
+ * not a decal painted on a flat edge.
+ * ---------------------------------------------------------------------- */
+
+/** How deep the USB-C cavity is machined into an edge (~5.5 mm at phone scale). */
+export const USB_CUT_DEPTH = 0.15
+
+let evaluator: Evaluator | null = null
+
 /**
- * The USB-C interior drawn once as a crisp decal: stadium cutout with a
- * hairline seam, depth-shaded cavity, receptacle shield outline and the gold
- * pin row — matching macro photography of the real ports without any visible
- * geometry stacking.
+ * Concatenate disjoint solids into one geometry (position + normal only) so a
+ * whole edge's cutters cost a single boolean pass. Consumes the inputs.
  */
-function createUsbCTexture(aspect: number): THREE.CanvasTexture | null {
-  if (typeof document === 'undefined') return null
-  const H = 192
-  const W = Math.round(H * aspect)
-  const canvas = document.createElement('canvas')
-  canvas.width = W
-  canvas.height = H
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return null
-
-  const stadium = (x: number, y: number, w: number, h: number) => {
-    const r = h / 2
-    ctx.beginPath()
-    ctx.moveTo(x + r, y)
-    ctx.lineTo(x + w - r, y)
-    ctx.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2)
-    ctx.lineTo(x + r, y + h)
-    ctx.arc(x + r, y + r, r, Math.PI / 2, (3 * Math.PI) / 2)
-    ctx.closePath()
+function mergeSolids(solids: THREE.BufferGeometry[]): THREE.BufferGeometry {
+  const parts = solids.map((solid) => (solid.index ? solid.toNonIndexed() : solid))
+  let total = 0
+  for (const part of parts) total += part.attributes.position!.count
+  const position = new Float32Array(total * 3)
+  const normal = new Float32Array(total * 3)
+  let offset = 0
+  for (const part of parts) {
+    position.set(part.attributes.position!.array as Float32Array, offset)
+    normal.set(part.attributes.normal!.array as Float32Array, offset)
+    offset += part.attributes.position!.count * 3
   }
-
-  // Hairline seam where the cutout meets the rail.
-  stadium(2, 2, W - 4, H - 4)
-  ctx.fillStyle = '#3c4046'
-  ctx.fill()
-
-  // The opening: depth-shaded cavity (darkest just inside the top wall, a
-  // faint light catch on the lower inner wall).
-  const inset = H * 0.055
-  stadium(inset, inset, W - inset * 2, H - inset * 2)
-  const g = ctx.createLinearGradient(0, inset, 0, H - inset)
-  g.addColorStop(0, '#08090c')
-  g.addColorStop(0.22, '#050609')
-  g.addColorStop(0.75, '#0b0d11')
-  g.addColorStop(1, '#181b20')
-  ctx.fillStyle = g
-  ctx.fill()
-
-  // Receptacle shield: a thin metal outline floating inside the opening.
-  const sx = W * 0.115
-  const sy = H * 0.26
-  stadium(sx, sy, W - sx * 2, H - sy * 2)
-  ctx.strokeStyle = '#43474e'
-  ctx.lineWidth = H * 0.05
-  ctx.stroke()
-
-  // Gold pin-row tongue, centered, with a darker root line under it.
-  const tw = W * 0.5
-  const th = H * 0.15
-  stadium((W - tw) / 2, H * 0.45, tw, th)
-  ctx.fillStyle = '#8f7a4e'
-  ctx.fill()
-  stadium((W - tw) / 2 + th * 0.4, H * 0.47, tw - th * 0.8, th * 0.55)
-  ctx.fillStyle = '#b9a066'
-  ctx.fill()
-
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.anisotropy = 8
-  texture.colorSpace = THREE.SRGBColorSpace
-  return texture
+  const merged = new THREE.BufferGeometry()
+  merged.setAttribute('position', new THREE.BufferAttribute(position, 3))
+  merged.setAttribute('normal', new THREE.BufferAttribute(normal, 3))
+  for (const part of parts) part.dispose()
+  for (const solid of solids) solid.dispose()
+  return merged
 }
 
 /**
- * A USB-C opening on a bottom edge (xz plane): a single flush decal of the
- * cutout — no stacked slabs, under 1/10 mm of relief.
+ * Machine real openings into a chassis: subtracts the cutter solids from
+ * `base` in one boolean pass. Consumes `base` and the cutters and returns the
+ * cut geometry — or the untouched base if the boolean op fails, so a render
+ * never goes blank over a decorative cavity.
+ */
+export function cutGeometry(
+  base: THREE.BufferGeometry,
+  cutters: THREE.BufferGeometry[]
+): THREE.BufferGeometry {
+  if (cutters.length === 0) return base
+  try {
+    if (!evaluator) {
+      evaluator = new Evaluator()
+      evaluator.useGroups = false
+      evaluator.attributes = ['position', 'normal']
+    }
+    const bodyBrush = new Brush(base)
+    const cutterBrush = new Brush(mergeSolids(cutters))
+    bodyBrush.updateMatrixWorld()
+    cutterBrush.updateMatrixWorld()
+    const result = evaluator.evaluate(bodyBrush, cutterBrush, SUBTRACTION).geometry
+    cutterBrush.geometry.dispose()
+    base.dispose()
+    return result
+  } catch {
+    return base
+  }
+}
+
+/**
+ * Aim a +z-built cavity part (cutter, socket liner, receptacle) down its cut
+ * axis. `inward` is the cut direction's sign on that axis — +1 for a bottom
+ * edge (cutting up, +y) or a left wall (+x), -1 for a top edge or right wall.
+ * Cavity profiles map width → x and height → z on a y cut, width → z and
+ * height → y on an x cut.
+ */
+function orientCavity(g: THREE.BufferGeometry, axis: 'x' | 'y', inward: 1 | -1): THREE.BufferGeometry {
+  if (axis === 'y') g.rotateX(-inward * (Math.PI / 2))
+  else g.rotateY(inward * (Math.PI / 2))
+  return g
+}
+
+/**
+ * A stadium-profile cutting prism for `cutGeometry`, centered on the origin
+ * and running 2×`depth` along `axis`: drop its center on the edge face it
+ * pierces (`.translate(...)`) and it machines `depth` into the body. `width`
+ * is the opening's long dimension along the edge, `height` the short one;
+ * ends are fully rounded unless `radius` narrows them.
+ */
+export function stadiumCutter(
+  width: number,
+  height: number,
+  depth: number,
+  axis: 'x' | 'y' = 'y',
+  radius = Math.min(width, height) / 2 - 0.0005
+): THREE.BufferGeometry {
+  const geometry = new THREE.ExtrudeGeometry(roundedRectShape(width, height, radius), {
+    depth: depth * 2,
+    bevelEnabled: false,
+    curveSegments: 12,
+  })
+  geometry.translate(0, 0, -depth)
+  return orientCavity(geometry, axis, 1)
+}
+
+/** A drilled-hole cutter (mics, speaker holes, screws, round jacks), centered like `stadiumCutter`. */
+export function holeCutter(r: number, depth: number, axis: 'x' | 'y' = 'y'): THREE.BufferGeometry {
+  const geometry = new THREE.CylinderGeometry(r, r, depth * 2, 20)
+  geometry.rotateX(Math.PI / 2)
+  return orientCavity(geometry, axis, 1)
+}
+
+/**
+ * The dark interior of a machined opening. Stadium slots get a sleeve: thin
+ * dark walls hugging the cavity (recessed `lip` past the machined chassis
+ * lip) sinking to a floor at the cavity's far end — real visible depth, not a
+ * painted face. Drilled holes (`r`) get a recessed dark plug.
+ */
+export function EdgeSocket({
+  position,
+  width = 0,
+  height = 0,
+  r,
+  depth = 0.06,
+  lip = 0.012,
+  axis = 'y',
+  inward = 1,
+  color = '#0a0b0e',
+}: {
+  /** The opening's center on the edge face. */
+  position: [number, number, number]
+  width?: number
+  height?: number
+  /** Radius for drilled round holes (overrides width/height). */
+  r?: number
+  /** How deep the cavity was cut. */
+  depth?: number
+  /** How far past the surface the machined chassis wall stays visible. */
+  lip?: number
+  axis?: 'x' | 'y'
+  inward?: 1 | -1
+  color?: string
+}) {
+  const geometry = React.useMemo(() => {
+    if (r !== undefined) {
+      const length = depth - lip
+      const plug = new THREE.CylinderGeometry(r - 0.0015, r - 0.0015, length, 16)
+      plug.rotateX(Math.PI / 2)
+      plug.translate(0, 0, lip + length / 2)
+      return orientCavity(plug, axis, inward)
+    }
+    const inset = Math.min(0.008, height * 0.14)
+    const w = width - inset
+    const h = height - inset
+    const wall = Math.max(0.006, h * 0.1)
+    const floorT = 0.018
+    const sleeveLength = Math.max(0.01, depth - lip - floorT)
+    const ring = roundedRectShape(w, h, h / 2 - 0.0005)
+    ring.holes.push(roundedRectShape(w - wall * 2, h - wall * 2, (h - wall * 2) / 2 - 0.0005))
+    const sleeve = new THREE.ExtrudeGeometry(ring, {
+      depth: sleeveLength,
+      bevelEnabled: false,
+      curveSegments: 10,
+    })
+    const floor = new THREE.ExtrudeGeometry(roundedRectShape(w, h, h / 2 - 0.0005), {
+      depth: floorT,
+      bevelEnabled: false,
+      curveSegments: 10,
+    })
+    floor.translate(0, 0, sleeveLength)
+    const merged = mergeSolids([sleeve, floor])
+    merged.translate(0, 0, lip)
+    return orientCavity(merged, axis, inward)
+  }, [width, height, r, depth, lip, axis, inward])
+  React.useEffect(() => () => geometry.dispose(), [geometry])
+
+  return (
+    <mesh geometry={geometry} position={position}>
+      <meshPhysicalMaterial color={color} metalness={0.12} roughness={0.65} envMapIntensity={0.3} />
+    </mesh>
+  )
+}
+
+/**
+ * The inside of a machined USB-C cavity (cut the cavity itself with
+ * `cutGeometry` + `stadiumCutter` first): the stainless receptacle shell
+ * seated just past the machined lip, the dark cavity floor behind it and the
+ * gold pin tongue in the middle — real geometry at real depths, so the port
+ * shows parallax from every angle like the reference scans.
  */
 export function UsbC({
-  x,
-  y,
+  x = 0,
+  y = 0,
+  z = 0,
   width,
   height,
-  up = false,
+  depth = USB_CUT_DEPTH,
+  axis = 'y',
+  inward = 1,
 }: {
-  x: number
-  /** The edge face's y (bottom edge: -body.height / 2 - small offset). */
-  y: number
+  x?: number
+  y?: number
+  z?: number
+  /** The machined opening's size (same values passed to `stadiumCutter`). */
   width: number
   height: number
-  /** Set when the port lives on a top edge (the folded Flip). */
-  up?: boolean
+  /** How deep the cavity was cut. */
+  depth?: number
+  axis?: 'x' | 'y'
+  inward?: 1 | -1
 }) {
-  const w = width + 0.012
-  const h = height + 0.012
-  const texture = React.useMemo(() => createUsbCTexture(w / h), [w, h])
-  React.useEffect(() => () => texture?.dispose(), [texture])
-  if (!texture) return null
+  const parts = React.useMemo(() => {
+    // Everything is built extruding +z from the opening, then aimed down the cut.
+    const lip = Math.min(0.008, depth * 0.06)
+    const gap = Math.min(0.008, height * 0.1)
+    const shellW = width - gap
+    const shellH = height - gap
+    const wall = Math.min(0.012, shellH * 0.16)
+    const ring = roundedRectShape(shellW, shellH, shellH / 2 - 0.0005)
+    ring.holes.push(
+      roundedRectShape(shellW - wall * 2, shellH - wall * 2, (shellH - wall * 2) / 2 - 0.0005)
+    )
+    const shell = new THREE.ExtrudeGeometry(ring, {
+      depth: depth * 0.6,
+      bevelEnabled: false,
+      curveSegments: 10,
+    })
+    shell.translate(0, 0, lip)
+    orientCavity(shell, axis, inward)
+
+    const floorLength = depth * 0.35
+    const floor = new THREE.ExtrudeGeometry(
+      roundedRectShape(width - gap * 1.5, height - gap * 1.5, (height - gap * 1.5) / 2 - 0.0005),
+      { depth: floorLength, bevelEnabled: false, curveSegments: 10 }
+    )
+    floor.translate(0, 0, depth - floorLength - 0.005)
+    orientCavity(floor, axis, inward)
+
+    const tongueT = Math.min(0.024, height * 0.28)
+    const tongue = new THREE.ExtrudeGeometry(
+      roundedRectShape(width * 0.6, tongueT, tongueT / 2 - 0.0008),
+      { depth: depth * 0.45, bevelEnabled: false, curveSegments: 8 }
+    )
+    tongue.translate(0, 0, depth * 0.3)
+    orientCavity(tongue, axis, inward)
+
+    return { shell, floor, tongue }
+  }, [width, height, depth, axis, inward])
+  React.useEffect(
+    () => () => {
+      parts.shell.dispose()
+      parts.floor.dispose()
+      parts.tongue.dispose()
+    },
+    [parts]
+  )
+
   return (
-    <mesh position={[x, y + (up ? 0.002 : -0.002), 0]} rotation-x={up ? -Math.PI / 2 : Math.PI / 2}>
-      <planeGeometry args={[w, h]} />
-      <meshPhysicalMaterial
-        map={texture}
-        transparent
-        alphaTest={0.4}
-        metalness={0.3}
-        roughness={0.55}
-        polygonOffset
-        polygonOffsetFactor={-2}
-      />
-    </mesh>
+    <group position={[x, y, z]}>
+      {/* stainless receptacle shell — its rim ring catches light just inside the
+          lip; kept dim so the inner walls stay in shadow like the real ports */}
+      <mesh geometry={parts.shell}>
+        <meshPhysicalMaterial color="#43464c" metalness={0.7} roughness={0.5} envMapIntensity={0.35} />
+      </mesh>
+      {/* matte-black cavity floor behind everything */}
+      <mesh geometry={parts.floor}>
+        <meshPhysicalMaterial color="#050608" metalness={0.05} roughness={0.75} envMapIntensity={0.15} />
+      </mesh>
+      {/* the gold pin tongue, rooted in the floor */}
+      <mesh geometry={parts.tongue}>
+        <meshPhysicalMaterial color="#b18e4c" metalness={0.7} roughness={0.4} envMapIntensity={1.1} />
+      </mesh>
+    </group>
   )
 }
