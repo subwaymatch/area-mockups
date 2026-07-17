@@ -76,20 +76,21 @@ export function SideKey({
 }
 
 /**
- * A machined camera lens ring, modeled on the reference scans: slightly
- * tapered body-color wall, polished chamfer, a near-black barrel funnel
- * sinking to a black aperture, a glossy domed lens element at its throat —
- * and a smoked cover-glass disc sealing the bore, so the whole interior reads
- * dark with one soft window reflection, like the retail cameras. Mount it in
- * a group at the ring's center on the mounting surface; it builds toward -z
- * (the device back's outward direction).
+ * A machined camera lens ring, modeled on retail macro photography: slightly
+ * tapered body-color wall, polished chamfer, a matte-black bezel ring, a
+ * stepped barrel of concentric cones, a LARGE glossy front element (the real
+ * optics fill roughly half the ring) with a bright center glint — all sealed
+ * under a smoked cover-glass disc, so the interior reads deep black with one
+ * soft window reflection. Mount it in a group at the ring's center on the
+ * mounting surface; it builds toward -z (the device back's outward direction).
  */
 export function LensRing({
   r,
   proud,
   seat = 0.02,
   frameColor,
-  element = '#101c3a',
+  element = '#0b101e',
+  pupil = 0.44,
 }: {
   r: number
   /** How far the ring wall stands proud of its mounting surface. */
@@ -97,13 +98,23 @@ export function LensRing({
   /** How deep the wall sinks into the mount. */
   seat?: number
   frameColor: string
-  /** Tint of the domed lens element (read through the smoked cover glass). */
+  /** Tint of the front lens element (read through the smoked cover glass). */
   element?: string
+  /**
+   * Front-element size as a fraction of the ring radius. The real modules
+   * differ per lens: a 200 MP f/1.7 main is ~0.47, ultra-wides ~0.38-0.40,
+   * folded periscope teles ~0.30.
+   */
+  pupil?: number
 }) {
-  // The funnel lives entirely within the ring's protrusion so it never sinks
-  // behind the mounting surface (the mount is solid geometry).
-  const funnelDepth = Math.max(0.014, proud - 0.014)
-  const throatZ = -proud + 0.01 + funnelDepth
+  const faceZ = -proud
+  // Barrel steps sink inward from just behind the bezel; on shallow rings the
+  // deeper parts vanish behind the (solid) mounting surface, which simply
+  // reads as a flatter lens — like the thin rings on the real devices.
+  const step = Math.min(0.014, Math.max(0.008, proud * 0.35))
+  const bezelZ = faceZ + 0.01
+  const domeR = r * Math.min(0.45, Math.max(0.28, pupil))
+  const domeTopZ = faceZ + 0.013
   return (
     <group>
       {/* tapered outer wall — an open tube so the bore stays visible; the
@@ -128,34 +139,61 @@ export function LensRing({
           side={THREE.DoubleSide}
         />
       </mesh>
-      {/* near-black barrel funnel, wide at the face, sinking to the aperture —
-          the real barrels are matte black, not silver */}
-      <mesh rotation-x={Math.PI / 2} position-z={-proud + 0.01 + funnelDepth / 2}>
-        <cylinderGeometry args={[r * 0.3, r * 0.86, funnelDepth, 48, 1, true]} />
+      {/* matte-black bezel ring between the metal and the barrel */}
+      <mesh rotation-x={Math.PI / 2} position-z={bezelZ}>
+        <cylinderGeometry args={[r * 0.6, r * 0.86, 0.006, 48, 1, true]} />
         <meshPhysicalMaterial
-          color="#131417"
-          metalness={0.08}
+          color="#0e0f12"
+          metalness={0.2}
           roughness={0.5}
-          envMapIntensity={0.45}
+          envMapIntensity={0.5}
           side={THREE.DoubleSide}
         />
       </mesh>
-      {/* black aperture plate at the funnel throat */}
-      <mesh rotation-x={Math.PI / 2} position-z={throatZ - 0.002}>
-        <cylinderGeometry args={[r * 0.33, r * 0.33, 0.006, 40]} />
-        <meshPhysicalMaterial color="#0a0b0d" metalness={0.3} roughness={0.4} />
+      {/* stepped lens barrel: two concentric cones whose edges catch light
+          like the threaded rings in the macro shots */}
+      <mesh rotation-x={Math.PI / 2} position-z={bezelZ + step / 2}>
+        <cylinderGeometry args={[r * 0.52, r * 0.6, step, 48, 1, true]} />
+        <meshPhysicalMaterial
+          color="#191b20"
+          metalness={0.4}
+          roughness={0.28}
+          envMapIntensity={0.7}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      {/* glossy domed lens element, its cap emerging from the aperture — kept
-          fully in front of the (solid) mounting surface so it never gets
-          swallowed by the mount's own faces */}
-      <mesh position-z={throatZ - r * 0.05} scale={[1, 1, 0.6]}>
-        <sphereGeometry args={[r * 0.17, 32, 20]} />
+      <mesh rotation-x={Math.PI / 2} position-z={bezelZ + step * 1.5}>
+        <cylinderGeometry args={[r * 0.46, r * 0.52, step, 48, 1, true]} />
+        <meshPhysicalMaterial
+          color="#141519"
+          metalness={0.35}
+          roughness={0.3}
+          envMapIntensity={0.6}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* the front element: a large, glossy near-black dome filling the barrel
+          (roughly half the ring, like the real optics), its arc highlight
+          coming free from the environment map */}
+      <mesh position-z={domeTopZ + domeR * 0.32} scale={[1, 1, 0.32]}>
+        <sphereGeometry args={[domeR, 40, 24]} />
         <meshPhysicalMaterial
           color={element}
-          metalness={0.15}
+          metalness={0.1}
           roughness={0.03}
           clearcoat={1}
-          clearcoatRoughness={0.03}
+          clearcoatRoughness={0.04}
+          envMapIntensity={1.5}
+        />
+      </mesh>
+      {/* small bright inner-element glint at the center */}
+      <mesh rotation-y={Math.PI} position-z={domeTopZ - 0.0015}>
+        <circleGeometry args={[r * Math.min(0.45, Math.max(0.28, pupil)) * 0.23, 24]} />
+        <meshPhysicalMaterial
+          color="#2c3a5e"
+          metalness={0.3}
+          roughness={0.05}
+          clearcoat={1}
           envMapIntensity={1.6}
         />
       </mesh>
@@ -166,7 +204,7 @@ export function LensRing({
         <meshPhysicalMaterial
           color="#05070c"
           transparent
-          opacity={0.62}
+          opacity={0.55}
           metalness={0.1}
           roughness={0.05}
           clearcoat={1}

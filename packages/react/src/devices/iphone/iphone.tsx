@@ -298,9 +298,9 @@ export function IPhone({
 
         {/* lens stacks: machined ring standing proud of the pedestal, dark bezel
             wall, blue-coated glass, glint */}
-        {rearCamera.lenses.map(({ x, y, r, h }, i) => (
+        {rearCamera.lenses.map(({ x, y, r, h, pupil }, i) => (
           <group key={i} position={[x, y, -pedestalTop]}>
-            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} element="#152a55" />
+            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} element="#0d1524" pupil={pupil} />
           </group>
         ))}
 

@@ -267,3 +267,20 @@ Six more maintainer requests:
    angles with the mockups and composed into comparison sheets for review.
 
 Sizes re-measured (+~0.4 KB gzip for the catalogs); tables synced.
+
+## Follow-up pass 7 (same day)
+
+Lens interiors matched to macro photography (maintainer comparison feedback):
+
+- **The front element now fills the ring like the real optics.** The shared
+  `LensRing` interior was rebuilt from retail macro references: matte-black
+  bezel ring, a stepped barrel of concentric cones (the threaded-ring look),
+  a LARGE glossy front element (~44% of the ring radius vs the old 17%) with
+  a bright center glint, all under the smoked cover glass.
+- **Per-lens pupil sizes.** Researched each module: a 200 MP f/1.7 main has a
+  visibly wider pupil than an ultra-wide, and folded periscope teles are
+  small and deep. New `pupil` field on every ring/lens spec entry (fraction
+  of ring radius), threaded through to `LensRing`: S26 [0.38/0.47/0.34],
+  S26 Ultra main column [0.40/0.47/0.30] + 0.34 tele column, Z Fold 7
+  [0.38/0.48/0.32], Z Flip 7 [0.44/0.39]; the iPhone Pro trio stays equal
+  (three identical 48 MP Fusion modules, confirmed against Apple's render).

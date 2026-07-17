@@ -282,9 +282,9 @@ export function Fold({
       >
         <meshPhysicalMaterial color="#26282d" metalness={0.5} roughness={0.35} clearcoat={0.7} />
       </mesh>
-      {cam.rings.map(({ y, r }, i) => (
+      {cam.rings.map(({ y, r, pupil }, i) => (
         <group key={i} position={[cam.island.x, y, backZ - cam.plateau.raise - cam.island.raise]}>
-          <LensRing r={r} proud={0.028} seat={0.03} frameColor={frameColor} />
+          <LensRing r={r} proud={0.028} seat={0.03} frameColor={frameColor} pupil={pupil} />
         </group>
       ))}
       <mesh rotation-x={Math.PI / 2} position={[cam.flash.x, cam.flash.y, backZ - 0.008]}>

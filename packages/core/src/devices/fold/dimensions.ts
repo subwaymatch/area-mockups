@@ -26,8 +26,8 @@ interface FoldRearCamera {
   plateau: { x: number; y: number; width: number; height: number; radius: number; raise: number }
   /** Dark pill seating the lens column (scan: 15.2 x 48.6 mm, +2.2 mm more). */
   island: { x: number; y: number; width: number; height: number; radius: number; raise: number }
-  /** Lens collars, top to bottom (r 7.9 mm on a 16.7 mm pitch). */
-  rings: { y: number; r: number }[]
+  /** Lens collars, top to bottom (r 7.9 mm on a 16.7 mm pitch); `pupil` is the front element's fraction of the ring radius. */
+  rings: { y: number; r: number; pupil?: number }[]
   flash: { x: number; y: number; r: number }
 }
 
@@ -115,10 +115,11 @@ const FOLD7: FoldSpec = {
     closed: {
       plateau: { x: 0.501, y: 1.281, width: 0.54, height: 1.421, radius: 0.266, raise: 0.073 },
       island: { x: 0.501, y: 1.281, width: 0.416, height: 1.325, radius: 0.208, raise: 0.059 },
+      // Top to bottom: 12 MP ultra-wide, 200 MP main, 10 MP 3x tele.
       rings: [
-        { y: 1.735, r: 0.214 },
-        { y: 1.281, r: 0.214 },
-        { y: 0.826, r: 0.214 },
+        { y: 1.735, r: 0.214, pupil: 0.38 },
+        { y: 1.281, r: 0.214, pupil: 0.48 },
+        { y: 0.826, r: 0.214, pupil: 0.32 },
       ],
       flash: { x: 0.047, y: 1.501, r: 0.058 },
     },
@@ -127,9 +128,9 @@ const FOLD7: FoldSpec = {
       plateau: { x: 1.487, y: 1.281, width: 0.54, height: 1.421, radius: 0.266, raise: 0.073 },
       island: { x: 1.487, y: 1.281, width: 0.416, height: 1.325, radius: 0.208, raise: 0.059 },
       rings: [
-        { y: 1.735, r: 0.214 },
-        { y: 1.281, r: 0.214 },
-        { y: 0.826, r: 0.214 },
+        { y: 1.735, r: 0.214, pupil: 0.38 },
+        { y: 1.281, r: 0.214, pupil: 0.48 },
+        { y: 0.826, r: 0.214, pupil: 0.32 },
       ],
       flash: { x: 1.033, y: 1.501, r: 0.058 },
     },

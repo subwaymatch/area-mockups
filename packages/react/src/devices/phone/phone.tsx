@@ -277,12 +277,17 @@ export function Phone({
             <meshPhysicalMaterial color={islandColor} metalness={0.4} roughness={0.3} clearcoat={0.9} />
           </mesh>
         )}
-        {rearCamera.rings.map(({ x, y, r, h }, i) => (
+        {rearCamera.rings.map(({ x, y, r, h, pupil }, i) => (
           <group
             key={i}
             position={[x ?? rearCamera.ringsX, y, backZ(x ?? rearCamera.ringsX, y, 0, raise)]}
           >
-            <LensRing r={r} proud={h ?? rearCamera.ringHeight ?? 0.034} frameColor={frameColor} />
+            <LensRing
+              r={r}
+              proud={h ?? rearCamera.ringHeight ?? 0.034}
+              frameColor={frameColor}
+              pupil={pupil}
+            />
           </group>
         ))}
         <mesh

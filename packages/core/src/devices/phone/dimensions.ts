@@ -39,9 +39,11 @@ export interface GalaxyPhoneSpec {
     ringsX: number
     /**
      * Lens rings, top to bottom. `x` overrides the column (the Ultra's second,
-     * smaller column); `h` overrides `ringHeight` for that ring.
+     * smaller column); `h` overrides `ringHeight` for that ring; `pupil` is
+     * the front element's fraction of the ring radius (main lenses are wider
+     * than ultra-wides and folded teles).
      */
-    rings: { x?: number; y: number; r: number; h?: number }[]
+    rings: { x?: number; y: number; r: number; h?: number; pupil?: number }[]
     flash: { x: number; y: number }
     /** Small auxiliary sensors (laser AF, extra mics…). */
     dots?: { x: number; y: number; r: number }[]
@@ -95,10 +97,11 @@ const S26: GalaxyPhoneSpec = {
   buttonProfile: { protrusion: 0.012, thickness: 0.068 },
   rearCamera: {
     ringsX: 0.582,
+    // Top to bottom: 12 MP ultra-wide, 50 MP main, 10 MP 3x tele.
     rings: [
-      { y: 1.624, r: 0.196 },
-      { y: 1.196, r: 0.196 },
-      { y: 0.767, r: 0.196 },
+      { y: 1.624, r: 0.196, pupil: 0.38 },
+      { y: 1.196, r: 0.196, pupil: 0.47 },
+      { y: 0.767, r: 0.196, pupil: 0.34 },
     ],
     flash: { x: 0.169, y: 1.413 },
     island: { x: 0.581, y: 1.196, width: 0.404, height: 1.26, radius: 0.202, raise: 0.028 },
@@ -139,13 +142,14 @@ const S26_ULTRA: GalaxyPhoneSpec = {
   rearCamera: {
     ringsX: 0.66,
     rings: [
-      // Main column: 16.9 mm rings on an 18.2 mm pitch, top to bottom.
-      { y: 1.826, r: 0.231 },
-      { y: 1.329, r: 0.231 },
-      { y: 0.833, r: 0.231 },
+      // Main column, top to bottom: 50 MP ultra-wide, 200 MP main (widest
+      // pupil), 50 MP 5x periscope (small pupil deep in the barrel).
+      { y: 1.826, r: 0.231, pupil: 0.4 },
+      { y: 1.329, r: 0.231, pupil: 0.47 },
+      { y: 0.833, r: 0.231, pupil: 0.3 },
       // Second column on the flat back: 9.4 mm tele rings, much flatter (~1.4 mm proud).
-      { x: 0.169, y: 1.826, r: 0.128, h: 0.038 },
-      { x: 0.169, y: 1.329, r: 0.128, h: 0.038 },
+      { x: 0.169, y: 1.826, r: 0.128, h: 0.038, pupil: 0.34 },
+      { x: 0.169, y: 1.329, r: 0.128, h: 0.038, pupil: 0.34 },
     ],
     flash: { x: 0.169, y: 1.576 },
     dots: [

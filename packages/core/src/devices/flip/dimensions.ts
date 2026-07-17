@@ -50,8 +50,8 @@ export interface FlipSpec {
    */
   rearCamera: {
     island: { x: number; y: number; width: number; height: number; radius: number; raise: number }
-    /** The two lens rings inside the pill. */
-    rings: { x: number; y: number; r: number }[]
+    /** The two lens rings inside the pill; `pupil` is the front element's fraction of the ring radius. */
+    rings: { x: number; y: number; r: number; pupil?: number }[]
     /** Fresnel flash disc, flush on the cover glass beside the pill. */
     flash: { x: number; y: number; r: number }
   }
@@ -95,9 +95,10 @@ const FLIP7: FlipSpec = {
   rearCamera: {
     // Scan: 27.1 x 13.0 mm pill 1.8 mm proud at (+19.5, +30.4) on the cover half.
     island: { x: 0.531, y: 0.829, width: 0.738, height: 0.354, radius: 0.177, raise: 0.048 },
+    // 50 MP main (outer) + 12 MP ultra-wide (inner).
     rings: [
-      { x: 0.723, y: 0.829, r: 0.183 },
-      { x: 0.339, y: 0.829, r: 0.183 },
+      { x: 0.723, y: 0.829, r: 0.183, pupil: 0.44 },
+      { x: 0.339, y: 0.829, r: 0.183, pupil: 0.39 },
     ],
     flash: { x: 0.035, y: 0.821, r: 0.058 },
   },

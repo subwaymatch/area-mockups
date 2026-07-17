@@ -50,7 +50,7 @@ export interface IPhoneSpec {
     /** The raised pedestal. `radius` is its corner radius, `raise` its height off the back. */
     frame: { x: number; y: number; width: number; height: number; radius?: number; raise?: number }
     /** Lens rings with absolute positions. `h` is how far the ring stands proud of the pedestal. */
-    lenses: { x: number; y: number; r: number; h?: number }[]
+    lenses: { x: number; y: number; r: number; h?: number; pupil?: number }[]
     flash: { x: number; y: number; r: number }
     /** Small auxiliary dots (mic, LiDAR…). */
     dots?: { x: number; y: number; r: number }[]

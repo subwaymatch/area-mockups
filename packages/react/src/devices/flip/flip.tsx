@@ -259,9 +259,9 @@ export function Flip({
       >
         <meshPhysicalMaterial color="#26282d" metalness={0.6} roughness={0.3} clearcoat={0.8} />
       </mesh>
-      {cam.rings.map(({ x, y, r }, i) => (
+      {cam.rings.map(({ x, y, r, pupil }, i) => (
         <group key={i} position={[x, y, surfaceZ + sign * cam.island.raise]}>
-          <LensRing r={r} proud={0.016} seat={0.03} frameColor={frameColor} />
+          <LensRing r={r} proud={0.016} seat={0.03} frameColor={frameColor} pupil={pupil} />
         </group>
       ))}
       <mesh rotation-x={Math.PI / 2} position={[cam.flash.x, cam.flash.y, surfaceZ + sign * 0.006]}>
