@@ -24,6 +24,7 @@ Same API as [`Phone`](/docs/api/phone), except:
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `variant` | `'17' \| 'air' \| 'pro' \| 'promax'` | `'17'` | Which iPhone 17 family device: 17 (two-lens pill), air (ultra-thin, single-lens bar), pro and promax (full-width plateau, flash + LiDAR). |
+| `colorway` | `string` | — | A retail colorway id from `IPHONE_COLORWAYS` (17: `black`, `white`, `lavender`, `mistblue`, `sage`; Air: `spaceblack`, `cloudwhite`, `lightgold`, `skyblue`; Pro/Pro Max: `silver`, `cosmicorange`, `deepblue`). Presets `color` + `frameColor`; explicit color props override it. |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display (for example 874×402 on the 17) with upright content. |
 | `dynamicIsland` | `boolean` | `true` | Dynamic Island overlay (replaces `punchHole`). |
 | `resolution` | `number` | per variant | Defaults to the variant's point grid: 402×874 (17, pro), 420×912 (air), 440×956 (promax). |
@@ -35,7 +36,20 @@ Same API as [`Phone`](/docs/api/phone), except:
 `#bfd4e6`, Light Gold `#e6d9c0`. Pro: Cosmic Orange `#c96b34`, Deep Blue
 `#2b3a55`, Silver `#dfe0e2`.
 
-## More examples
+## All variants
+
+### iPhone 17
+
+The baseline model: two-lens vertical pill, Lavender colorway, 402×874 virtual
+screen.
+
+<ObjectDemo demo="iphone-17" />
+
+```tsx
+<IPhoneMockup variant="17" color="#cfc4e6" frameColor="#b9aed3">
+  <MusicPlayer />
+</IPhoneMockup>
+```
 
 ### iPhone 17 Air, floating
 
@@ -49,6 +63,21 @@ The Air's ultra-thin profile and single-lens bar show off on the orbit.
 </IPhoneMockup>
 ```
 
+### iPhone 17 Pro Max
+
+The biggest body in the family — full-width plateau, top-edge RF window, and a
+440×956 virtual screen.
+
+<ObjectDemo demo="iphone-promax" />
+
+```tsx
+<IPhoneMockup variant="promax" color="#2b3a55" frameColor="#3d4d6b">
+  <MusicPlayer />
+</IPhoneMockup>
+```
+
+## More examples
+
 ### Galaxy and iPhone side by side
 
 Bare `<Phone>` and `<IPhone>` objects share one
@@ -59,7 +88,7 @@ scale, so relative sizes are true.
 
 ```tsx
 <MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
-  <Phone variant="s25ultra" color="#2e3238" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
+  <Phone variant="s26ultra" color="#2e3238" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
     <YourAndroidApp />
   </Phone>
   <IPhone variant="promax" color="#2b3a55" position={[1.6, 0, 0]} rotation={[0, -0.3, 0]}>

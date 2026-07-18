@@ -2,9 +2,21 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { IPHONE_VARIANTS, type IPhoneVariant } from '@area-mockups/core'
+import { IPHONE_COLORWAYS, findColorway, IPHONE_VARIANTS, type IPhoneVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { createLogoGeometry } from '../logos'
+import {
+  SideKey,
+  LensRing,
+  UsbC,
+  EdgeSocket,
+  cutGeometry,
+  stadiumCutter,
+  holeCutter,
+  USB_CUT_DEPTH,
+} from '../details'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -18,6 +30,11 @@ export interface IPhoneProps extends Omit<GroupProps, 'children' | 'color'> {
    * triple-lens plateau.
    */
   variant?: IPhoneVariant
+  /**
+   * A retail colorway id from `IPHONE_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /**
    * `landscape` lays the device on its side and swaps the virtual display to
    * H×W with upright content — exactly like rotating the real phone.
@@ -71,8 +88,9 @@ export function IPhone({
   children,
   variant = '17',
   orientation = 'portrait',
-  color = '#1a1c20',
-  frameColor = '#3f434b',
+  colorway,
+  color: colorProp,
+  frameColor: frameColorProp,
   screenBackground = '#000000',
   resolution,
   dynamicIsland = true,
@@ -83,16 +101,21 @@ export function IPhone({
   ...groupProps
 }: IPhoneProps) {
   const spec = IPHONE_VARIANTS[variant]
-  const { body, glass, display, island, rearCamera, backWindow } = spec
+  const retail = findColorway(IPHONE_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#1a1c20'
+  const frameColor = frameColorProp ?? retail?.frameColor ?? '#3f434b'
+  const { body, glass, display, island, rearCamera, backWindow, buttons, buttonProfile } = spec
   const landscape = orientation === 'landscape'
   const aspect = display.height / display.width
   const res = resolution ?? Math.round(spec.resolution * (landscape ? aspect : 1))
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   // Chassis: an extruded rounded-rect with lightly beveled edges — the flat
   // aluminum/titanium frame. The shape is inset by the bevel size so the final
-  // silhouette lands exactly on the spec body.
+  // silhouette lands exactly on the spec body. The bottom edge's USB-C, the
+  // drilled speaker/mic holes and the two screw recesses are then machined out
+  // with CSG so each opening is a real cavity.
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
       body.width - body.bevel * 2,
@@ -109,8 +132,20 @@ export function IPhone({
       curveSegments: 16,
     })
     geometry.translate(0, 0, -depth / 2)
-    return geometry
-  }, [body])
+    const edge = spec.bottomEdge
+    if (!edge) return geometry
+    const bottom = -body.height / 2
+    const cutters = [
+      stadiumCutter(edge.usb.width, edge.usb.height, USB_CUT_DEPTH).translate(edge.usb.x, bottom, 0),
+    ]
+    for (const screw of edge.screws ?? []) {
+      cutters.push(holeCutter(screw.r, 0.028).translate(screw.x, bottom, 0))
+    }
+    for (const hole of edge.speakers ?? []) {
+      cutters.push(holeCutter(hole.r, 0.05).translate(hole.x, bottom, 0))
+    }
+    return cutGeometry(geometry, cutters)
+  }, [body, spec.bottomEdge])
 
   const glassGeometry = React.useMemo(
     () => new THREE.ShapeGeometry(roundedRectShape(glass.width, glass.height, glass.radius), 16),
@@ -138,7 +173,7 @@ export function IPhone({
       backWindow.radius - bevel
     )
     return new THREE.ExtrudeGeometry(shape, {
-      depth: 0.01,
+      depth: 0.006,
       bevelEnabled: true,
       bevelThickness: bevel,
       bevelSize: bevel,
@@ -154,12 +189,17 @@ export function IPhone({
     const { frame } = rearCamera
     const bevel = 0.018
     const radius =
-      rearCamera.style === 'pill'
+      frame.radius ??
+      (rearCamera.style === 'pill'
         ? (frame.width - bevel * 2) / 2 // fully rounded pill ends
-        : Math.min(0.24, (frame.height - bevel * 2) / 2)
-    const shape = roundedRectShape(frame.width - bevel * 2, frame.height - bevel * 2, radius)
+        : Math.min(0.24, (frame.height - bevel * 2) / 2))
+    const shape = roundedRectShape(
+      frame.width - bevel * 2,
+      frame.height - bevel * 2,
+      Math.max(0.01, radius - bevel)
+    )
     const geometry = new THREE.ExtrudeGeometry(shape, {
-      depth: 0.03,
+      depth: Math.max(0.012, (frame.raise ?? 0.048) - bevel),
       bevelEnabled: true,
       bevelThickness: bevel,
       bevelSize: bevel,
@@ -169,36 +209,23 @@ export function IPhone({
     return geometry
   }, [rearCamera])
 
-  // Pro / Pro Max: a raised black platform that seats the triangular lens trio
-  // (the aluminum unibody's black camera deck). The two-lens 17 pill and the
-  // single-lens Air bar don't have it — their lenses sit straight on the frame.
-  const lensDeck = React.useMemo(() => {
-    if (rearCamera.style !== 'bar' || rearCamera.lenses.length < 3) return null
-    const xs = rearCamera.lenses.map((l) => l.x)
-    const ys = rearCamera.lenses.map((l) => l.y)
-    const r = rearCamera.lenses[0]!.r
-    const minX = Math.min(...xs)
-    const maxX = Math.max(...xs)
-    const minY = Math.min(...ys)
-    const maxY = Math.max(...ys)
-    const pad = r * 1.02
-    const width = maxX - minX + pad * 2
-    const height = maxY - minY + pad * 2
-    const radius = (Math.min(width, height) / 2) * 0.72
-    const geometry = new THREE.ExtrudeGeometry(roundedRectShape(width, height, radius), {
-      depth: 0.028,
-      bevelEnabled: true,
-      bevelThickness: 0.012,
-      bevelSize: 0.012,
-      bevelSegments: 3,
-      curveSegments: 28,
-    })
-    return { geometry, x: (minX + maxX) / 2, y: (minY + maxY) / 2 }
-  }, [rearCamera])
-  React.useEffect(() => () => lensDeck?.geometry.dispose(), [lensDeck])
-
-  // Lenses sit a touch further out when they protrude from the black deck.
-  const lensZ = -body.depth / 2 - (lensDeck ? 0.058 : 0.05)
+  // Every lens ring mounts on the pedestal face and stands `h` proud of it.
+  const pedestalTop = body.depth / 2 + (rearCamera.frame.raise ?? 0.048)
+  // Apple badge — real vector geometry from the SVG. The retail logo is
+  // tone-on-tone in the back glass ("practically invisible in some light"):
+  // a slight tone shift plus a glossier finish, no printed color.
+  const logoGeometry = React.useMemo(
+    () => (spec.logo ? createLogoGeometry('apple', spec.logo.width, spec.logo.height) : null),
+    [spec.logo]
+  )
+  // Always a touch darker than the glass with a mirror-gloss finish: on dark
+  // bodies the retail inlay reads darker still, only GLINTING lighter as it
+  // catches light — never a flat lighter gray.
+  const logoColor = React.useMemo(
+    () => `#${new THREE.Color(color).lerp(new THREE.Color('#000000'), 0.15).getHexString()}`,
+    [color]
+  )
+  React.useEffect(() => () => logoGeometry?.dispose(), [logoGeometry])
 
   React.useEffect(() => {
     return () => {
@@ -271,47 +298,11 @@ export function IPhone({
           />
         </mesh>
 
-        {/* Pro camera deck: the raised black platform the triple lenses sit in */}
-        {lensDeck && (
-          <mesh
-            geometry={lensDeck.geometry}
-            rotation-y={Math.PI}
-            position={[lensDeck.x, lensDeck.y, -body.depth / 2 - 0.028]}
-          >
-            <meshPhysicalMaterial
-              color="#0a0c0f"
-              metalness={0.45}
-              roughness={0.38}
-              clearcoat={1}
-              clearcoatRoughness={0.28}
-            />
-          </mesh>
-        )}
-
-        {/* lens stacks: machined ring, dark bezel wall, blue-coated glass, glint */}
-        {rearCamera.lenses.map(({ x, y, r }, i) => (
-          <group key={i} position={[x, y, lensZ]}>
-            <mesh rotation-x={Math.PI / 2}>
-              <cylinderGeometry args={[r, r, 0.05, 56]} />
-              <meshPhysicalMaterial color={frameColor} metalness={1} roughness={0.22} envMapIntensity={1.2} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.006}>
-              <cylinderGeometry args={[r * 0.82, r * 0.86, 0.05, 56]} />
-              <meshPhysicalMaterial color="#17191d" metalness={0.7} roughness={0.3} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.03}>
-              <cylinderGeometry args={[r * 0.72, r * 0.72, 0.012, 56]} />
-              <meshPhysicalMaterial color="#0b1c3f" metalness={0.5} roughness={0.06} clearcoat={1} clearcoatRoughness={0.04} envMapIntensity={0.5} />
-            </mesh>
-            <mesh rotation-x={Math.PI / 2} position-z={-0.037}>
-              <cylinderGeometry args={[r * 0.34, r * 0.34, 0.01, 40]} />
-              <meshPhysicalMaterial color="#152a55" metalness={0.6} roughness={0.15} clearcoat={1} envMapIntensity={0.6} />
-            </mesh>
-            {/* specular glint on the lens glass */}
-            <mesh rotation-x={Math.PI / 2} position={[-r * 0.24, r * 0.24, -0.043]}>
-              <cylinderGeometry args={[r * 0.1, r * 0.1, 0.004, 20]} />
-              <meshPhysicalMaterial color="#9fb6e0" metalness={0.4} roughness={0.1} clearcoat={1} />
-            </mesh>
+        {/* lens stacks: machined ring standing proud of the pedestal, dark bezel
+            wall, blue-coated glass, glint */}
+        {rearCamera.lenses.map(({ x, y, r, h, pupil }, i) => (
+          <group key={i} position={[x, y, -pedestalTop]}>
+            <LensRing r={r} proud={h ?? 0.05} frameColor={frameColor} element="#0d1524" pupil={pupil} matte />
           </group>
         ))}
 
@@ -321,10 +312,10 @@ export function IPhone({
           position={[
             rearCamera.flash.x,
             rearCamera.flash.y,
-            -body.depth / 2 - (rearCamera.style === 'bar' ? 0.055 : 0.008),
+            rearCamera.style === 'bar' ? -pedestalTop - 0.005 : -body.depth / 2 - 0.008,
           ]}
         >
-          <cylinderGeometry args={[0.06, 0.06, 0.016, 32]} />
+          <cylinderGeometry args={[rearCamera.flash.r, rearCamera.flash.r, 0.016, 32]} />
           <meshPhysicalMaterial
             color="#efe9da"
             emissive="#fff3d6"
@@ -336,37 +327,102 @@ export function IPhone({
           <mesh
             key={i}
             rotation-x={Math.PI / 2}
-            position={[x, y, -body.depth / 2 - (rearCamera.style === 'bar' ? 0.054 : 0.006)]}
+            position={[x, y, rearCamera.style === 'bar' ? -pedestalTop - 0.004 : -body.depth / 2 - 0.006]}
           >
-            <cylinderGeometry args={[r, r, 0.012, 16]} />
-            <meshPhysicalMaterial color="#07080c" metalness={0.3} roughness={0.5} />
+            <cylinderGeometry args={[r, r, 0.012, 24]} />
+            <meshPhysicalMaterial color="#111318" metalness={0.5} roughness={0.3} clearcoat={0.6} />
           </mesh>
         ))}
 
-        {/* left side (front view): Action button above the volume keys — machined
-            pills seated in the frame, protruding ~0.7mm like the real keys */}
-        <RoundedBox args={[0.06, 0.2, 0.082]} radius={0.026} position={[-body.width / 2 + 0.012, body.height * 0.278, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
-        <RoundedBox args={[0.06, 0.3, 0.082]} radius={0.026} position={[-body.width / 2 + 0.012, body.height * 0.174, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
-        <RoundedBox args={[0.06, 0.3, 0.082]} radius={0.026} position={[-body.width / 2 + 0.012, body.height * 0.0745, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
+        {/* Apple badge — on the Pros it sits ON the raised Ceramic Shield
+            window, so it must clear that panel's outer face, not the bare glass */}
+        {spec.logo && logoGeometry && (
+          <mesh
+            geometry={logoGeometry}
+            rotation-y={Math.PI}
+            position={[0, spec.logo.y, -body.depth / 2 - (backWindow ? 0.021 : 0.0085)]}
+          >
+            <meshPhysicalMaterial
+              color={logoColor}
+              metalness={0.55}
+              roughness={0.08}
+              clearcoat={1}
+              clearcoatRoughness={0.05}
+              envMapIntensity={1.2}
+              polygonOffset
+              polygonOffsetFactor={-1}
+            />
+          </mesh>
+        )}
 
-        {/* right side (front view): side button + the flatter, flush Camera Control */}
-        <RoundedBox args={[0.06, 0.42, 0.082]} radius={0.026} position={[body.width / 2 - 0.012, body.height * 0.179, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.24} />
-        </RoundedBox>
-        <RoundedBox args={[0.05, 0.3, 0.07]} radius={0.02} position={[body.width / 2 - 0.015, -body.height * 0.124, 0]}>
-          <meshPhysicalMaterial color={frameColor} metalness={0.92} roughness={0.18} />
-        </RoundedBox>
+        {/* side keys, spec-accurate: Action + volume on the left rail, side button
+            + the flush Camera Control on the right — pills protruding a scan-true
+            ~0.3-0.45 mm (Camera Control sits flush, seated in the rail) */}
+        {buttons.map(({ edge, y, length, flush }, i) => (
+          <SideKey
+            key={i}
+            side={edge === 'right' ? 1 : -1}
+            railX={body.width / 2}
+            y={y}
+            length={length}
+            thickness={buttonProfile.thickness}
+            protrusion={buttonProfile.protrusion}
+            color={frameColor}
+            flush={flush}
+          />
+        ))}
 
-        {/* USB-C slot on the bottom edge */}
-        <RoundedBox args={[0.15, 0.016, 0.052]} radius={0.007} position={[0, -body.height / 2 - 0.002, 0]}>
-          <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
-        </RoundedBox>
+        {/* antenna strips crossing both rails */}
+        {spec.antennaLines?.map((y, i) => (
+          <React.Fragment key={i}>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[side * (body.width / 2 - 0.005), y, 0]}>
+                <boxGeometry args={[0.012, 0.04, body.depth * 0.86]} />
+                <meshStandardMaterial color="#20242a" transparent opacity={0.32} roughness={0.7} />
+              </mesh>
+            ))}
+          </React.Fragment>
+        ))}
+
+        {/* RF window centered on the top edge (Pro Max) */}
+        {spec.topWindow && (
+          <RoundedBox
+            args={[spec.topWindow.width, 0.014, spec.topWindow.height]}
+            radius={0.006}
+            position={[0, body.height / 2 + 0.001, 0]}
+          >
+            <meshStandardMaterial color="#22262c" transparent opacity={0.3} roughness={0.7} />
+          </RoundedBox>
+        )}
+
+        {/* bottom edge: the USB-C, drilled speaker holes and screw recesses are
+            real cavities cut from the chassis above — these are their interiors */}
+        {spec.bottomEdge && (
+          <>
+            <UsbC
+              x={spec.bottomEdge.usb.x}
+              y={-body.height / 2}
+              width={spec.bottomEdge.usb.width}
+              height={spec.bottomEdge.usb.height}
+            />
+            {/* pentalobe screw heads, seated just inside their recesses */}
+            {spec.bottomEdge.screws?.map(({ x, r }, i) => (
+              <mesh key={`s${i}`} position={[x, -body.height / 2 + 0.013, 0]}>
+                <cylinderGeometry args={[r - 0.0025, r - 0.0025, 0.008, 16]} />
+                <meshPhysicalMaterial color="#caccd0" metalness={0.9} roughness={0.35} />
+              </mesh>
+            ))}
+            {spec.bottomEdge.speakers?.map(({ x, r }, i) => (
+              <EdgeSocket
+                key={`h${i}`}
+                position={[x, -body.height / 2, 0]}
+                r={r}
+                depth={0.05}
+                lip={0.006}
+              />
+            ))}
+          </>
+        )}
 
         {/* the live screen: real DOM, CSS3D-transformed onto the display */}
         <DeviceScreen

@@ -10,11 +10,14 @@
  * the enclosure is 5.42 units wide. Origin sits at the panel center; the
  * desk plane is `standHeight` below it.
  *
- * The tilt stand matches the product's design: a narrow (~124 mm) arm hangs
- * from a visible hinge barrel a third of the way up the back, leans ~32°
- * back down to the knee and runs forward as a thin foot plate. A
- * stadium-shaped cable-routing hole passes through the arm, with the black
- * cable/power recess behind it in the enclosure back.
+ * The tilt stand matches the product photography (front, side and rear
+ * angles): a wide (~152 mm), thin sheet arm hangs from the hinge — whose
+ * machined pivot caps show on the arm's sides — about three quarters of the
+ * way down the back, leans a gentle ~13° back down to the knee and runs
+ * forward as a thin foot plate on small rubber pads. A circular
+ * cable-routing hole passes clean through the arm, straddling the
+ * enclosure's bottom edge so its lower arc peeks below the panel with open
+ * air behind it.
  *
  * This is pure, renderer-agnostic data: the 3D model consumes it today and a
  * future 2D (CSS/SVG) renderer can consume the same numbers.
@@ -30,29 +33,31 @@ export const MONITOR = {
   /** Default CSS px width of the virtual display (the 2560x1440 logical grid). */
   resolution: 2560,
   /** Distance from panel center down to the desk plane (stand height). */
-  standHeight: 2.591,
+  standHeight: 2.573,
+  /** The 2026 generation carries a large gloss-black Apple mark on the back,
+   * centered, its center ~30% down the enclosure. */
+  logo: { width: 0.84, height: 1.03, y: 0.57 },
   /**
-   * Tilt stand. The arm (width x `thickness` cross-section) hangs from the
-   * hinge barrel (`hingeRadius`, centered `attachY` up the back) leaning
-   * `leanDeg` degrees, rounds through the knee at the rear (outer radius
-   * `outerKneeRadius`, inner fillet `innerKneeRadius`) and runs forward as
-   * the foot plate (`footThickness` tall, front lip at `footFrontZ`). The
-   * `cableHole` stadium is punched through the arm, its top edge
-   * `topOffset` below the hinge center along the arm.
+   * Tilt stand, proportioned from the product photos. The arm (width x
+   * `thickness` cross-section) hangs from the hinge barrel (`hingeRadius`,
+   * centered `attachY` up the back) leaning `leanDeg` degrees, rounds
+   * through the knee at the rear (outer radius `outerKneeRadius`, inner
+   * fillet `innerKneeRadius`) and runs forward as the foot plate
+   * (`footThickness` tall, front lip at `footFrontZ`). The circular
+   * `cableHole` is punched through the arm, its center `edgeOffset` above
+   * the enclosure's bottom edge so the lower arc shows below the panel.
    */
   stand: {
-    width: 1.08,
-    thickness: 0.1,
-    leanDeg: 32,
-    attachY: -0.37,
-    footFrontZ: 0.1,
+    width: 1.32,
+    thickness: 0.07,
+    leanDeg: 13,
+    attachY: -0.826,
+    footFrontZ: 0.55,
     footThickness: 0.062,
     outerKneeRadius: 0.34,
     innerKneeRadius: 0.28,
-    hingeRadius: 0.078,
-    /** The routing hole straddles the enclosure's bottom edge — its lower
-     * arc peeks below the panel from the front, as on the product. */
-    cableHole: { width: 0.34, height: 0.5, topOffset: 1.19 },
+    hingeRadius: 0.11,
+    cableHole: { r: 0.195, edgeOffset: 0.05 },
   },
 } as const
 

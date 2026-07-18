@@ -3,6 +3,7 @@ import type * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
 import { GREETING_CARD } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -63,7 +64,7 @@ export function GreetingCard({
   const { panel } = GREETING_CARD
   const leftRef = React.useRef<THREE.Mesh>(null!)
   const rightRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [leftRef, rightRef], [])
+  const occludeRefs = useScreenOccluders(leftRef, rightRef)
 
   // Tent pose with the fold toward the viewer: the panels yaw ∓a around the
   // shared spine, keeping the card centered on the group origin.

@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { ROLLUP_BANNER } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -55,7 +56,7 @@ export function RollupBanner({
 }: RollupBannerProps) {
   const { graphic, cassette, pole, rail, standHeight } = ROLLUP_BANNER
   const backingRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [backingRef], [])
+  const occludeRefs = useScreenOccluders(backingRef)
 
   const backingGeometry = React.useMemo(
     () =>

@@ -4,6 +4,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { POSTER_FRAME } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -62,7 +63,7 @@ export function PosterFrame({
   const { poster, opening, frame, recess, matWidth } = POSTER_FRAME
   const frameRef = React.useRef<THREE.Mesh>(null!)
   const backingRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [frameRef, backingRef], [])
+  const occludeRefs = useScreenOccluders(frameRef, backingRef)
 
   const outerWidth = poster.width + frame.width * 2
   const outerHeight = poster.height + frame.width * 2

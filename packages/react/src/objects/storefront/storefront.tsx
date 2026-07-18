@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { STOREFRONT } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -60,7 +61,7 @@ export function Storefront({
 }: StorefrontProps) {
   const { body, fascia, sign, riser, window: win, poster, standHeight } = STOREFRONT
   const wallRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [wallRef], [])
+  const occludeRefs = useScreenOccluders(wallRef)
 
   // Shop glass reflects the street: a lighter blue-gray with strong env
   // reflections, instead of a pitch-black hole in the façade.

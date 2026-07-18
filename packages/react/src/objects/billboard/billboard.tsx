@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { BILLBOARD } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -53,7 +54,7 @@ export function Billboard({
 }: BillboardProps) {
   const { face, panel, apron, standHeight, pole, catwalk, lights } = BILLBOARD
   const panelRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [panelRef], [])
+  const occludeRefs = useScreenOccluders(panelRef)
 
   const panelTop = panel.height / 2
   const apronCenterY = -panelTop - apron.height / 2 + 0.02

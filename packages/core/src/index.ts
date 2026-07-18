@@ -56,6 +56,7 @@ export {
   type StudioLightformer,
   STUDIO_LIGHTFORMERS,
 } from './stage/lights'
+export { TumbleOrbit, tumbleAutoRotateStep } from './stage/tumble'
 export { type FloatPose, floatPose, randomFloatPhase } from './stage/float'
 export {
   OVERLAY_BUTTON_STYLE,
@@ -63,6 +64,20 @@ export {
   ENTER_FULLSCREEN_ICON_PATH,
   EXIT_FULLSCREEN_ICON_PATH,
 } from './stage/overlay'
+
+// Retail colorway catalogs (pure data) + the `colorway` prop resolver.
+export {
+  type Colorway,
+  GALAXY_COLORWAYS,
+  IPHONE_COLORWAYS,
+  FOLD_COLORWAYS,
+  FLIP_COLORWAYS,
+  LAPTOP_COLORWAYS,
+  TABLET_COLORWAYS,
+  WATCH_COLORWAYS,
+  MONITOR_COLORWAYS,
+  findColorway,
+} from './colorways'
 
 // Device specs (physical dimensions, cameras, displays — pure data).
 export * from './devices/phone/dimensions'
@@ -72,6 +87,7 @@ export * from './devices/tablet/dimensions'
 export * from './devices/watch/dimensions'
 export * from './devices/monitor/dimensions'
 export * from './devices/fold/dimensions'
+export * from './devices/flip/dimensions'
 
 // Object specs (print, packaging, out-of-home, vehicles — pure data).
 export * from './objects/book/dimensions'

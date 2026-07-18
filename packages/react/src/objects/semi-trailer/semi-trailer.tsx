@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { SEMI_TRAILER } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -60,7 +61,7 @@ export function SemiTrailer({
 }: SemiTrailerProps) {
   const { body, groundY, wheels, landingGear, side, rear: rearSpec } = SEMI_TRAILER
   const boxRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [boxRef], [])
+  const occludeRefs = useScreenOccluders(boxRef)
 
   const steel = { color: '#1d2025', metalness: 0.4, roughness: 0.6 }
   const floorY = -body.height / 2

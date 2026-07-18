@@ -2,9 +2,10 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { WATCH_VARIANTS, type WatchVariant } from '@area-mockups/core'
+import { WATCH_COLORWAYS, findColorway, WATCH_VARIANTS, type WatchVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -17,6 +18,11 @@ export interface WatchProps extends Omit<GroupProps, 'children' | 'color'> {
    * case with a round display).
    */
   variant?: WatchVariant
+  /**
+   * A retail colorway id from `WATCH_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /** Case colorway. Apple aluminum: Jet Black `#1c1d21` (default), Silver
    * `#dfe0e3`, Rose Gold `#dcb8a8`. Galaxy: Graphite `#33363c`, Silver `#d9dade`. */
   color?: string
@@ -64,7 +70,8 @@ export interface WatchProps extends Omit<GroupProps, 'children' | 'color'> {
 export function Watch({
   children,
   variant = 'series11',
-  color = '#1c1d21',
+  colorway,
+  color: colorProp,
   bandColor = '#2a2c31',
   screenBackground = '#000000',
   resolution,
@@ -75,10 +82,12 @@ export function Watch({
   ...groupProps
 }: WatchProps) {
   const spec = WATCH_VARIANTS[variant]
+  const retail = findColorway(WATCH_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#1c1d21'
   const { body, glass, display, crown, buttons, band } = spec
   const res = resolution ?? spec.resolution
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   // Squircle / cushion case: extruded rounded-rect with a deep bevel for the
   // curved sides (the Galaxy cushion is the same construction, wider and

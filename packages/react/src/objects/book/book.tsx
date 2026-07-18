@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { BOOK } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -56,7 +57,7 @@ export function Book({
   const { board, thickness, pages, spine, groove, headband, cover } = BOOK
   const frontRef = React.useRef<THREE.Mesh>(null!)
   const backRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [frontRef, backRef], [])
+  const occludeRefs = useScreenOccluders(frontRef, backRef)
 
   // the boards stop short of the spine by the french groove width — the
   // groove itself is a thinner recessed strip added separately below

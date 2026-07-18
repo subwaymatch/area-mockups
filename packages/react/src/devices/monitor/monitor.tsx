@@ -2,15 +2,22 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { MONITOR } from '@area-mockups/core'
+import { MONITOR, MONITOR_COLORWAYS, findColorway } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { createLogoGeometry } from '../logos'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
 export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the monitor: React components, an <iframe>, a <video>… */
   children?: React.ReactNode
+  /**
+   * A retail colorway id from `MONITOR_COLORWAYS` presetting the enclosure
+   * color. An explicit `color` prop overrides it.
+   */
+  colorway?: string
   /** Aluminum colorway (enclosure + stand). */
   color?: string
   /** CSS background painted behind your screen content. */
@@ -44,13 +51,15 @@ export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
 /**
  * A procedurally built Apple Studio Display-style monitor (2026 generation):
  * 27" 5K panel behind an edge-to-edge glass front (uniform black bezel, only
- * a hairline of aluminum at the rim), centered camera dot, speaker
- * perforations along the bottom of the back, and the signature tilt stand —
- * a narrow arm hanging from its hinge barrel with a real cable-routing hole
- * punched through it, the black cable/power recess behind it, and the thin
- * forward foot plate. Thunderbolt/USB-C port row on the back and,
- * faithfully, no power button or external power inlet. No 3D asset files
- * are loaded.
+ * a hairline of aluminum at the rim), the barely-there centered camera dot,
+ * the generation's gloss-black Apple mark on the back, speaker perforations
+ * along the bottom edge, and the signature tilt stand — a wide thin-sheet
+ * arm hanging from its hinge (machined pivot caps on the sides) with the
+ * circular cable-routing hole punched clean through, straddling the
+ * enclosure's bottom edge exactly as in the product photography, down to
+ * the knee and the thin forward foot plate on rubber pads.
+ * Thunderbolt/USB-C port row on the back and, faithfully, no power button
+ * or external power inlet. No 3D asset files are loaded.
  *
  * The group origin is the panel center; the stand reaches `MONITOR.standHeight`
  * below it. Must be rendered inside a react-three-fiber `<Canvas>` (or
@@ -58,7 +67,8 @@ export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
  */
 export function Monitor({
   children,
-  color = '#c8cbd0',
+  colorway,
+  color: colorProp,
   screenBackground = '#000000',
   resolution = MONITOR.resolution,
   interactive = true,
@@ -67,9 +77,11 @@ export function Monitor({
   screenStyle,
   ...groupProps
 }: MonitorProps) {
+  const retail = findColorway(MONITOR_COLORWAYS, colorway)
+  const color = colorProp ?? retail?.color ?? '#c8cbd0'
   const { body, glass, display, stand, standHeight } = MONITOR
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
 
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
@@ -95,12 +107,13 @@ export function Monitor({
     [glass]
   )
 
-  // The tilt stand, matching the real construction: a narrow arm hangs from
-  // the hinge barrel a third of the way up the back, leans back down to the
-  // knee and runs forward as the thin foot plate. Foot + knee are one bent
-  // side profile (z/y plane) extruded across the stand width and capped just
-  // above the knee, where the separate arm slab — carrying the real
-  // stadium-shaped cable-routing hole — takes over along the lean axis.
+  // The tilt stand, matching the real construction: a wide thin arm hangs
+  // from the hinge barrel three quarters of the way down the back, leans
+  // gently back down to the knee and runs forward as the thin foot plate.
+  // Foot + knee are one bent side profile (z/y plane) extruded across the
+  // stand width and capped just above the knee, where the separate arm
+  // slab — carrying the real circular cable-routing hole — takes over
+  // along the lean axis.
   const standParts = React.useMemo(() => {
     const {
       width,
@@ -169,13 +182,17 @@ export function Monitor({
     footKnee.rotateY(-Math.PI / 2)
 
     // Arm slab: rounded-rect face (x across, y down the lean axis, hinge
-    // center at +armLen/2) with the cable hole as a real punched stadium.
+    // center at +armLen/2) with the cable hole as a real punched circle —
+    // the extrude bevel rounds its bore, giving the rim highlight the
+    // product photos show around the opening.
     const armLen = (hinge.y - yCut) / d.y + 0.24
     const armShape = roundedRectShape(width - 0.016, armLen, 0.02)
-    const holePts = roundedRectShape(cableHole.width, cableHole.height, cableHole.width / 2).getPoints(12)
-    const holeCenterS = armLen / 2 - cableHole.topOffset - cableHole.height / 2
-    const holePath = new THREE.Path(holePts.map((p) => p.clone().setY(p.y + holeCenterS)))
-    holePath.closePath()
+    // The hole's center sits `edgeOffset` above the enclosure's bottom edge,
+    // so only its lower arc shows below the panel from the front.
+    const holeWorldY = -body.height / 2 + cableHole.edgeOffset
+    const holeCenterS = armLen / 2 - (hinge.y - holeWorldY) / d.y
+    const holePath = new THREE.Path()
+    holePath.absarc(0, holeCenterS, cableHole.r, 0, Math.PI * 2, true)
     armShape.holes.push(holePath)
     const slabT = thickness + 0.006
     const armSlab = new THREE.ExtrudeGeometry(armShape, {
@@ -194,24 +211,22 @@ export function Monitor({
       hinge.z - (d.z * armLen) / 2,
     ]
 
-    // The recess covers the hole's span above the enclosure's bottom edge
-    // (through the part below the edge you see straight through, as on the
-    // product — its lower arc is the notch visible from the front).
-    const holeTopY = hinge.y - d.y * cableHole.topOffset
-    const recessY = (holeTopY - body.height / 2) / 2
+    // Rubber pad positions on the foot's underside — front pair under the
+    // lip, rear pair just ahead of the knee's desk tangency.
+    const feetZ = { front: footFrontZ - 0.15, rear: oC.z + 0.05 }
 
-    return { footKnee, armSlab, armPos, hinge, recessY }
+    return { footKnee, armSlab, armPos, hinge, feetZ }
   }, [body, stand, standHeight])
 
-  // Black cable/power recess behind the arm's routing hole, ending flush
-  // with the enclosure's bottom edge.
-  const recessGeometry = React.useMemo(
-    () => new THREE.ShapeGeometry(roundedRectShape(0.44, 0.19, 0.09), 16),
+  // The generation's gloss-black Apple mark on the back — real vector
+  // geometry from the SVG, reading as a dark glass inlay on the aluminum.
+  const logoGeometry = React.useMemo(
+    () => createLogoGeometry('apple', MONITOR.logo.width, MONITOR.logo.height),
     []
   )
 
-  // Speaker perforations along the bottom of the back: a dot grid painted
-  // once into a texture strip.
+  // Speaker perforations along the bottom edge (the underside, where the
+  // product drills them): a dot grid painted once into a texture strip.
   const grilleTexture = React.useMemo(() => {
     if (typeof document === 'undefined') return null
     const canvas = document.createElement('canvas')
@@ -237,10 +252,10 @@ export function Monitor({
       glassGeometry.dispose()
       standParts.footKnee.dispose()
       standParts.armSlab.dispose()
-      recessGeometry.dispose()
+      logoGeometry.dispose()
       grilleTexture?.dispose()
     }
-  }, [bodyGeometry, glassGeometry, standParts, recessGeometry, grilleTexture])
+  }, [bodyGeometry, glassGeometry, standParts, logoGeometry, grilleTexture])
 
   return (
     <group {...groupProps}>
@@ -254,10 +269,29 @@ export function Monitor({
         <meshPhysicalMaterial color="#020205" metalness={0.1} roughness={0.07} clearcoat={1} />
       </mesh>
 
-      {/* centered camera dot in the top bezel */}
-      <mesh rotation-x={Math.PI / 2} position={[0, glass.height / 2 - (glass.height - display.height) / 4, body.depth / 2 + 0.004]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.004, 16]} />
-        <meshPhysicalMaterial color="#0a1420" metalness={0.4} roughness={0.2} clearcoat={1} />
+      {/* centered camera dot in the top bezel — tiny and nearly flush, the
+          lens only reads as a faint blue-black circle in the product shots */}
+      <mesh rotation-x={Math.PI / 2} position={[0, glass.height / 2 - (glass.height - display.height) / 4, body.depth / 2 + 0.003]}>
+        <cylinderGeometry args={[0.012, 0.012, 0.002, 16]} />
+        <meshPhysicalMaterial color="#0c1524" metalness={0.4} roughness={0.15} clearcoat={1} />
+      </mesh>
+
+      {/* the gloss-black Apple mark centered on the upper back */}
+      <mesh
+        geometry={logoGeometry}
+        rotation-y={Math.PI}
+        position={[0, MONITOR.logo.y, -body.depth / 2 - 0.003]}
+      >
+        <meshPhysicalMaterial
+          color="#08090b"
+          metalness={0.3}
+          roughness={0.12}
+          clearcoat={1}
+          clearcoatRoughness={0.08}
+          envMapIntensity={0.5}
+          polygonOffset
+          polygonOffsetFactor={-1}
+        />
       </mesh>
 
       {/* back: 2x Thunderbolt 5 + 2x USB-C row (power connects inside the
@@ -266,16 +300,16 @@ export function Monitor({
         <RoundedBox
           key={i}
           args={[0.11, 0.042, 0.02]}
-          radius={0.018}
-          position={[body.width / 2 - 0.7 - i * 0.2, -body.height / 2 + 0.42, -body.depth / 2 - 0.004]}
+          radius={0.008}
+          position={[body.width / 2 - 0.7 - i * 0.2, -body.height / 2 + 0.34, -body.depth / 2 - 0.004]}
         >
           <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
         </RoundedBox>
       ))}
 
-      {/* speaker perforations along the bottom of the back */}
+      {/* speaker perforations along the bottom edge (underside) */}
       {grilleTexture && (
-        <mesh rotation-y={Math.PI} position={[0, -body.height / 2 + 0.085, -body.depth / 2 - 0.002]}>
+        <mesh rotation-x={Math.PI / 2} position={[0, -body.height / 2 - 0.001, 0]}>
           <planeGeometry args={[4.6, 0.058]} />
           <meshBasicMaterial map={grilleTexture} transparent depthWrite={false} />
         </mesh>
@@ -296,40 +330,32 @@ export function Monitor({
         <cylinderGeometry args={[stand.hingeRadius, stand.hingeRadius, stand.width - 0.03, 32]} />
         <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
       </mesh>
+      {/* machined pivot caps flush on the arm's sides — the visible circular
+          detail in the product's side view */}
       {([1, -1] as const).map((s) => (
         <mesh
           key={s}
           rotation-z={Math.PI / 2}
           position={[s * (stand.width / 2 - 0.005), standParts.hinge.y, standParts.hinge.z]}
         >
-          <cylinderGeometry args={[stand.hingeRadius * 0.8, stand.hingeRadius * 0.8, 0.014, 24]} />
-          <meshPhysicalMaterial color="#dfe2e6" metalness={0.9} roughness={0.22} />
+          <cylinderGeometry args={[stand.hingeRadius * 0.85, stand.hingeRadius * 0.85, 0.014, 24]} />
+          <meshPhysicalMaterial color="#dfe2e6" metalness={0.55} roughness={0.3} envMapIntensity={0.9} />
         </mesh>
       ))}
 
-      {/* circular pivot cover on the arm's back face, partway down the arm */}
-      <group
-        position={[
-          0,
-          standParts.hinge.y - Math.cos((stand.leanDeg * Math.PI) / 180) * 0.8 + Math.sin((stand.leanDeg * Math.PI) / 180) * 0.058,
-          standParts.hinge.z - Math.sin((stand.leanDeg * Math.PI) / 180) * 0.8 - Math.cos((stand.leanDeg * Math.PI) / 180) * 0.058,
-        ]}
-        rotation-x={Math.PI + (stand.leanDeg * Math.PI) / 180}
-      >
-        <mesh>
-          <circleGeometry args={[0.19, 32]} />
-          <meshPhysicalMaterial color="#26282c" metalness={0.5} roughness={0.4} />
-        </mesh>
-        <mesh position-z={0.001}>
-          <ringGeometry args={[0.165, 0.19, 32]} />
-          <meshPhysicalMaterial color="#c3c7cc" metalness={0.85} roughness={0.3} />
-        </mesh>
-      </group>
-
-      {/* black cable/power recess in the back, seen through the arm's hole */}
-      <mesh geometry={recessGeometry} rotation-y={Math.PI} position={[0, standParts.recessY, -body.depth / 2 - 0.004]}>
-        <meshPhysicalMaterial color="#0a0b0e" metalness={0.1} roughness={0.7} />
-      </mesh>
+      {/* rubber pads under the foot's corners */}
+      {([1, -1] as const).map((s) =>
+        (['front', 'rear'] as const).map((end) => (
+          <mesh
+            key={`${s}${end}`}
+            rotation-x={Math.PI / 2}
+            position={[s * (stand.width / 2 - 0.12), -standHeight + 0.002, standParts.feetZ[end]]}
+          >
+            <cylinderGeometry args={[0.035, 0.035, 0.012, 20]} />
+            <meshStandardMaterial color="#26272a" roughness={0.85} />
+          </mesh>
+        ))
+      )}
 
       {/* the live screen: real DOM, CSS3D-transformed onto the panel */}
       <DeviceScreen

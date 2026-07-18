@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { ID_CARD } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -59,7 +60,7 @@ export function IDCard({
 }: IDCardProps) {
   const { body, slot, face, hook, strap } = ID_CARD
   const cardRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [cardRef], [])
+  const occludeRefs = useScreenOccluders(cardRef)
 
   const cardGeometry = React.useMemo(() => {
     const shape = roundedRectShape(

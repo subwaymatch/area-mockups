@@ -1,11 +1,13 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Laptop, type LaptopProps } from './devices/laptop/laptop'
-import { LAPTOP } from '@area-mockups/core'
+import { LAPTOP_VARIANTS } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
   LaptopProps,
+  | 'variant'
+  | 'colorway'
   | 'color'
   | 'screenBackground'
   | 'resolution'
@@ -45,6 +47,8 @@ const STAGE_OFFSET_Y = -1.15
  */
 export function LaptopMockup({
   children,
+  variant = 'air13',
+  colorway,
   color,
   screenBackground,
   resolution,
@@ -60,6 +64,8 @@ export function LaptopMockup({
 }: LaptopMockupProps) {
   const device = (
     <Laptop
+      variant={variant}
+      colorway={colorway}
       color={color}
       screenBackground={screenBackground}
       resolution={resolution}
@@ -76,7 +82,7 @@ export function LaptopMockup({
   )
 
   // Grounded by default: shadow just under the feet. Floating keeps a hover gap.
-  const baseBottom = STAGE_OFFSET_Y - LAPTOP.base.thickness / 2 - 0.024
+  const baseBottom = STAGE_OFFSET_Y - LAPTOP_VARIANTS[variant].base.thickness / 2 - 0.024
   const shadowY = canvasProps.shadowY ?? (float ? baseBottom - 0.22 : baseBottom)
 
   return (

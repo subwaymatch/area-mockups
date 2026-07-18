@@ -1,0 +1,52 @@
+---
+title: Flip (Galaxy Z Flip 7)
+description: The Galaxy Z Flip 7 clamshell foldable and its all-in-one mockup.
+---
+
+`<Flip>` renders a Galaxy Z Flip 7; `<FlipMockup>` is the all-in-one version.
+One device, two form factors: **open** (default) fills your content onto the
+tall 6.85″ main display, and **closed** (`open={false}`) folds to the compact
+square whose front is nearly all cover screen — with the dual-lens camera
+island and flash sitting on the glass, and the hinge band (complete with its
+engraved wordmark) capping the bottom. Detail geometry (button pills, lens
+rings, ports, seams) follows a reference scan of the retail device.
+
+<ObjectDemo demo="flip-open" checker />
+
+```tsx
+<FlipMockup color="#e5502e" frameColor="#f06a45">
+  <YourApp /> {/* fills the tall main display */}
+</FlipMockup>
+```
+
+## Props
+
+Beyond the [shared screen props](/docs/screen-content) and, on the mockup, the
+[shared mockup props](/docs/api):
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `open` | `boolean` | `true` | Unfolded tall phone (content on the 360×837 main display) versus the folded compact (content on the nearly square 316×353 cover display, camera island overlaid like a cutout). |
+| `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display with upright content. |
+| `color` | `string` | `'#22252b'` | Back glass / cover colorway. |
+| `frameColor` | `string` | `'#4a4f59'` | Metal frame, buttons, hinge band, and camera rings. |
+| `punchHole` | `boolean` | `true` | Front camera punch hole overlay on the main display (open only). |
+| `resolution` | `number` | per state | CSS pixel width of the active display; height follows the panel aspect. |
+
+## The two states
+
+Your content maps onto whichever screen is showing. Folded, the cover screen
+wraps around the cameras exactly like the real FlexWindow:
+
+<ObjectDemo demo="flip-closed" />
+
+```tsx
+<FlipMockup open={false} autoRotate float color="#e5502e" frameColor="#f06a45" screenBackground="#000">
+  <LockScreen /> {/* now on the square cover screen */}
+</FlipMockup>
+```
+
+## Colorways
+
+Try Coral Red `#e5502e` with `frameColor="#f06a45"`, Blue Shadow `#4a5568`,
+Jet Black `#26282c`, or Mint `#bfe3d0` with `frameColor="#a9cdb9"`.

@@ -4,6 +4,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { VINYL_RECORD } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -61,7 +62,7 @@ export function VinylRecord({
   const { sleeve, disc, innerSleeve, discPeek } = VINYL_RECORD
   const sleeveRef = React.useRef<THREE.Mesh>(null!)
   const discRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [sleeveRef, discRef], [])
+  const occludeRefs = useScreenOccluders(sleeveRef, discRef)
 
   const sleeveGeometry = React.useMemo(() => {
     const shape = roundedRectShape(sleeve.size - 0.012, sleeve.size - 0.012, sleeve.radius)

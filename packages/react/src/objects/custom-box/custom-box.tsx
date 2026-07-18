@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { CUSTOM_BOX, customBoxScale, type CustomBoxSizeMm } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -74,7 +75,7 @@ export function CustomBox({
   const radius = Math.min(0.02, w / 2 - 0.001, h / 2 - 0.001, d / 2 - 0.001)
 
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
   const pxPerUnit = resolution / w
 
   const shared = {

@@ -22,10 +22,16 @@ export const DEFAULT_SHADOW_Y = -2.05
 /** Soft contact shadow under the device. */
 export const CONTACT_SHADOW = { opacity: 0.45, scale: 13, blur: 2.6, far: 4.5 } as const
 
-/** Orbit-control feel shared by all mockups (pan disabled, damped, clamped pitch). */
+/**
+ * Rotation feel shared by all mockups: pan stays disabled (the axis is always
+ * the stage center) and motion is damped. By default vertical rotation stays
+ * within the classic polar clamp below; opting into free rotation removes the
+ * clamp for a full 360° tumble in every direction — see `TumbleOrbit`.
+ */
 export const ORBIT = {
   enablePan: false,
   dampingFactor: 0.08,
+  /** Default polar clamp (radians from the top pole) when free rotation is off. */
   minPolarAngle: 0.5,
   maxPolarAngle: Math.PI - 0.5,
 } as const

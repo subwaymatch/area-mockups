@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedDeviceProps = Pick<
   IPhoneProps,
   | 'variant'
+  | 'colorway'
   | 'orientation'
   | 'color'
   | 'frameColor'
@@ -42,6 +43,7 @@ export interface IPhoneMockupProps
 export function IPhoneMockup({
   children,
   variant = '17',
+  colorway,
   orientation = 'portrait',
   color,
   frameColor,
@@ -59,6 +61,7 @@ export function IPhoneMockup({
   const device = (
     <IPhone
       variant={variant}
+      colorway={colorway}
       orientation={orientation}
       color={color}
       frameColor={frameColor}

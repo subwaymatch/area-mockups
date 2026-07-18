@@ -1,16 +1,30 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { LAPTOP } from '@area-mockups/core'
+import { LAPTOP_COLORWAYS, findColorway, LAPTOP_VARIANTS, type LaptopVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { createWordmarkTexture } from '../wordmark'
+import { createLogoGeometry } from '../logos'
+import { UsbC, EdgeSocket, cutGeometry, stadiumCutter, holeCutter } from '../details'
 import { roundedRectShape } from '@area-mockups/core'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
 export interface LaptopProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the laptop screen: React components, an <iframe>, a <video>… */
   children?: React.ReactNode
+  /**
+   * Which laptop to render: `air13` (MacBook Air 13", uniform thin slab) or
+   * `pro14` (MacBook Pro 14", thicker body, HDMI/SDXC ports, speaker grilles,
+   * larger feet and a deeper notch). True relative sizes.
+   */
+  variant?: LaptopVariant
+  /**
+   * A retail colorway id from `LAPTOP_COLORWAYS` (e.g. the catalog's first
+   * entry) presetting the device colors. Explicit color props override it.
+   */
+  colorway?: string
   /** Aluminum colorway (lid, deck, bottom). MacBook Air M5 finishes work well:
    * Silver `#e3e4e6` (default), Sky Blue `#aec6d9`, Starlight `#e8e0d4`, Midnight `#2e3642`. */
   color?: string
@@ -47,21 +61,27 @@ export interface LaptopProps extends Omit<GroupProps, 'children' | 'color'> {
 }
 
 /** One flat, rounded slab (base or lid), extruded with a soft edge bevel. */
+function slabGeometry(width: number, depth: number, radius: number, thickness: number, bevel: number) {
+  const shape = roundedRectShape(width - bevel * 2, depth - bevel * 2, radius - bevel)
+  const core = thickness - bevel * 2
+  const g = new THREE.ExtrudeGeometry(shape, {
+    depth: core,
+    bevelEnabled: true,
+    bevelThickness: bevel,
+    bevelSize: bevel,
+    bevelSegments: 3,
+    curveSegments: 16,
+  })
+  g.translate(0, 0, -core / 2)
+  return g
+}
+
+/** Memoized slab with disposal (the lid). */
 function useSlabGeometry(width: number, depth: number, radius: number, thickness: number, bevel: number) {
-  const geometry = React.useMemo(() => {
-    const shape = roundedRectShape(width - bevel * 2, depth - bevel * 2, radius - bevel)
-    const core = thickness - bevel * 2
-    const g = new THREE.ExtrudeGeometry(shape, {
-      depth: core,
-      bevelEnabled: true,
-      bevelThickness: bevel,
-      bevelSize: bevel,
-      bevelSegments: 3,
-      curveSegments: 16,
-    })
-    g.translate(0, 0, -core / 2)
-    return g
-  }, [width, depth, radius, thickness, bevel])
+  const geometry = React.useMemo(
+    () => slabGeometry(width, depth, radius, thickness, bevel),
+    [width, depth, radius, thickness, bevel]
+  )
   React.useEffect(() => () => geometry.dispose(), [geometry])
   return geometry
 }
@@ -115,8 +135,7 @@ function buildKeyboardLayout(keyboard: { width: number; depth: number }) {
  * call), a canvas-painted legends layer just above the caps, and the Touch ID
  * ring on the top-right key.
  */
-function Keys() {
-  const { keyboard } = LAPTOP
+function Keys({ keyboard }: { keyboard: { width: number; depth: number; offsetZ: number } }) {
   const meshRef = React.useRef<THREE.InstancedMesh>(null!)
 
   const layout = React.useMemo(() => buildKeyboardLayout(keyboard), [keyboard])
@@ -204,23 +223,49 @@ function Keys() {
  */
 export function Laptop({
   children,
-  color = '#e3e4e6',
+  variant = 'air13',
+  colorway,
+  color: colorProp,
   screenBackground = '#000000',
-  resolution = 1280,
+  resolution,
   notch = true,
-  openAngle = LAPTOP.openAngle,
+  openAngle,
   interactive = true,
   dragToRotate = true,
   occlude = true,
   screenStyle,
   ...groupProps
 }: LaptopProps) {
-  const { footprint, base, lid, display, notch: notchDims, keyboard, trackpad } = LAPTOP
+  const spec = LAPTOP_VARIANTS[variant]
+  const retail = findColorway(LAPTOP_COLORWAYS[variant], colorway)
+  const color = colorProp ?? retail?.color ?? '#e3e4e6'
+  const { footprint, base, lid, display, notch: notchDims, keyboard, trackpad } = spec
+  // Default scaled desktop: 1280x832 on the Air, 1512x982 on the Pro 14.
+  const res = resolution ?? (variant === 'pro14' ? 1512 : 1280)
+  const lidAngle = openAngle ?? spec.openAngle
   const baseRef = React.useRef<THREE.Mesh>(null!)
   const lidRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [lidRef, baseRef], [])
+  const occludeRefs = useScreenOccluders(lidRef, baseRef)
 
-  const baseGeometry = useSlabGeometry(footprint.width, footprint.depth, footprint.radius, base.thickness, base.bevel)
+  // Base chassis: the slab is baked into its resting orientation (footprint in
+  // XZ) so every side-wall port opening can be machined out of it in place —
+  // each port is a real cavity in the aluminum, not a dark inlay.
+  const baseGeometry = React.useMemo(() => {
+    const g = slabGeometry(footprint.width, footprint.depth, footprint.radius, base.thickness, base.bevel)
+    g.rotateX(-Math.PI / 2)
+    const cutters: THREE.BufferGeometry[] = []
+    for (const [side, dir] of [['left', -1], ['right', 1]] as const) {
+      for (const port of spec.ports[side]) {
+        const cutter =
+          port.shape === 'round'
+            ? holeCutter(port.height / 2, 0.1, 'x')
+            : stadiumCutter(port.width, port.height, 0.1, 'x')
+        cutters.push(cutter.translate(dir * (footprint.width / 2), -0.004, port.z))
+      }
+    }
+    return cutGeometry(g, cutters)
+  }, [footprint, base, spec.ports])
+  React.useEffect(() => () => baseGeometry.dispose(), [baseGeometry])
   const lidGeometry = useSlabGeometry(footprint.width, footprint.depth, footprint.radius, lid.thickness, lid.bevel)
 
   const wellGeometry = React.useMemo(
@@ -262,24 +307,58 @@ export function Laptop({
     }
   }, [wellGeometry, trackpadGeometry, trackpadRimGeometry, bottomPlateGeometry, glassGeometry])
 
+  // Lid badge (vector geometry from the SVG) + underside wordmark (canvas text).
+  // The badge is glossy tone-on-tone: darker on light finishes, lighter on dark
+  // ones, so it reads in every colorway.
+  const logoColor = React.useMemo(() => {
+    const c = new THREE.Color(color)
+    const luminance = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+    return `#${c.lerp(new THREE.Color(luminance > 0.4 ? '#000000' : '#ffffff'), 0.32).getHexString()}`
+  }, [color])
+  const logoGeometry = React.useMemo(
+    () => createLogoGeometry('apple', spec.logo.width, spec.logo.height),
+    [spec.logo]
+  )
+  const bottomTextTexture = React.useMemo(
+    () => (spec.bottomText ? createWordmarkTexture(spec.bottomText.text, { letterSpacing: 0.06, weight: 600 }) : null),
+    [spec.bottomText]
+  )
+  React.useEffect(
+    () => () => {
+      logoGeometry.dispose()
+      bottomTextTexture?.dispose()
+    },
+    [logoGeometry, bottomTextTexture]
+  )
+
   // CSS px per world unit for the display overlay (notch).
-  const pxPerUnit = resolution / display.width
+  const pxPerUnit = res / display.width
   const px = (units: number) => units * pxPerUnit
 
   const deckY = base.thickness / 2
   const hingeZ = -footprint.depth / 2 + 0.055
   // 90° = upright; larger angles lean the screen back, away from the viewer.
-  const lidTilt = -((openAngle - 90) * Math.PI) / 180
+  const lidTilt = -((lidAngle - 90) * Math.PI) / 180
 
+  // Anodized aluminum needs a strong diffuse term — at high metalness any face
+  // angled away from the key light crushes to black (the lid's outer face in
+  // every rear view), where the real finish still reads as body-color metal.
   const aluminum = (
-    <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.38} clearcoat={0.4} clearcoatRoughness={0.3} />
+    <meshPhysicalMaterial
+      color={color}
+      metalness={0.5}
+      roughness={0.42}
+      clearcoat={0.4}
+      clearcoatRoughness={0.3}
+      envMapIntensity={0.9}
+    />
   )
 
   return (
     <group {...groupProps}>
       {/* ---------------- base: unibody chassis with the keyboard deck ---------------- */}
       <group>
-        <mesh ref={baseRef} geometry={baseGeometry} rotation-x={-Math.PI / 2}>
+        <mesh ref={baseRef} geometry={baseGeometry}>
           {aluminum}
         </mesh>
 
@@ -288,7 +367,7 @@ export function Laptop({
           <meshPhysicalMaterial color="#101216" metalness={0.3} roughness={0.5} />
         </mesh>
         <group position={[0, deckY + 0.012, keyboard.offsetZ]}>
-          <Keys />
+          <Keys keyboard={keyboard} />
         </group>
 
         {/* trackpad: flush glass with a hairline seam around it. Same finish as
@@ -311,37 +390,120 @@ export function Laptop({
           <meshPhysicalMaterial color={color} metalness={0.8} roughness={0.5} envMapIntensity={0.6} />
         </mesh>
 
-        {/* ports: MagSafe + two Thunderbolt 4 pills on the left, headphone jack right */}
-        {([[-1.08, 0.15, 0.038], [-0.84, 0.1, 0.03], [-0.66, 0.1, 0.03]] as const).map(([z, len, h], i) => (
-          <RoundedBox key={i} args={[0.016, h, len]} radius={0.007} position={[-footprint.width / 2 + 0.004, 0, z]}>
-            <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
-          </RoundedBox>
-        ))}
-        <mesh position={[footprint.width / 2 - 0.004, 0, -0.8]} rotation-z={Math.PI / 2}>
-          <cylinderGeometry args={[0.024, 0.024, 0.014, 20]} />
-          <meshPhysicalMaterial color="#0a0b0e" metalness={0.4} roughness={0.4} />
-        </mesh>
+        {/* perforated speaker strips flanking the keyboard (Pro) */}
+        {spec.speakers &&
+          [-1, 1].map((side) => (
+            <mesh
+              key={side}
+              rotation-x={-Math.PI / 2}
+              position={[side * spec.speakers!.x, deckY + 0.0015, spec.speakers!.offsetZ]}
+            >
+              <planeGeometry args={[spec.speakers!.width, spec.speakers!.depth]} />
+              <meshPhysicalMaterial color="#26272b" metalness={0.5} roughness={0.65} envMapIntensity={0.5} />
+            </mesh>
+          ))}
+
+        {/* port interiors — the openings are real cavities machined from the
+            base above. Thunderbolt gets the full USB-C receptacle (shell +
+            gold tongue); MagSafe, HDMI, SDXC and the jack get dark sockets. */}
+        {([['left', -1], ['right', 1]] as const).map(([side, dir]) =>
+          spec.ports[side].map((port, i) => {
+            const inward: 1 | -1 = dir === -1 ? 1 : -1
+            const x = dir * (footprint.width / 2)
+            return port.shape === 'round' ? (
+              <EdgeSocket
+                key={`${side}${i}`}
+                position={[x, -0.004, port.z]}
+                r={port.height / 2}
+                depth={0.1}
+                lip={0.012}
+                axis="x"
+                inward={inward}
+              />
+            ) : port.width <= 0.13 ? (
+              <UsbC
+                key={`${side}${i}`}
+                x={x}
+                y={-0.004}
+                z={port.z}
+                width={port.width}
+                height={port.height}
+                depth={0.1}
+                axis="x"
+                inward={inward}
+              />
+            ) : (
+              <EdgeSocket
+                key={`${side}${i}`}
+                position={[x, -0.004, port.z]}
+                width={port.width}
+                height={port.height}
+                depth={0.1}
+                lip={0.012}
+                axis="x"
+                inward={inward}
+              />
+            )
+          })
+        )}
 
         {/* rubber feet */}
-        {([[-1.75, -1.15], [1.75, -1.15], [-1.75, 1.15], [1.75, 1.15]] as const).map(([x, z], i) => (
-          <mesh key={i} position={[x, -base.thickness / 2 - 0.01, z]}>
-            <cylinderGeometry args={[0.055, 0.055, 0.016, 20]} />
+        {([[-1, -1], [1, -1], [-1, 1], [1, 1]] as const).map(([sx, sz], i) => (
+          <mesh key={i} position={[sx * spec.feet.x, -base.thickness / 2 - 0.01, sz * spec.feet.z]}>
+            <cylinderGeometry args={[spec.feet.radius, spec.feet.radius, 0.016, 20]} />
             <meshPhysicalMaterial color="#17181c" metalness={0.1} roughness={0.8} />
           </mesh>
         ))}
+
+        {/* embossed wordmark near the front of the underside (Pro) */}
+        {spec.bottomText && bottomTextTexture && (
+          <mesh
+            rotation-x={Math.PI / 2}
+            position={[0, -base.thickness / 2 - 0.0055, spec.bottomText.offsetZ]}
+          >
+            <planeGeometry args={[spec.bottomText.width, spec.bottomText.height]} />
+            <meshPhysicalMaterial
+              map={bottomTextTexture}
+              transparent
+              opacity={0.5}
+              color="#9a9da4"
+              metalness={0.7}
+              roughness={0.4}
+              polygonOffset
+              polygonOffsetFactor={-1}
+            />
+          </mesh>
+        )}
       </group>
 
       {/* ---------------- lid: hinged at the back edge of the deck ---------------- */}
       <group position={[0, deckY, hingeZ]} rotation-x={lidTilt}>
         {/* hinge: the black band spanning the center of the back (aluminum shows at the ends) */}
         <mesh rotation-z={Math.PI / 2} position={[0, 0, 0]}>
-          <cylinderGeometry args={[0.052, 0.052, 2.7, 24]} />
+          <cylinderGeometry args={[variant === 'pro14' ? 0.069 : 0.052, variant === 'pro14' ? 0.069 : 0.052, footprint.width * 0.76, 24]} />
           <meshPhysicalMaterial color="#0d0e12" metalness={0.5} roughness={0.55} envMapIntensity={0.5} />
         </mesh>
 
         {/* lid slab — local +y is "up the screen", inner face toward +z */}
         <mesh ref={lidRef} geometry={lidGeometry} position={[0, footprint.depth / 2, 0]}>
           {aluminum}
+        </mesh>
+
+        {/* the badge on the lid's outer face */}
+        <mesh
+          geometry={logoGeometry}
+          rotation-y={Math.PI}
+          position={[0, footprint.depth / 2 + spec.logo.offsetY, -lid.thickness / 2 - 0.003]}
+        >
+          <meshPhysicalMaterial
+            color={logoColor}
+            metalness={0.55}
+            roughness={0.06}
+            clearcoat={1}
+            envMapIntensity={1.2}
+            polygonOffset
+            polygonOffsetFactor={-1}
+          />
         </mesh>
 
         {/* edge-to-edge cover glass on the inner face */}
@@ -354,7 +516,7 @@ export function Laptop({
           width={display.width}
           height={display.height}
           radius={[display.radius[0], display.radius[1], display.radius[2], display.radius[3]]}
-          resolution={resolution}
+          resolution={res}
           position={[0, footprint.depth / 2 + display.offsetY, lid.thickness / 2 + 0.006]}
           background={screenBackground}
           interactive={interactive}

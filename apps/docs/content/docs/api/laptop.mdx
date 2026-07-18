@@ -1,12 +1,16 @@
 ---
-title: Laptop (MacBook Air)
-description: A MacBook Air 13" (M5) style laptop with a real keyboard layout and a live desktop display.
+title: Laptop (MacBook Air + MacBook Pro)
+description: MacBook Air 13" and MacBook Pro 14" (M5) style laptops with a real keyboard layout and a live desktop display.
 ---
 
-`<Laptop>` and `<LaptopMockup>` render a MacBook Air 13" (M5) style laptop:
-unibody deck with the real 78-key Magic Keyboard layout (printed legends,
-rendered as a single instanced draw call), trackpad, hinge band, ports, and a
-notched display.
+`<Laptop>` and `<LaptopMockup>` render an Apple-style laptop: unibody deck
+with the real 78-key Magic Keyboard layout (printed legends, rendered as a
+single instanced draw call), trackpad, hinge band, ports, and a notched
+display. Two variants at true relative size: the MacBook Air 13" (M5) and the
+MacBook Pro 14" (M5) — the Pro adds its scan-accurate port array (MagSafe,
+2× Thunderbolt and headphone jack left; HDMI, Thunderbolt and SDXC right),
+perforated speaker strips flanking the keyboard, bigger feet, the lid badge
+and the embossed underside wordmark.
 
 The window on screen is real DOM — click it, drag the mockup.
 
@@ -24,14 +28,29 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `color` | `string` | `'#e3e4e6'` | Aluminum finish. Try Sky Blue `#aec6d9`, Starlight `#e8e0d4`, Midnight `#2e3642`. |
+| `variant` | `'air13' \| 'pro14'` | `'air13'` | MacBook Air 13" or MacBook Pro 14" — true relative sizes, per-model ports, feet, speaker grilles and notch. |
+| `colorway` | `string` | — | A retail colorway id from `LAPTOP_COLORWAYS` (Air: `silver`, `starlight`, `midnight`, `skyblue`; Pro 14: `spaceblack`, `silver`). Presets `color`; an explicit `color` prop overrides it. |
+| `color` | `string` | `'#e3e4e6'` | Aluminum finish. Try Sky Blue `#aec6d9`, Starlight `#e8e0d4`, Midnight `#2e3642`, or Space Black `#4a484b` on the Pro. |
 | `notch` | `boolean` | `true` | Camera notch overlay at the top of the display. |
 | `openAngle` | `number` | `110` | Lid angle in degrees between deck and screen (90 is upright). |
-| `resolution` | `number` | `1280` | Virtual display width; 1280 gives 1280×832, exactly the MacBook Air default scaled resolution, so desktop breakpoints apply. |
+| `resolution` | `number` | per variant | Virtual display width; the Air defaults to 1280 (1280×832) and the Pro 14 to 1512 (1512×982) — exactly the default scaled desktop resolutions, so desktop breakpoints apply. |
 
 There is no `orientation` prop; laptops only have one pose.
 
 ## More examples
+
+### MacBook Pro 14" in Space Black
+
+`variant="pro14"`: deeper body, HDMI + SDXC on the right flank, speaker
+grilles beside the keyboard, and the 1512×982 point grid.
+
+<ObjectDemo demo="laptop-pro14" />
+
+```tsx
+<LaptopMockup variant="pro14" color="#4a484b">
+  <YourDesktopApp />
+</LaptopMockup>
+```
 
 ### Midnight, tighter lid angle
 

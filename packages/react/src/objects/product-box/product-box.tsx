@@ -4,6 +4,7 @@ import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { PRODUCT_BOX } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -60,7 +61,7 @@ export function ProductBox({
 }: ProductBoxProps) {
   const { body, flap } = PRODUCT_BOX
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [bodyRef], [])
+  const occludeRefs = useScreenOccluders(bodyRef)
   const flapDepth = body.depth - flap.backGap
 
   // every panel shares the front panel's dpi so type sizes match across faces

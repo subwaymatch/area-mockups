@@ -41,6 +41,7 @@ import {
   VinylRecord,
   VinylRecordMockup,
   WatchMockup,
+  FlipMockup,
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import { withPreviewControls } from './preview-controls'
@@ -170,12 +171,17 @@ const DEMOS: Record<string, React.ReactNode> = {
     </PhoneMockup>
   ),
   'phone-landscape': (
-    <PhoneMockup variant="s25ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
+    <PhoneMockup variant="s26ultra" orientation="landscape" color="#2e3238" frameColor="#565b64">
       <MusicPlayer />
     </PhoneMockup>
   ),
   'phone-s26': (
     <PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </PhoneMockup>
+  ),
+  'phone-s26ultra': (
+    <PhoneMockup variant="s26ultra" color="#a9bdce" frameColor="#c2ccd7" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <MusicPlayer />
     </PhoneMockup>
   ),
@@ -192,9 +198,31 @@ const DEMOS: Record<string, React.ReactNode> = {
     </FoldMockup>
   ),
 
+  // ---- Flip (Galaxy Z Flip 7) -----------------------------------------------
+  'flip-open': (
+    <FlipMockup color="#e5502e" frameColor="#f06a45" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </FlipMockup>
+  ),
+  'flip-closed': (
+    <FlipMockup open={false} autoRotate float color="#e5502e" frameColor="#f06a45" screenBackground="#000">
+      <LockScreen />
+    </FlipMockup>
+  ),
+
   // ---- IPhone ---------------------------------------------------------------
+  'iphone-17': (
+    <IPhoneMockup variant="17" color="#cfc4e6" frameColor="#b9aed3" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MusicPlayer />
+    </IPhoneMockup>
+  ),
   'iphone-pro': (
     <IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
+      <MusicPlayer />
+    </IPhoneMockup>
+  ),
+  'iphone-promax': (
+    <IPhoneMockup variant="promax" color="#2b3a55" frameColor="#3d4d6b" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <MusicPlayer />
     </IPhoneMockup>
   ),
@@ -205,7 +233,7 @@ const DEMOS: Record<string, React.ReactNode> = {
   ),
   'phone-duo': (
     <MockupCanvas camera={{ position: [0, 0.5, 8.6], fov: 40 }} shadowY={-2.35}>
-      <Phone variant="s25ultra" color="#2e3238" frameColor="#565b64" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
+      <Phone variant="s26ultra" color="#2e3238" frameColor="#565b64" position={[-1.6, 0, -0.2]} rotation={[0, 0.3, 0]}>
         <TapCounter />
       </Phone>
       <IPhone variant="promax" color="#2b3a55" frameColor="#3d4d6b" position={[1.6, 0, 0]} rotation={[0, -0.3, 0]}>
@@ -225,10 +253,25 @@ const DEMOS: Record<string, React.ReactNode> = {
       <DesktopScreen />
     </LaptopMockup>
   ),
+  'laptop-pro14': (
+    <LaptopMockup variant="pro14" color="#4a484b" deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
 
   // ---- Tablet -------------------------------------------------------------------
   'tablet-landscape': (
     <TabletMockup orientation="landscape" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ipadpro11': (
+    <TabletMockup variant="ipadpro11" color="#e3e4e6" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-tabs11': (
+    <TabletMockup variant="tabs11" color="#4b4f56" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <DesktopScreen />
     </TabletMockup>
   ),

@@ -6,7 +6,7 @@ import { FloatGroup } from './float-group'
 
 type InheritedDeviceProps = Pick<
   MonitorProps,
-  'color' | 'screenBackground' | 'resolution' | 'interactive' | 'dragToRotate' | 'occlude' | 'screenStyle'
+  'colorway' | 'color' | 'screenBackground' | 'resolution' | 'interactive' | 'dragToRotate' | 'occlude' | 'screenStyle'
 >
 
 export interface MonitorMockupProps
@@ -37,6 +37,7 @@ const STAGE_OFFSET_Y = 0.95
  */
 export function MonitorMockup({
   children,
+  colorway,
   color,
   screenBackground,
   resolution,
@@ -50,6 +51,7 @@ export function MonitorMockup({
 }: MonitorMockupProps) {
   const device = (
     <Monitor
+      colorway={colorway}
       color={color}
       screenBackground={screenBackground}
       resolution={resolution}

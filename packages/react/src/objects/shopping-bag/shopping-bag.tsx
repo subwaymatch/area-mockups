@@ -3,6 +3,7 @@ import type * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
 import { SHOPPING_BAG } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
+import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
 
@@ -59,7 +60,7 @@ export function ShoppingBag({
   const { body, wall, gusset, handle } = SHOPPING_BAG
   const frontRef = React.useRef<THREE.Mesh>(null!)
   const backRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = React.useMemo(() => [frontRef, backRef], [])
+  const occludeRefs = useScreenOccluders(frontRef, backRef)
 
   const paper = { color, metalness: 0, roughness: 0.82 }
   const paperInside = { color: '#b08a5e', metalness: 0, roughness: 0.9 }
