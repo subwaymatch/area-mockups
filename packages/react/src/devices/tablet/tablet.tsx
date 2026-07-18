@@ -7,10 +7,16 @@ import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { createLogoGeometry } from '../logos'
 import { createWordmarkTexture } from '../wordmark'
-import { LensRing } from '../details'
+import { LensRing, UsbC, cutGeometry, stadiumCutter, USB_CUT_DEPTH } from '../details'
 import { useScreenOccluders } from '../../screen/occluders'
 
 type GroupProps = ThreeElements['group']
+
+// Machined USB-C opening, measured off the reference A16 scan: ~9.9 × 3.2 mm
+// stadium at the tablet world scale (64 mm/unit). Same receptacle across the
+// lineup — the connector is the standard part, only its edge differs.
+const USB_WIDTH = 0.155
+const USB_HEIGHT = 0.05
 
 export interface TabletProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the tablet screen: React components, an <iframe>, a <video>… */
@@ -118,8 +124,13 @@ export function Tablet({
       curveSegments: 16,
     })
     geometry.translate(0, 0, -depth / 2)
-    return geometry
-  }, [body])
+    // The USB-C is a true machined cavity, not a decal: subtract a stadium
+    // prism from the edge so the opening has a lip, walls and parallax.
+    const edgeY = (spec.usbEdge === 'top' ? 1 : -1) * (body.height / 2)
+    return cutGeometry(geometry, [
+      stadiumCutter(USB_WIDTH, USB_HEIGHT, USB_CUT_DEPTH).translate(0, edgeY, 0),
+    ])
+  }, [body, spec.usbEdge])
 
   const glassGeometry = React.useMemo(
     () => new THREE.ShapeGeometry(roundedRectShape(glass.width, glass.height, glass.radius), 16),
@@ -479,15 +490,16 @@ export function Tablet({
                 ))
           )}
 
-        {/* USB-C slot — centered on the bottom edge on iPads; the Galaxy
-            Tabs put it on the portrait-top edge (landscape left) */}
-        <RoundedBox
-          args={[0.16, 0.018, 0.045]}
-          radius={0.008}
-          position={[0, (spec.usbEdge === 'top' ? 1 : -1) * (body.height / 2 + 0.002), 0]}
-        >
-          <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
-        </RoundedBox>
+        {/* USB-C interior for the cavity machined into the body above:
+            stainless receptacle shell, dark floor, gold pin tongue. Centered
+            on the bottom edge on iPads; the Galaxy Tabs put it on the
+            portrait-top edge (landscape left) */}
+        <UsbC
+          y={(spec.usbEdge === 'top' ? 1 : -1) * (body.height / 2)}
+          width={USB_WIDTH}
+          height={USB_HEIGHT}
+          inward={spec.usbEdge === 'top' ? -1 : 1}
+        />
 
         {/* the live screen: real DOM, CSS3D-transformed onto the display */}
         <DeviceScreen

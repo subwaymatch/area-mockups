@@ -16,12 +16,14 @@ import { Quaternion, Vector3 } from 'three'
 export type BackfaceCuller = (anchor: Object3D, content: HTMLElement, camera: Camera) => void
 
 /**
- * Facing threshold below which the plane also hides: within a few degrees of
- * edge-on the DOM plane is a degenerate sliver that would still paint OVER
- * chassis parts that geometrically occlude it (the browser composites the
- * bridge above WebGL), so it reads as the screen "piercing" the body.
+ * Facing threshold below which the plane also hides: within a fraction of a
+ * degree of edge-on the DOM plane is a degenerate sub-pixel sliver whose
+ * CSS3D matrix shimmers and paints OVER chassis parts (the browser composites
+ * the bridge above WebGL). Real occlusion by the body is the raycast
+ * occluder's job, so this stays tiny — a slanted side view must keep showing
+ * the foreshortened live screen, exactly like a real device seen edge-ish on.
  */
-const GRAZING_DOT = 0.08
+const GRAZING_DOT = 0.015
 
 export function createBackfaceCuller(): BackfaceCuller {
   // Scratch values reused across frames — no per-frame allocation.
