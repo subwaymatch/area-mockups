@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   FlipMockup,
+  FoldMockup,
   MockupCanvas,
   MonitorMockup,
   Tablet,
@@ -71,6 +72,7 @@ function HarnessScene() {
     return (
       <FlipMockup
         open={params.get('open') !== '0'}
+        openAngle={params.get('openAngle') ? Number(params.get('openAngle')) : undefined}
         colorway={colorway}
         color={color}
         controls={false}
@@ -80,6 +82,24 @@ function HarnessScene() {
       >
         {screen}
       </FlipMockup>
+    )
+  }
+
+  if (device === 'fold') {
+    const dist = Number(params.get('dist') ?? 8.4)
+    return (
+      <FoldMockup
+        open={params.get('open') !== '0'}
+        openAngle={params.get('openAngle') ? Number(params.get('openAngle')) : undefined}
+        colorway={colorway}
+        color={color}
+        controls={false}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </FoldMockup>
     )
   }
 

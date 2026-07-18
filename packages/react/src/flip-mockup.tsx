@@ -9,6 +9,7 @@ type InheritedDeviceProps = Pick<
   | 'variant'
   | 'colorway'
   | 'open'
+  | 'openAngle'
   | 'orientation'
   | 'color'
   | 'frameColor'
@@ -51,6 +52,7 @@ export function FlipMockup({
   variant = 'flip7',
   colorway,
   open = true,
+  openAngle,
   orientation = 'portrait',
   color,
   frameColor,
@@ -70,6 +72,7 @@ export function FlipMockup({
       variant={variant}
       colorway={colorway}
       open={open}
+      openAngle={openAngle}
       orientation={orientation}
       color={color}
       frameColor={frameColor}
@@ -87,14 +90,18 @@ export function FlipMockup({
   )
 
   // Grounded by default: the shadow plane kisses the bottom of the body — the
-  // hinge band when folded.
+  // hinge band when folded, the halves' folded extent at partial angles.
   const spec = FLIP_VARIANTS[variant]
+  const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
+  const foldCos = Math.cos((((180 - angle) / 2) * Math.PI) / 180)
   const extent =
     orientation === 'landscape'
-      ? (open ? spec.open.body.width : spec.closed.body.width)
-      : open
+      ? (angle > 3 ? spec.open.body.width : spec.closed.body.width)
+      : angle >= 177
         ? spec.open.body.height
-        : spec.closed.body.height + spec.hinge.overhang * 2
+        : angle <= 3
+          ? spec.closed.body.height + spec.hinge.overhang * 2
+          : spec.closed.body.height * 2 * foldCos
   const shadowY = canvasProps.shadowY ?? (float ? -(extent / 2 + 0.3) : -(extent / 2 + 0.05))
 
   return (

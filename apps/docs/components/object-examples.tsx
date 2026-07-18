@@ -197,6 +197,11 @@ const DEMOS: Record<string, React.ReactNode> = {
       <LockScreen />
     </FoldMockup>
   ),
+  'fold-flex': (
+    <FoldMockup openAngle={110} colorway="blueshadow" deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <DesktopScreen />
+    </FoldMockup>
+  ),
 
   // ---- Flip (Galaxy Z Flip 7) -----------------------------------------------
   'flip-open': (
@@ -207,6 +212,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   'flip-closed': (
     <FlipMockup open={false} autoRotate float color="#e5502e" frameColor="#f06a45" screenBackground="#000">
       <LockScreen />
+    </FlipMockup>
+  ),
+  'flip-flex': (
+    <FlipMockup openAngle={100} colorway="blueshadow" camera={{ position: [0, 1.6, 7.2], fov: 40 }} deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <MusicPlayer />
     </FlipMockup>
   ),
 

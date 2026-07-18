@@ -125,7 +125,7 @@ export function Monitor({
       outerKneeRadius: Ro,
       innerKneeRadius: Ri,
       hingeRadius,
-      cableHole,
+      cutout,
     } = stand
     const deskY = -standHeight
     const lean = (leanDeg * Math.PI) / 180
@@ -182,18 +182,22 @@ export function Monitor({
     footKnee.rotateY(-Math.PI / 2)
 
     // Arm slab: rounded-rect face (x across, y down the lean axis, hinge
-    // center at +armLen/2) with the cable hole as a real punched circle —
-    // the extrude bevel rounds its bore, giving the rim highlight the
-    // product photos show around the opening.
+    // center at +armLen/2) with the stadium cutout as a real punched
+    // opening — the extrude bevel rounds its bore, giving the rim highlight
+    // the product photos show around the opening.
     const armLen = (hinge.y - yCut) / d.y + 0.24
-    const armShape = roundedRectShape(width - 0.016, armLen, 0.02)
-    // The hole's center sits `edgeOffset` above the enclosure's bottom edge —
-    // from the back the full circle shows on the arm, framing the power
-    // recess; from the front it hides behind the panel.
-    const holeWorldY = -body.height / 2 + cableHole.edgeOffset
+    const armShape = roundedRectShape(width - 0.016, armLen, 0.05)
+    // The cutout's center sits `edgeOffset` above the enclosure's bottom
+    // edge: the power inlet shows through its upper half, open air through
+    // the lower; from the front it hides behind the panel.
+    const holeWorldY = -body.height / 2 + cutout.edgeOffset
     const holeCenterS = armLen / 2 - (hinge.y - holeWorldY) / d.y
+    const capR = cutout.width / 2
+    const straight = Math.max(0, cutout.length / 2 - capR)
     const holePath = new THREE.Path()
-    holePath.absarc(0, holeCenterS, cableHole.r, 0, Math.PI * 2, true)
+    holePath.absarc(0, holeCenterS + straight, capR, Math.PI, 0, true)
+    holePath.absarc(0, holeCenterS - straight, capR, 0, -Math.PI, true)
+    holePath.closePath()
     armShape.holes.push(holePath)
     const slabT = thickness + 0.006
     const armSlab = new THREE.ExtrudeGeometry(armShape, {
@@ -301,7 +305,9 @@ export function Monitor({
         <RoundedBox
           key={i}
           args={[MONITOR.ports.slot.width, MONITOR.ports.slot.height, 0.02]}
-          radius={MONITOR.ports.slot.height / 2 - 0.002}
+          // radius must stay under half the SMALLEST face dimension or the
+          // corner spheres self-intersect into a bowtie
+          radius={Math.min(MONITOR.ports.slot.width, MONITOR.ports.slot.height) / 2 - 0.004}
           position={[
             MONITOR.ports.x - i * MONITOR.ports.spacing,
             -body.height / 2 + MONITOR.ports.y,
@@ -357,7 +363,8 @@ export function Monitor({
           rotation-z={Math.PI / 2}
           position={[s * (stand.width / 2 - 0.005), standParts.hinge.y, standParts.hinge.z]}
         >
-          <cylinderGeometry args={[stand.hingeRadius * 0.85, stand.hingeRadius * 0.85, 0.014, 24]} />
+          {/* the polished caps read a touch larger than the barrel itself */}
+          <cylinderGeometry args={[stand.hingeRadius * 1.05, stand.hingeRadius * 1.05, 0.014, 24]} />
           <meshPhysicalMaterial color="#dfe2e6" metalness={0.55} roughness={0.3} envMapIntensity={0.9} />
         </mesh>
       ))}
