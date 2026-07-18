@@ -114,8 +114,12 @@ type KeyLegend =
   | { t: 'word'; s: string; align: 'bl' | 'br'; dot?: boolean }
   /** Glyph icon in a bottom corner (the M5 Air's ⇥ ⇪ ⇧ ⌫ ⏎ style). */
   | { t: 'ic'; i: KeyIcon; align: 'bl' | 'br'; dot?: boolean }
-  /** Modifier: symbol top-center over the word bottom-center. */
-  | { t: 'mod'; i?: KeyIcon; c?: string; s: string }
+  /**
+   * Modifier: word along the bottom with the symbol in the TOP-OUTER corner —
+   * top-left on the left-hand keys, mirrored to top-right on the right-hand
+   * command/option (scan-measured, ~5.2 mm in / 4.6 mm down to symbol center).
+   */
+  | { t: 'mod'; i?: KeyIcon; c?: string; s: string; side: 'l' | 'r' }
   /** The fn key: globe bottom-left, "fn" bottom-right. */
   | { t: 'fn' }
   /** Function row: media icon over the F-number label. */
@@ -181,12 +185,12 @@ function buildKeyboardLayout(keyboard: { width: number; depth: number; legends: 
     ],
     [
       [1, { t: 'fn' }],
-      [1, { t: 'mod', c: '^', s: 'control' }],
-      [1, { t: 'mod', i: 'opt', s: 'option' }],
-      [1.25, { t: 'mod', i: 'cmd', s: 'command' }],
+      [1, { t: 'mod', c: '^', s: 'control', side: 'l' }],
+      [1, { t: 'mod', i: 'opt', s: 'option', side: 'l' }],
+      [1.25, { t: 'mod', i: 'cmd', s: 'command', side: 'l' }],
       [5, { t: 'none' }], // space
-      [1.25, { t: 'mod', i: 'cmd', s: 'command' }],
-      [1, { t: 'mod', i: 'opt', s: 'option' }],
+      [1.25, { t: 'mod', i: 'cmd', s: 'command', side: 'r' }],
+      [1, { t: 'mod', i: 'opt', s: 'option', side: 'r' }],
     ],
   ]
 
@@ -432,19 +436,22 @@ function Keys({ keyboard }: { keyboard: { width: number; depth: number; offsetZ:
       const py = (key.z + keyboard.depth / 2) * scale
       const hw = (key.w * scale) / 2
       const hd = (key.d * scale) / 2
-      // corner anchors, inset from the cap's edges
-      const blX = px - hw + u(0.03)
-      const brX = px + hw - u(0.03)
-      const cornerY = py + hd - u(0.032)
+      // Corner anchors from the scan's legend geometry: words start 3.1 mm in
+      // from a left edge, end 2.7 mm from a right edge, baseline 2.85 mm up.
+      const blX = px - hw + u(0.043)
+      const brX = px + hw - u(0.037)
+      const cornerY = py + hd - u(0.039)
       const dot = () => {
+        // caps-lock light: Ø1.25 mm, top-left (3.2 mm / 2.9 mm insets)
         ctx.beginPath()
-        ctx.arc(px - hw + u(0.04), py - hd + u(0.045), u(0.0115), 0, Math.PI * 2)
+        ctx.arc(px - hw + u(0.052), py - hd + u(0.048), u(0.0086), 0, Math.PI * 2)
         ctx.fill()
       }
       const legend = key.legend
       switch (legend.t) {
         case 'txt':
-          font(u(0.088))
+          // letters: 4 mm cap height, centered
+          font(u(0.076))
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
           ctx.fillText(legend.s, px, py)
@@ -459,15 +466,17 @@ function Keys({ keyboard }: { keyboard: { width: number; depth: number; offsetZ:
           }
           break
         case 'dual':
+          // shifted symbol centered 4.5 mm from the cap top, base symbol
+          // larger (5.2 mm font) centered 11.1 mm down — scan-measured
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
           font(u(0.052))
-          ctx.fillText(legend.a, px, py - u(0.046))
-          font(u(0.062))
-          ctx.fillText(legend.b, px, py + u(0.05))
+          ctx.fillText(legend.a, px, py - u(0.048))
+          font(u(0.072))
+          ctx.fillText(legend.b, px, py + u(0.044))
           break
         case 'word':
-          font(u(0.046))
+          font(u(0.048))
           ctx.textAlign = legend.align === 'bl' ? 'left' : 'right'
           ctx.textBaseline = 'alphabetic'
           ctx.fillText(legend.s, legend.align === 'bl' ? blX : brX, cornerY)
@@ -483,36 +492,44 @@ function Keys({ keyboard }: { keyboard: { width: number; depth: number; offsetZ:
           )
           if (legend.dot) dot()
           break
-        case 'mod':
+        case 'mod': {
+          // symbol in the top-outer corner: center 5.2 mm in from the outer
+          // edge, 4.6 mm down from the cap top (mirrored on right-hand keys)
+          const sx = legend.side === 'l' ? px - hw + u(0.072) : px + hw - u(0.072)
+          const sy = py - hd + u(0.063)
           if (legend.c) {
             font(u(0.062), 600)
             ctx.textAlign = 'center'
             ctx.textBaseline = 'middle'
-            ctx.fillText(legend.c, px, py - u(0.048))
+            ctx.fillText(legend.c, sx, sy)
           } else if (legend.i) {
-            drawKeyIcon(ctx, legend.i, px, py - u(0.048), u(0.062))
+            drawKeyIcon(ctx, legend.i, sx, sy, legend.i === 'cmd' ? u(0.056) : u(0.06))
           }
-          font(u(0.046))
+          font(u(0.047))
           ctx.textAlign = 'center'
           ctx.textBaseline = 'alphabetic'
           ctx.fillText(legend.s, px, cornerY)
           break
+        }
         case 'fn':
-          drawKeyIcon(ctx, 'globe', blX + u(0.032), cornerY - u(0.024), u(0.066))
-          font(u(0.046))
+          // globe Ø3.9 mm bottom-left, "fn" bottom-right (scan-measured)
+          drawKeyIcon(ctx, 'globe', px - hw + u(0.07), py + hd - u(0.0666), u(0.0754))
+          font(u(0.047))
           ctx.textAlign = 'right'
           ctx.textBaseline = 'alphabetic'
           ctx.fillText('fn', brX, cornerY)
           break
         case 'fk':
-          drawKeyIcon(ctx, legend.i, px, py - u(0.028), u(0.056))
-          font(u(0.035))
+          // media icon ~3.3 mm centered 5.6 mm from the cap top, F-label
+          // 2.3 mm font centered 12.2 mm down
+          drawKeyIcon(ctx, legend.i, px, py - u(0.0325), u(0.045))
+          font(u(0.032))
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
-          ctx.fillText(legend.s, px, py + u(0.052))
+          ctx.fillText(legend.s, px, py + u(0.0587))
           break
         case 'arrow':
-          arrowTri(px, py, u(0.026), legend.d)
+          arrowTri(px, py, u(0.021), legend.d)
           break
       }
     }

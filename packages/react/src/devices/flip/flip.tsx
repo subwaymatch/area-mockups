@@ -630,6 +630,23 @@ export function Flip({
               <meshStandardMaterial color="#101216" transparent opacity={0.5} roughness={0.6} />
             </mesh>
           ))}
+
+          {/* hinge crevice: fully open, the two back panels don't meet — a
+              dark groove runs across the vertical middle (see the retail
+              product photos), rail to rail: near-black core seam with soft
+              shadowed shoulders where each half's glass edge falls away */}
+          <group position={[0, 0, -openBody.depth / 2 - 0.004]} rotation-y={Math.PI}>
+            <mesh>
+              <planeGeometry args={[openBody.width - 0.05, 0.026]} />
+              <meshStandardMaterial color="#07080b" metalness={0.1} roughness={0.7} />
+            </mesh>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[0, side * 0.023, 0]}>
+                <planeGeometry args={[openBody.width - 0.05, 0.02]} />
+                <meshStandardMaterial color="#0a0c10" transparent opacity={0.38} roughness={0.7} />
+              </mesh>
+            ))}
+          </group>
           {endSeams([openBody.height / 2 - spec.endSeamInset, -openBody.height / 2 + spec.endSeamInset], openBody.depth)}
 
           {freeEdgeKit(-openBody.height / 2)}

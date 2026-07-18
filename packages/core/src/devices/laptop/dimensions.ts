@@ -97,7 +97,9 @@ const MACBOOK_AIR_13: LaptopSpec = {
   lid: { thickness: 0.05, bevel: 0.008 },
   display: { width: 4.0, height: 2.6, radius: [0.09, 0.09, 0, 0], offsetY: 0.05 },
   notch: { width: 0.48, height: 0.095, radius: 0.045 },
-  keyboard: { width: 3.78, depth: 1.5, offsetZ: -0.6, legends: 'icons' },
+  // Same word-label legend set as the Pro 14 scan — per the user's direction
+  // the M5 line shares one layout and symbol style across Air and Pro.
+  keyboard: { width: 3.78, depth: 1.5, offsetZ: -0.6, legends: 'text' },
   scoop: { width: 0.75, radius: 0.059, bite: 0.032 },
   trackpad: { width: 1.78, depth: 1.12, offsetZ: 0.78 },
   openAngle: 110,

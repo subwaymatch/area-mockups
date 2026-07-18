@@ -337,12 +337,14 @@ export function Fold({
       >
         <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.32} clearcoat={0.8} />
       </mesh>
+      {/* the lens housing matches the body color on the real device — an
+          anodized boss, not a black plate (only the lens glass is dark) */}
       <mesh
         geometry={islandGeometry}
         rotation-y={Math.PI}
         position={[cam.island.x, cam.island.y, backZ - cam.plateau.raise]}
       >
-        <meshPhysicalMaterial color="#26282d" metalness={0.5} roughness={0.35} clearcoat={0.7} />
+        <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.32} clearcoat={0.8} />
       </mesh>
       {cam.rings.map(({ y, r, pupil }, i) => (
         <group key={i} position={[cam.island.x, y, backZ - cam.plateau.raise - cam.island.raise]}>
@@ -664,19 +666,22 @@ export function Fold({
             <meshPhysicalMaterial color="#040507" metalness={0.1} roughness={0.09} clearcoat={1} />
           </mesh>
 
-          {/* the recessed hinge spine down the center of the unfolded back,
-              carrying the vertical SAMSUNG emboss */}
-          <mesh rotation-y={Math.PI} position={[0, 0, -body.depth / 2 - 0.0045]}>
-            <planeGeometry args={[spec.hinge.width, body.height - 0.3]} />
-            <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} />
-          </mesh>
-          <mesh
-            geometry={spineLogoGeometry}
-            rotation={[0, Math.PI, Math.PI / 2]}
-            position={[0, 0, -body.depth / 2 - 0.006]}
-          >
-            {spineLogoMaterial}
-          </mesh>
+          {/* hinge crevice: fully open the spine retracts flush — only a thin
+              dark seam separates the two halves (retail photos), so no wide
+              spine band and no wordmark here: a near-black core line with
+              soft shadowed shoulders, top to bottom */}
+          <group position={[0, 0, -body.depth / 2 - 0.0045]} rotation-y={Math.PI}>
+            <mesh>
+              <planeGeometry args={[0.03, body.height - 0.16]} />
+              <meshStandardMaterial color="#07080b" metalness={0.1} roughness={0.7} />
+            </mesh>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[side * 0.026, 0, 0]}>
+                <planeGeometry args={[0.022, body.height - 0.16]} />
+                <meshStandardMaterial color="#0a0c10" transparent opacity={0.35} roughness={0.7} />
+              </mesh>
+            ))}
+          </group>
 
           {/* the cover display, dark, on the back of the left half */}
           {coverGlassGeometry && (
