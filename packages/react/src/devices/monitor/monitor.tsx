@@ -58,8 +58,8 @@ export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
  * circular cable-routing hole punched clean through, straddling the
  * enclosure's bottom edge exactly as in the product photography, down to
  * the knee and the thin forward foot plate on rubber pads.
- * Thunderbolt/USB-C port row on the back and, faithfully, no power button
- * or external power inlet. No 3D asset files are loaded.
+ * Thunderbolt/USB-C port row and the captive power cord's circular recess on
+ * the back — and, faithfully, no power button. No 3D asset files are loaded.
  *
  * The group origin is the panel center; the stand reaches `MONITOR.standHeight`
  * below it. Must be rendered inside a react-three-fiber `<Canvas>` (or
@@ -187,8 +187,9 @@ export function Monitor({
     // product photos show around the opening.
     const armLen = (hinge.y - yCut) / d.y + 0.24
     const armShape = roundedRectShape(width - 0.016, armLen, 0.02)
-    // The hole's center sits `edgeOffset` above the enclosure's bottom edge,
-    // so only its lower arc shows below the panel from the front.
+    // The hole's center sits `edgeOffset` above the enclosure's bottom edge —
+    // from the back the full circle shows on the arm, framing the power
+    // recess; from the front it hides behind the panel.
     const holeWorldY = -body.height / 2 + cableHole.edgeOffset
     const holeCenterS = armLen / 2 - (hinge.y - holeWorldY) / d.y
     const holePath = new THREE.Path()
@@ -294,18 +295,36 @@ export function Monitor({
         />
       </mesh>
 
-      {/* back: 2x Thunderbolt 5 + 2x USB-C row (power connects inside the
-          stand's cable recess — no external inlet, and no power button) */}
+      {/* back: the tight 2x Thunderbolt 5 + 2x USB-C cluster, low and left of
+          center seen from behind (front-view right), pill slots ~14.5 mm apart */}
       {[0, 1, 2, 3].map((i) => (
         <RoundedBox
           key={i}
-          args={[0.11, 0.042, 0.02]}
-          radius={0.008}
-          position={[body.width / 2 - 0.7 - i * 0.2, -body.height / 2 + 0.34, -body.depth / 2 - 0.004]}
+          args={[MONITOR.ports.slot.width, MONITOR.ports.slot.height, 0.02]}
+          radius={MONITOR.ports.slot.height / 2 - 0.002}
+          position={[
+            MONITOR.ports.x - i * MONITOR.ports.spacing,
+            -body.height / 2 + MONITOR.ports.y,
+            -body.depth / 2 - 0.004,
+          ]}
         >
           <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
         </RoundedBox>
       ))}
+
+      {/* the captive power cord's circular recess, centered low on the back —
+          the cable is not user-detachable, so a molded collar sits proud of
+          the machined ring instead of a socket */}
+      <group position={[0, -body.height / 2 + MONITOR.power.y, -body.depth / 2]}>
+        <mesh rotation-x={Math.PI / 2} position-z={-0.003}>
+          <cylinderGeometry args={[MONITOR.power.r, MONITOR.power.r, 0.006, 32]} />
+          <meshPhysicalMaterial color="#585b60" metalness={0.6} roughness={0.35} />
+        </mesh>
+        <mesh rotation-x={Math.PI / 2} position-z={-0.012}>
+          <cylinderGeometry args={[MONITOR.power.r * 0.44, MONITOR.power.r * 0.52, 0.018, 24]} />
+          <meshStandardMaterial color="#2c2e32" roughness={0.7} />
+        </mesh>
+      </group>
 
       {/* speaker perforations along the bottom edge (underside) */}
       {grilleTexture && (

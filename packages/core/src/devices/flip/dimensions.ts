@@ -4,10 +4,10 @@
  * A clamshell foldable has two form factors, and this spec carries both:
  *
  * - `open`: the unfolded tall phone — a very slim 2.32:1 slab whose upper back
- *   half is entirely cover-screen glass carrying the dual-lens camera island.
+ *   half is entirely cover-screen glass carrying the two separate lens rings.
  * - `closed`: the folded compact — two stacked halves with a small air gap,
  *   the hinge capping the bottom edge, and the nearly-square cover display
- *   filling the front (with the camera island and flash sitting on it).
+ *   filling the front (with the lens rings and flash sitting on it).
  *
  * Shares the Galaxy world scale (~36.66 mm per unit) so it sits at true
  * relative size beside the S-series and the Fold. Detail geometry (buttons,
@@ -43,16 +43,19 @@ export interface FlipSpec {
     resolution: number
   }
   /**
-   * Dual camera island on the cover-screen glass, in cover-HALF local
+   * Dual rear cameras on the cover-screen glass, in cover-HALF local
    * coordinates (origin at that half's center, +y toward the free end).
-   * Open pose: the island shows on the back of the upper half. Closed pose:
-   * it faces the viewer on the cover screen.
+   * The two lens modules protrude individually from the glass — the retail
+   * device has no plate or island grouping them (confirmed against official
+   * product photography). Open pose: they show on the back of the upper
+   * half. Closed pose: they face the viewer on the cover screen.
    */
   rearCamera: {
-    island: { x: number; y: number; width: number; height: number; radius: number; raise: number }
-    /** The two lens rings inside the pill; `pupil` is the front element's fraction of the ring radius. */
+    /** How far each lens module stands proud of the cover glass. */
+    raise: number
+    /** The two lens rings; `pupil` is the front element's fraction of the ring radius. */
     rings: { x: number; y: number; r: number; pupil?: number }[]
-    /** Fresnel flash disc, flush on the cover glass beside the pill. */
+    /** Fresnel flash disc, flush on the cover glass beside the lenses. */
     flash: { x: number; y: number; r: number }
   }
   /** Cover-glass rect on the back of the upper half (visible, dark, when open). */
@@ -93,8 +96,11 @@ const FLIP7: FlipSpec = {
     resolution: 316,
   },
   rearCamera: {
-    // Scan: 27.1 x 13.0 mm pill 1.8 mm proud at (+19.5, +30.4) on the cover half.
-    island: { x: 0.531, y: 0.829, width: 0.738, height: 0.354, radius: 0.177, raise: 0.048 },
+    // Each 13.4 mm module stands ~2 mm proud of the cover glass on its own —
+    // no shared plate (the pill in the reference scan was the screen-protector
+    // cutout, not raised hardware; product photos show bare glass between the
+    // flash and the lenses).
+    raise: 0.055,
     // 50 MP main (outer) + 12 MP ultra-wide (inner).
     rings: [
       { x: 0.723, y: 0.829, r: 0.183, pupil: 0.44 },

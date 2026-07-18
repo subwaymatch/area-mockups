@@ -266,17 +266,27 @@ const DEMOS: Record<string, React.ReactNode> = {
     </TabletMockup>
   ),
   'tablet-ipadpro11': (
-    <TabletMockup variant="ipadpro11" color="#e3e4e6" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="ipadpro11" colorway="silver" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ipadair13': (
+    <TabletMockup variant="ipadair13" colorway="starlight" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ipad11': (
+    <TabletMockup variant="ipad11" colorway="blue" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-tabs11': (
-    <TabletMockup variant="tabs11" color="#4b4f56" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="tabs11" colorway="gray" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-ultra': (
-    <TabletMockup variant="tabs11ultra" color="#2e3136" float deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <TabletMockup variant="tabs11ultra" colorway="gray" float deviceProps={{ rotation: [0, 0.3, 0] }}>
       <MusicPlayer />
     </TabletMockup>
   ),

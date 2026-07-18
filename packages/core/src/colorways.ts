@@ -97,22 +97,36 @@ export const LAPTOP_COLORWAYS: Record<LaptopVariant, Colorway[]> = {
   ],
 }
 
+const IPAD_PRO_COLORS: Colorway[] = [
+  { id: 'spaceblack', name: 'Space Black', color: '#3a383c' },
+  { id: 'silver', name: 'Silver', color: '#d6d8da' },
+]
+
+const IPAD_AIR_COLORS: Colorway[] = [
+  { id: 'spacegray', name: 'Space Gray', color: '#7d7b80' },
+  { id: 'starlight', name: 'Starlight', color: '#e7e2de' },
+  { id: 'purple', name: 'Purple', color: '#e4deea' },
+  { id: 'blue', name: 'Blue', color: '#d9e7e8' },
+]
+
 export const TABLET_COLORWAYS: Record<TabletVariant, Colorway[]> = {
-  ipadpro13: [
-    { id: 'spaceblack', name: 'Space Black', color: '#3a3c40' },
-    { id: 'silver', name: 'Silver', color: '#e3e4e6' },
-  ],
-  ipadpro11: [
-    { id: 'spaceblack', name: 'Space Black', color: '#3a3c40' },
-    { id: 'silver', name: 'Silver', color: '#e3e4e6' },
+  ipadpro13: IPAD_PRO_COLORS,
+  ipadpro11: IPAD_PRO_COLORS,
+  ipadair13: IPAD_AIR_COLORS,
+  ipadair11: IPAD_AIR_COLORS,
+  ipad11: [
+    { id: 'silver', name: 'Silver', color: '#e9eaec' },
+    { id: 'blue', name: 'Blue', color: '#92b3d6' },
+    { id: 'pink', name: 'Pink', color: '#f9899c' },
+    { id: 'yellow', name: 'Yellow', color: '#fbe778' },
   ],
   tabs11: [
-    { id: 'gray', name: 'Gray', color: '#4b4f56' },
-    { id: 'silver', name: 'Silver', color: '#dcdee1' },
+    { id: 'gray', name: 'Gray', color: '#63656a' },
+    { id: 'silver', name: 'Silver', color: '#d3d4d8' },
   ],
   tabs11ultra: [
-    { id: 'gray', name: 'Gray', color: '#2e3136' },
-    { id: 'silver', name: 'Silver', color: '#dcdee1' },
+    { id: 'gray', name: 'Gray', color: '#63656a' },
+    { id: 'silver', name: 'Silver', color: '#d3d4d8' },
   ],
 }
 

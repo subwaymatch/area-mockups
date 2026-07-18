@@ -132,26 +132,34 @@ Every variant's screen defaults to the real device's logical resolution (CSS px)
 | MacBook Pro 14" (M5) | `pro14` | — | 1512×982 | 3024×1964 @ 2x default scaled |
 | iPad Pro 13" (M5) | `ipadpro13` | 1032×1376 | 1376×1032 | 2752×2064 @ 2x point grid |
 | iPad Pro 11" (M5) | `ipadpro11` | 834×1210 | 1210×834 | 2420×1668 @ 2x point grid |
+| iPad Air 13" (M4) | `ipadair13` | 1024×1366 | 1366×1024 | 2732×2048 @ 2x point grid |
+| iPad Air 11" (M4) | `ipadair11` | 820×1180 | 1180×820 | 2360×1640 @ 2x point grid |
+| iPad (A16) | `ipad11` | 820×1180 | 1180×820 | 2360×1640 @ 2x point grid |
 | Galaxy Tab S11 | `tabs11` | 800×1280 | 1280×800 | 2560×1600 panel at ½ (xhdpi) |
 | Galaxy Tab S11 Ultra | `tabs11ultra` | 924×1480 | 1480×924 | 2960×1848 panel at ½ (xhdpi) |
 | Apple Watch Series 11 46mm | — | 208×248 | — | 416×496 @ 2x point grid |
 | Studio Display 27" | — | — | 2560×1440 | 5120×2880 @ 2x point grid |
 
-### `<Tablet>` — iPad Pro / Galaxy Tab S11 families
+### `<Tablet>` — the iPad lineup / Galaxy Tab S11 family
 
 Shares the phones' screen/interaction API plus `orientation`, with a `variant` prop
-(`'ipadpro13' | 'ipadpro11' | 'tabs11' | 'tabs11ultra'`). Fully procedural and
-per-family accurate: camera pod + Pencil long-edge strip on the iPads; protruding
-camera rings, side-mounted S Pen, keyboard pogo pins and (on the Ultra) the droplet
-display notch on the Galaxy Tabs; landscape-edge front cameras, USB-C port and
-machined edge buttons on both.
+(`'ipadpro13' | 'ipadpro11' | 'ipadair13' | 'ipadair11' | 'ipad11' | 'tabs11' |
+'tabs11ultra'`). Fully procedural and per-variant accurate: the Pro's camera pod
+(wide lens, LiDAR, flash) and Pencil charging window, the Air's and standard iPad's
+bare single lens with the Touch ID top button, back or edge Smart Connector dots and
+speaker drill rows; protruding camera rings, quad speaker slots, gold pogo contacts
+and (on the Ultra) the U-shaped display notch on the Galaxy Tabs; brand marks as real
+vector geometry (Apple glyph, edge-aligned SAMSUNG wordmark) and model wordmarks on
+the backs; landscape-edge front cameras, USB-C and machined edge buttons on all.
 
 ### `<Watch>` — Apple Watch-style · `<Monitor>` — Studio Display-style
 
 The watch adds `bandColor` (Sport-Band straps) and skips orientation: squircle case,
-knurled Digital Crown, side button, sensor dome and straps. The monitor puts a 27" 5K
-panel on its tilt stand — uniform bezel, centered camera, rear Thunderbolt/USB-C row,
-captive power inlet and, faithfully, no power button.
+knurled Digital Crown, side button, sensor dome and straps. The monitor puts the
+2026 Studio Display's 27" 5K panel on its tilt stand — uniform bezel, centered
+camera, the tight rear 2× Thunderbolt 5 + 2× USB-C slot cluster, the captive power
+cord's circular recess framed by the stand's cable hole and, faithfully, no power
+button.
 
 Renderer-agnostic device specs are exported as `GALAXY_VARIANTS`, `IPHONE_VARIANTS`,
 `TABLET_VARIANTS`, `PHONE`, `IPHONE`, `LAPTOP`, `TABLET`, `WATCH` and `MONITOR` — the

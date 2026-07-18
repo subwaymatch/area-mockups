@@ -33,7 +33,7 @@ export interface FlipProps extends Omit<GroupProps, 'children' | 'color'> {
   /**
    * `true` (default) renders the unfolded tall phone — your content fills the
    * 6.85" main display. `false` renders the folded compact — your content
-   * fills the nearly-square cover display, with the dual camera island and
+   * fills the nearly-square cover display, with the two lens rings and
    * flash sitting on the glass beside it.
    */
   open?: boolean
@@ -107,7 +107,7 @@ function freeEdgeCutters(
  * A procedurally built Samsung Galaxy Z Flip 7. One device, two form factors:
  * the unfolded tall phone (6.85" main display) and the folded compact whose
  * front is nearly all cover screen, switched with the `open` prop. Detail
- * geometry (dual-lens island, hinge band with its engraved wordmark, button
+ * geometry (separate protruding lens rings, hinge band with its engraved wordmark, button
  * pills, ports) follows a reference scan of the retail device. No 3D asset
  * files are loaded — everything is generated from geometry at runtime.
  *
@@ -189,23 +189,6 @@ export function Flip({
     [spec.coverGlass]
   )
 
-  const islandGeometry = React.useMemo(() => {
-    const bevel = 0.014
-    const shape = roundedRectShape(
-      cam.island.width - bevel * 2,
-      cam.island.height - bevel * 2,
-      cam.island.radius - bevel
-    )
-    return new THREE.ExtrudeGeometry(shape, {
-      depth: Math.max(0.008, cam.island.raise - bevel),
-      bevelEnabled: true,
-      bevelThickness: bevel,
-      bevelSize: bevel,
-      bevelSegments: 3,
-      curveSegments: 20,
-    })
-  }, [cam.island])
-
   const hingeLogoGeometry = React.useMemo(
     () => createLogoGeometry('samsung', spec.hinge.emboss.length, spec.hinge.emboss.length * 0.155),
     [spec.hinge.emboss.length]
@@ -214,10 +197,9 @@ export function Flip({
   React.useEffect(() => {
     return () => {
       coverGlassGeometry.dispose()
-      islandGeometry.dispose()
       hingeLogoGeometry.dispose()
     }
-  }, [coverGlassGeometry, islandGeometry, hingeLogoGeometry])
+  }, [coverGlassGeometry, hingeLogoGeometry])
 
   // CSS px per world unit for display overlays.
   const pxPerUnit = res / (landscape ? display.height : display.width)
@@ -248,20 +230,15 @@ export function Flip({
     ...extra,
   })
 
-  // The dual-lens island + flash, in cover-half local coordinates. `sign` is
-  // +1 when it faces the viewer (closed front) and -1 on the open back.
+  // The two separate lens rings + flash, in cover-half local coordinates —
+  // each module rises straight from the cover glass with no plate joining
+  // them, like the retail device. `sign` is +1 when the cluster faces the
+  // viewer (closed front) and -1 on the open back.
   const cameraCluster = (sign: 1 | -1, surfaceZ: number) => (
     <group>
-      <mesh
-        geometry={islandGeometry}
-        rotation-y={sign === 1 ? 0 : Math.PI}
-        position={[cam.island.x, cam.island.y, surfaceZ - sign * 0.002]}
-      >
-        <meshPhysicalMaterial color="#26282d" metalness={0.6} roughness={0.3} clearcoat={0.8} />
-      </mesh>
       {cam.rings.map(({ x, y, r, pupil }, i) => (
-        <group key={i} position={[x, y, surfaceZ + sign * cam.island.raise]}>
-          <LensRing r={r} proud={0.016} seat={0.03} frameColor={frameColor} pupil={pupil} />
+        <group key={i} position={[x, y, surfaceZ]} rotation-y={sign === 1 ? Math.PI : 0}>
+          <LensRing r={r} proud={cam.raise + 0.016} seat={0.03} frameColor={frameColor} pupil={pupil} />
         </group>
       ))}
       <mesh rotation-x={Math.PI / 2} position={[cam.flash.x, cam.flash.y, surfaceZ + sign * 0.006]}>
@@ -409,10 +386,10 @@ export function Flip({
             }}
           />
         ) : !open ? (
-          // The dual-camera island + flash live ON the cover screen — rendered
-          // as a DOM overlay so they sit above your live content, like a cutout.
+          // The two lens rings + flash live ON the cover screen — rendered as
+          // a DOM overlay so they sit above your live content, like a cutout.
+          // No pill behind them: the retail modules protrude individually.
           <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2147483647 }}>
-            <div style={coverAt(cam.island.x, cam.island.y, cam.island.width, cam.island.height, { borderRadius: 9999, background: '#0c0d10', boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.07)' })} />
             {cam.rings.map(({ x, y, r }, i) => (
               <div
                 key={i}
@@ -452,7 +429,7 @@ export function Flip({
           </mesh>
 
           {/* upper back: the cover screen glass (off, dark tint of the colorway) +
-              the camera island riding it */}
+              the lens rings riding it */}
           <group position={[0, halfOffsetY, 0]}>
             <mesh geometry={coverGlassGeometry} rotation-y={Math.PI} position-z={-openBody.depth / 2 - 0.002}>
               <meshPhysicalMaterial color={coverOffColor(color)} metalness={0.2} roughness={0.18} clearcoat={1} clearcoatRoughness={0.12} />

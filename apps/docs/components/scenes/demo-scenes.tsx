@@ -324,7 +324,7 @@ export default function DemoScenes() {
           </>
         }
       >
-        <TabletMockup variant="ipadpro13" orientation="landscape" color="#3a3c40" deviceProps={{ rotation: [0, -0.3, 0] }}>
+        <TabletMockup variant="ipadpro13" orientation="landscape" colorway="spaceblack" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <DesktopScreen />
         </TabletMockup>
       </DemoCard>
@@ -338,7 +338,35 @@ export default function DemoScenes() {
           </>
         }
       >
-        <TabletMockup variant="ipadpro11" color="#e3e4e6" deviceProps={{ rotation: [0, -0.3, 0] }}>
+        <TabletMockup variant="ipadpro11" colorway="silver" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <DesktopScreen />
+        </TabletMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="iPad Air 13″ (M4)"
+        description={
+          <>
+            <code>variant=&quot;ipadair13&quot;</code> in Starlight — the bare single lens,
+            Touch ID top button and back Smart Connector of the Air.
+          </>
+        }
+      >
+        <TabletMockup variant="ipadair13" colorway="starlight" deviceProps={{ rotation: [0, -0.3, 0] }}>
+          <DesktopScreen />
+        </TabletMockup>
+      </DemoCard>
+
+      <DemoCard
+        title="iPad (A16)"
+        description={
+          <>
+            <code>variant=&quot;ipad11&quot;</code> in Blue — the standard iPad&apos;s punchier
+            anodizing, crisper rails and edge Smart Connector.
+          </>
+        }
+      >
+        <TabletMockup variant="ipad11" colorway="blue" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <DesktopScreen />
         </TabletMockup>
       </DemoCard>
@@ -347,12 +375,12 @@ export default function DemoScenes() {
         title="Galaxy Tab S11"
         description={
           <>
-            <code>variant=&quot;tabs11&quot;</code> in Gray, portrait — the Samsung camera
-            pod and magnetic S Pen strip on the back.
+            <code>variant=&quot;tabs11&quot;</code> in Gray, portrait — the single protruding
+            camera ring, speaker slots and pogo contacts of the Samsung slate.
           </>
         }
       >
-        <TabletMockup variant="tabs11" color="#4b4f56" deviceProps={{ rotation: [0, -0.3, 0] }}>
+        <TabletMockup variant="tabs11" colorway="gray" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <DesktopScreen />
         </TabletMockup>
       </DemoCard>
@@ -361,12 +389,12 @@ export default function DemoScenes() {
         title="Galaxy Tab S11 Ultra"
         description={
           <>
-            <code>variant=&quot;tabs11ultra&quot;</code> in Graphite, landscape — the 14.6″
-            panel with its display notch modeled.
+            <code>variant=&quot;tabs11ultra&quot;</code> in Gray, landscape — the 14.6″
+            panel with its U-shaped notch, dual rings and SAMSUNG wordmark.
           </>
         }
       >
-        <TabletMockup variant="tabs11ultra" orientation="landscape" color="#2e3136" deviceProps={{ rotation: [0, -0.3, 0] }}>
+        <TabletMockup variant="tabs11ultra" orientation="landscape" colorway="gray" deviceProps={{ rotation: [0, -0.3, 0] }}>
           <DesktopScreen />
         </TabletMockup>
       </DemoCard>
