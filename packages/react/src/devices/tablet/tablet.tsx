@@ -462,12 +462,17 @@ export function Tablet({
         {speakers &&
           [1, -1].map((edge) =>
             speakers.style === 'holes'
-              ? speakers.xs.map((cx, ci) =>
-                  Array.from({ length: speakers.count }, (_, hi) => (
+              ? speakers.xs.map((cx, ci) => {
+                  // The top button truncates the top-right run: drop holes
+                  // from the OUTER end, keeping the inner end anchored.
+                  const trim = edge === 1 && cx > 0 ? (speakers.topTrim ?? 0) : 0
+                  const n = speakers.count - trim
+                  const shift = -Math.sign(cx) * (trim * speakers.spacing) / 2
+                  return Array.from({ length: n }, (_, hi) => (
                     <mesh
                       key={`${edge}-${ci}-${hi}`}
                       position={[
-                        cx + (hi - (speakers.count - 1) / 2) * speakers.spacing,
+                        cx + shift + (hi - (n - 1) / 2) * speakers.spacing,
                         edge * (body.height / 2 + 0.001),
                         0,
                       ]}
@@ -476,7 +481,7 @@ export function Tablet({
                       <meshStandardMaterial color="#0b0c10" roughness={0.6} />
                     </mesh>
                   ))
-                )
+                })
               : speakers.xs.map((cx, ci) => (
                   <RoundedBox
                     key={`${edge}-${ci}`}

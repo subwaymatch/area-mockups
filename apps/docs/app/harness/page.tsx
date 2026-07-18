@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import {
   FlipMockup,
   FoldMockup,
+  Laptop,
+  type LaptopVariant,
   MockupCanvas,
   MonitorMockup,
   Tablet,
@@ -102,6 +104,25 @@ function HarnessScene() {
       >
         {screen}
       </FoldMockup>
+    )
+  }
+
+  if (device === 'laptop') {
+    const dist = Number(params.get('dist') ?? 7.6)
+    return (
+      <MockupCanvas controls={controls} camera={{ position: [0, cy, dist], fov: 40 }} shadows={shadows}>
+        <Laptop
+          variant={(params.get('lvariant') ?? 'pro14') as LaptopVariant}
+          colorway={colorway}
+          color={color}
+          openAngle={params.get('openAngle') ? Number(params.get('openAngle')) : undefined}
+          rotation={[rx, ry, 0]}
+          interactive={false}
+          dragToRotate={false}
+        >
+          {screen}
+        </Laptop>
+      </MockupCanvas>
     )
   }
 

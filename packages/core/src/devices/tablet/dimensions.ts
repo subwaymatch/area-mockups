@@ -100,7 +100,19 @@ export interface TabletSpec {
    * long milled slots near the corners.
    */
   speakers?:
-    | { style: 'holes'; xs: number[]; count: number; spacing: number; r: number }
+    | {
+        style: 'holes'
+        xs: number[]
+        count: number
+        spacing: number
+        r: number
+        /**
+         * Holes dropped from the outer end of the positive-x run on the TOP
+         * edge only — the A16's top button truncates that run (12 → 9 on the
+         * reference scan) while the other three runs keep the full count.
+         */
+        topTrim?: number
+      }
     | { style: 'slots'; xs: number[]; length: number; width: number }
 }
 
@@ -242,7 +254,10 @@ const IPAD_11: TabletSpec = {
   pogo: { surface: 'edge', x: -2.805 / 2, y: 0, axis: 'y', spacing: 0.083 },
   // ~26.4 mm glyph, centered on the back within measurement error.
   logo: { mark: 'apple', y: 0.01, width: 0.413, height: 0.55 },
-  speakers: { style: 'holes', xs: [-0.5, 0.5], count: 14, spacing: 0.042, r: 0.011 },
+  // Reference-scan counts: 12 drilled holes per run (2.76 mm pitch), runs
+  // spanning 33.4–65.6 mm from center; the top-right run stops 3 holes short
+  // of the others where the top button interrupts it.
+  speakers: { style: 'holes', xs: [-0.773, 0.773], count: 12, spacing: 0.0431, r: 0.013, topTrim: 3 },
 }
 
 /**
