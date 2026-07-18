@@ -81,7 +81,12 @@ export function Monitor({
   const color = colorProp ?? retail?.color ?? '#c8cbd0'
   const { body, glass, display, stand, standHeight } = MONITOR
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = useScreenOccluders(bodyRef)
+  // The stand pieces occlude too — from low rear angles they stand between
+  // the camera and the screen plane, and an unregistered mesh lets the DOM
+  // screen paint right through them.
+  const footRef = React.useRef<THREE.Mesh>(null!)
+  const armRef = React.useRef<THREE.Mesh>(null!)
+  const occludeRefs = useScreenOccluders(bodyRef, footRef, armRef)
 
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
@@ -342,10 +347,10 @@ export function Monitor({
 
       {/* tilt stand: knee-and-foot profile + the arm slab with its
           cable-routing hole, all in the enclosure finish */}
-      <mesh geometry={standParts.footKnee}>
+      <mesh ref={footRef} geometry={standParts.footKnee}>
         <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
       </mesh>
-      <mesh geometry={standParts.armSlab} position={standParts.armPos}>
+      <mesh ref={armRef} geometry={standParts.armSlab} position={standParts.armPos}>
         <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
       </mesh>
 

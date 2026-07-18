@@ -217,25 +217,32 @@ const IPAD_AIR_11: TabletSpec = {
  * (Magic Keyboard Folio), no Pencil charging strip.
  */
 const IPAD_11: TabletSpec = {
-  body: { width: 2.805, height: 3.884, depth: 0.109, radius: 0.15, bevel: 0.008 },
-  glass: { width: 2.748, height: 3.828, radius: 0.13 },
+  // Corner rounding measured at ~15.3 mm on this chassis — visibly softer
+  // than the Air/Pro, with the camera ring "nesting" inside the corner arc.
+  body: { width: 2.805, height: 3.884, depth: 0.109, radius: 0.235, bevel: 0.008 },
+  glass: { width: 2.748, height: 3.828, radius: 0.21 },
   display: { width: 2.464, height: 3.549, radius: 0.1 },
   resolution: 820,
+  // Photo-measured (cross-validated against the reference scan): 13.2 mm
+  // ring — the body-colored anodized boss around the black window — its
+  // center 14.9 mm from the side edge and 15.4 mm from the top, with the
+  // pinhole mic 14.3 mm directly below on the same vertical axis.
   rearCamera: {
     style: 'single',
-    x: 2.805 / 2 - 0.2,
-    y: 3.884 / 2 - 0.2,
-    r: 0.105,
-    mic: { x: 2.805 / 2 - 0.2, y: 3.884 / 2 - 0.2 - 0.2 },
+    x: 2.805 / 2 - 0.233,
+    y: 3.884 / 2 - 0.241,
+    r: 0.103,
+    mic: { x: 2.805 / 2 - 0.233, y: 3.884 / 2 - 0.241 - 0.223 },
   },
-  topButton: { x: 2.805 / 2 - 0.29, length: 0.27 },
+  topButton: { x: 2.805 / 2 - 0.375, length: 0.266 },
   sideButtons: [
-    { y: 3.884 / 2 - 0.48, length: 0.17 },
-    { y: 3.884 / 2 - 0.73, length: 0.17 },
+    { y: 3.884 / 2 - 0.4375, length: 0.155 },
+    { y: 3.884 / 2 - 0.625, length: 0.155 },
   ],
-  pogo: { surface: 'edge', x: -2.805 / 2, y: 0, axis: 'y', spacing: 0.1 },
-  logo: { mark: 'apple', y: 0.03, width: 0.58, height: 0.712 },
-  speakers: { style: 'holes', xs: [-0.5, 0.5], count: 7, spacing: 0.052, r: 0.011 },
+  pogo: { surface: 'edge', x: -2.805 / 2, y: 0, axis: 'y', spacing: 0.083 },
+  // ~26.4 mm glyph, centered on the back within measurement error.
+  logo: { mark: 'apple', y: 0.01, width: 0.413, height: 0.55 },
+  speakers: { style: 'holes', xs: [-0.5, 0.5], count: 14, spacing: 0.042, r: 0.011 },
 }
 
 /**

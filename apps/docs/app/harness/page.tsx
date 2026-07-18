@@ -27,6 +27,7 @@ import {
  *   cy          camera height                      (default 0)
  *   screen      dark | gradient                    (default gradient)
  *   shadows     1 | 0                              (default 0 — clean poses)
+ *   controls    1 | 0                              (default 0 — drag tests)
  */
 function HarnessScene() {
   const params = useSearchParams()
@@ -39,6 +40,7 @@ function HarnessScene() {
   const ry = (Number(params.get('ry') ?? 0) * Math.PI) / 180
   const cy = Number(params.get('cy') ?? 0)
   const shadows = params.get('shadows') === '1'
+  const controls = params.get('controls') === '1'
   const screen =
     params.get('screen') === 'dark' ? (
       <div style={{ width: '100%', height: '100%', background: '#000' }} />
@@ -57,7 +59,7 @@ function HarnessScene() {
     const dist = Number(params.get('dist') ?? 9.4)
     return (
       <MonitorMockup
-        controls={false}
+        controls={controls}
         camera={{ position: [0, cy, dist], fov: 40 }}
         shadows={shadows}
         deviceProps={{ rotation: [rx, ry, 0] }}
@@ -75,7 +77,7 @@ function HarnessScene() {
         openAngle={params.get('openAngle') ? Number(params.get('openAngle')) : undefined}
         colorway={colorway}
         color={color}
-        controls={false}
+        controls={controls}
         camera={{ position: [0, cy, dist], fov: 40 }}
         shadows={shadows}
         deviceProps={{ rotation: [rx, ry, 0] }}
@@ -93,7 +95,7 @@ function HarnessScene() {
         openAngle={params.get('openAngle') ? Number(params.get('openAngle')) : undefined}
         colorway={colorway}
         color={color}
-        controls={false}
+        controls={controls}
         camera={{ position: [0, cy, dist], fov: 40 }}
         shadows={shadows}
         deviceProps={{ rotation: [rx, ry, 0] }}
@@ -106,7 +108,7 @@ function HarnessScene() {
   const dist = Number(params.get('dist') ?? (variant === 'tabs11ultra' ? 9.6 : 8.6))
   return (
     <MockupCanvas
-      controls={false}
+      controls={controls}
       camera={{ position: [0, cy, dist], fov: 40 }}
       shadows={shadows}
     >

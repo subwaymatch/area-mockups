@@ -294,14 +294,11 @@ export function Tablet({
             pinhole mic beside it */}
         {rearCamera.style === 'single' && (
           <>
+            {/* the ring is the body-colored anodized boss itself, polished on
+                its chamfer, around the large black lens window — blue iPads
+                get a blue ring, exactly like the product photography */}
             <group position={[rearCamera.x, rearCamera.y, backZ]}>
-              <LensRing
-                r={rearCamera.r}
-                proud={0.026}
-                seat={0.03}
-                frameColor={`#${new THREE.Color(color).lerp(new THREE.Color('#000000'), 0.3).getHexString()}`}
-                pupil={0.6}
-              />
+              <LensRing r={rearCamera.r} proud={0.026} seat={0.03} frameColor={color} pupil={0.6} matte />
             </group>
             <mesh rotation-x={Math.PI / 2} position={[rearCamera.mic.x, rearCamera.mic.y, backZ - 0.004]}>
               <cylinderGeometry args={[0.011, 0.011, 0.008, 12]} />
@@ -392,8 +389,24 @@ export function Tablet({
           </RoundedBox>
         )}
 
+        {/* the standard iPad's edge Smart Connector: a slim stadium plate
+            sunk into the left rail, carrying the three contacts */}
+        {pogo?.surface === 'edge' && (
+          <RoundedBox
+            args={[0.012, 0.205, 0.06]}
+            radius={0.005}
+            position={[-body.width / 2 + 0.001, pogo.y, 0]}
+          >
+            <meshPhysicalMaterial
+              color={`#${new THREE.Color(color).lerp(new THREE.Color('#5c5f66'), 0.4).getHexString()}`}
+              metalness={0.6}
+              roughness={0.4}
+            />
+          </RoundedBox>
+        )}
+
         {/* keyboard contacts: the iPads' back Smart Connector row / edge
-            dots, or the Galaxy Tabs' gold column near the portrait-left edge */}
+            dots, or the Galaxy Tabs' silver column near the portrait-left edge */}
         {pogo &&
           [-1, 0, 1].map((i) => {
             const off = i * pogo.spacing

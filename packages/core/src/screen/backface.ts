@@ -15,6 +15,14 @@ import { Quaternion, Vector3 } from 'three'
  */
 export type BackfaceCuller = (anchor: Object3D, content: HTMLElement, camera: Camera) => void
 
+/**
+ * Facing threshold below which the plane also hides: within a few degrees of
+ * edge-on the DOM plane is a degenerate sliver that would still paint OVER
+ * chassis parts that geometrically occlude it (the browser composites the
+ * bridge above WebGL), so it reads as the screen "piercing" the body.
+ */
+const GRAZING_DOT = 0.08
+
 export function createBackfaceCuller(): BackfaceCuller {
   // Scratch values reused across frames — no per-frame allocation.
   const n = new Vector3()
@@ -24,8 +32,8 @@ export function createBackfaceCuller(): BackfaceCuller {
     anchor.getWorldQuaternion(q)
     anchor.getWorldPosition(p)
     n.set(0, 0, 1).applyQuaternion(q)
-    p.subVectors(camera.position, p)
-    const visibility = n.dot(p) > 0 ? '' : 'hidden'
+    p.subVectors(camera.position, p).normalize()
+    const visibility = n.dot(p) > GRAZING_DOT ? '' : 'hidden'
     if (content.style.visibility !== visibility) content.style.visibility = visibility
   }
 }
