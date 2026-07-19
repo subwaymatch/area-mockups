@@ -116,7 +116,9 @@ function specFor(el: React.ReactElement): DeviceControlSpec | null {
       return {
         variants: [
           { value: 'air13', label: 'MacBook Air 13″' },
+          { value: 'air15', label: 'MacBook Air 15″' },
           { value: 'pro14', label: 'MacBook Pro 14″' },
+          { value: 'pro16', label: 'MacBook Pro 16″' },
         ],
         catalogs: LAPTOP_COLORWAYS as Record<string, Colorway[]>,
         openAngle: { min: 40, max: 130, fallback: 110 },

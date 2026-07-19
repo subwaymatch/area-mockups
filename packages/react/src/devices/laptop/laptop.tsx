@@ -15,9 +15,10 @@ export interface LaptopProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Anything you want on the laptop screen: React components, an <iframe>, a <video>… */
   children?: React.ReactNode
   /**
-   * Which laptop to render: `air13` (MacBook Air 13", uniform thin slab) or
-   * `pro14` (MacBook Pro 14", thicker body, HDMI/SDXC ports, speaker grilles,
-   * larger feet and a deeper notch). True relative sizes.
+   * Which laptop to render, at true relative sizes: `air13` / `air15`
+   * (MacBook Air 13" / 15", uniform thin slab, clean deck) or `pro14` /
+   * `pro16` (MacBook Pro 14" / 16", thicker body, HDMI/SDXC ports,
+   * perforated speaker grilles, larger feet and a deeper notch).
    */
   variant?: LaptopVariant
   /**
@@ -622,8 +623,9 @@ export function Laptop({
   const retail = findColorway(LAPTOP_COLORWAYS[variant], colorway)
   const color = colorProp ?? retail?.color ?? '#e3e4e6'
   const { footprint, base, lid, display, notch: notchDims, keyboard, trackpad } = spec
-  // Default scaled desktop: 1280x832 on the Air, 1512x982 on the Pro 14.
-  const res = resolution ?? (variant === 'pro14' ? 1512 : 1280)
+  // Default scaled desktops (native/2): 1280x832 / 1440x932 on the Airs,
+  // 1512x982 / 1728x1117 on the Pros.
+  const res = resolution ?? { air13: 1280, air15: 1440, pro14: 1512, pro16: 1728 }[variant]
   const lidAngle = openAngle ?? spec.openAngle
   const baseRef = React.useRef<THREE.Mesh>(null!)
   const lidRef = React.useRef<THREE.Mesh>(null!)
@@ -912,7 +914,7 @@ export function Laptop({
       <group position={[0, deckY, hingeZ]} rotation-x={lidTilt}>
         {/* hinge: the black band spanning the center of the back (aluminum shows at the ends) */}
         <mesh rotation-z={Math.PI / 2} position={[0, 0, 0]}>
-          <cylinderGeometry args={[variant === 'pro14' ? 0.069 : 0.052, variant === 'pro14' ? 0.069 : 0.052, footprint.width * 0.76, 24]} />
+          <cylinderGeometry args={[variant.startsWith('pro') ? 0.069 : 0.052, variant.startsWith('pro') ? 0.069 : 0.052, footprint.width * 0.76, 24]} />
           <meshPhysicalMaterial color="#0d0e12" metalness={0.5} roughness={0.55} envMapIntensity={0.5} />
         </mesh>
 

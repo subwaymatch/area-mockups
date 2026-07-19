@@ -84,17 +84,23 @@ export const FLIP_COLORWAYS: Record<FlipVariant, Colorway[]> = {
   ],
 }
 
+const MACBOOK_AIR_COLORS: Colorway[] = [
+  { id: 'silver', name: 'Silver', color: '#e3e4e6' },
+  { id: 'starlight', name: 'Starlight', color: '#e8e0d4' },
+  { id: 'midnight', name: 'Midnight', color: '#2e3642' },
+  { id: 'skyblue', name: 'Sky Blue', color: '#aec6d9' },
+]
+
+const MACBOOK_PRO_COLORS: Colorway[] = [
+  { id: 'spaceblack', name: 'Space Black', color: '#4a484b' },
+  { id: 'silver', name: 'Silver', color: '#e3e4e6' },
+]
+
 export const LAPTOP_COLORWAYS: Record<LaptopVariant, Colorway[]> = {
-  air13: [
-    { id: 'silver', name: 'Silver', color: '#e3e4e6' },
-    { id: 'starlight', name: 'Starlight', color: '#e8e0d4' },
-    { id: 'midnight', name: 'Midnight', color: '#2e3642' },
-    { id: 'skyblue', name: 'Sky Blue', color: '#aec6d9' },
-  ],
-  pro14: [
-    { id: 'spaceblack', name: 'Space Black', color: '#4a484b' },
-    { id: 'silver', name: 'Silver', color: '#e3e4e6' },
-  ],
+  air13: MACBOOK_AIR_COLORS,
+  air15: MACBOOK_AIR_COLORS,
+  pro14: MACBOOK_PRO_COLORS,
+  pro16: MACBOOK_PRO_COLORS,
 }
 
 const IPAD_PRO_COLORS: Colorway[] = [

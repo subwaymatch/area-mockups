@@ -268,6 +268,16 @@ const DEMOS: Record<string, React.ReactNode> = {
       <DesktopScreen />
     </LaptopMockup>
   ),
+  'laptop-air15': (
+    <LaptopMockup variant="air15" colorway="skyblue" deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
+  'laptop-pro16': (
+    <LaptopMockup variant="pro16" colorway="spaceblack" deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
 
   // ---- Tablet -------------------------------------------------------------------
   'tablet-landscape': (
