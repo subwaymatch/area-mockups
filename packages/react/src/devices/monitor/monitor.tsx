@@ -58,8 +58,8 @@ export interface MonitorProps extends Omit<GroupProps, 'children' | 'color'> {
  * circular cable-routing hole punched clean through, straddling the
  * enclosure's bottom edge exactly as in the product photography, down to
  * the knee and the thin forward foot plate on rubber pads.
- * Thunderbolt/USB-C port row on the back and, faithfully, no power button
- * or external power inlet. No 3D asset files are loaded.
+ * Thunderbolt/USB-C port row and the captive power cord's circular recess on
+ * the back — and, faithfully, no power button. No 3D asset files are loaded.
  *
  * The group origin is the panel center; the stand reaches `MONITOR.standHeight`
  * below it. Must be rendered inside a react-three-fiber `<Canvas>` (or
@@ -81,7 +81,12 @@ export function Monitor({
   const color = colorProp ?? retail?.color ?? '#c8cbd0'
   const { body, glass, display, stand, standHeight } = MONITOR
   const bodyRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = useScreenOccluders(bodyRef)
+  // The stand pieces occlude too — from low rear angles they stand between
+  // the camera and the screen plane, and an unregistered mesh lets the DOM
+  // screen paint right through them.
+  const footRef = React.useRef<THREE.Mesh>(null!)
+  const armRef = React.useRef<THREE.Mesh>(null!)
+  const occludeRefs = useScreenOccluders(bodyRef, footRef, armRef)
 
   const bodyGeometry = React.useMemo(() => {
     const shape = roundedRectShape(
@@ -125,7 +130,7 @@ export function Monitor({
       outerKneeRadius: Ro,
       innerKneeRadius: Ri,
       hingeRadius,
-      cableHole,
+      cutout,
     } = stand
     const deskY = -standHeight
     const lean = (leanDeg * Math.PI) / 180
@@ -182,17 +187,22 @@ export function Monitor({
     footKnee.rotateY(-Math.PI / 2)
 
     // Arm slab: rounded-rect face (x across, y down the lean axis, hinge
-    // center at +armLen/2) with the cable hole as a real punched circle —
-    // the extrude bevel rounds its bore, giving the rim highlight the
-    // product photos show around the opening.
+    // center at +armLen/2) with the stadium cutout as a real punched
+    // opening — the extrude bevel rounds its bore, giving the rim highlight
+    // the product photos show around the opening.
     const armLen = (hinge.y - yCut) / d.y + 0.24
-    const armShape = roundedRectShape(width - 0.016, armLen, 0.02)
-    // The hole's center sits `edgeOffset` above the enclosure's bottom edge,
-    // so only its lower arc shows below the panel from the front.
-    const holeWorldY = -body.height / 2 + cableHole.edgeOffset
+    const armShape = roundedRectShape(width - 0.016, armLen, 0.05)
+    // The cutout's center sits `edgeOffset` above the enclosure's bottom
+    // edge: the power inlet shows through its upper half, open air through
+    // the lower; from the front it hides behind the panel.
+    const holeWorldY = -body.height / 2 + cutout.edgeOffset
     const holeCenterS = armLen / 2 - (hinge.y - holeWorldY) / d.y
+    const capR = cutout.width / 2
+    const straight = Math.max(0, cutout.length / 2 - capR)
     const holePath = new THREE.Path()
-    holePath.absarc(0, holeCenterS, cableHole.r, 0, Math.PI * 2, true)
+    holePath.absarc(0, holeCenterS + straight, capR, Math.PI, 0, true)
+    holePath.absarc(0, holeCenterS - straight, capR, 0, -Math.PI, true)
+    holePath.closePath()
     armShape.holes.push(holePath)
     const slabT = thickness + 0.006
     const armSlab = new THREE.ExtrudeGeometry(armShape, {
@@ -294,18 +304,38 @@ export function Monitor({
         />
       </mesh>
 
-      {/* back: 2x Thunderbolt 5 + 2x USB-C row (power connects inside the
-          stand's cable recess — no external inlet, and no power button) */}
+      {/* back: the tight 2x Thunderbolt 5 + 2x USB-C cluster, low and left of
+          center seen from behind (front-view right), pill slots ~14.5 mm apart */}
       {[0, 1, 2, 3].map((i) => (
         <RoundedBox
           key={i}
-          args={[0.11, 0.042, 0.02]}
-          radius={0.008}
-          position={[body.width / 2 - 0.7 - i * 0.2, -body.height / 2 + 0.34, -body.depth / 2 - 0.004]}
+          args={[MONITOR.ports.slot.width, MONITOR.ports.slot.height, 0.02]}
+          // radius must stay under half the SMALLEST face dimension or the
+          // corner spheres self-intersect into a bowtie
+          radius={Math.min(MONITOR.ports.slot.width, MONITOR.ports.slot.height) / 2 - 0.004}
+          position={[
+            MONITOR.ports.x - i * MONITOR.ports.spacing,
+            -body.height / 2 + MONITOR.ports.y,
+            -body.depth / 2 - 0.004,
+          ]}
         >
           <meshPhysicalMaterial color="#07080c" metalness={0.4} roughness={0.4} />
         </RoundedBox>
       ))}
+
+      {/* the captive power cord's circular recess, centered low on the back —
+          the cable is not user-detachable, so a molded collar sits proud of
+          the machined ring instead of a socket */}
+      <group position={[0, -body.height / 2 + MONITOR.power.y, -body.depth / 2]}>
+        <mesh rotation-x={Math.PI / 2} position-z={-0.003}>
+          <cylinderGeometry args={[MONITOR.power.r, MONITOR.power.r, 0.006, 32]} />
+          <meshPhysicalMaterial color="#585b60" metalness={0.6} roughness={0.35} />
+        </mesh>
+        <mesh rotation-x={Math.PI / 2} position-z={-0.012}>
+          <cylinderGeometry args={[MONITOR.power.r * 0.44, MONITOR.power.r * 0.52, 0.018, 24]} />
+          <meshStandardMaterial color="#2c2e32" roughness={0.7} />
+        </mesh>
+      </group>
 
       {/* speaker perforations along the bottom edge (underside) */}
       {grilleTexture && (
@@ -317,10 +347,10 @@ export function Monitor({
 
       {/* tilt stand: knee-and-foot profile + the arm slab with its
           cable-routing hole, all in the enclosure finish */}
-      <mesh geometry={standParts.footKnee}>
+      <mesh ref={footRef} geometry={standParts.footKnee}>
         <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
       </mesh>
-      <mesh geometry={standParts.armSlab} position={standParts.armPos}>
+      <mesh ref={armRef} geometry={standParts.armSlab} position={standParts.armPos}>
         <meshPhysicalMaterial color={color} metalness={0.5} roughness={0.42} />
       </mesh>
 
@@ -338,7 +368,8 @@ export function Monitor({
           rotation-z={Math.PI / 2}
           position={[s * (stand.width / 2 - 0.005), standParts.hinge.y, standParts.hinge.z]}
         >
-          <cylinderGeometry args={[stand.hingeRadius * 0.85, stand.hingeRadius * 0.85, 0.014, 24]} />
+          {/* the polished caps read a touch larger than the barrel itself */}
+          <cylinderGeometry args={[stand.hingeRadius * 1.05, stand.hingeRadius * 1.05, 0.014, 24]} />
           <meshPhysicalMaterial color="#dfe2e6" metalness={0.55} roughness={0.3} envMapIntensity={0.9} />
         </mesh>
       ))}

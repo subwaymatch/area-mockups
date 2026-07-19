@@ -38,6 +38,17 @@ export interface FoldProps extends Omit<GroupProps, 'children' | 'color'> {
    */
   open?: boolean
   /**
+   * Degree of openness between the two panels (0 = folded shut, 180 = flat
+   * open), overriding `open` when set. Intermediate angles render the real
+   * Flex Mode book pose: the panels pivot around the hinge line, the spine's
+   * flat band (with its SAMSUNG engraving) bisects the fold, and your
+   * content bends across the crease — e.g. `openAngle={110}` for the
+   * half-open standing pose. At intermediate angles the inner display is
+   * composited from two planes, so stateful screen content is best kept
+   * simple.
+   */
+  openAngle?: number
+  /**
    * `landscape` lays the device on its side and swaps the virtual display to
    * H×W with upright content — exactly like rotating the real device.
    */
@@ -104,6 +115,7 @@ export function Fold({
   children,
   variant = 'fold7',
   open = true,
+  openAngle,
   orientation = 'portrait',
   colorway,
   color: colorProp,
@@ -121,8 +133,14 @@ export function Fold({
   const retail = findColorway(FOLD_COLORWAYS[variant], colorway)
   const color = colorProp ?? retail?.color ?? '#3a3d42'
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#54585f'
-  const state = open ? spec.open : spec.closed
-  const cam = open ? spec.rearCamera.open : spec.rearCamera.closed
+  // Resolve the pose: an explicit fold angle wins over the boolean; the
+  // extremes snap to the dedicated flat-open / folded-shut paths so the
+  // default renders are pixel-identical to before.
+  const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 3 ? 'closed' : 'flex'
+  const isOpenFace = mode !== 'closed'
+  const state = isOpenFace ? spec.open : spec.closed
+  const cam = isOpenFace ? spec.rearCamera.open : spec.rearCamera.closed
   const { body, display } = state
   const landscape = orientation === 'landscape'
   const aspect = display.height / display.width
@@ -168,6 +186,50 @@ export function Fold({
     ])
   }, [spec.closed.body, spec.bottomEdge.closed, halfDepth])
 
+  // Flex pose panels: the open slab split at the hinge line, each half
+  // machining only the bottom-edge openings that live on its side.
+  const flexGeometries = React.useMemo(() => {
+    if (mode !== 'flex') return null
+    const b = spec.open.body
+    const hw = b.width / 2
+    const edge = spec.bottomEdge.open
+    const bottom = -b.height / 2
+    const cutters = (side: -1 | 1) => {
+      const localX = (x: number) => x - (side * hw) / 2
+      const items: THREE.BufferGeometry[] = []
+      if (Math.sign(edge.usb.x) === side)
+        items.push(stadiumCutter(edge.usb.width, edge.usb.height, USB_CUT_DEPTH).translate(localX(edge.usb.x), bottom, 0))
+      for (const sp of edge.speakers)
+        if (Math.sign(sp.x) === side)
+          items.push(stadiumCutter(sp.width, sp.height, 0.06).translate(localX(sp.x), bottom, 0))
+      for (const m of edge.mics ?? [])
+        if (Math.sign(m.x) === side)
+          items.push(holeCutter(m.r, 0.05).translate(localX(m.x), bottom, 0))
+      return items
+    }
+    return {
+      left: cutGeometry(slabGeometry(hw, b.height, b.radius, b.depth, b.bevel), cutters(-1)),
+      right: cutGeometry(slabGeometry(hw, b.height, b.radius, b.depth, b.bevel), cutters(1)),
+      back: new THREE.ShapeGeometry(
+        roundedRectShape(hw - 0.05, b.height - 0.05, Math.max(0.02, b.radius - 0.025)),
+        16
+      ),
+      glass: new THREE.ShapeGeometry(
+        roundedRectShape(hw - 0.03, b.height - 0.03, Math.max(0.02, b.radius - 0.015)),
+        16
+      ),
+    }
+  }, [mode, spec.open.body, spec.bottomEdge.open])
+  React.useEffect(
+    () => () => {
+      flexGeometries?.left.dispose()
+      flexGeometries?.right.dispose()
+      flexGeometries?.back.dispose()
+      flexGeometries?.glass.dispose()
+    },
+    [flexGeometries]
+  )
+
   const backGeometry = React.useMemo(
     () =>
       new THREE.ShapeGeometry(
@@ -204,13 +266,13 @@ export function Fold({
 
   // The (off) cover-display glass on the back of the open pose's left half.
   const coverGlassGeometry = React.useMemo(() => {
-    if (!open) return null
+    if (mode === 'closed') return null
     const c = spec.closed
     return new THREE.ShapeGeometry(
       roundedRectShape(c.display.width + 0.03, c.display.height + 0.06, c.display.radius + 0.02),
       16
     )
-  }, [open, spec.closed])
+  }, [mode, spec.closed])
   React.useEffect(() => () => coverGlassGeometry?.dispose(), [coverGlassGeometry])
 
   // The vertical SAMSUNG emboss on the hinge spine — vector geometry from the SVG.
@@ -245,7 +307,7 @@ export function Fold({
   const pxPerUnit = res / (landscape ? display.height : display.width)
   const px = (units: number) => units * pxPerUnit
 
-  const holeX = open ? spec.open.punchHole.offsetX : 0
+  const holeX = isOpenFace ? spec.open.punchHole.offsetX : 0
   const holeOffsetY = state.punchHole.offsetY
   const holeR = state.punchHole.radius
 
@@ -275,12 +337,14 @@ export function Fold({
       >
         <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.32} clearcoat={0.8} />
       </mesh>
+      {/* the lens housing matches the body color on the real device — an
+          anodized boss, not a black plate (only the lens glass is dark) */}
       <mesh
         geometry={islandGeometry}
         rotation-y={Math.PI}
         position={[cam.island.x, cam.island.y, backZ - cam.plateau.raise]}
       >
-        <meshPhysicalMaterial color="#26282d" metalness={0.5} roughness={0.35} clearcoat={0.7} />
+        <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.32} clearcoat={0.8} />
       </mesh>
       {cam.rings.map(({ y, r, pupil }, i) => (
         <group key={i} position={[cam.island.x, y, backZ - cam.plateau.raise - cam.island.raise]}>
@@ -327,6 +391,53 @@ export function Fold({
       </React.Fragment>
     ))
 
+  // The inner display's soft center crease and punch-hole camera, positioned
+  // in the full virtual-display coordinate space — shared by the flat-open
+  // screen (via the overlay slot) and the flex pose (inside each half's
+  // clipped full-size wrapper, where the same coordinates apply).
+  const creaseOverlay = (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        ...(landscape
+          ? { left: 0, right: 0, top: '50%', height: px(0.06), transform: 'translateY(-50%)' }
+          : { top: 0, bottom: 0, left: '50%', width: px(0.06), transform: 'translateX(-50%)' }),
+        background: landscape
+          ? 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0) 100%)'
+          : 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0) 100%)',
+        pointerEvents: 'none',
+        zIndex: 2147483646,
+      }}
+    />
+  )
+  const punchHoleOverlay = (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        ...(landscape
+          ? {
+              left: px(holeOffsetY - holeR),
+              top: `calc(50% - ${px(holeX)}px)`,
+              transform: 'translateY(-50%)',
+            }
+          : {
+              top: px(holeOffsetY - holeR),
+              left: `calc(50% + ${px(holeX)}px)`,
+              transform: 'translateX(-50%)',
+            }),
+        width: px(holeR * 2),
+        height: px(holeR * 2),
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 38% 38%, #1b2436 0%, #05060a 55%, #000 100%)',
+        boxShadow: '0 0 0 1.5px rgba(255, 255, 255, 0.05)',
+        pointerEvents: 'none',
+        zIndex: 2147483647,
+      }}
+    />
+  )
+
   const screen = (surfaceZ: number) => (
     <DeviceScreen
       width={landscape ? display.height : display.width}
@@ -342,50 +453,8 @@ export function Fold({
       screenStyle={screenStyle}
       overlay={
         <>
-          {/* the inner display's soft center crease (open only) */}
-          {open && (
-            <div
-              aria-hidden
-              style={{
-                position: 'absolute',
-                ...(landscape
-                  ? { left: 0, right: 0, top: '50%', height: px(0.06), transform: 'translateY(-50%)' }
-                  : { top: 0, bottom: 0, left: '50%', width: px(0.06), transform: 'translateX(-50%)' }),
-                background: landscape
-                  ? 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0) 100%)'
-                  : 'linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.14) 50%, rgba(0,0,0,0) 100%)',
-                pointerEvents: 'none',
-                zIndex: 2147483646,
-              }}
-            />
-          )}
-          {punchHole && (
-            <div
-              aria-hidden
-              style={{
-                position: 'absolute',
-                ...(landscape
-                  ? {
-                      left: px(holeOffsetY - holeR),
-                      top: `calc(50% - ${px(holeX)}px)`,
-                      transform: 'translateY(-50%)',
-                    }
-                  : {
-                      top: px(holeOffsetY - holeR),
-                      left: `calc(50% + ${px(holeX)}px)`,
-                      transform: 'translateX(-50%)',
-                    }),
-                width: px(holeR * 2),
-                height: px(holeR * 2),
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle at 38% 38%, #1b2436 0%, #05060a 55%, #000 100%)',
-                boxShadow: '0 0 0 1.5px rgba(255, 255, 255, 0.05)',
-                pointerEvents: 'none',
-                zIndex: 2147483647,
-              }}
-            />
-          )}
+          {mode === 'open' && creaseOverlay}
+          {punchHole && punchHoleOverlay}
         </>
       }
     >
@@ -393,7 +462,186 @@ export function Fold({
     </DeviceScreen>
   )
 
-  if (open) {
+  if (mode === 'flex' && flexGeometries) {
+    // Each panel pivots around a shared virtual axis at the fold line, at the
+    // inner display's neutral plane. The Armor FlexHinge's flat spine band
+    // bisects the fold: a satin plate whose exposed width grows as the book
+    // closes, edged by thin polished rails, carrying the vertical SAMSUNG
+    // engraving — end-capped by dark wedges filling the V at the top and
+    // bottom edges, like the retail hinge.
+    const alpha = ((180 - angle) / 2) * (Math.PI / 180)
+    const b = spec.open.body
+    const hw = b.width / 2
+    const pz = b.depth / 2 - 0.012
+    const bandHalf = b.depth * Math.sin(alpha)
+    const bandZ = -b.depth * Math.cos(alpha) + pz
+    const r = display.radius
+    const halfScreen = (side: 'left' | 'right') => {
+      const left = side === 'left'
+      const radius: [number, number, number, number] = landscape
+        ? left
+          ? [0, 0, r, r]
+          : [r, r, 0, 0]
+        : left
+          ? [r, 0, 0, r]
+          : [0, r, r, 0]
+      const localX = (left ? 1 : -1) * (hw / 2 - display.width / 4)
+      return (
+        <DeviceScreen
+          width={landscape ? display.height : display.width / 2}
+          height={landscape ? display.width / 2 : display.height}
+          radius={radius}
+          resolution={landscape ? res : res / 2}
+          position={[localX, 0, b.depth / 2 + 0.006]}
+          rotation={landscape ? [0, 0, -Math.PI / 2] : [0, 0, 0]}
+          background={screenBackground}
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              left: !landscape && !left ? '-100%' : 0,
+              top: landscape && !left ? '-100%' : 0,
+              width: landscape ? '100%' : '200%',
+              height: landscape ? '200%' : '100%',
+            }}
+          >
+            {children}
+            {creaseOverlay}
+            {punchHole && punchHoleOverlay}
+          </div>
+        </DeviceScreen>
+      )
+    }
+
+    return (
+      <group {...groupProps}>
+        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+          {/* left (cover-screen) panel folds toward the viewer */}
+          <group position={[0, 0, pz]} rotation-y={alpha}>
+            <group position={[-hw / 2, 0, -pz]}>
+              <mesh ref={bodyRef} geometry={flexGeometries.left}>
+                {chassisMaterial}
+              </mesh>
+              <mesh geometry={flexGeometries.back} rotation-y={Math.PI} position-z={-b.depth / 2 - 0.002}>
+                <meshPhysicalMaterial color={color} metalness={0.3} roughness={0.34} clearcoat={0.8} clearcoatRoughness={0.3} />
+              </mesh>
+              <mesh geometry={flexGeometries.glass} position-z={b.depth / 2 + 0.002}>
+                <meshPhysicalMaterial color="#040507" metalness={0.1} roughness={0.09} clearcoat={1} />
+              </mesh>
+              {/* body-coordinate details, shifted into this half's local frame */}
+              <group position-x={hw / 2}>
+                {coverGlassGeometry && (
+                  <group position={[-0.982, 0, 0]}>
+                    <mesh geometry={coverGlassGeometry} rotation-y={Math.PI} position-z={-b.depth / 2 - 0.003}>
+                      <meshPhysicalMaterial color="#0a0b0f" metalness={0.15} roughness={0.14} clearcoat={1} clearcoatRoughness={0.1} />
+                    </mesh>
+                    <mesh rotation-x={Math.PI / 2} position={[0, 1.961, -b.depth / 2 - 0.005]}>
+                      <cylinderGeometry args={[0.053, 0.053, 0.004, 20]} />
+                      <meshPhysicalMaterial color="#1a2130" metalness={0.4} roughness={0.2} clearcoat={1} />
+                    </mesh>
+                  </group>
+                )}
+                <EdgeSocket
+                  position={[spec.bottomEdge.open.speakers[0]!.x, -b.height / 2, 0]}
+                  width={spec.bottomEdge.open.speakers[0]!.width}
+                  height={spec.bottomEdge.open.speakers[0]!.height}
+                  depth={0.06}
+                />
+                {spec.antennaLines?.map((y, i) => (
+                  <mesh key={i} position={[-(b.width / 2 - 0.005), y, 0]}>
+                    <boxGeometry args={[0.012, 0.026, b.depth * 0.8]} />
+                    <meshStandardMaterial color="#22262c" transparent opacity={0.35} roughness={0.65} />
+                  </mesh>
+                ))}
+              </group>
+              {halfScreen('left')}
+            </group>
+          </group>
+
+          {/* right (camera) panel folds the opposite way */}
+          <group position={[0, 0, pz]} rotation-y={-alpha}>
+            <group position={[hw / 2, 0, -pz]}>
+              <mesh ref={rearRef} geometry={flexGeometries.right}>
+                {chassisMaterial}
+              </mesh>
+              <mesh geometry={flexGeometries.back} rotation-y={Math.PI} position-z={-b.depth / 2 - 0.002}>
+                <meshPhysicalMaterial color={color} metalness={0.3} roughness={0.34} clearcoat={0.8} clearcoatRoughness={0.3} />
+              </mesh>
+              <mesh geometry={flexGeometries.glass} position-z={b.depth / 2 + 0.002}>
+                <meshPhysicalMaterial color="#040507" metalness={0.1} roughness={0.09} clearcoat={1} />
+              </mesh>
+              <group position-x={-hw / 2}>
+                {cameraCluster(-b.depth / 2)}
+                {sideKeys(b.width / 2)}
+                <UsbC
+                  x={spec.bottomEdge.open.usb.x}
+                  y={-b.height / 2}
+                  width={spec.bottomEdge.open.usb.width}
+                  height={spec.bottomEdge.open.usb.height}
+                />
+                {spec.bottomEdge.open.mics?.filter((m) => m.x > 0).map(({ x, r: mr }, i) => (
+                  <EdgeSocket key={i} position={[x, -b.height / 2, 0]} r={mr} depth={0.05} lip={0.008} />
+                ))}
+                {spec.antennaLines?.map((y, i) => (
+                  <mesh key={i} position={[b.width / 2 - 0.005, y, 0]}>
+                    <boxGeometry args={[0.012, 0.026, b.depth * 0.8]} />
+                    <meshStandardMaterial color="#22262c" transparent opacity={0.35} roughness={0.65} />
+                  </mesh>
+                ))}
+              </group>
+              {halfScreen('right')}
+            </group>
+          </group>
+
+          {/* the spine band bisecting the fold */}
+          <group position={[0, 0, pz]}>
+            <mesh rotation-y={Math.PI} position-z={bandZ - pz - 0.003}>
+              <planeGeometry args={[bandHalf * 2 + 0.03, b.height - 0.24]} />
+              <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} side={THREE.DoubleSide} />
+            </mesh>
+            {([1, -1] as const).map((s) => (
+              <RoundedBox
+                key={s}
+                args={[0.022, b.height - 0.24, 0.016]}
+                radius={0.007}
+                position={[s * (bandHalf + 0.005), 0, bandZ - pz + 0.002]}
+                rotation-y={s * -alpha}
+              >
+                <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.26} />
+              </RoundedBox>
+            ))}
+            <mesh
+              geometry={spineLogoGeometry}
+              rotation={[0, Math.PI, Math.PI / 2]}
+              position-z={bandZ - pz - 0.006}
+            >
+              {spineLogoMaterial}
+            </mesh>
+            {/* dark wedges filling the V at the top and bottom edges */}
+            {([1, -1] as const).map((s) => {
+              const wedgeShape = new THREE.Shape()
+              wedgeShape.moveTo(0, 0.01)
+              wedgeShape.lineTo(-(bandHalf + 0.012), -(b.depth * Math.cos(alpha)) + 0.01)
+              wedgeShape.lineTo(bandHalf + 0.012, -(b.depth * Math.cos(alpha)) + 0.01)
+              wedgeShape.closePath()
+              return (
+                <mesh key={s} position={[0, s * (b.height / 2 - 0.02), 0]} rotation-x={-Math.PI / 2}>
+                  <extrudeGeometry args={[wedgeShape, { depth: 0.028, bevelEnabled: false }]} />
+                  <meshPhysicalMaterial color="#1c1e23" metalness={0.5} roughness={0.45} />
+                </mesh>
+              )
+            })}
+          </group>
+        </group>
+      </group>
+    )
+  }
+
+  if (mode === 'open') {
     return (
       <group {...groupProps}>
         <group rotation-z={landscape ? Math.PI / 2 : 0}>
@@ -418,19 +666,22 @@ export function Fold({
             <meshPhysicalMaterial color="#040507" metalness={0.1} roughness={0.09} clearcoat={1} />
           </mesh>
 
-          {/* the recessed hinge spine down the center of the unfolded back,
-              carrying the vertical SAMSUNG emboss */}
-          <mesh rotation-y={Math.PI} position={[0, 0, -body.depth / 2 - 0.0045]}>
-            <planeGeometry args={[spec.hinge.width, body.height - 0.3]} />
-            <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} />
-          </mesh>
-          <mesh
-            geometry={spineLogoGeometry}
-            rotation={[0, Math.PI, Math.PI / 2]}
-            position={[0, 0, -body.depth / 2 - 0.006]}
-          >
-            {spineLogoMaterial}
-          </mesh>
+          {/* hinge crevice: fully open the spine retracts flush — only a thin
+              dark seam separates the two halves (retail photos), so no wide
+              spine band and no wordmark here: a near-black core line with
+              soft shadowed shoulders, top to bottom */}
+          <group position={[0, 0, -body.depth / 2 - 0.0045]} rotation-y={Math.PI}>
+            <mesh>
+              <planeGeometry args={[0.016, body.height]} />
+              <meshStandardMaterial color="#07080b" metalness={0.1} roughness={0.7} />
+            </mesh>
+            {[-1, 1].map((side) => (
+              <mesh key={side} position={[side * 0.013, 0, 0]}>
+                <planeGeometry args={[0.01, body.height]} />
+                <meshStandardMaterial color="#0a0c10" transparent opacity={0.3} roughness={0.7} />
+              </mesh>
+            ))}
+          </group>
 
           {/* the cover display, dark, on the back of the left half */}
           {coverGlassGeometry && (

@@ -9,6 +9,7 @@ type InheritedDeviceProps = Pick<
   | 'variant'
   | 'colorway'
   | 'open'
+  | 'openAngle'
   | 'orientation'
   | 'color'
   | 'frameColor'
@@ -51,6 +52,7 @@ export function FoldMockup({
   variant = 'fold7',
   colorway,
   open = true,
+  openAngle,
   orientation = 'portrait',
   color,
   frameColor,
@@ -70,6 +72,7 @@ export function FoldMockup({
       variant={variant}
       colorway={colorway}
       open={open}
+      openAngle={openAngle}
       orientation={orientation}
       color={color}
       frameColor={frameColor}
@@ -87,8 +90,15 @@ export function FoldMockup({
   )
 
   // Grounded by default: the shadow plane kisses the bottom edge of the body.
-  const state = open ? FOLD_VARIANTS[variant].open : FOLD_VARIANTS[variant].closed
-  const extent = orientation === 'landscape' ? state.body.width : state.body.height
+  const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
+  const state = angle > 3 ? FOLD_VARIANTS[variant].open : FOLD_VARIANTS[variant].closed
+  const foldCos = Math.cos((((180 - angle) / 2) * Math.PI) / 180)
+  const extent =
+    orientation === 'landscape'
+      ? angle > 3 && angle < 177
+        ? state.body.width * foldCos
+        : state.body.width
+      : state.body.height
   const shadowY = canvasProps.shadowY ?? (float ? -(extent / 2 + 0.3) : -(extent / 2 + 0.05))
 
   return (

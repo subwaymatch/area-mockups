@@ -44,8 +44,20 @@ export interface LaptopSpec {
   }
   /** Camera notch: sits at the top-center of the display, menu-bar deep. */
   notch: { width: number; height: number; radius: number }
-  /** Keyboard well (recessed area) and key grid on the deck, hinge side. */
-  keyboard: { width: number; depth: number; offsetZ: number }
+  /**
+   * Keyboard well (recessed area) and key grid on the deck, hinge side.
+   * `legends` picks the printed style: `text` is the US MacBook Pro convention
+   * (esc/tab/caps lock/return/shift/delete as words), `icons` the M5 Air's
+   * glyph convention (⇥ ⇪ ⇧ ⌫ ⏎ symbols on those caps).
+   */
+  keyboard: { width: number; depth: number; offsetZ: number; legends: 'text' | 'icons' }
+  /**
+   * Lift-lid scoop: the crescent recess machined into the front edge at
+   * center. `radius` is the cutting cylinder's radius, `bite` how deep it
+   * penetrates the front face at deck level (the cut fades to nothing
+   * ~sqrt(bite·2·radius) below the deck, per the reference scan).
+   */
+  scoop: { width: number; radius: number; bite: number }
   /** Force Touch trackpad, centered between keyboard and front edge. */
   trackpad: { width: number; depth: number; offsetZ: number }
   /** Default lid angle (degrees between deck and screen; 90 = upright). */
@@ -54,8 +66,20 @@ export interface LaptopSpec {
   ports: { left: LaptopPort[]; right: LaptopPort[] }
   /** Rubber feet under the base: centers (±x, ±z) and radius. */
   feet: { x: number; z: number; radius: number }
-  /** Perforated speaker strips flanking the keyboard (Pro): centers at ±x. */
-  speakers?: { x: number; width: number; depth: number; offsetZ: number }
+  /**
+   * Perforated speaker strips flanking the keyboard (Pro): centers at ±x.
+   * Hole metrics from the reference scan's grille tile: ~1.0 x 0.93 mm grid
+   * of ~0.63 mm drilled holes.
+   */
+  speakers?: {
+    x: number
+    width: number
+    depth: number
+    offsetZ: number
+    holePitchX: number
+    holePitchZ: number
+    holeR: number
+  }
   /** Apple mark on the lid back: width/height and offset from lid center (+ = toward top). */
   logo: { width: number; height: number; offsetY: number }
   /** Embossed wordmark near the front of the underside. */
@@ -73,7 +97,10 @@ const MACBOOK_AIR_13: LaptopSpec = {
   lid: { thickness: 0.05, bevel: 0.008 },
   display: { width: 4.0, height: 2.6, radius: [0.09, 0.09, 0, 0], offsetY: 0.05 },
   notch: { width: 0.48, height: 0.095, radius: 0.045 },
-  keyboard: { width: 3.78, depth: 1.5, offsetZ: -0.6 },
+  // Same word-label legend set as the Pro 14 scan — per the user's direction
+  // the M5 line shares one layout and symbol style across Air and Pro.
+  keyboard: { width: 3.78, depth: 1.5, offsetZ: -0.6, legends: 'text' },
+  scoop: { width: 0.75, radius: 0.059, bite: 0.032 },
   trackpad: { width: 1.78, depth: 1.12, offsetZ: 0.78 },
   openAngle: 110,
   ports: {
@@ -104,7 +131,9 @@ const MACBOOK_PRO_14: LaptopSpec = {
   display: { width: 4.163, height: 2.713, radius: [0.063, 0.063, 0, 0], offsetY: 0.098 },
   notch: { width: 0.508, height: 0.088, radius: 0.018 },
   // Black keyboard well 278.7 x 114.9 mm centered 36.5 mm behind base center.
-  keyboard: { width: 3.85, depth: 1.587, offsetZ: -0.504 },
+  keyboard: { width: 3.85, depth: 1.587, offsetZ: -0.504, legends: 'text' },
+  // Scan-measured: 54.5 mm wide crescent, 2.5 mm bite fading out 3.9 mm down.
+  scoop: { width: 0.753, radius: 0.0593, bite: 0.0345 },
   // 129.7 x 81.6 mm trackpad, centered 64.5 mm ahead of base center.
   trackpad: { width: 1.792, depth: 1.127, offsetZ: 0.89 },
   openAngle: 110,
@@ -122,14 +151,102 @@ const MACBOOK_PRO_14: LaptopSpec = {
     ],
   },
   feet: { x: 1.774, z: 1.146, radius: 0.132 },
-  speakers: { x: 2.037, width: 0.192, depth: 1.47, offsetZ: -0.504 },
+  speakers: {
+    x: 2.037,
+    width: 0.213,
+    depth: 1.47,
+    offsetZ: -0.504,
+    holePitchX: 0.0142,
+    holePitchZ: 0.0129,
+    holeR: 0.00435,
+  },
   logo: { width: 0.521, height: 0.641, offsetY: 0.054 },
   bottomText: { text: 'MacBook Pro', width: 0.793, height: 0.104, offsetZ: 1.42 },
 }
 
-export const LAPTOP_VARIANTS: Record<'air13' | 'pro14', LaptopSpec> = {
+/**
+ * MacBook Air 15" (M5, 2026) — 340.4 x 237.6 x 11.5 mm closed, 15.3"
+ * 2880x1864 Liquid Retina at 224 ppi. Same slab language, keyboard, scoop
+ * and port kit as the 13" in a wider chassis; the four-speaker system vents
+ * through the hinge, so the deck stays clean. Default scaled 1440x932.
+ */
+const MACBOOK_AIR_15: LaptopSpec = {
+  footprint: { width: 4.702, depth: 3.282, radius: 0.16 },
+  base: { thickness: 0.103, bevel: 0.02 },
+  lid: { thickness: 0.05, bevel: 0.008 },
+  // Active area 326.2 x 211.1 mm.
+  display: { width: 4.506, height: 2.916, radius: [0.09, 0.09, 0, 0], offsetY: 0.055 },
+  notch: { width: 0.48, height: 0.095, radius: 0.045 },
+  // Identical Magic Keyboard well, seated the same distance from the hinge.
+  keyboard: { width: 3.78, depth: 1.5, offsetZ: -0.756, legends: 'text' },
+  scoop: { width: 0.75, radius: 0.059, bite: 0.032 },
+  // ~136 x 82.5 mm Force Touch trackpad.
+  trackpad: { width: 1.878, depth: 1.14, offsetZ: 0.8 },
+  openAngle: 110,
+  ports: {
+    // Same kit at the same distances from the back edge as the 13".
+    left: [
+      { z: -1.236, width: 0.15, height: 0.038 },
+      { z: -0.996, width: 0.1, height: 0.03 },
+      { z: -0.816, width: 0.1, height: 0.03 },
+    ],
+    right: [{ z: -0.956, width: 0.048, height: 0.048, shape: 'round' }],
+  },
+  feet: { x: 2.001, z: 1.306, radius: 0.055 },
+  logo: { width: 0.52, height: 0.64, offsetY: 0.05 },
+}
+
+/**
+ * MacBook Pro 16" (M5 Pro / M5 Max, 2026) — 355.7 x 248.1 x 16.8 mm closed,
+ * 16.2" 3456x2234 Liquid Retina XDR at 254 ppi. Same port set and measured
+ * keyboard/scoop/grille details as the 14" in the larger chassis, with wider
+ * speaker strips and a deeper palm rest. Default scaled 1728x1117.
+ */
+const MACBOOK_PRO_16: LaptopSpec = {
+  footprint: { width: 4.913, depth: 3.427, radius: 0.113 },
+  base: { thickness: 0.167, bevel: 0.028 },
+  lid: { thickness: 0.054, bevel: 0.008 },
+  // Active area 345.7 x 223.5 mm.
+  display: { width: 4.775, height: 3.087, radius: [0.063, 0.063, 0, 0], offsetY: 0.105 },
+  notch: { width: 0.508, height: 0.088, radius: 0.018 },
+  keyboard: { width: 3.85, depth: 1.587, offsetZ: -0.69, legends: 'text' },
+  scoop: { width: 0.753, radius: 0.0593, bite: 0.0345 },
+  // ~160 x 99.5 mm trackpad.
+  trackpad: { width: 2.21, depth: 1.374, offsetZ: 0.836 },
+  openAngle: 110,
+  ports: {
+    // Same connectors at the 14"'s distances from the back edge.
+    left: [
+      { z: -1.328, width: 0.243, height: 0.046 }, // MagSafe 3
+      { z: -1.072, width: 0.119, height: 0.039 }, // Thunderbolt
+      { z: -0.867, width: 0.119, height: 0.039 }, // Thunderbolt
+      { z: -0.69, width: 0.055, height: 0.055, shape: 'round' }, // headphone jack
+    ],
+    right: [
+      { z: -1.328, width: 0.202, height: 0.068 }, // HDMI
+      { z: -1.072, width: 0.119, height: 0.039 }, // Thunderbolt
+      { z: -0.734, width: 0.369, height: 0.037 }, // SDXC
+    ],
+  },
+  feet: { x: 2.072, z: 1.332, radius: 0.145 },
+  speakers: {
+    x: 2.09,
+    width: 0.32,
+    depth: 1.47,
+    offsetZ: -0.69,
+    holePitchX: 0.0142,
+    holePitchZ: 0.0129,
+    holeR: 0.00435,
+  },
+  logo: { width: 0.55, height: 0.677, offsetY: 0.054 },
+  bottomText: { text: 'MacBook Pro', width: 0.793, height: 0.104, offsetZ: 1.606 },
+}
+
+export const LAPTOP_VARIANTS: Record<'air13' | 'air15' | 'pro14' | 'pro16', LaptopSpec> = {
   air13: MACBOOK_AIR_13,
+  air15: MACBOOK_AIR_15,
   pro14: MACBOOK_PRO_14,
+  pro16: MACBOOK_PRO_16,
 }
 
 export type LaptopVariant = keyof typeof LAPTOP_VARIANTS

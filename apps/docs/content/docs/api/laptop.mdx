@@ -28,12 +28,12 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `variant` | `'air13' \| 'pro14'` | `'air13'` | MacBook Air 13" or MacBook Pro 14" — true relative sizes, per-model ports, feet, speaker grilles and notch. |
-| `colorway` | `string` | — | A retail colorway id from `LAPTOP_COLORWAYS` (Air: `silver`, `starlight`, `midnight`, `skyblue`; Pro 14: `spaceblack`, `silver`). Presets `color`; an explicit `color` prop overrides it. |
-| `color` | `string` | `'#e3e4e6'` | Aluminum finish. Try Sky Blue `#aec6d9`, Starlight `#e8e0d4`, Midnight `#2e3642`, or Space Black `#4a484b` on the Pro. |
+| `variant` | `'air13' \| 'air15' \| 'pro14' \| 'pro16'` | `'air13'` | MacBook Air 13"/15" or MacBook Pro 14"/16" — true relative sizes, per-model ports, feet, speaker grilles and notch. |
+| `colorway` | `string` | — | A retail colorway id from `LAPTOP_COLORWAYS` (Airs: `silver`, `starlight`, `midnight`, `skyblue`; Pros: `spaceblack`, `silver`). Presets `color`; an explicit `color` prop overrides it. |
+| `color` | `string` | `'#e3e4e6'` | Aluminum finish. Try Sky Blue `#aec6d9`, Starlight `#e8e0d4`, Midnight `#2e3642`, or Space Black `#4a484b` on the Pros. |
 | `notch` | `boolean` | `true` | Camera notch overlay at the top of the display. |
 | `openAngle` | `number` | `110` | Lid angle in degrees between deck and screen (90 is upright). |
-| `resolution` | `number` | per variant | Virtual display width; the Air defaults to 1280 (1280×832) and the Pro 14 to 1512 (1512×982) — exactly the default scaled desktop resolutions, so desktop breakpoints apply. |
+| `resolution` | `number` | per variant | Virtual display width — each variant defaults to its real scaled desktop: 1280×832 (air13), 1440×932 (air15), 1512×982 (pro14), 1728×1117 (pro16) — so desktop breakpoints apply. |
 
 There is no `orientation` prop; laptops only have one pose.
 
@@ -48,6 +48,32 @@ grilles beside the keyboard, and the 1512×982 point grid.
 
 ```tsx
 <LaptopMockup variant="pro14" color="#4a484b">
+  <YourDesktopApp />
+</LaptopMockup>
+```
+
+### MacBook Air 15" in Sky Blue
+
+`variant="air15"`: the 15.3" Air — same thin slab and clean deck as the
+13", scaled to its true 340×238 mm footprint and 1440×932 point grid.
+
+<ObjectDemo demo="laptop-air15" />
+
+```tsx
+<LaptopMockup variant="air15" colorway="skyblue">
+  <YourDesktopApp />
+</LaptopMockup>
+```
+
+### MacBook Pro 16" in Space Black
+
+`variant="pro16"`: the biggest MacBook — wider speaker grilles, larger
+trackpad and the 1728×1117 point grid.
+
+<ObjectDemo demo="laptop-pro16" />
+
+```tsx
+<LaptopMockup variant="pro16" colorway="spaceblack">
   <YourDesktopApp />
 </LaptopMockup>
 ```

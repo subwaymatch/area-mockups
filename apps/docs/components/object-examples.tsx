@@ -197,6 +197,11 @@ const DEMOS: Record<string, React.ReactNode> = {
       <LockScreen />
     </FoldMockup>
   ),
+  'fold-flex': (
+    <FoldMockup openAngle={110} colorway="blueshadow" deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <DesktopScreen />
+    </FoldMockup>
+  ),
 
   // ---- Flip (Galaxy Z Flip 7) -----------------------------------------------
   'flip-open': (
@@ -207,6 +212,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   'flip-closed': (
     <FlipMockup open={false} autoRotate float color="#e5502e" frameColor="#f06a45" screenBackground="#000">
       <LockScreen />
+    </FlipMockup>
+  ),
+  'flip-flex': (
+    <FlipMockup openAngle={100} colorway="blueshadow" camera={{ position: [0, 1.6, 7.2], fov: 40 }} deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <MusicPlayer />
     </FlipMockup>
   ),
 
@@ -258,6 +268,16 @@ const DEMOS: Record<string, React.ReactNode> = {
       <DesktopScreen />
     </LaptopMockup>
   ),
+  'laptop-air15': (
+    <LaptopMockup variant="air15" colorway="skyblue" deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
+  'laptop-pro16': (
+    <LaptopMockup variant="pro16" colorway="spaceblack" deviceProps={{ rotation: [0, -0.35, 0] }}>
+      <DesktopScreen />
+    </LaptopMockup>
+  ),
 
   // ---- Tablet -------------------------------------------------------------------
   'tablet-landscape': (
@@ -266,17 +286,27 @@ const DEMOS: Record<string, React.ReactNode> = {
     </TabletMockup>
   ),
   'tablet-ipadpro11': (
-    <TabletMockup variant="ipadpro11" color="#e3e4e6" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="ipadpro11" colorway="silver" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ipadair13': (
+    <TabletMockup variant="ipadair13" colorway="starlight" deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <DesktopScreen />
+    </TabletMockup>
+  ),
+  'tablet-ipad11': (
+    <TabletMockup variant="ipad11" colorway="blue" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-tabs11': (
-    <TabletMockup variant="tabs11" color="#4b4f56" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="tabs11" colorway="gray" deviceProps={{ rotation: [0, -0.3, 0] }}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-ultra': (
-    <TabletMockup variant="tabs11ultra" color="#2e3136" float deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <TabletMockup variant="tabs11ultra" colorway="gray" float deviceProps={{ rotation: [0, 0.3, 0] }}>
       <MusicPlayer />
     </TabletMockup>
   ),

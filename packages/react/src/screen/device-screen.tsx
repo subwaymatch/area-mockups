@@ -125,6 +125,12 @@ export function DeviceScreen({
         distanceFactor={screenDistanceFactor(width, resolution)}
         zIndexRange={[10, 0]}
         wrapperClass={screenLayerClass(dragToRotate)}
+        // Keep drei's inner transform div from hit-testing: pointer handling
+        // lives on the content div alone (visible + interactive → auto,
+        // hidden → none). Otherwise the invisible bridge div spanning the
+        // screen rect eats drags over the device's BACK, so drag-to-rotate
+        // dies exactly where the body should be grabbable.
+        pointerEvents="none"
       >
         <style>{SCREEN_LAYER_CSS}</style>
         <div
