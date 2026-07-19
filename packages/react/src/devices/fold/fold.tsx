@@ -672,13 +672,13 @@ export function Fold({
               soft shadowed shoulders, top to bottom */}
           <group position={[0, 0, -body.depth / 2 - 0.0045]} rotation-y={Math.PI}>
             <mesh>
-              <planeGeometry args={[0.03, body.height - 0.16]} />
+              <planeGeometry args={[0.016, body.height]} />
               <meshStandardMaterial color="#07080b" metalness={0.1} roughness={0.7} />
             </mesh>
             {[-1, 1].map((side) => (
-              <mesh key={side} position={[side * 0.026, 0, 0]}>
-                <planeGeometry args={[0.022, body.height - 0.16]} />
-                <meshStandardMaterial color="#0a0c10" transparent opacity={0.35} roughness={0.7} />
+              <mesh key={side} position={[side * 0.013, 0, 0]}>
+                <planeGeometry args={[0.01, body.height]} />
+                <meshStandardMaterial color="#0a0c10" transparent opacity={0.3} roughness={0.7} />
               </mesh>
             ))}
           </group>

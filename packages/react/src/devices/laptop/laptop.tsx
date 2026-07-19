@@ -255,8 +255,9 @@ function drawKeyIcon(ctx: CanvasRenderingContext2D, icon: KeyIcon, x: number, y:
     if (close) ctx.closePath()
     fill ? ctx.fill() : ctx.stroke()
   }
+  // Apple's F10-F12 speaker glyph is a stroked outline, not a filled solid.
   const speaker = (cx: number) => {
-    poly([[cx - 0.3 * s, -0.12 * s], [cx - 0.14 * s, -0.12 * s], [cx + 0.02 * s, -0.3 * s], [cx + 0.02 * s, 0.3 * s], [cx - 0.14 * s, 0.12 * s], [cx - 0.3 * s, 0.12 * s]], true)
+    poly([[cx - 0.3 * s, -0.11 * s], [cx - 0.15 * s, -0.11 * s], [cx + 0.02 * s, -0.28 * s], [cx + 0.02 * s, 0.28 * s], [cx - 0.15 * s, 0.11 * s], [cx - 0.3 * s, 0.11 * s]])
   }
   const rays = (r0: number, r1: number, n: number) => {
     for (let i = 0; i < n; i++) {
@@ -300,43 +301,45 @@ function drawKeyIcon(ctx: CanvasRenderingContext2D, icon: KeyIcon, x: number, y:
       line(0, 0.22 * s, 0, 0.4 * s)
       break
     }
-    case 'moon':
+    case 'moon': {
+      // crescent ☾: full outer arc, inner arc carved back with an offset center
       ctx.beginPath()
-      ctx.arc(0.02 * s, 0, 0.34 * s, -0.4 * Math.PI, 0.6 * Math.PI)
-      ctx.arc(0.14 * s, -0.1 * s, 0.26 * s, 0.55 * Math.PI, -0.45 * Math.PI, true)
+      ctx.arc(-0.02 * s, 0, 0.32 * s, -0.3 * Math.PI, 0.7 * Math.PI)
+      ctx.arc(0.12 * s, -0.12 * s, 0.22 * s, 0.62 * Math.PI, -0.22 * Math.PI, true)
       ctx.closePath()
       ctx.stroke()
       break
+    }
+    // F7-F9 transport glyphs are hollow outlined triangles on the real caps
     case 'rew':
-      poly([[0.02 * s, -0.24 * s], [-0.32 * s, 0], [0.02 * s, 0.24 * s]], true)
-      poly([[0.38 * s, -0.24 * s], [0.04 * s, 0], [0.38 * s, 0.24 * s]], true)
+      poly([[0.02 * s, -0.22 * s], [-0.32 * s, 0], [0.02 * s, 0.22 * s]])
+      poly([[0.38 * s, -0.22 * s], [0.04 * s, 0], [0.38 * s, 0.22 * s]])
       break
     case 'play':
-      poly([[-0.36 * s, -0.24 * s], [-0.04 * s, 0], [-0.36 * s, 0.24 * s]], true)
-      ctx.fillRect(0.08 * s, -0.24 * s, lw * 1.1, 0.48 * s)
-      ctx.fillRect(0.24 * s, -0.24 * s, lw * 1.1, 0.48 * s)
+      poly([[-0.36 * s, -0.22 * s], [-0.05 * s, 0], [-0.36 * s, 0.22 * s]])
+      line(0.12 * s, -0.22 * s, 0.12 * s, 0.22 * s)
+      line(0.28 * s, -0.22 * s, 0.28 * s, 0.22 * s)
       break
     case 'fwd':
-      poly([[-0.38 * s, -0.24 * s], [-0.04 * s, 0], [-0.38 * s, 0.24 * s]], true)
-      poly([[-0.02 * s, -0.24 * s], [0.32 * s, 0], [-0.02 * s, 0.24 * s]], true)
+      poly([[-0.38 * s, -0.22 * s], [-0.04 * s, 0], [-0.38 * s, 0.22 * s]])
+      poly([[-0.02 * s, -0.22 * s], [0.32 * s, 0], [-0.02 * s, 0.22 * s]])
       break
     case 'mute':
-      speaker(0)
-      line(0.14 * s, -0.14 * s, 0.38 * s, 0.1 * s)
-      line(0.38 * s, -0.14 * s, 0.14 * s, 0.1 * s)
+      // F10 is the bare speaker — no waves, no cross
+      speaker(0.12 * s)
       break
     case 'voldn': {
-      speaker(-0.06 * s)
+      speaker(-0.04 * s)
       ctx.beginPath()
-      ctx.arc(0.02 * s, 0, 0.24 * s, -0.35 * Math.PI, 0.35 * Math.PI)
+      ctx.arc(0.04 * s, 0, 0.2 * s, -0.3 * Math.PI, 0.3 * Math.PI)
       ctx.stroke()
       break
     }
     case 'volup': {
-      speaker(-0.1 * s)
-      for (const r of [0.18, 0.3, 0.42]) {
+      speaker(-0.14 * s)
+      for (const r of [0.16, 0.28, 0.4]) {
         ctx.beginPath()
-        ctx.arc(-0.02 * s, 0, r * s, -0.32 * Math.PI, 0.32 * Math.PI)
+        ctx.arc(-0.06 * s, 0, r * s, -0.3 * Math.PI, 0.3 * Math.PI)
         ctx.stroke()
       }
       break

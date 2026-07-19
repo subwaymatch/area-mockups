@@ -221,6 +221,30 @@ export function Flip({
     [spec.coverGlass]
   )
 
+  // Open-pose back frame: the metal lip surrounding both glass panels, at the
+  // SAME height as the panes. Without it the panes float proud of the chassis
+  // back face, and past ~12° of tilt they project beyond the rounded-corner
+  // silhouette (the dark panel visibly "grows outside" the body). With the
+  // frame on the panes' own plane, the border occludes them at every angle —
+  // exactly how the real glass sits in its surrounding lip.
+  const backFrameGeometry = React.useMemo(() => {
+    const outer = roundedRectShape(
+      spec.open.body.width - 0.006,
+      spec.open.body.height - 0.006,
+      spec.open.body.radius - 0.003
+    )
+    const offsetY = spec.open.body.height / 2 - spec.closed.body.height / 2
+    for (const cy of [offsetY, -offsetY]) {
+      const pts = roundedRectShape(
+        spec.coverGlass.width,
+        spec.coverGlass.height,
+        spec.coverGlass.radius
+      ).getPoints(24)
+      outer.holes.push(new THREE.Path(pts.map((p) => new THREE.Vector2(p.x, p.y + cy))))
+    }
+    return new THREE.ShapeGeometry(outer, 24)
+  }, [spec.open.body, spec.closed.body, spec.coverGlass])
+
   const hingeLogoGeometry = React.useMemo(
     () => createLogoGeometry('samsung', spec.hinge.emboss.length, spec.hinge.emboss.length * 0.155),
     [spec.hinge.emboss.length]
@@ -622,6 +646,12 @@ export function Flip({
             {cameraCluster(-1, -openBody.depth / 2 - 0.002)}
             {rails}
           </group>
+
+          {/* the frame lip around both panes, on their plane — keeps the dark
+              panels inside the silhouette at every viewing angle */}
+          <mesh geometry={backFrameGeometry} rotation-y={Math.PI} position-z={-openBody.depth / 2 - 0.0022}>
+            <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.32} />
+          </mesh>
 
           {/* faint hinge seam across the middle of the frame rails */}
           {[-1, 1].map((side) => (

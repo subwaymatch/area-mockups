@@ -67,3 +67,22 @@ Render: [images/fold7-camera-housing.png](images/fold7-camera-housing.png).
   keyboard and bottom-row sheets rendered at matched angles to the scan.
 - Fold/Flip open-state backs and camera close-ups rendered on light and
   dark colorways (the crevice reads on both).
+
+## G-wave addendum
+
+- **G1** — the Fold 7's open-state crevice is now a hairline (0.6 mm core)
+  and runs the full body height, edge to edge:
+  [images/fold7-crevice-full-height.png](images/fold7-crevice-full-height.png).
+- **G2** — function-row icons redrawn to Apple's glyph style per the
+  provided F-row reference: outlined (hollow) transport triangles on
+  F7–F9, a bare outlined speaker on F10 (no cross), speaker + one arc on
+  F11, + three arcs on F12, and a fuller crescent on F6:
+  [images/macbook-frow-icons.png](images/macbook-frow-icons.png).
+- **G3** — at 180° the Flip 7's dark cover pane could project past the
+  body's rounded-corner silhouette once the device tilted ~12°+, because
+  the pane floated proud of the chassis back face. The open pose now
+  renders the metal frame lip around both glass panels ON the panes' own
+  plane (a rounded-rect ring with two pane-shaped holes), so the border
+  occludes the panes at every angle — the real device's glass-in-lip
+  construction. Verified at ±16° tilts on light colorways:
+  [images/flip7-contained-panes.png](images/flip7-contained-panes.png).
