@@ -33,7 +33,6 @@ import {
   CustomBoxMockup,
   CustomPanelMockup,
   MailerBoxMockup,
-  PizzaBoxMockup,
   SemiTrailerMockup,
   ShoppingBagMockup,
   StorefrontMockup,
@@ -48,10 +47,6 @@ import {
   BannerArt,
   BoxLidArt,
   BoxPanelArt,
-  PizzaBevelArt,
-  PizzaFrontArt,
-  PizzaInsideArt,
-  PizzaLidArt,
   StorePosterArt,
   StoreSignArt,
   TrailerWrapArt,
@@ -759,20 +754,6 @@ export default function DemoScenes() {
         <ShoppingBagMockup back={<BagArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
           <BagArt />
         </ShoppingBagMockup>
-      </DemoCard>
-
-      <DemoCard
-        title="Pizza box"
-        description={
-          <>
-            <code>&lt;PizzaBoxMockup&gt;</code> with <code>open</code>: lid top, front flap
-            and inside-lid coupon are all live — and the pizza is procedural geometry.
-          </>
-        }
-      >
-        <PizzaBoxMockup open bevel={<PizzaBevelArt />} front={<PizzaFrontArt />} insideLid={<PizzaInsideArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
-          <PizzaLidArt />
-        </PizzaBoxMockup>
       </DemoCard>
 
       <DemoCard

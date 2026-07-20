@@ -2,7 +2,7 @@ import * as React from 'react'
 import type * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { MAILER_BOX } from '@area-mockups/core'
+import { MAILER_BOX, mailerBoxLayout, type MailerBoxSizeMm } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
 
@@ -15,6 +15,13 @@ export interface MailerBoxProps extends Omit<GroupProps, 'children' | 'color'> {
   front?: React.ReactNode
   /** End panel design (the right short face). */
   side?: React.ReactNode
+  /**
+   * Shipper size in real millimeters: `{ width, height, depth }`. The longest
+   * edge normalizes to the stage, so any size fills the default camera while
+   * the mm dimensions set the true proportions. Defaults to the 350×120×250 mm
+   * e-commerce shipper.
+   */
+  size?: MailerBoxSizeMm
   /** Corrugated stock color. Kraft by default; try white or a brand dip. */
   color?: string
   /** Packing tape color. */
@@ -50,6 +57,7 @@ export function MailerBox({
   children,
   front,
   side,
+  size,
   color = '#b5915f',
   tapeColor = 'rgba(168, 127, 79, 0.82)',
   faceBackground = '#ffffff',
@@ -60,10 +68,19 @@ export function MailerBox({
   screenStyle,
   ...groupProps
 }: MailerBoxProps) {
-  const { body, tape } = MAILER_BOX
+  const { body, tape } = React.useMemo(
+    () => mailerBoxLayout(size),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [size?.width, size?.height, size?.depth]
+  )
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
   const pxPerUnit = resolution / body.width
+
+  // fixed dressing scaled down for small shippers
+  const endWrap = Math.min(0.77, body.height * 0.5)
+  const jointWidth = Math.min(0.46, body.depth * 0.3)
+  const labelScale = Math.min(1, (body.width / MAILER_BOX.body.width) * 0.9 + 0.1, (body.depth / MAILER_BOX.body.depth) * 0.9 + 0.1)
 
   // DOM tape overlay: a translucent band with edge shadows, so it reads as
   // tape laid OVER the printed face.
@@ -135,15 +152,15 @@ export function MailerBox({
         <meshPhysicalMaterial color="#a87f4f" metalness={0} roughness={0.45} clearcoat={0.6} transparent opacity={0.88} />
       </mesh>
       {([1, -1] as const).map((s) => (
-        <mesh key={s} position={[s * (body.width / 2 + 0.002), body.height / 2 - 0.385, 0]} rotation-y={s * (Math.PI / 2)}>
-          <planeGeometry args={[tape.width, 0.77]} />
+        <mesh key={s} position={[s * (body.width / 2 + 0.002), body.height / 2 - endWrap / 2, 0]} rotation-y={s * (Math.PI / 2)}>
+          <planeGeometry args={[tape.width, endWrap]} />
           <meshPhysicalMaterial color="#a87f4f" metalness={0} roughness={0.45} clearcoat={0.6} transparent opacity={0.94} />
         </mesh>
       ))}
 
       {/* manufacturer's joint: the vertical glued lap seam on one corner */}
-      <mesh position={[-body.width / 2 - 0.002, 0, body.depth / 2 - 0.26]} rotation-y={-Math.PI / 2}>
-        <planeGeometry args={[0.46, body.height - 0.04]} />
+      <mesh position={[-body.width / 2 - 0.002, 0, body.depth / 2 - jointWidth / 2 - 0.03]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[jointWidth, body.height - 0.04]} />
         <meshPhysicalMaterial color="#a8845a" metalness={0} roughness={0.85} />
       </mesh>
 
@@ -159,8 +176,8 @@ export function MailerBox({
               <meshPhysicalMaterial color={color} metalness={0} roughness={0.82} />
             </mesh>
           ))}
-          <mesh position={[0.9, 0.008, 0.7]} rotation={[-Math.PI / 2, 0, 0.06]}>
-            <planeGeometry args={[1.3, 1.95]} />
+          <mesh position={[0.9 * labelScale, 0.008, 0.7 * labelScale]} rotation={[-Math.PI / 2, 0, 0.06]}>
+            <planeGeometry args={[1.3 * labelScale, 1.95 * labelScale]} />
             <meshPhysicalMaterial color="#f4f5f2" metalness={0} roughness={0.6} />
           </mesh>
         </group>

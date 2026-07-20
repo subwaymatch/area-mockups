@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { ProductBox, type ProductBoxProps } from './objects/product-box/product-box'
-import { PRODUCT_BOX } from '@area-mockups/core'
+import { productBoxLayout } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
@@ -9,6 +9,7 @@ type InheritedObjectProps = Pick<
   | 'side'
   | 'top'
   | 'back'
+  | 'size'
   | 'color'
   | 'faceBackground'
   | 'resolution'
@@ -44,6 +45,7 @@ export function ProductBoxMockup({
   side,
   top,
   back,
+  size,
   color,
   faceBackground,
   resolution,
@@ -60,6 +62,7 @@ export function ProductBoxMockup({
       side={side}
       top={top}
       back={back}
+      size={size}
       color={color}
       faceBackground={faceBackground}
       resolution={resolution}
@@ -73,7 +76,7 @@ export function ProductBoxMockup({
     </ProductBox>
   )
 
-  const half = PRODUCT_BOX.body.height / 2
+  const half = productBoxLayout(size).body.height / 2
   const shadowY = canvasProps.shadowY ?? (float ? -(half + 0.3) : -(half + 0.02))
 
   return (

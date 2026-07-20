@@ -5,10 +5,12 @@ description: A kraft carrier bag with live front and back faces.
 
 `<ShoppingBag>` and `<ShoppingBagMockup>` render a standing retail carrier
 (320×420×140 mm), hollow like the real thing: four walls and a floor around
-an open rectangular mouth, side gussets creasing inward down their
-centerline, and twisted-rope handles arcing over the rim to glued
+an open rectangular mouth, side gussets creasing inward at the mouth and
+folding flat toward the square block bottom (with the envelope fold visible
+on the underside), and twisted-rope handles arcing over the rim to glued
 reinforcement patches inside. The front and back faces are live, full bleed
-to the top edge.
+to the top edge. Pass `size` (in millimeters) for a carrier of any other
+dimensions.
 
 <ObjectDemo demo="bag-basic" checker />
 
@@ -25,6 +27,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `back` | `ReactNode` | - | Back face design. |
+| `size` | `{ width, height, depth }` | `320×420×140` | Real size in **millimeters**. The longest edge normalizes to the stage, so any size fills the camera at true proportions. |
 | `color` | `string` | `'#c19a6b'` | Bag stock. Kraft by default; try gloss white or a brand dip. |
 | `handleColor` | `string` | `'#7d6142'` | Rope handle color. |
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed face. |

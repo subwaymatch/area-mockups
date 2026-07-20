@@ -35,7 +35,6 @@ product dimensions — no GLB files, no hosting, no pop-in.
 | Semi trailer | `SemiTrailer` | 16.2×2.6×2.9 m 53 ft dry van | wraps both sides + rear doors | 1100×189 side |
 | Mailer box | `MailerBox` | 350×120×250 mm shipper | top + front + end panels | 520×371 top |
 | Shopping bag | `ShoppingBag` | 320×420×140 mm carrier | front + back below the cuff | 460×526 each |
-| Pizza box | `PizzaBox` | 356×356×45 mm 14" carryout | lid top + bevel band + front wall + inside lid | 560×528 top |
 | Custom panel | `CustomPanel` | any size (mm) | front + back | 560 wide |
 | Custom box | `CustomBox` | any size (mm) | all six faces | 560 wide front |
 
@@ -80,8 +79,6 @@ Several objects host more than one surface:
   tape overlaid on your print.
 - **`Storefront`** pairs the fascia sign (`children`) with a `windowPoster`
   in the display glazing.
-- **`PizzaBox`** prints the lid top, the 45° beveled band, the front wall,
-  and — when `open` — the inside of the lid.
 - **`CustomBox`** prints all six faces of any-size rectangular boxes at one
   shared dpi.
 
@@ -91,6 +88,11 @@ Several objects host more than one surface:
 rectangle or box your project needs. The longest edge auto-normalizes to
 the stage, so every size fills the default camera while keeping true
 proportions. See their API pages for examples.
+
+`ProductBox`, `MailerBox` and `ShoppingBag` accept the same optional
+`size` prop (`{ width, height, depth }` in millimeters), so a 300×300×300
+mm cube shipper or a slim 100×420×80 mm bottle bag keeps its dressing —
+tuck flap, tape band, rope handles — in proportion.
 
 ## Ground planes
 

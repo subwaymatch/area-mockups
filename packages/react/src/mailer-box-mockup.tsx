@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { MailerBox, type MailerBoxProps } from './objects/mailer-box/mailer-box'
-import { MAILER_BOX } from '@area-mockups/core'
+import { mailerBoxLayout } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   MailerBoxProps,
   | 'front'
   | 'side'
+  | 'size'
   | 'color'
   | 'tapeColor'
   | 'faceBackground'
@@ -43,6 +44,7 @@ export function MailerBoxMockup({
   children,
   front,
   side,
+  size,
   color,
   tapeColor,
   faceBackground,
@@ -59,6 +61,7 @@ export function MailerBoxMockup({
     <MailerBox
       front={front}
       side={side}
+      size={size}
       color={color}
       tapeColor={tapeColor}
       faceBackground={faceBackground}
@@ -74,7 +77,7 @@ export function MailerBoxMockup({
   )
 
   // The box sits on the table; ground the shadow just under it.
-  const groundY = -MAILER_BOX.body.height / 2
+  const groundY = -mailerBoxLayout(size).body.height / 2
   const shadowY = canvasProps.shadowY ?? (float ? groundY - 0.3 : groundY - 0.02)
 
   return (

@@ -26,7 +26,6 @@ import {
   MonitorMockup,
   Phone,
   PhoneMockup,
-  PizzaBoxMockup,
   PosterFrame,
   PosterFrameMockup,
   ProductBoxMockup,
@@ -69,10 +68,6 @@ import {
   GreetingCoverArt,
   GreetingInsideArt,
   MagazineCoverArt,
-  PizzaBevelArt,
-  PizzaFrontArt,
-  PizzaInsideArt,
-  PizzaLidArt,
   PosterArt,
   StorePosterArt,
   StoreSignArt,
@@ -719,24 +714,6 @@ const DEMOS: Record<string, React.ReactNode> = {
     >
       <BoxPanelArt />
     </CustomBoxMockup>
-  ),
-
-  // ---- Pizza box ---------------------------------------------------------------------
-  'pizza-basic': (
-    <PizzaBoxMockup bevel={<PizzaBevelArt />} front={<PizzaFrontArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
-      <PizzaLidArt />
-    </PizzaBoxMockup>
-  ),
-  'pizza-open': (
-    <PizzaBoxMockup
-      open
-      bevel={<PizzaBevelArt />}
-      front={<PizzaFrontArt />}
-      insideLid={<PizzaInsideArt />}
-      deviceProps={{ rotation: [0, -0.25, 0] }}
-    >
-      <PizzaLidArt />
-    </PizzaBoxMockup>
   ),
 
   // ---- Watch ------------------------------------------------------------------
