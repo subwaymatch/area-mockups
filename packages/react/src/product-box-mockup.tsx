@@ -7,7 +7,9 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   ProductBoxProps,
   | 'side'
+  | 'left'
   | 'top'
+  | 'bottom'
   | 'back'
   | 'size'
   | 'color'
@@ -43,7 +45,9 @@ export interface ProductBoxMockupProps
 export function ProductBoxMockup({
   children,
   side,
+  left,
   top,
+  bottom,
   back,
   size,
   color,
@@ -60,7 +64,9 @@ export function ProductBoxMockup({
   const object = (
     <ProductBox
       side={side}
+      left={left}
       top={top}
+      bottom={bottom}
       back={back}
       size={size}
       color={color}

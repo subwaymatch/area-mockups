@@ -13,8 +13,12 @@ export interface ProductBoxProps extends Omit<GroupProps, 'children' | 'color'> 
   children?: React.ReactNode
   /** Right side panel design (the one visible in a standard 3/4 pose). */
   side?: React.ReactNode
+  /** Left side panel design. */
+  left?: React.ReactNode
   /** Top panel design. */
   top?: React.ReactNode
+  /** Bottom panel design — oriented to read from the front when tipped over. */
+  bottom?: React.ReactNode
   /** Back panel design. */
   back?: React.ReactNode
   /**
@@ -46,16 +50,19 @@ export interface ProductBoxProps extends Omit<GroupProps, 'children' | 'color'> 
 
 /**
  * A procedurally built standing product carton: crisp fold edges, matte
- * coated stock, and up to four live DOM panels — front, right side, top and
- * back — so a standard 3/4 hero pose shows three printed faces at once.
- * No 3D asset files are loaded.
+ * coated stock, and all six panels live DOM — front, back, both sides, top
+ * and bottom — so a standard 3/4 hero pose shows three printed faces at
+ * once and every other pose stays printed too. No 3D asset files are
+ * loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function ProductBox({
   children,
   side,
+  left,
   top,
+  bottom,
   back,
   size,
   color = '#f4f1ea',
@@ -142,6 +149,20 @@ export function ProductBox({
         </DeviceScreen>
       )}
 
+      {/* left side panel */}
+      {left != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.depth}
+          height={body.height}
+          resolution={Math.round(body.depth * pxPerUnit)}
+          position={[-body.width / 2 - 0.003, 0, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+        >
+          {left}
+        </DeviceScreen>
+      )}
+
       {/* top panel — oriented so its content reads from the front */}
       {top != null && (
         <DeviceScreen
@@ -153,6 +174,20 @@ export function ProductBox({
           rotation={[-Math.PI / 2, 0, 0]}
         >
           {top}
+        </DeviceScreen>
+      )}
+
+      {/* bottom panel */}
+      {bottom != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.width}
+          height={body.depth}
+          resolution={resolution}
+          position={[0, -body.height / 2 - 0.003, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          {bottom}
         </DeviceScreen>
       )}
 

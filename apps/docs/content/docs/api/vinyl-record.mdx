@@ -24,13 +24,27 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `back` | `ReactNode` | - | Back cover design. |
-| `label` | `ReactNode` | - | Center label — a live circle, like the round watch face. |
+| `label` | `ReactNode` | - | Side-A center label — a live circle, like the round watch face. |
+| `backLabel` | `ReactNode` | - | Side-B center label on the disc's other face. |
 | `vinylColor` | `string` | `'#0b0b0d'` | Disc color. Classic black; try pressing colors. |
 | `color` | `string` | `'#f2efe8'` | Jacket stock (edges and unprinted faces). |
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind cover, back and label. |
 | `resolution` | `number` | `520` | Virtual cover width in CSS px; the label shares its dpi. |
 
 ## More examples
+
+### Back cover and side B
+
+`back` prints the tracklist side of the jacket and `backLabel` the disc's
+side-B label, so the record reads right from behind too.
+
+<ObjectDemo demo="vinyl-full" />
+
+```tsx
+<VinylRecordMockup autoRotate back={<Tracklist />} label={<SideA />} backLabel={<SideB />}>
+  <CoverArt />
+</VinylRecordMockup>
+```
 
 ### A colored pressing
 

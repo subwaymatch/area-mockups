@@ -7,7 +7,10 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   MailerBoxProps,
   | 'front'
+  | 'back'
   | 'side'
+  | 'left'
+  | 'bottom'
   | 'size'
   | 'color'
   | 'tapeColor'
@@ -43,7 +46,10 @@ export interface MailerBoxMockupProps
 export function MailerBoxMockup({
   children,
   front,
+  back,
   side,
+  left,
+  bottom,
   size,
   color,
   tapeColor,
@@ -60,7 +66,10 @@ export function MailerBoxMockup({
   const object = (
     <MailerBox
       front={front}
+      back={back}
       side={side}
+      left={left}
+      bottom={bottom}
       size={size}
       color={color}
       tapeColor={tapeColor}

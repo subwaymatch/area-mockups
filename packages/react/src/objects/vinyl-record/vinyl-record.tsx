@@ -13,8 +13,10 @@ export interface VinylRecordProps extends Omit<GroupProps, 'children' | 'color'>
   children?: React.ReactNode
   /** Back cover design. */
   back?: React.ReactNode
-  /** Center label design — a live circular area on the disc. */
+  /** Center label design — a live circular area on the disc (side A). */
   label?: React.ReactNode
+  /** Side B center label — the live circular area on the disc's other face. */
+  backLabel?: React.ReactNode
   /** Vinyl color. Classic black by default; try translucent-look colors. */
   vinylColor?: string
   /** Jacket stock color (edges and unprinted faces). */
@@ -51,6 +53,7 @@ export function VinylRecord({
   children,
   back,
   label,
+  backLabel,
   vinylColor = '#0b0b0d',
   color = '#f2efe8',
   faceBackground = '#ffffff',
@@ -136,6 +139,24 @@ export function VinylRecord({
   }
 
   const stock = { color, metalness: 0, roughness: 0.75 }
+
+  const spindleOverlay = (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: `${((disc.spindleRadius * 2) / (disc.labelRadius * 2)) * 100}%`,
+        aspectRatio: '1',
+        borderRadius: '50%',
+        background: '#050506',
+        pointerEvents: 'none',
+        zIndex: 2147483647,
+      }}
+    />
+  )
 
   // Both playing faces carry the same pressing details, mirrored.
   const discFace = (s: 1 | -1) => (
@@ -239,25 +260,25 @@ export function VinylRecord({
               radius={disc.labelRadius}
               resolution={Math.round(labelPxPerUnit * disc.labelRadius * 2)}
               position={[0, 0, disc.thickness / 2 + 0.003]}
-              overlay={
-                <div
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: `${((disc.spindleRadius * 2) / (disc.labelRadius * 2)) * 100}%`,
-                    aspectRatio: '1',
-                    borderRadius: '50%',
-                    background: '#050506',
-                    pointerEvents: 'none',
-                    zIndex: 2147483647,
-                  }}
-                />
-              }
+              overlay={spindleOverlay}
             >
               {label}
+            </DeviceScreen>
+          )}
+
+          {/* live side-B label */}
+          {backLabel != null && (
+            <DeviceScreen
+              {...faceProps}
+              width={disc.labelRadius * 2}
+              height={disc.labelRadius * 2}
+              radius={disc.labelRadius}
+              resolution={Math.round(labelPxPerUnit * disc.labelRadius * 2)}
+              position={[0, 0, -disc.thickness / 2 - 0.003]}
+              rotation={[0, Math.PI, 0]}
+              overlay={spindleOverlay}
+            >
+              {backLabel}
             </DeviceScreen>
           )}
 

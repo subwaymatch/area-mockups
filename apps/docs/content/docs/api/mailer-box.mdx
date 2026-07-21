@@ -1,15 +1,15 @@
 ---
 title: Mailer box
-description: A corrugated shipper with printed panels under real packing tape.
+description: A corrugated shipper with every panel printable under real packing tape.
 ---
 
 `<MailerBox>` and `<MailerBoxMockup>` render a closed corrugated shipping
 box (350×120×250 mm): kraft stock, the flaps hinged on the long walls
 meeting along the width, a visible flap gap under the translucent
 packing-tape band that wraps over the top and down both short ends, and the
-manufacturer's glued lap seam on one corner. The top, front and end panels
-are live — and the tape rides *over* your print via a DOM overlay, exactly
-like tape over a printed box. Pass `size` (in millimeters) for a shipper of
+manufacturer's glued lap seam on one corner. Every panel is live — top,
+front, back, both ends and the bottom — and the tape rides *over* your
+print via a DOM overlay, exactly like tape over a printed box. Pass `size` (in millimeters) for a shipper of
 any other dimensions.
 
 <ObjectDemo demo="mailer-basic" checker />
@@ -27,7 +27,10 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `front` | `ReactNode` | - | Front (long) panel design. |
-| `side` | `ReactNode` | - | End panel design (the right short face). |
+| `back` | `ReactNode` | - | Back (long) panel design. |
+| `side` | `ReactNode` | - | Right end panel. The wrapped tape rides over it. |
+| `left` | `ReactNode` | - | Left end panel. The wrapped tape rides over it. |
+| `bottom` | `ReactNode` | - | Bottom panel, reading from the front when flipped. |
 | `size` | `{ width, height, depth }` | `350×120×250` | Real size in **millimeters**. The longest edge normalizes to the stage, so any size fills the camera at true proportions. |
 | `color` | `string` | `'#b5915f'` | Corrugated stock. Kraft by default; try white or a brand dip. |
 | `tapeColor` | `string` | `'rgba(168, 127, 79, 0.82)'` | Packing tape color. |
@@ -35,6 +38,26 @@ Beyond the [shared screen props](/docs/screen-content):
 | `resolution` | `number` | `520` | Virtual top panel width in CSS px; other panels share its dpi. |
 
 ## More examples
+
+### Every panel printed
+
+Handling marks on both ends, the recycled stamp underneath, brand panels
+front and back — the box reads as a designed shipper from any angle.
+
+<ObjectDemo demo="mailer-full" />
+
+```tsx
+<MailerBoxMockup
+  autoRotate
+  front={<BrandPanel />}
+  back={<BrandPanel />}
+  side={<HandlingMarks />}
+  left={<HandlingMarks />}
+  bottom={<RecycledStamp />}
+>
+  <YourTopPanel />
+</MailerBoxMockup>
+```
 
 ### Unprinted white shipper
 

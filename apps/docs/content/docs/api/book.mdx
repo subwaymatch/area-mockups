@@ -1,12 +1,13 @@
 ---
 title: Book (hardcover)
-description: A trade hardcover with a live full-bleed front cover.
+description: A trade hardcover with live front cover, back cover and spine.
 ---
 
 `<Book>` and `<BookMockup>` render a 156×234 mm trade hardcover: cloth-wrapped
 binder's boards with a rounded flush spine and case-binding joint groove, a
 cream page block recessed behind the board overhang on the three open edges,
-and the whole front cover as a live 480×720 DOM surface.
+and live DOM on the front cover, the back cover, and a spine strip riding
+the backbone crown.
 
 Any React node fills the front board, full bleed. Match `color` to the
 jacket's palette so the spine and back board feel like the same book.
@@ -25,6 +26,8 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back cover design — fills the back board, full bleed. |
+| `spine` | `ReactNode` | - | Spine design — a tall strip on the backbone crown. |
 | `color` | `string` | `'#1f3a5f'` | Cloth color: spine, back board, and board edges. |
 | `pageColor` | `string` | `'#f4eede'` | Paper color of the page block edges. |
 | `coverBackground` | `string` | `'#ffffff'` | CSS background behind your cover content. |
@@ -34,6 +37,20 @@ The screen-background prop is named `coverBackground` here — on a book it
 paints paper, not glass. Every example below is live: drag to spin it.
 
 ## More examples
+
+### Every surface printed
+
+`back` and `spine` complete the case: blurb and barcode on the back board,
+the title reading down the spine — the whole book stays designed as it
+turns.
+
+<ObjectDemo demo="book-full" />
+
+```tsx
+<BookMockup autoRotate color="#16324a" back={<BackBoard />} spine={<SpineStrip />}>
+  <YourCoverArt />
+</BookMockup>
+```
 
 ### Floating and auto-orbiting
 

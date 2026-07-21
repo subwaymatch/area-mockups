@@ -6,6 +6,8 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   BookProps,
+  | 'back'
+  | 'spine'
   | 'color'
   | 'pageColor'
   | 'coverBackground'
@@ -37,6 +39,8 @@ export interface BookMockupProps extends Omit<MockupCanvasProps, 'children'>, In
  */
 export function BookMockup({
   children,
+  back,
+  spine,
   color,
   pageColor,
   coverBackground,
@@ -51,6 +55,8 @@ export function BookMockup({
 }: BookMockupProps) {
   const object = (
     <Book
+      back={back}
+      spine={spine}
       color={color}
       pageColor={pageColor}
       coverBackground={coverBackground}

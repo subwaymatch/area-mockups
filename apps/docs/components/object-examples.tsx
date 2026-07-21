@@ -47,9 +47,16 @@ import { withPreviewControls } from './preview-controls'
 import {
   ArrivalsBoardArt,
   BadgeBackArt,
+  BookBackArt,
+  BookSpineArt,
+  BoxBackArt,
+  BoxBottomArt,
   BadgeFrontArt,
   BagArt,
   BannerArt,
+  MagazineBackArt,
+  MailerBottomArt,
+  MailerEndArt,
   BillboardAdArt,
   BookCoverArt,
   BoxFrontArt,
@@ -73,6 +80,8 @@ import {
   StoreSignArt,
   TrailerRearArt,
   TrailerWrapArt,
+  VinylBackArt,
+  VinylLabelBArt,
   TVShowArt,
   VanLiveryArt,
   VanRearArt,
@@ -329,6 +338,17 @@ const DEMOS: Record<string, React.ReactNode> = {
       <MiniCover title="Night Signals" from="#5b3a80" to="#241536" />
     </BookMockup>
   ),
+  'book-full': (
+    <BookMockup
+      autoRotate
+      autoRotateSpeed={1.1}
+      color="#16324a"
+      back={<BookBackArt />}
+      spine={<BookSpineArt />}
+    >
+      <BookCoverArt />
+    </BookMockup>
+  ),
   'book-row': (
     <MockupCanvas camera={{ position: [0, 0.4, 9.4], fov: 40 }} shadowY={-2.2}>
       <Book color="#16324a" position={[-3, 0, -0.4]} rotation={[0, 0.5, 0]}>
@@ -346,6 +366,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   // ---- Magazine ----------------------------------------------------------
   'magazine-basic': (
     <MagazineMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <MagazineCoverArt />
+    </MagazineMockup>
+  ),
+  'magazine-back': (
+    <MagazineMockup autoRotate autoRotateSpeed={1.2} back={<MagazineBackArt />} deviceProps={{ rotation: [0, 2.6, 0] }}>
       <MagazineCoverArt />
     </MagazineMockup>
   ),
@@ -519,6 +544,19 @@ const DEMOS: Record<string, React.ReactNode> = {
       <BoxFrontArt />
     </ProductBoxMockup>
   ),
+  'box-full': (
+    <ProductBoxMockup
+      autoRotate
+      autoRotateSpeed={1.1}
+      side={<BoxSideArt />}
+      left={<BoxSideArt />}
+      top={<BoxTopArt />}
+      bottom={<BoxBottomArt />}
+      back={<BoxBackArt />}
+    >
+      <BoxFrontArt />
+    </ProductBoxMockup>
+  ),
   'box-kraft': (
     <ProductBoxMockup color="#c9a877" float autoRotate autoRotateSpeed={1.2}>
       <BoxFrontArt />
@@ -577,6 +615,17 @@ const DEMOS: Record<string, React.ReactNode> = {
   // ---- Vinyl record ---------------------------------------------------------------
   'vinyl-basic': (
     <VinylRecordMockup label={<VinylLabelArt />} deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <VinylCoverArt />
+    </VinylRecordMockup>
+  ),
+  'vinyl-full': (
+    <VinylRecordMockup
+      autoRotate
+      autoRotateSpeed={1.1}
+      back={<VinylBackArt />}
+      label={<VinylLabelArt />}
+      backLabel={<VinylLabelBArt />}
+    >
       <VinylCoverArt />
     </VinylRecordMockup>
   ),
@@ -644,6 +693,20 @@ const DEMOS: Record<string, React.ReactNode> = {
   // ---- Mailer box ---------------------------------------------------------------------
   'mailer-basic': (
     <MailerBoxMockup front={<BoxPanelArt />} deviceProps={{ rotation: [0, 0.5, 0] }}>
+      <BoxLidArt />
+    </MailerBoxMockup>
+  ),
+  'mailer-full': (
+    <MailerBoxMockup
+      autoRotate
+      autoRotateSpeed={1.1}
+      front={<BoxPanelArt />}
+      back={<BoxPanelArt />}
+      side={<MailerEndArt />}
+      left={<MailerEndArt />}
+      bottom={<MailerBottomArt />}
+      deviceProps={{ rotation: [0, 0.5, 0] }}
+    >
       <BoxLidArt />
     </MailerBoxMockup>
   ),

@@ -12,6 +12,10 @@ type GroupProps = ThreeElements['group']
 export interface BookProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Cover art — any React node. It fills the whole front board, full bleed. */
   children?: React.ReactNode
+  /** Back cover design — fills the whole back board, full bleed. */
+  back?: React.ReactNode
+  /** Spine design — a tall strip on the crown of the cloth backbone. */
+  spine?: React.ReactNode
   /** Cloth color of the spine, back board and board edges. */
   color?: string
   /** Paper color of the page block edges. */
@@ -37,13 +41,15 @@ export interface BookProps extends Omit<GroupProps, 'children' | 'color'> {
 /**
  * A procedurally built trade hardcover: cloth-wrapped binder's boards with a
  * convex cloth backbone, french grooves along the spine joints, headbands, a
- * cream page block recessed behind the board overhang, and a live full-bleed
- * front cover. No 3D asset files are loaded.
+ * cream page block recessed behind the board overhang, and live full-bleed
+ * front cover, back cover, and spine strip. No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function Book({
   children,
+  back,
+  spine: spineContent,
   color = '#1f3a5f',
   pageColor = '#f4eede',
   coverBackground = '#ffffff',
@@ -58,6 +64,19 @@ export function Book({
   const frontRef = React.useRef<THREE.Mesh>(null!)
   const backRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(frontRef, backRef)
+
+  const screenProps = {
+    resolution,
+    background: coverBackground,
+    interactive,
+    dragToRotate,
+    occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined,
+    screenStyle,
+  }
+  // spine strip: rides the crown of the convex backbone, narrowed so its
+  // flat DOM plane stays tight against the curved shell
+  const spineWidth = thickness * 0.75
+  const spineX = -board.width / 2 + 0.012 - (spine.bulge + 0.012) - 0.002
 
   // the boards stop short of the spine by the french groove width — the
   // groove itself is a thinner recessed strip added separately below
@@ -138,19 +157,43 @@ export function Book({
 
       {/* the live cover: real DOM, CSS3D-transformed onto the front board */}
       <DeviceScreen
+        {...screenProps}
         width={cover.width}
         height={cover.height}
         radius={cover.radius}
-        resolution={resolution}
         position={[0, 0, thickness / 2 + 0.004]}
-        background={coverBackground}
-        interactive={interactive}
-        dragToRotate={dragToRotate}
-        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-        screenStyle={screenStyle}
       >
         {children}
       </DeviceScreen>
+
+      {/* live back cover */}
+      {back != null && (
+        <DeviceScreen
+          {...screenProps}
+          width={cover.width}
+          height={cover.height}
+          radius={cover.radius}
+          position={[0, 0, -thickness / 2 - 0.004]}
+          rotation={[0, Math.PI, 0]}
+        >
+          {back}
+        </DeviceScreen>
+      )}
+
+      {/* live spine strip on the backbone crown */}
+      {spineContent != null && (
+        <DeviceScreen
+          {...screenProps}
+          width={spineWidth}
+          height={board.height - 0.03}
+          radius={0.01}
+          resolution={Math.max(48, Math.round((resolution / cover.width) * spineWidth))}
+          position={[spineX, 0, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+        >
+          {spineContent}
+        </DeviceScreen>
+      )}
     </group>
   )
 }

@@ -1,13 +1,14 @@
 ---
 title: Product box
-description: A retail carton with live front, side, top and back panels.
+description: A retail carton with all six panels as live print areas.
 ---
 
 `<ProductBox>` and `<ProductBoxMockup>` render a standing retail carton
 (190×265×55 mm — the classic cereal/software hero proportion) in satin
-coated stock with crisp fold edges and the tuck-flap seam on top. Up to four
-panels are live DOM — front (`children`), `side`, `top` and `back` — so a
-standard 3/4 pose shows three printed faces at once, all sharing one dpi.
+coated stock with crisp fold edges and the tuck-flap seam on top. All six
+panels are live DOM — front (`children`), `side`, `left`, `top`, `bottom`
+and `back` — so a standard 3/4 pose shows three printed faces at once, all
+sharing one dpi, and no pose reveals bare stock unless you want it to.
 Pass `size` (in millimeters) for a carton of any other dimensions.
 
 Front, side and top, each its own live surface.
@@ -27,14 +28,36 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `side` | `ReactNode` | - | Right side panel (the one visible in a 3/4 pose). |
+| `left` | `ReactNode` | - | Left side panel. |
 | `size` | `{ width, height, depth }` | `190×265×55` | Real size in **millimeters**. The longest edge normalizes to the stage, so any size fills the camera at true proportions. |
 | `top` | `ReactNode` | - | Top panel, reading from the front. |
 | `back` | `ReactNode` | - | Back panel. |
+| `bottom` | `ReactNode` | - | Bottom panel, reading from the front when tipped. |
 | `color` | `string` | `'#f4f1ea'` | Carton stock: unprinted panels and fold edges. |
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each printed panel. |
 | `resolution` | `number` | `480` | Virtual front-panel width in CSS px; other panels share its dpi. |
 
 ## More examples
+
+### Every panel printed
+
+Front, back, both sides, top and bottom — brew steps and barcode on the
+back, the roast-date stamp underneath. Drag it anywhere; it stays designed.
+
+<ObjectDemo demo="box-full" />
+
+```tsx
+<ProductBoxMockup
+  autoRotate
+  side={<SidePanel />}
+  left={<SidePanel />}
+  top={<TopPanel />}
+  bottom={<BatchStamp />}
+  back={<BackPanel />}
+>
+  <FrontPanel />
+</ProductBoxMockup>
+```
 
 ### Kraft stock
 

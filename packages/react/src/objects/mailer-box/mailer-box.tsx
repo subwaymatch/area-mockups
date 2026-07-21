@@ -13,8 +13,14 @@ export interface MailerBoxProps extends Omit<GroupProps, 'children' | 'color'> {
   children?: React.ReactNode
   /** Front (long) panel design. */
   front?: React.ReactNode
-  /** End panel design (the right short face). */
+  /** Back (long) panel design. */
+  back?: React.ReactNode
+  /** End panel design (the right short face). The wrapped tape rides over it. */
   side?: React.ReactNode
+  /** Left end panel design. The wrapped tape rides over it. */
+  left?: React.ReactNode
+  /** Bottom panel design — oriented to read from the front when flipped. */
+  bottom?: React.ReactNode
   /**
    * Shipper size in real millimeters: `{ width, height, depth }`. The longest
    * edge normalizes to the stage, so any size fills the default camera while
@@ -47,16 +53,19 @@ export interface MailerBoxProps extends Omit<GroupProps, 'children' | 'color'> {
 /**
  * A procedurally built closed corrugated shipper: kraft stock with softened
  * corrugated edges, the flap seam under a packing-tape band that wraps down
- * both ends — and live DOM on the top, front and end panels. The tape stays
- * over your print via a DOM overlay, exactly like real tape over a printed
- * box. No 3D asset files are loaded.
+ * both ends — and live DOM on every panel: top, front, back, both ends and
+ * the bottom. The tape stays over your print via a DOM overlay, exactly
+ * like real tape over a printed box. No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function MailerBox({
   children,
   front,
+  back,
   side,
+  left,
+  bottom,
   size,
   color = '#b5915f',
   tapeColor = 'rgba(168, 127, 79, 0.82)',
@@ -211,7 +220,35 @@ export function MailerBox({
         </DeviceScreen>
       )}
 
-      {/* live end panel — the wrapped tape rides over it */}
+      {/* live back (long) panel */}
+      {back != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.width}
+          height={body.height}
+          resolution={resolution}
+          position={[0, 0, -body.depth / 2 - 0.004]}
+          rotation={[0, Math.PI, 0]}
+        >
+          {back}
+        </DeviceScreen>
+      )}
+
+      {/* live bottom panel */}
+      {bottom != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.width}
+          height={body.depth}
+          resolution={resolution}
+          position={[0, -body.height / 2 - 0.004, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          {bottom}
+        </DeviceScreen>
+      )}
+
+      {/* live end panels — the wrapped tape rides over them */}
       {side != null && (
         <DeviceScreen
           {...shared}
@@ -223,6 +260,19 @@ export function MailerBox({
           overlay={tapeOverlay(true)}
         >
           {side}
+        </DeviceScreen>
+      )}
+      {left != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.depth}
+          height={body.height}
+          resolution={Math.round(body.depth * pxPerUnit)}
+          position={[-body.width / 2 - 0.004, 0, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+          overlay={tapeOverlay(true)}
+        >
+          {left}
         </DeviceScreen>
       )}
     </group>
