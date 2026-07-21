@@ -25,3 +25,37 @@ export const PRODUCT_BOX = {
 
 /** Front face aspect ratio (height / width). */
 export const PRODUCT_BOX_FRONT_ASPECT = PRODUCT_BOX.body.height / PRODUCT_BOX.body.width
+
+/** Carton size in real millimeters. */
+export interface ProductBoxSizeMm {
+  /** Carton width in millimeters (x). */
+  width: number
+  /** Carton height in millimeters (y). */
+  height: number
+  /** Carton depth in millimeters (z). */
+  depth: number
+}
+
+/** The default retail-carton blank in millimeters. */
+export const PRODUCT_BOX_SIZE_MM: ProductBoxSizeMm = { width: 190, height: 265, depth: 55 }
+
+/** Everything the renderer needs to build a carton of a given size. */
+export interface ProductBoxLayout {
+  body: { width: number; height: number; depth: number; radius: number }
+  flap: { backGap: number; lift: number }
+}
+
+/**
+ * Carton layout in world units for a given mm size. Like the custom box,
+ * the longest edge normalizes to the default stage (the default blank's
+ * 4.27 unit height), so any size fills the camera while the mm dimensions
+ * set the true proportions.
+ */
+export function productBoxLayout(size: ProductBoxSizeMm = PRODUCT_BOX_SIZE_MM): ProductBoxLayout {
+  const scale = PRODUCT_BOX.body.height / Math.max(size.width, size.height, size.depth)
+  const depth = size.depth * scale
+  return {
+    body: { width: size.width * scale, height: size.height * scale, depth, radius: PRODUCT_BOX.body.radius },
+    flap: { backGap: Math.min(PRODUCT_BOX.flap.backGap, depth * 0.113), lift: PRODUCT_BOX.flap.lift },
+  }
+}

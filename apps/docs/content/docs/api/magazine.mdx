@@ -1,13 +1,13 @@
 ---
 title: Magazine
-description: A perfect-bound glossy monthly with a live full-bleed cover.
+description: A perfect-bound glossy monthly with live front and back covers.
 ---
 
 `<Magazine>` and `<MagazineMockup>` render a 216×279 mm letter-trim,
 perfect-bound magazine: a thin page block with crisp trimmed paper edges on
-the three open sides, the glossy cover stock wrapping the bound spine, a
-glossier back cover, and the whole front cover as a live 480×620 DOM surface
-with a soft cover-gloss sheen.
+the three open sides, the glossy cover stock wrapping the bound spine, and
+live 480×620 DOM front and back covers, each under a soft cover-gloss
+sheen.
 
 Real editorial CSS lays out exactly as it would in a browser at 480×620.
 
@@ -25,6 +25,7 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `back` | `ReactNode` | - | Back cover design — full bleed, same glossy sheen. |
 | `pageColor` | `string` | `'#fbfaf7'` | Paper color of the trimmed page edges. |
 | `backColor` | `string` | `'#e9e7e2'` | Back cover and spine-wrap color. |
 | `glossy` | `boolean` | `true` | Soft diagonal sheen over the cover art (the glossy stock look). |
@@ -32,6 +33,18 @@ Beyond the [shared screen props](/docs/screen-content):
 | `resolution` | `number` | `480` | Virtual cover width in CSS px; height follows the trim aspect. |
 
 ## More examples
+
+### The back-cover ad
+
+Magazines sell their back page — `back` prints it, gloss sheen and all.
+
+<ObjectDemo demo="magazine-back" />
+
+```tsx
+<MagazineMockup autoRotate back={<BackCoverAd />}>
+  <YourCoverArt />
+</MagazineMockup>
+```
 
 ### Matching the stock to the issue
 

@@ -8,6 +8,7 @@ type InheritedObjectProps = Pick<
   VinylRecordProps,
   | 'back'
   | 'label'
+  | 'backLabel'
   | 'vinylColor'
   | 'color'
   | 'faceBackground'
@@ -42,6 +43,7 @@ export function VinylRecordMockup({
   children,
   back,
   label,
+  backLabel,
   vinylColor,
   color,
   faceBackground,
@@ -58,6 +60,7 @@ export function VinylRecordMockup({
     <VinylRecord
       back={back}
       label={label}
+      backLabel={backLabel}
       vinylColor={vinylColor}
       color={color}
       faceBackground={faceBackground}

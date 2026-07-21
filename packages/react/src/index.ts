@@ -31,7 +31,6 @@ export { StorefrontMockup, type StorefrontMockupProps } from './storefront-mocku
 export { SemiTrailerMockup, type SemiTrailerMockupProps } from './semi-trailer-mockup'
 export { MailerBoxMockup, type MailerBoxMockupProps } from './mailer-box-mockup'
 export { ShoppingBagMockup, type ShoppingBagMockupProps } from './shopping-bag-mockup'
-export { PizzaBoxMockup, type PizzaBoxMockupProps } from './pizza-box-mockup'
 export { CustomPanelMockup, type CustomPanelMockupProps } from './custom-panel-mockup'
 export { CustomBoxMockup, type CustomBoxMockupProps } from './custom-box-mockup'
 
@@ -66,7 +65,6 @@ export { Storefront, type StorefrontProps } from './objects/storefront/storefron
 export { SemiTrailer, type SemiTrailerProps } from './objects/semi-trailer/semi-trailer'
 export { MailerBox, type MailerBoxProps } from './objects/mailer-box/mailer-box'
 export { ShoppingBag, type ShoppingBagProps } from './objects/shopping-bag/shopping-bag'
-export { PizzaBox, type PizzaBoxProps } from './objects/pizza-box/pizza-box'
 export { CustomPanel, type CustomPanelProps } from './objects/custom-panel/custom-panel'
 export { CustomBox, type CustomBoxProps } from './objects/custom-box/custom-box'
 

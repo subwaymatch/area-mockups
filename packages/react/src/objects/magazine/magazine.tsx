@@ -12,6 +12,8 @@ type GroupProps = ThreeElements['group']
 export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Cover art — any React node. It fills the whole front cover, full bleed. */
   children?: React.ReactNode
+  /** Back cover design — full bleed, with the same glossy stock sheen. */
+  back?: React.ReactNode
   /** Paper color of the trimmed page edges. */
   pageColor?: string
   /** Back cover color (the unprinted default is a light stock gray). */
@@ -38,13 +40,14 @@ export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
 
 /**
  * A procedurally built perfect-bound magazine: a thin letter-trim page block
- * with visible paper edges, a flat glued spine, and a live full-bleed glossy
- * front cover. No 3D asset files are loaded.
+ * with visible paper edges, a flat glued spine, and live full-bleed glossy
+ * front and back covers. No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function Magazine({
   children,
+  back,
   pageColor = '#fbfaf7',
   backColor = '#e9e7e2',
   glossy = true,
@@ -59,6 +62,20 @@ export function Magazine({
   const { body, cover } = MAGAZINE
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
+
+  const glossOverlay = glossy ? (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 2147483647,
+        background:
+          'linear-gradient(112deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 24%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 72%, rgba(255,255,255,0.05) 100%)',
+      }}
+    />
+  ) : undefined
 
   const backGeometry = React.useMemo(
     () =>
@@ -106,24 +123,30 @@ export function Magazine({
         dragToRotate={dragToRotate}
         occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
         screenStyle={screenStyle}
-        overlay={
-          glossy ? (
-            <div
-              aria-hidden
-              style={{
-                position: 'absolute',
-                inset: 0,
-                pointerEvents: 'none',
-                zIndex: 2147483647,
-                background:
-                  'linear-gradient(112deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 24%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 72%, rgba(255,255,255,0.05) 100%)',
-              }}
-            />
-          ) : undefined
-        }
+        overlay={glossOverlay}
       >
         {children}
       </DeviceScreen>
+
+      {/* live back cover — same stock, same sheen */}
+      {back != null && (
+        <DeviceScreen
+          width={cover.width}
+          height={cover.height}
+          radius={cover.radius}
+          resolution={resolution}
+          position={[0, 0, -body.thickness / 2 - 0.004]}
+          rotation={[0, Math.PI, 0]}
+          background={coverBackground}
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+          overlay={glossOverlay}
+        >
+          {back}
+        </DeviceScreen>
+      )}
     </group>
   )
 }

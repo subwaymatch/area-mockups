@@ -2,7 +2,7 @@ import * as React from 'react'
 import type * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { PRODUCT_BOX } from '@area-mockups/core'
+import { PRODUCT_BOX, productBoxLayout, type ProductBoxSizeMm } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
 
@@ -13,10 +13,21 @@ export interface ProductBoxProps extends Omit<GroupProps, 'children' | 'color'> 
   children?: React.ReactNode
   /** Right side panel design (the one visible in a standard 3/4 pose). */
   side?: React.ReactNode
+  /** Left side panel design. */
+  left?: React.ReactNode
   /** Top panel design. */
   top?: React.ReactNode
+  /** Bottom panel design — oriented to read from the front when tipped over. */
+  bottom?: React.ReactNode
   /** Back panel design. */
   back?: React.ReactNode
+  /**
+   * Carton size in real millimeters: `{ width, height, depth }`. The longest
+   * edge normalizes to the stage, so any size fills the default camera while
+   * the mm dimensions set the true proportions. Defaults to the 190×265×55 mm
+   * retail blank.
+   */
+  size?: ProductBoxSizeMm
   /** Carton stock color — every unprinted panel and the fold edges. */
   color?: string
   /** CSS background painted behind each printed panel. */
@@ -39,17 +50,21 @@ export interface ProductBoxProps extends Omit<GroupProps, 'children' | 'color'> 
 
 /**
  * A procedurally built standing product carton: crisp fold edges, matte
- * coated stock, and up to four live DOM panels — front, right side, top and
- * back — so a standard 3/4 hero pose shows three printed faces at once.
- * No 3D asset files are loaded.
+ * coated stock, and all six panels live DOM — front, back, both sides, top
+ * and bottom — so a standard 3/4 hero pose shows three printed faces at
+ * once and every other pose stays printed too. No 3D asset files are
+ * loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function ProductBox({
   children,
   side,
+  left,
   top,
+  bottom,
   back,
+  size,
   color = '#f4f1ea',
   faceBackground = '#ffffff',
   resolution = PRODUCT_BOX.resolution,
@@ -59,10 +74,17 @@ export function ProductBox({
   screenStyle,
   ...groupProps
 }: ProductBoxProps) {
-  const { body, flap } = PRODUCT_BOX
+  const { body, flap } = React.useMemo(
+    () => productBoxLayout(size),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [size?.width, size?.height, size?.depth]
+  )
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
   const flapDepth = body.depth - flap.backGap
+
+  // the glue-seam lap joint scales down with shallow cartons
+  const seamWidth = Math.min(0.38, body.depth * 0.43)
 
   // every panel shares the front panel's dpi so type sizes match across faces
   const pxPerUnit = resolution / body.width
@@ -93,11 +115,11 @@ export function ProductBox({
       </RoundedBox>
 
       {/* manufacturer's glue seam: the vertical lap joint on the left rear edge */}
-      <mesh position={[-body.width / 2 - 0.0015, 0, -body.depth / 2 + 0.2]} rotation-y={-Math.PI / 2}>
-        <planeGeometry args={[0.38, body.height - 0.02]} />
+      <mesh position={[-body.width / 2 - 0.0015, 0, -body.depth / 2 + seamWidth / 2 + 0.01]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[seamWidth, body.height - 0.02]} />
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.62} />
       </mesh>
-      <mesh position={[-body.width / 2 - 0.003, 0, -body.depth / 2 + 0.39]} rotation-y={-Math.PI / 2}>
+      <mesh position={[-body.width / 2 - 0.003, 0, -body.depth / 2 + seamWidth + 0.01]} rotation-y={-Math.PI / 2}>
         <planeGeometry args={[0.006, body.height - 0.02]} />
         <meshBasicMaterial color="rgba(0,0,0)" transparent opacity={0.22} />
       </mesh>
@@ -127,6 +149,20 @@ export function ProductBox({
         </DeviceScreen>
       )}
 
+      {/* left side panel */}
+      {left != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.depth}
+          height={body.height}
+          resolution={Math.round(body.depth * pxPerUnit)}
+          position={[-body.width / 2 - 0.003, 0, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+        >
+          {left}
+        </DeviceScreen>
+      )}
+
       {/* top panel — oriented so its content reads from the front */}
       {top != null && (
         <DeviceScreen
@@ -138,6 +174,20 @@ export function ProductBox({
           rotation={[-Math.PI / 2, 0, 0]}
         >
           {top}
+        </DeviceScreen>
+      )}
+
+      {/* bottom panel */}
+      {bottom != null && (
+        <DeviceScreen
+          {...shared}
+          width={body.width}
+          height={body.depth}
+          resolution={resolution}
+          position={[0, -body.height / 2 - 0.003, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          {bottom}
         </DeviceScreen>
       )}
 

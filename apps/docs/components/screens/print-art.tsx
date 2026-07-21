@@ -1049,77 +1049,6 @@ export function BagArt() {
   )
 }
 
-/** Pizza box lid — pizzeria badge with a checkered border. */
-export function PizzaLidArt() {
-  return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        // checkered frame: the checkerboard fills the edge, the cream panel
-        // floats 14px inset over it
-        background: 'repeating-conic-gradient(#b22318 0% 25%, #f5efdf 25% 50%) 0 0 / 28px 28px',
-        color: '#b22318',
-        padding: 14,
-        display: 'flex',
-      }}
-    >
-      <div
-        style={{
-          flex: 1,
-          background: '#f5efdf',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          gap: 8,
-        }}
-      >
-      <div style={{ fontSize: 12, letterSpacing: 4 }}>EST. 1979 · BROOKLYN</div>
-      <div style={{ fontFamily: serif, fontSize: 52, lineHeight: 1, color: '#2c2318' }}>
-        Tony&apos;s
-      </div>
-      <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: 6 }}>SLICE HOUSE</div>
-      <svg viewBox="0 0 60 30" aria-hidden style={{ width: 90, marginTop: 4 }}>
-        <path d="M30 28 L10 4 a30 30 0 0 1 40 0 Z" fill="#e8a33c" stroke="#b22318" strokeWidth="2" />
-        <circle cx="26" cy="12" r="3" fill="#b22318" />
-        <circle cx="36" cy="16" r="3" fill="#b22318" />
-        <circle cx="29" cy="20" r="3" fill="#b22318" />
-      </svg>
-      <div style={{ fontSize: 11, letterSpacing: 2, color: '#6b5a45' }}>
-        HAND-TOSSED · WOOD-FIRED · NO SHORTCUTS
-      </div>
-      </div>
-    </div>
-  )
-}
-
-/** Pizza box front flap strip. */
-export function PizzaFrontArt() {
-  return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        padding: '0 24px',
-        background: '#b22318',
-        color: '#f5efdf',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 14,
-      }}
-    >
-      <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>HOT &amp; FRESH</div>
-      <div style={{ fontFamily: serif, fontSize: 22 }}>Tony&apos;s Slice House</div>
-      <div style={{ fontSize: 13, letterSpacing: 3, fontWeight: 700 }}>555-0134</div>
-    </div>
-  )
-}
-
 /** Bus shelter RTPI arrivals board — amber LED rows on a dot-matrix panel. */
 export function ArrivalsBoardArt() {
   const rows: [string, string, string][] = [
@@ -1165,34 +1094,111 @@ export function ArrivalsBoardArt() {
   )
 }
 
-/** Pizza box beveled front band strip. */
-export function PizzaBevelArt() {
+
+/** Barcode block shared by the back-of-pack artworks. */
+function Barcode({ light = false }: { light?: boolean }) {
+  return (
+    <div
+      aria-hidden
+      style={{
+        width: 92,
+        height: 40,
+        padding: '3px 6px',
+        boxSizing: 'border-box',
+        background: '#fff',
+        borderRadius: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 2,
+        opacity: light ? 0.92 : 1,
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          flex: 1,
+          background:
+            'repeating-linear-gradient(90deg, #111 0 2px, #fff 2px 4px, #111 4px 5px, #fff 5px 8px, #111 8px 11px, #fff 11px 13px)',
+        }}
+      />
+      <div style={{ fontSize: 7, letterSpacing: 2, color: '#111' }}>0 723488 100072</div>
+    </div>
+  )
+}
+
+/** Hardcover back board — blurb, praise quote, and barcode. */
+export function BookBackArt() {
   return (
     <div
       style={{
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        padding: '0 20px',
-        background: '#f5efdf',
-        color: '#b22318',
+        padding: '34px 30px 26px',
+        background: 'linear-gradient(175deg, #1b3a56 0%, #10263a 100%)',
+        color: '#dbe6f0',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 18,
+        flexDirection: 'column',
+        gap: 14,
       }}
     >
-      <div style={{ fontSize: 12, letterSpacing: 4, fontWeight: 700 }}>CARRYOUT</div>
-      <svg viewBox="0 0 60 30" aria-hidden style={{ width: 34 }}>
-        <path d="M30 28 L10 4 a30 30 0 0 1 40 0 Z" fill="#e8a33c" stroke="#b22318" strokeWidth="2" />
-      </svg>
-      <div style={{ fontSize: 12, letterSpacing: 4, fontWeight: 700 }}>OVEN-HOT SINCE 1979</div>
+      <div style={{ fontFamily: serif, fontSize: 15, fontStyle: 'italic', lineHeight: 1.5 }}>
+        &ldquo;A voyage told in soundings and star fixes — the rare atlas that reads like a
+        novel.&rdquo;
+      </div>
+      <div style={{ fontSize: 10, letterSpacing: 2, color: '#8fb0cc' }}>— THE COASTAL REVIEW</div>
+      <div style={{ fontSize: 11.5, lineHeight: 1.6, color: '#b6c9da', marginTop: 6 }}>
+        Charted across four oceans and twelve years, this collection follows the survey ship
+        Meridian from her first anchorage to her last. Includes 40 pages of original charts.
+      </div>
+      <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 10, letterSpacing: 2, color: '#8fb0cc' }}>
+          AREA PRESS
+          <br />
+          $32.00 US
+        </div>
+        <Barcode />
+      </div>
     </div>
   )
 }
 
-/** Pizza box inside-lid coupon. */
-export function PizzaInsideArt() {
+/** Hardcover spine strip — title reading top to bottom. */
+export function BookSpineArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '18px 0',
+        background: 'linear-gradient(180deg, #1b3a56 0%, #10263a 100%)',
+        color: '#dbe6f0',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div style={{ fontSize: 9, letterSpacing: 1, color: '#8fb0cc' }}>AREA</div>
+      <div
+        style={{
+          fontFamily: serif,
+          fontSize: 16,
+          letterSpacing: 3,
+          writingMode: 'vertical-rl',
+        }}
+      >
+        THE MERIDIAN ATLAS
+      </div>
+      <div style={{ width: 14, height: 14, borderRadius: '50%', border: '1.5px solid #8fb0cc' }} />
+    </div>
+  )
+}
+
+/** Magazine back cover — the classic full-page ad. */
+export function MagazineBackArt() {
   return (
     <div
       style={{
@@ -1200,35 +1206,239 @@ export function PizzaInsideArt() {
         height: '100%',
         boxSizing: 'border-box',
         padding: 30,
-        background: '#f7f2e5',
-        color: '#2c2318',
+        background: 'radial-gradient(120% 100% at 50% 0%, #223042 0%, #0d141d 70%)',
+        color: '#e8edf3',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 11, letterSpacing: 5, color: '#7f93ab' }}>ADVERTISEMENT</div>
+      <div style={{ fontFamily: serif, fontSize: 40, lineHeight: 1.1, marginTop: 46 }}>
+        Hear the city
+        <br />
+        after midnight.
+      </div>
+      <svg viewBox="0 0 120 40" aria-hidden style={{ width: 190, marginTop: 34, opacity: 0.85 }}>
+        {Array.from({ length: 30 }, (_, i) => (
+          <rect key={i} x={i * 4} y={20 - Math.abs(Math.sin(i * 0.7)) * 16} width="2.4" height={Math.abs(Math.sin(i * 0.7)) * 32 + 2} rx="1.2" fill="#5ad0a6" />
+        ))}
+      </svg>
+      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: 3 }}>AREA WAVES · NEON SKYLINE</div>
+        <div style={{ fontSize: 10.5, color: '#7f93ab' }}>ON TOUR THIS FALL · AREAWAVES.EXAMPLE</div>
+      </div>
+    </div>
+  )
+}
+
+/** Product box back panel — brew steps and barcode. */
+export function BoxBackArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 26,
+        background: '#17385c',
+        color: '#b9cfe4',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+      }}
+    >
+      <div style={{ fontSize: 12, letterSpacing: 3, color: '#8fb4d9' }}>HOW TO BREW</div>
+      {[
+        ['01', 'Grind 20 g medium-fine.'],
+        ['02', 'Pour 300 g water at 94°C.'],
+        ['03', 'Steep four minutes. Press.'],
+      ].map(([n, step]) => (
+        <div key={n} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: '#f4c534' }}>{n}</div>
+          <div style={{ fontSize: 12.5 }}>{step}</div>
+        </div>
+      ))}
+      <div style={{ fontSize: 10.5, lineHeight: 1.55, color: '#7fa0c2', marginTop: 4 }}>
+        Roasted weekly in small batches. Whole bean arabica, single origin. Store away from
+        light; best within four weeks of the roast date stamped below.
+      </div>
+      <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 10, letterSpacing: 2, color: '#8fb4d9' }}>
+          AREA LABS ROASTWORKS
+          <br />
+          340 G · DARK ROAST
+        </div>
+        <Barcode />
+      </div>
+    </div>
+  )
+}
+
+/** Product box bottom panel — roast date stamp and lot code. */
+export function BoxBottomArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 16,
+        background: '#122c49',
+        color: '#8fb4d9',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div style={{ fontSize: 11, letterSpacing: 2, lineHeight: 1.7 }}>
+        ROASTED 2026-07-14
+        <br />
+        LOT 26-195 · BBE 2026-08-11
+      </div>
+      <div
+        style={{
+          fontSize: 10,
+          letterSpacing: 1,
+          border: '1.5px solid #8fb4d9',
+          borderRadius: '50%',
+          width: 54,
+          height: 54,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transform: 'rotate(-12deg)',
+        }}
+      >
+        AREA
+      </div>
+    </div>
+  )
+}
+
+/** Mailer box end panel — handling marks. */
+export function MailerEndArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 14,
+        background: '#20242b',
+        color: '#e8e4dd',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+      }}
+    >
+      <svg viewBox="0 0 40 24" aria-hidden style={{ width: 52 }}>
+        <path d="M14 22 V10 H8 L20 0 L32 10 h-6 v12 Z" fill="none" stroke="#e8e4dd" strokeWidth="2" />
+      </svg>
+      <div style={{ fontSize: 11, letterSpacing: 3 }}>THIS SIDE UP</div>
+      <div style={{ fontSize: 9, letterSpacing: 2, color: '#9aa0a8' }}>HANDLE WITH CARE</div>
+    </div>
+  )
+}
+
+/** Mailer box bottom panel — recycled stamp and origin line. */
+export function MailerBottomArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 22,
+        background: '#20242b',
+        color: '#9aa0a8',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div style={{ fontSize: 11, letterSpacing: 2, lineHeight: 1.8 }}>
+        100% RECYCLED B-FLUTE
+        <br />
+        PACKED IN PORTLAND, OR
+      </div>
+      <svg viewBox="0 0 48 48" aria-hidden style={{ width: 56 }}>
+        <path d="M24 6 L31 18 H17 Z M9 34 L16 22 L23 34 Z M39 34 L25 34 L32 22 Z" fill="none" stroke="#9aa0a8" strokeWidth="2.4" strokeLinejoin="round" />
+      </svg>
+    </div>
+  )
+}
+
+/** Vinyl back cover — tracklist and credits. */
+export function VinylBackArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 30,
+        background: '#101725',
+        color: '#c6d1e4',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div style={{ fontSize: 11, letterSpacing: 4, color: '#8fa3c8' }}>AREA WAVES · NEON SKYLINE</div>
+      <div style={{ display: 'flex', gap: 34, marginTop: 26 }}>
+        {[
+          ['SIDE A', ['Overpass', 'Sodium Glow', 'Last Train Home', 'Antenna Park']],
+          ['SIDE B', ['Neon Skyline', 'Harbor Lights', 'Static Bloom', 'Dawn Chorus']],
+        ].map(([side, tracks]) => (
+          <div key={side as string} style={{ flex: 1 }}>
+            <div style={{ fontSize: 11, letterSpacing: 3, color: '#5ad0a6', marginBottom: 10 }}>{side}</div>
+            {(tracks as string[]).map((t, i) => (
+              <div key={t} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, lineHeight: 2 }}>
+                <span>
+                  {i + 1}. {t}
+                </span>
+                <span style={{ color: '#8fa3c8' }}>{3 + ((i * 7) % 4)}:{String(10 + ((i * 17) % 50)).padStart(2, '0')}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 9.5, lineHeight: 1.7, color: '#8fa3c8' }}>
+          RECORDED AT PIER 9 · MIXED BY M. OKAFOR
+          <br />
+          ℗ 2026 AREA WAVES · AREA-007 · 33⅓ RPM
+        </div>
+        <Barcode />
+      </div>
+    </div>
+  )
+}
+
+/** Vinyl side-B center label (circular). */
+export function VinylLabelBArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        background: '#1c2c47',
+        color: '#e9edf5',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        gap: 10,
+        gap: 2,
       }}
     >
-      <div style={{ fontFamily: serif, fontSize: 34 }}>Grazie!</div>
-      <div style={{ fontSize: 13, letterSpacing: 2, color: '#6b5a45' }}>
-        RATE US &amp; THE NEXT PIE IS
-      </div>
-      <div
-        style={{
-          border: '3px dashed #b22318',
-          color: '#b22318',
-          fontSize: 30,
-          fontWeight: 800,
-          padding: '10px 34px',
-          borderRadius: 10,
-        }}
-      >
-        $5 OFF
-      </div>
-      <div style={{ fontSize: 11, letterSpacing: 2, color: '#6b5a45' }}>
-        CODE: LID-FIVE · TONYS.EXAMPLE
-      </div>
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 2 }}>AREA WAVES</div>
+      <div style={{ fontSize: 9, letterSpacing: 1 }}>NEON SKYLINE · SIDE B</div>
+      <div style={{ fontSize: 8, marginTop: 4 }}>33⅓ RPM · STEREO</div>
     </div>
   )
 }

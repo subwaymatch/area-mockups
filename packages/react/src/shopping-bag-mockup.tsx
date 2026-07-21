@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { ShoppingBag, type ShoppingBagProps } from './objects/shopping-bag/shopping-bag'
-import { SHOPPING_BAG } from '@area-mockups/core'
+import { shoppingBagLayout } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   ShoppingBagProps,
   | 'back'
+  | 'size'
   | 'color'
   | 'handleColor'
   | 'faceBackground'
@@ -41,6 +42,7 @@ export interface ShoppingBagMockupProps
 export function ShoppingBagMockup({
   children,
   back,
+  size,
   color,
   handleColor,
   faceBackground,
@@ -56,6 +58,7 @@ export function ShoppingBagMockup({
   const object = (
     <ShoppingBag
       back={back}
+      size={size}
       color={color}
       handleColor={handleColor}
       faceBackground={faceBackground}
@@ -71,7 +74,7 @@ export function ShoppingBagMockup({
   )
 
   // The bag stands on the floor; ground the shadow just under it.
-  const groundY = -SHOPPING_BAG.body.height / 2
+  const groundY = -shoppingBagLayout(size).body.height / 2
   const shadowY = canvasProps.shadowY ?? (float ? groundY - 0.3 : groundY - 0.02)
 
   return (

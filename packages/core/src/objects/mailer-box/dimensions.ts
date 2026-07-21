@@ -27,3 +27,37 @@ export const MAILER_BOX = {
 
 /** Top face aspect ratio (depth / width). */
 export const MAILER_BOX_TOP_ASPECT = MAILER_BOX.body.depth / MAILER_BOX.body.width
+
+/** Shipper size in real millimeters. */
+export interface MailerBoxSizeMm {
+  /** Shipper width in millimeters (x). */
+  width: number
+  /** Shipper height in millimeters (y). */
+  height: number
+  /** Shipper depth in millimeters (z). */
+  depth: number
+}
+
+/** The default e-commerce shipper in millimeters. */
+export const MAILER_BOX_SIZE_MM: MailerBoxSizeMm = { width: 350, height: 120, depth: 250 }
+
+/** Everything the renderer needs to build a shipper of a given size. */
+export interface MailerBoxLayout {
+  body: { width: number; height: number; depth: number; radius: number }
+  tape: { width: number }
+}
+
+/**
+ * Shipper layout in world units for a given mm size. Like the custom box,
+ * the longest edge normalizes to the default stage (the default shipper's
+ * 4.49 unit width), so any size fills the camera while the mm dimensions
+ * set the true proportions. The packing tape stays a real 48 mm band.
+ */
+export function mailerBoxLayout(size: MailerBoxSizeMm = MAILER_BOX_SIZE_MM): MailerBoxLayout {
+  const scale = MAILER_BOX.body.width / Math.max(size.width, size.height, size.depth)
+  const width = size.width * scale
+  return {
+    body: { width, height: size.height * scale, depth: size.depth * scale, radius: MAILER_BOX.body.radius },
+    tape: { width: Math.min(48 * scale, width * 0.25) },
+  }
+}
