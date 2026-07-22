@@ -5,15 +5,22 @@
  * relative sizes side by side:
  *
  * - Apple Watch Series 11, 46 mm: 46 x 39 x 9.7 mm squircle case, ~1.96"
- *   416x496 wide-angle OLED with heavily rounded corners, Digital Crown +
- *   flush side button on the right edge, hidden lug slots in the case's flat
- *   top/bottom edges, Sport Band.
+ *   416x496 wide-angle OLED with heavily rounded corners. Right edge, top to
+ *   bottom (per Apple's product photography): knurled Digital Crown (~7.3 mm
+ *   gear-toothed barrel with a flat end cap, protruding ~2 mm), a single
+ *   microphone hole, then the elongated flush side button sitting in a
+ *   machined recess below center. Left edge: one slim machined speaker slot.
+ *   The Sport Band slides into dark band slots in the case's flat top/bottom
+ *   edges, offset toward the case back.
  * - Galaxy Watch 8, 44 mm: 46.0 x 43.7 x 8.6 mm "cushion" case (squircle
  *   aluminum armor with a flat top) carrying a RAISED round dial — the fully
  *   round 1.47" 480x480 sAMOLED sits on a slightly protruding black puck, so
  *   the aluminum cushion stays visible around it (unlike the Apple's
- *   edge-to-edge crystal). Two flat keys on the right edge; the Dynamic Lug
- *   band is nearly case-wide where it attaches and tapers around the wrist.
+ *   edge-to-edge crystal). Right edge (per GSMArena's review macros): two
+ *   raised pill keys with chamfered edges straddling a tiny microphone hole
+ *   at center. Left edge: two short machined speaker slots in a vertical
+ *   run. The Dynamic Lug band is nearly case-wide where it attaches and
+ *   tapers around the wrist.
  *
  * The wristband is worn: a closed loop that hugs an invisible wrist directly
  * behind the case (product photos show the strap peeking only a few mm past
@@ -40,10 +47,31 @@ export interface WatchSpec {
   display: { width: number; height: number; radius: number }
   /** Default CSS px width of the virtual display (the logical pt/dp grid). */
   resolution: number
-  /** Digital Crown on the right edge (Apple). */
-  crown?: { y: number; radius: number; thickness: number }
-  /** Flat keys on the right edge: Apple's side button, Galaxy's two keys. */
-  buttons: { y: number; length: number }[]
+  /**
+   * Digital Crown on the right edge (Apple): a knurled gear-toothed barrel.
+   * `thickness` is the barrel length along its axis, `proud` how far the
+   * outer face protrudes past the case wall, `teeth`/`toothDepth` the
+   * machined knurling crevices.
+   */
+  crown?: { y: number; radius: number; thickness: number; proud: number; teeth: number; toothDepth: number }
+  /**
+   * Keys on the right edge: Apple's flush side button (tiny `proud`, reads as
+   * a pill outline in a recess), Galaxy's two raised chamfered keys. `length`
+   * runs along the edge (y), `width` across the case depth (z), `proud` is
+   * the protrusion past the case wall.
+   */
+  buttons: { y: number; length: number; width: number; proud: number }[]
+  /** Microphone hole drilled into the right edge. */
+  mic?: { y: number; radius: number; z?: number }
+  /** Machined speaker slots in the left edge (Apple: one long; Galaxy: two short). */
+  speaker: { y: number; length: number; height: number; z?: number }[]
+  /**
+   * Dark band-slot channel machined into the flat top/bottom case edges that
+   * the strap slides into (Apple). `width`/`height` are the channel's lateral
+   * size, `z` its center across the case depth (toward the back on the real
+   * case).
+   */
+  bandSlot?: { width: number; height: number; z: number }
   /**
    * Wristband, worn as a closed loop hugging the wrist right behind the case.
    * `width` is the strap width where it leaves the case; `backWidth` lets the
@@ -68,8 +96,16 @@ const SERIES_11: WatchSpec = {
   glass: { width: 2.02, height: 2.38, radius: 0.72 },
   display: { width: 1.808, height: 2.158, radius: 0.62 },
   resolution: 208,
-  crown: { y: 0.48, radius: 0.198, thickness: 0.1 },
-  buttons: [{ y: -0.18, length: 0.62 }],
+  // Crown center ~31% down the right edge; ~7.3 mm knurled barrel, ~2 mm proud.
+  crown: { y: 0.48, radius: 0.205, thickness: 0.19, proud: 0.115, teeth: 30, toothDepth: 0.016 },
+  // Flush side button in its recess, center ~62% down the edge (~10.3 x 2.8 mm).
+  buttons: [{ y: -0.31, length: 0.58, width: 0.16, proud: 0.012 }],
+  // Mic hole between crown and side button.
+  mic: { y: 0.1, radius: 0.022 },
+  // Single slim machined speaker slot on the left edge (Series 10/11 design).
+  speaker: [{ y: 0, length: 0.92, height: 0.06 }],
+  // Sport Band slot channel in the flat top/bottom edges, offset case-back.
+  bandSlot: { width: 1.37, height: 0.24, z: -0.16 },
   band: {
     width: 1.27,
     thickness: 0.165,
@@ -85,9 +121,16 @@ const GALAXY_WATCH_8: WatchSpec = {
   dial: { radius: 1.09, height: 0.07 },
   display: { width: 2.0, height: 2.0, radius: 1.0 },
   resolution: 240,
+  // Two raised chamfered pill keys (~10 x 3.3 mm) straddling the mic hole.
   buttons: [
-    { y: 0.36, length: 0.54 },
-    { y: -0.32, length: 0.54 },
+    { y: 0.4, length: 0.56, width: 0.185, proud: 0.04 },
+    { y: -0.4, length: 0.56, width: 0.185, proud: 0.04 },
+  ],
+  mic: { y: 0.0, radius: 0.02 },
+  // Two short machined speaker slots in a vertical run on the left edge.
+  speaker: [
+    { y: 0.26, length: 0.37, height: 0.05 },
+    { y: -0.26, length: 0.37, height: 0.05 },
   ],
   band: {
     width: 1.9,

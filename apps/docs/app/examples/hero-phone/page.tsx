@@ -55,7 +55,12 @@ export default function HeroPhoneExamplePage() {
       </section>
 
       <div className="xh-phone">
-        <HeroPhone />
+        {/* The canvas bleeds well past the layout box on every side, so the
+            model never hits the canvas edge while floating, dragging or
+            zooming — the page's `overflow: clip` does all visible cropping. */}
+        <div className="xh-phone-bleed">
+          <HeroPhone />
+        </div>
       </div>
     </main>
   )

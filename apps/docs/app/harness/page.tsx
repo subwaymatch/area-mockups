@@ -11,6 +11,8 @@ import {
   MonitorMockup,
   Tablet,
   type TabletVariant,
+  Watch,
+  type WatchVariant,
 } from 'area-mockups'
 
 /**
@@ -104,6 +106,25 @@ function HarnessScene() {
       >
         {screen}
       </FoldMockup>
+    )
+  }
+
+  if (device === 'watch') {
+    const dist = Number(params.get('dist') ?? 6.4)
+    return (
+      <MockupCanvas controls={controls} camera={{ position: [0, cy, dist], fov: 40 }} shadows={shadows}>
+        <Watch
+          variant={(params.get('wvariant') ?? 'series11') as WatchVariant}
+          colorway={colorway}
+          color={color}
+          bandColor={params.get('bandColor') ?? undefined}
+          rotation={[rx, ry, 0]}
+          interactive={false}
+          dragToRotate={false}
+        >
+          {screen}
+        </Watch>
+      </MockupCanvas>
     )
   }
 
