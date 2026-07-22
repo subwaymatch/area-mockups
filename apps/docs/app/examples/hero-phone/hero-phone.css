@@ -191,9 +191,7 @@
 /* ---- the huge phone --------------------------------------------------- */
 
 /* Taller than the viewport on purpose: the section's `overflow: clip`
-   crops the device at the fold. The width floor keeps the canvas wide
-   enough that the floating, slightly rotated phone never touches the
-   canvas edges (the crop must come from the page, not the canvas). */
+   crops the device at the fold. */
 .xh-phone {
   position: absolute;
   z-index: 1;
@@ -201,6 +199,17 @@
   right: clamp(-140px, 6vw - 60px, 120px);
   width: clamp(480px, 46vw, 760px);
   height: 128vh;
+}
+
+/* The canvas itself bleeds symmetrically past the layout box on every side,
+   so however the phone is dragged, floated or zoomed it can never be cut off
+   by the canvas edge — any visible cropping comes from the page (`overflow:
+   clip` on the section), never from the WebGL viewport. The camera in
+   hero-phone-scene.tsx compensates for the taller canvas, keeping the
+   device's on-screen size unchanged. */
+.xh-phone-bleed {
+  position: absolute;
+  inset: -16vh -170px;
 }
 
 /* Stacked layout: copy on top, then the phone rising past the page bottom.

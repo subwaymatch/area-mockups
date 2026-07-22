@@ -11,6 +11,7 @@ export type Orientation = 'portrait' | 'landscape'
 
 // Geometry math.
 export { roundedRectShape } from './geometry/rounded-rect'
+export { gearShape } from './geometry/gear'
 
 // Live-screen behaviors (CSS px math, wrapper styles, gesture handoff, culling).
 export {
