@@ -6,13 +6,16 @@ description: A CR80 badge hanging from a lanyard, with live front and back faces
 `<IDCard>` and `<IDCardMockup>` render a portrait CR80 badge (54×85.6 mm,
 30 mil PVC) hanging from a lanyard: a real 14×3 mm punched slot through the
 card, the full hardware chain from real lanyards — a flat stamped-steel
-swivel J-hook hanging in the slot with its spring gate closing the mouth,
-swivel barrel, strap crimp — and two woven strap halves rising in a hanging
-~30° V out of the top of the frame.
+swivel J-hook pierced through the slot (its plane perpendicular to the
+card, the ring window swallowing the punch strip) with its spring gate
+closing the mouth, swivel barrel, strap crimp — and two woven strap halves
+rising in a hanging ~30° V out of the top of the frame.
 
-The printable face is live DOM on the front and, optionally, the back. Like
-a real badge, the design keeps clear of the punch strip: the live area is
-the card minus the top 14 mm, which stays bare stock around the slot.
+The printable face is live DOM on the front and, optionally, the back —
+full bleed over the ENTIRE card, punch strip included, like a real
+edge-to-edge badge print. The slot punch is carved out of the live area
+with the same stadium outline as the 3D hole, so your design wraps
+around a real opening.
 
 <ObjectDemo demo="idcard-basic" checker />
 
@@ -29,10 +32,10 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `back` | `ReactNode` | - | Back face design. Plain stock when omitted. |
-| `color` | `string` | `'#f4f5f7'` | Card stock: the edges and the unprinted punch strip. |
+| `color` | `string` | `'#f4f5f7'` | Card stock: the edges and the inside of the punched slot. |
 | `lanyardColor` | `string` | `'#b3223a'` | Woven strap color (lanyards come in saturated solids). |
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
-| `resolution` | `number` | `420` | Virtual face width in CSS px (~300 dpi); height follows the printable area. |
+| `resolution` | `number` | `420` | Virtual face width in CSS px; height follows the full card. |
 
 ## Mockup-able areas
 

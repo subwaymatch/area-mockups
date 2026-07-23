@@ -11,6 +11,7 @@ import {
   UsbC,
   EdgeSocket,
   cutGeometry,
+  mixedRoundedRectShape,
   stadiumCutter,
   holeCutter,
   USB_CUT_DEPTH,
@@ -43,7 +44,9 @@ export interface FlipProps extends Omit<GroupProps, 'children' | 'color'> {
    * Flex Mode pose: the halves pivot around the hinge line while the spine's
    * curved housing rolls into the gap between them, and your content bends
    * across the fold — e.g. `openAngle={100}` for the classic half-open
-   * standing pose. At intermediate angles the main display is composited
+   * standing pose. Angles below ~15° snap to the folded-shut pose (like the
+   * real hinge, which springs closed from there) and above ~177° to the
+   * flat-open one. At intermediate angles the main display is composited
    * from two planes, so stateful screen content is best kept simple.
    */
   openAngle?: number
@@ -147,9 +150,12 @@ export function Flip({
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#4a4f59'
   // Resolve the pose: an explicit fold angle wins over the boolean; the
   // extremes snap to the dedicated flat-open / folded-shut paths so the
-  // default renders are pixel-identical to before.
+  // default renders are pixel-identical to before. Below 15° the flex
+  // rig's halves read as two detached slabs (the spine hides behind them),
+  // so that whole range clips to the folded pose — the real hinge snaps
+  // shut from there anyway.
   const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
-  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 3 ? 'closed' : 'flex'
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 15 ? 'closed' : 'flex'
   const isOpenFace = mode !== 'closed'
   const state = isOpenFace ? spec.open : spec.closed
   const { display } = state
@@ -189,27 +195,59 @@ export function Flip({
       ),
     [half, spec.bottomEdge]
   )
-  // Flex pose lower half: the same slab with the free-edge kit machined into
-  // its own bottom edge (the open-plane orientation, unlike the folded stack
-  // where that edge faces up).
+  // Flex pose halves: like the closed slabs but with nearly square corners
+  // along the fold edge (the display bends there — the real halves run
+  // straight into the hinge), so the two stay tight at the crease instead
+  // of opening rounded-corner gaps. The lower one also machines the
+  // free-edge kit into its own bottom edge (the open-plane orientation,
+  // unlike the folded stack where that edge faces up).
+  const flexSlab = React.useCallback(
+    (foldEdge: 'top' | 'bottom') => {
+      const rFree = half.radius - half.bevel
+      const rFold = 0.01
+      const corners =
+        foldEdge === 'bottom'
+          ? { tl: rFree, tr: rFree, br: rFold, bl: rFold }
+          : { tl: rFold, tr: rFold, br: rFree, bl: rFree }
+      const shape = mixedRoundedRectShape(
+        half.width - half.bevel * 2,
+        half.height - half.bevel * 2,
+        corners
+      )
+      const core = half.depth - half.bevel * 2
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: core,
+        bevelEnabled: true,
+        bevelThickness: half.bevel,
+        bevelSize: half.bevel,
+        bevelSegments: 4,
+        curveSegments: 16,
+      })
+      g.translate(0, 0, -core / 2)
+      return g
+    },
+    [half]
+  )
+  const flexUpperGeometry = React.useMemo(
+    () => (mode === 'flex' ? flexSlab('bottom') : null),
+    [mode, flexSlab]
+  )
   const flexLowerGeometry = React.useMemo(
     () =>
       mode === 'flex'
-        ? cutGeometry(
-            slabGeometry(half.width, half.height, half.radius, half.depth, half.bevel),
-            freeEdgeCutters(spec.bottomEdge, -half.height / 2)
-          )
+        ? cutGeometry(flexSlab('top'), freeEdgeCutters(spec.bottomEdge, -half.height / 2))
         : null,
-    [mode, half, spec.bottomEdge]
+    [mode, flexSlab, half, spec.bottomEdge]
   )
   React.useEffect(
     () => () => {
       openGeometry.dispose()
       halfGeometry.dispose()
       rearHalfGeometry.dispose()
+      flexUpperGeometry?.dispose()
       flexLowerGeometry?.dispose()
     },
-    [openGeometry, halfGeometry, rearHalfGeometry, flexLowerGeometry]
+    [openGeometry, halfGeometry, rearHalfGeometry, flexUpperGeometry, flexLowerGeometry]
   )
 
   const coverGlassGeometry = React.useMemo(
@@ -363,23 +401,22 @@ export function Flip({
     )
   }
 
-  // The hinge spine capping the folded bottom: a smooth horizontal capsule —
-  // cylindrical band with domed ends, tucked between the two halves' curved
-  // edges — with the SAMSUNG engraving on its crown, like the retail
-  // teardrop hinge (no flat plate).
+  // The hinge spine capping the folded bottom: a horizontal capsule whose
+  // radius spans the WHOLE folded stack, so its crown is tangent to both
+  // the cover-screen face and the back face — the smooth rolled bottom of
+  // the retail teardrop hinge, sealing the stack's underside instead of
+  // reading as a thin separate rod — with the SAMSUNG engraving on its
+  // crown.
+  // A hair inside the stack's outer faces so the near-tangent surfaces
+  // never coincide (which would shimmer along the touch line).
+  const stackR = half.depth + spec.closed.gap / 2 - 0.002
   const hingeBand = (y: number) => (
     <group position={[0, y, 0]}>
       <mesh rotation-z={Math.PI / 2}>
-        <capsuleGeometry
-          args={[spec.hinge.width / 2, openBody.width - 0.03 - spec.hinge.width, 8, 28]}
-        />
+        <capsuleGeometry args={[stackR, openBody.width - 0.03 - stackR * 2, 12, 32]} />
         <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.36} />
       </mesh>
-      <mesh
-        geometry={hingeLogoGeometry}
-        rotation-x={Math.PI / 2}
-        position-y={-spec.hinge.width / 2 - 0.002}
-      >
+      <mesh geometry={hingeLogoGeometry} rotation-x={Math.PI / 2} position-y={-stackR - 0.002}>
         <meshPhysicalMaterial
           transparent
           opacity={0.45}
@@ -567,7 +604,7 @@ export function Flip({
           {/* upper (cover) half folds toward the viewer around the hinge */}
           <group position={[0, 0, pz]} rotation-x={alpha}>
             <group position={[0, halfH / 2, -pz]}>
-              <mesh ref={bodyRef} geometry={halfGeometry}>
+              <mesh ref={bodyRef} geometry={flexUpperGeometry ?? halfGeometry}>
                 <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.32} />
               </mesh>
               <mesh geometry={coverGlassGeometry} rotation-y={Math.PI} position-z={-half.depth / 2 - 0.002}>
@@ -724,7 +761,7 @@ export function Flip({
 
         {/* hinge spine capping the bottom — crown reaching the scan's
             overhang below the stack */}
-        {hingeBand(stackBottom - spec.hinge.overhang + spec.hinge.width / 2)}
+        {hingeBand(stackBottom - spec.hinge.overhang + stackR)}
 
         {endSeams([half.height / 2 - spec.endSeamInset], half.depth)}
       </group>

@@ -348,7 +348,18 @@ export function BadgeFrontArt() {
         <div style={{ fontSize: 20, fontWeight: 700 }}>Yuna Park</div>
         <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Product Designer</div>
       </div>
-      <div style={{ marginTop: 'auto', padding: '0 20px 16px', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#6b7280' }}>
+      <div style={{ margin: '20px 20px 0', padding: '10px 14px', borderRadius: 10, background: '#f2f4f7', display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 6, fontSize: 11 }}>
+        <span style={{ color: '#6b7280' }}>Dept</span>
+        <span style={{ fontWeight: 600, textAlign: 'right' }}>Design</span>
+        <span style={{ color: '#6b7280' }}>Access</span>
+        <span style={{ fontWeight: 600, textAlign: 'right' }}>L3 · All floors</span>
+      </div>
+      <svg width="150" height="24" viewBox="0 0 150 24" aria-hidden style={{ margin: 'auto auto 10px', paddingTop: 14 }}>
+        {Array.from({ length: 34 }, (_, i) => (
+          <rect key={i} x={i * 4.4} y={0} width={i % 3 === 0 ? 2.8 : 1.4} height={24} fill="#161a20" />
+        ))}
+      </svg>
+      <div style={{ padding: '0 20px 16px', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#6b7280' }}>
         <span>ID 0042</span>
         <span>EXP 08/27</span>
       </div>

@@ -29,7 +29,7 @@ Beyond the [shared screen props](/docs/screen-content) and, on the mockup, the
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `open` | `boolean` | `true` | Unfolded tall phone (content on the 360×837 main display) versus the folded compact (content on the nearly square 316×353 cover display, lens rings overlaid like cutouts). |
-| `openAngle` | `number` | – | Degree of openness (0 = shut, 180 = flat), overriding `open`. Intermediate angles render the real Flex Mode pose: the halves pivot around the Armor FlexHinge while its glossy spine band (with the SAMSUNG engraving) rolls into the gap, and your content bends across the fold on two composited planes. |
+| `openAngle` | `number` | – | Degree of openness (0 = shut, 180 = flat), overriding `open`. Intermediate angles render the real Flex Mode pose: the halves pivot around the Armor FlexHinge while its glossy spine band (with the SAMSUNG engraving) rolls into the gap, and your content bends across the fold on two composited planes. Angles below ~15° snap to the folded pose and above ~177° to the flat-open one — the real hinge springs shut from there anyway. |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display with upright content. |
 | `color` | `string` | `'#22252b'` | Back glass / cover colorway. |
 | `frameColor` | `string` | `'#4a4f59'` | Metal frame, buttons, hinge band, and camera rings. |

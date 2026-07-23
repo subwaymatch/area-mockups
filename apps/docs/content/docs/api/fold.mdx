@@ -25,7 +25,7 @@ Beyond the [shared screen props](/docs/screen-content) and, on the mockup, the
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `open` | `boolean` | `true` | Unfolded tablet (content on the big inner display, with a center crease) versus the folded candy-bar (content on the tall cover display, rear triple camera showing). |
-| `openAngle` | `number` | – | Degree of openness (0 = shut, 180 = flat), overriding `open`. Intermediate angles render the real Flex Mode book pose: the panels pivot around the Armor FlexHinge while its rounded spine (with the SAMSUNG engraving) stays tangent to both back shells, wrapping the fold at every angle, and your content bends across the crease on two composited planes. |
+| `openAngle` | `number` | – | Degree of openness (0 = shut, 180 = flat), overriding `open`. Intermediate angles render the real Flex Mode book pose: the panels pivot around the Armor FlexHinge while its rounded spine (with the SAMSUNG engraving) stays tangent to both back shells, wrapping the fold at every angle, and your content bends across the crease on two composited planes. Angles below ~15° snap to the folded pose and above ~177° to the flat-open one — the real hinge springs shut from there anyway. |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Landscape lays the device on its side and swaps the virtual display with upright content. |
 | `color` | `string` | `'#3a3d42'` | Back panel colorway. |
 | `frameColor` | `string` | `'#54585f'` | Metal frame, buttons, hinge, and camera rings. |

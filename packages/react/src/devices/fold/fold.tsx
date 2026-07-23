@@ -10,6 +10,7 @@ import {
   UsbC,
   EdgeSocket,
   cutGeometry,
+  mixedRoundedRectShape,
   stadiumCutter,
   holeCutter,
   USB_CUT_DEPTH,
@@ -42,7 +43,9 @@ export interface FoldProps extends Omit<GroupProps, 'children' | 'color'> {
    * Flex Mode book pose: the panels pivot around the hinge line, the spine's
    * flat band (with its SAMSUNG engraving) bisects the fold, and your
    * content bends across the crease — e.g. `openAngle={110}` for the
-   * half-open standing pose. At intermediate angles the inner display is
+   * half-open standing pose. Angles below ~15° snap to the fully folded
+   * pose (like the real hinge, which springs shut from there) and above
+   * ~177° to the flat-open one. At intermediate angles the inner display is
    * composited from two planes, so stateful screen content is best kept
    * simple.
    */
@@ -134,9 +137,12 @@ export function Fold({
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#54585f'
   // Resolve the pose: an explicit fold angle wins over the boolean; the
   // extremes snap to the dedicated flat-open / folded-shut paths so the
-  // default renders are pixel-identical to before.
+  // default renders are pixel-identical to before. Below 15° the flex
+  // rig's panels read as two detached slabs (the spine hides behind them),
+  // so that whole range clips to the folded pose — the real hinge snaps
+  // shut from there anyway.
   const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
-  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 3 ? 'closed' : 'flex'
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 15 ? 'closed' : 'flex'
   const isOpenFace = mode !== 'closed'
   const state = isOpenFace ? spec.open : spec.closed
   const cam = isOpenFace ? spec.rearCamera.open : spec.rearCamera.closed
@@ -186,7 +192,10 @@ export function Fold({
   }, [spec.closed.body, spec.bottomEdge.closed, halfDepth])
 
   // Flex pose panels: the open slab split at the hinge line, each half
-  // machining only the bottom-edge openings that live on its side.
+  // machining only the bottom-edge openings that live on its side. The
+  // fold-side corners are nearly square (the display bends there — the real
+  // panels run straight into the hinge), so the two panels stay tight at
+  // the crease instead of opening rounded-corner gaps.
   const flexGeometries = React.useMemo(() => {
     if (mode !== 'flex') return null
     const b = spec.open.body
@@ -206,9 +215,29 @@ export function Fold({
           items.push(holeCutter(m.r, 0.05).translate(localX(m.x), bottom, 0))
       return items
     }
+    const panelSlab = (foldSide: -1 | 1) => {
+      const rFree = b.radius - b.bevel
+      const rFold = 0.008
+      const corners =
+        foldSide === 1
+          ? { tl: rFree, tr: rFold, br: rFold, bl: rFree }
+          : { tl: rFold, tr: rFree, br: rFree, bl: rFold }
+      const shape = mixedRoundedRectShape(hw - b.bevel * 2, b.height - b.bevel * 2, corners)
+      const core = b.depth - b.bevel * 2
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: core,
+        bevelEnabled: true,
+        bevelThickness: b.bevel,
+        bevelSize: b.bevel,
+        bevelSegments: 4,
+        curveSegments: 16,
+      })
+      g.translate(0, 0, -core / 2)
+      return g
+    }
     return {
-      left: cutGeometry(slabGeometry(hw, b.height, b.radius, b.depth, b.bevel), cutters(-1)),
-      right: cutGeometry(slabGeometry(hw, b.height, b.radius, b.depth, b.bevel), cutters(1)),
+      left: cutGeometry(panelSlab(1), cutters(-1)),
+      right: cutGeometry(panelSlab(-1), cutters(1)),
       back: new THREE.ShapeGeometry(
         roundedRectShape(hw - 0.05, b.height - 0.05, Math.max(0.02, b.radius - 0.025)),
         16
@@ -787,25 +816,32 @@ export function Fold({
           />
         </group>
 
-        {/* the hinge spine capping the left edge: a smooth vertical capsule —
-            cylindrical band with domed ends, tucked between the two halves'
-            curved edges and bridging the crevice, like the retail teardrop
-            hinge — with the vertical SAMSUNG emboss on its crown */}
-        <group position={[-body.width / 2 - spec.hinge.overhang + spec.hinge.width / 2, 0, 0]}>
-          <mesh>
-            <capsuleGeometry
-              args={[spec.hinge.width / 2, body.height - 0.02 - spec.hinge.width, 8, 28]}
-            />
-            <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.34} />
-          </mesh>
-          <mesh
-            geometry={spineLogoGeometry}
-            rotation={[0, -Math.PI / 2, Math.PI / 2]}
-            position-x={-spec.hinge.width / 2 - 0.002}
-          >
-            {spineLogoMaterial}
-          </mesh>
-        </group>
+        {/* the hinge spine capping the left edge: a vertical capsule whose
+            radius spans the WHOLE folded stack, so its crown is tangent to
+            both the front and back faces — the smooth book spine of the
+            retail device, sealing the crevice at the hinge edge instead of
+            reading as a thin separate rod — with the vertical SAMSUNG
+            emboss on its crown */}
+        {(() => {
+          // A hair inside the stack's outer faces so the near-tangent
+          // surfaces never coincide (which would shimmer along the line).
+          const spineR = spec.closed.body.depth / 2 - 0.002
+          return (
+            <group position={[-body.width / 2 - spec.hinge.overhang + spineR, 0, 0]}>
+              <mesh>
+                <capsuleGeometry args={[spineR, body.height - 0.02 - spineR * 2, 12, 32]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.34} />
+              </mesh>
+              <mesh
+                geometry={spineLogoGeometry}
+                rotation={[0, -Math.PI / 2, Math.PI / 2]}
+                position-x={-spineR - 0.002}
+              >
+                {spineLogoMaterial}
+              </mesh>
+            </group>
+          )
+        })()}
       </group>
     </group>
   )

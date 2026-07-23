@@ -7,6 +7,7 @@ import {
   BusShelterMockup,
   FlipMockup,
   FoldMockup,
+  IDCardMockup,
   Laptop,
   type LaptopVariant,
   MockupCanvas,
@@ -26,7 +27,7 @@ import {
  *
  * Params:
  *   device      tablet | monitor | flip | fold | watch | laptop
- *               | bus | van | shelter              (default tablet)
+ *               | bus | van | shelter | tv | idcard (default tablet)
  *   variant     device variant id                  (tablet only)
  *   colorway    retail colorway id                 | color=#hex overrides
  *   orientation portrait | landscape               (tablet)
@@ -146,6 +147,23 @@ function HarnessScene() {
       >
         {screen}
       </TVSetMockup>
+    )
+  }
+
+  if (device === 'idcard') {
+    const dist = Number(params.get('dist') ?? 6)
+    return (
+      <IDCardMockup
+        back={params.get('back') === '1' ? screen : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </IDCardMockup>
     )
   }
 

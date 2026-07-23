@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { ID_CARD } from '@area-mockups/core'
+import { ID_CARD, clipRoundedRect, clipRoundedRectOutline } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -10,11 +10,14 @@ import { useScreenOccluders } from '../../screen/occluders'
 type GroupProps = ThreeElements['group']
 
 export interface IDCardProps extends Omit<GroupProps, 'children' | 'color'> {
-  /** Front face design — any React node, full bleed below the punch strip. */
+  /**
+   * Front face design — any React node, full bleed over the WHOLE card
+   * (punch strip included); the slot punch is carved out of the live area.
+   */
   children?: React.ReactNode
   /** Back face design. Spin the badge around to see it (plain stock if omitted). */
   back?: React.ReactNode
-  /** Card stock color — the edges and the unprinted punch strip. */
+  /** Card stock color — the edges and the inside of the punched slot. */
   color?: string
   /** Woven lanyard strap color. */
   lanyardColor?: string
@@ -38,9 +41,11 @@ export interface IDCardProps extends Omit<GroupProps, 'children' | 'color'> {
 
 /**
  * A procedurally built ID badge on a lanyard: a portrait CR80 card with a
- * real punched slot, a swivel hook and crimp in brushed metal, and two woven
- * strap halves rising in a hanging V that exits the top of the frame. The
- * printable face is live DOM on the front — and optionally the back.
+ * real punched slot, a swivel J-hook pierced through it (plane perpendicular
+ * to the card, like a hanging badge), a crimp in brushed metal, and two
+ * woven strap halves rising in a hanging V that exits the top of the frame.
+ * The printable face is live DOM covering the ENTIRE card — front and,
+ * optionally, back — with the slot punch carved out of the live area.
  * No 3D asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
@@ -98,15 +103,41 @@ export function IDCard({
   )
 
   // Hardware chain, referenced from the standard retail swivel J-hook: the
-  // FLAT stamped-steel hook hangs coplanar with the card, its bottom bar
-  // resting inside the slot on the slot's lower edge; the stem rises to the
+  // FLAT stamped-steel hook hangs pierced THROUGH the slot — its plane
+  // perpendicular to the card, the ring's lower band crossing inside the
+  // punched opening (just clear of resting on its bottom edge) while the
+  // ring window swallows the punch strip — then the stem rises to the
   // swivel barrel, and the crimp above it swallows the strap fold.
-  const slotBottom = slot.centerY - slot.height / 2
-  const ringY = slotBottom + 0.005 + hook.outerR
+  const ringY = slot.centerY + (hook.outerR + hook.innerR) / 2 - 0.01
   const stemBottom = ringY + hook.innerR - 0.03
   const stemTop = ringY + hook.outerR + hook.stem.height - 0.03
   const barrelY = stemTop + hook.barrel.height / 2 - 0.03
   const crimpY = barrelY + hook.barrel.height / 2 + hook.crimp.height / 2 - 0.025
+
+  // Full-bleed live faces with the real slot punched out of the DOM too:
+  // the face outline traced one way, the stadium hole the other, so the
+  // nonzero fill rule carves it (same numbers as the 3D card's punch).
+  const slotClip = React.useMemo(() => {
+    const ppu = resolution / face.width
+    const P = (x: number, y: number) =>
+      `${((x + face.width / 2) * ppu).toFixed(2)} ${((face.height / 2 - y) * ppu).toFixed(2)}`
+    const R = (u: number) => `${(u * ppu).toFixed(2)}`
+    const outline = clipRoundedRectOutline(P, R, 1, {
+      minX: -face.width / 2,
+      minY: -face.height / 2,
+      maxX: face.width / 2,
+      maxY: face.height / 2,
+      r: face.radius,
+    })
+    const hole = clipRoundedRect(P, R, 1, {
+      minX: -slot.width / 2,
+      minY: slot.centerY - slot.height / 2,
+      maxX: slot.width / 2,
+      maxY: slot.centerY + slot.height / 2,
+      r: slot.height / 2,
+    })
+    return `path("${(outline + hole).trim()}")`
+  }, [face, slot, resolution])
 
   // The flat J profile: an annular arc open at the upper right (the mouth),
   // extruded at stamped-steel thickness.
@@ -152,7 +183,7 @@ export function IDCard({
     interactive,
     dragToRotate,
     occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined,
-    screenStyle,
+    screenStyle: { ...screenStyle, clipPath: slotClip },
   }
 
   return (
@@ -162,9 +193,10 @@ export function IDCard({
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.55} clearcoat={0.4} clearcoatRoughness={0.4} />
       </mesh>
 
-      {/* the flat stamped-steel J-hook, hanging coplanar with the card, its
-          bottom bar resting inside the slot */}
-      <group position={[0, ringY, 0]}>
+      {/* the flat stamped-steel J-hook, rotated 90° so its plane pierces
+          the card through the slot: half the ring in front of the punch
+          strip, half behind, its lower band inside the punched opening */}
+      <group position={[0, ringY, 0]} rotation-y={Math.PI / 2}>
         <mesh geometry={hookGeometry}>{metal}</mesh>
         {/* thin spring gate closing the mouth */}
         <RoundedBox
@@ -176,10 +208,11 @@ export function IDCard({
           {metal}
         </RoundedBox>
       </group>
-      {/* stem rising from the ring to the swivel */}
+      {/* stem rising edge-on from the ring to the swivel (same stamped
+          piece, so it shares the hook's perpendicular plane) */}
       <RoundedBox
-        args={[hook.stem.width, stemTop - stemBottom, hook.depth - 0.004]}
-        radius={0.012}
+        args={[hook.depth - 0.004, stemTop - stemBottom, hook.stem.width]}
+        radius={0.008}
         position={[0, (stemTop + stemBottom) / 2, 0]}
       >
         {metal}
@@ -219,7 +252,7 @@ export function IDCard({
         </group>
       ))}
 
-      {/* live front face, clear of the punch strip */}
+      {/* live front face — full bleed over the whole card, slot carved out */}
       <DeviceScreen {...faceProps} position={[0, face.offsetY, body.thickness / 2 + 0.003]}>
         {children}
       </DeviceScreen>

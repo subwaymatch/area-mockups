@@ -20,18 +20,21 @@ export const ID_CARD = {
   /** Slot punch (a real 14x3 mm stadium hole), centerline ~5.5 mm below the top edge. */
   slot: { width: 0.44, height: 0.095, centerY: 2.675 / 2 - 0.172 },
   /**
-   * Printable face. It stops just below the slot-punch strip — like a real
-   * badge, the design keeps clear of the punch — so the clip hardware never
-   * overlaps the live DOM area. Content maps onto this rect on both sides.
+   * Printable face: the WHOLE card, edge to edge — like a real full-bleed
+   * badge print, the design runs under the punch strip too. The renderer
+   * carves the slot punch out of the live area (same stadium hole as the
+   * 3D card), so content maps onto this rect on both sides minus the slot.
    */
-  face: { width: 1.687, height: 2.235, radius: 0.1, offsetY: -0.22 },
+  face: { width: 1.687, height: 2.675, radius: 0.1, offsetY: 0 },
   /**
    * Hardware chain, bottom to top exactly as on real lanyards: the classic
-   * FLAT stamped-steel swivel J-hook (an open ring segment whose bottom bar
-   * hangs in the card's slot, closed by a thin spring gate), the stem and
-   * swivel barrel above it, and the sheet-metal crimp that captures the
-   * folded strap ends. Reference: the standard "metal swivel J hook clip"
-   * used on nearly every retail lanyard — flat polished steel, not wire.
+   * FLAT stamped-steel swivel J-hook (an open ring segment closed by a thin
+   * spring gate) hanging pierced THROUGH the slot — its plane perpendicular
+   * to the card, the lower band crossing inside the punched opening and the
+   * ring window swallowing the punch strip — then the stem and swivel
+   * barrel above it, and the sheet-metal crimp that captures the folded
+   * strap ends. Reference: the standard "metal swivel J hook clip" used on
+   * nearly every retail lanyard — flat polished steel, not wire.
    */
   hook: {
     /** Ring segment of the J: outer/inner radii of the flat stamped hook. */

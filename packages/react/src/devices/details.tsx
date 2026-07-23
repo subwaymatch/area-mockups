@@ -238,6 +238,33 @@ export function LensRing({
   )
 }
 
+/**
+ * A rounded rect with per-corner radii, for slabs whose edges differ — e.g.
+ * a foldable's flex panels, rounded on the free corners but nearly square
+ * along the fold line so the two panels meet tight at the crease.
+ */
+export function mixedRoundedRectShape(
+  width: number,
+  height: number,
+  corners: { tl: number; tr: number; br: number; bl: number }
+): THREE.Shape {
+  const w = width / 2
+  const h = height / 2
+  const { tl, tr, br, bl } = corners
+  const s = new THREE.Shape()
+  s.moveTo(-w + bl, -h)
+  s.lineTo(w - br, -h)
+  s.absarc(w - br, -h + br, br, -Math.PI / 2, 0, false)
+  s.lineTo(w, h - tr)
+  s.absarc(w - tr, h - tr, tr, 0, Math.PI / 2, false)
+  s.lineTo(-w + tl, h)
+  s.absarc(-w + tl, h - tl, tl, Math.PI / 2, Math.PI, false)
+  s.lineTo(-w, -h + bl)
+  s.absarc(-w + bl, -h + bl, bl, Math.PI, Math.PI * 1.5, false)
+  s.closePath()
+  return s
+}
+
 /* -------------------------------------------------------------------------
  * Real cutouts: ports and holes are machined into the chassis with CSG, so
  * every opening is a true cavity with a lip, interior walls and parallax —
