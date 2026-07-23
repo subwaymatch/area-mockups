@@ -44,6 +44,14 @@ export interface DeviceScreenProps {
   dragToRotate?: boolean
   /** Occlusion mode resolved by the device (mesh refs, 'blending', or off). */
   occlude?: React.RefObject<THREE.Mesh>[] | 'blending' | undefined
+  /**
+   * Custom depth-occluder geometry for `'blending'` mode, in world units on
+   * the screen plane. By default the blending occluder is the screen's full
+   * rect — a screen whose DOM is clipped (rounded corners, punched holes)
+   * should pass a matching shape here, or hardware showing through the
+   * clipped openings gets depth-hidden by the invisible rect.
+   */
+  occluderGeometry?: THREE.BufferGeometry
   /** Extra styles merged onto the screen wrapper. */
   screenStyle?: React.CSSProperties
   /** Device-specific overlay (punch hole, notch…) rendered above the content. */
@@ -69,11 +77,24 @@ export function DeviceScreen({
   interactive = true,
   dragToRotate = true,
   occlude,
+  occluderGeometry,
   screenStyle,
   overlay,
   children,
 }: DeviceScreenProps) {
   const gl = useThree((state) => state.gl)
+
+  // drei's 'blending' mode turns the CANVAS to pointer-events:none so DOM
+  // stacked under it stays clickable — which silently kills orbit drags on
+  // the empty background. We want the opposite trade for mockups: the
+  // canvas keeps ALL input (drag-to-orbit works everywhere) and content
+  // behind a blending screen is display-only. Parent layout effects run
+  // after the child Html's, so this override wins on mount.
+  const usingBlending = occlude === 'blending'
+  React.useLayoutEffect(() => {
+    if (!usingBlending) return
+    gl.domElement.style.pointerEvents = 'auto'
+  }, [usingBlending, gl])
 
   // Tap-vs-drag handoff: presses stay with the content, real drags are
   // replayed on the canvas so the orbit controls take over the gesture.
@@ -122,6 +143,11 @@ export function DeviceScreen({
       <Html
         transform
         occlude={occlude === 'blending' ? 'blending' : undefined}
+        geometry={
+          occlude === 'blending' && occluderGeometry ? (
+            <primitive object={occluderGeometry} attach="geometry" />
+          ) : undefined
+        }
         distanceFactor={screenDistanceFactor(width, resolution)}
         zIndexRange={[10, 0]}
         wrapperClass={screenLayerClass(dragToRotate)}

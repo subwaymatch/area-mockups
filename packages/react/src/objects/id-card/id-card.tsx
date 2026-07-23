@@ -177,6 +177,22 @@ export function IDCard({
       mid: { x: (nose.x + root.x) / 2, y: (nose.y + root.y) / 2 },
     }
   }, [hook])
+  // Depth occluder matching the clipped face: the card outline with the
+  // slot punched out, so blending mode never depth-hides the hook where it
+  // should show through the real opening.
+  const faceOccluderGeometry = React.useMemo(() => {
+    const shape = roundedRectShape(face.width, face.height, face.radius)
+    const punch = roundedRectShape(slot.width, slot.height, slot.height / 2)
+    const punchPath = new THREE.Path()
+    punch.getPoints(16).forEach((p, i) => {
+      if (i === 0) punchPath.moveTo(p.x, p.y + slot.centerY)
+      else punchPath.lineTo(p.x, p.y + slot.centerY)
+    })
+    shape.holes.push(punchPath)
+    return new THREE.ShapeGeometry(shape, 12)
+  }, [face, slot])
+  React.useEffect(() => () => faceOccluderGeometry.dispose(), [faceOccluderGeometry])
+
   const faceProps = {
     width: face.width,
     height: face.height,
@@ -186,6 +202,7 @@ export function IDCard({
     interactive,
     dragToRotate,
     occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined,
+    occluderGeometry: faceOccluderGeometry,
     screenStyle: { ...screenStyle, clipPath: slotClip },
   }
 

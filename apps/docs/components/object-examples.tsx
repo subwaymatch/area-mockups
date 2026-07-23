@@ -78,7 +78,6 @@ import {
   GreetingInsideArt,
   MagazineCoverArt,
   PosterArt,
-  StoreMuralArt,
   StorePosterArt,
   StoreSignArt,
   TrailerRearArt,
@@ -814,16 +813,16 @@ const DEMOS: Record<string, React.ReactNode> = {
     </StorefrontMockup>
   ),
   'storefront-paint': (
-    <StorefrontMockup color="#5c2330" wallColor="#6d6258" windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <StorefrontMockup color="#5c2330" windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, 0.3, 0] }}>
       <StoreSignArt />
     </StorefrontMockup>
   ),
   'storefront-around': (
     <StorefrontMockup
       windowPoster={<StorePosterArt />}
-      sideSign={<StoreSignArt />}
-      sideWall={<StoreMuralArt />}
-      rearWall={<StoreMuralArt />}
+      leftSign={<StoreSignArt />}
+      rightSign={<StoreSignArt />}
+      rearSign={<StoreSignArt />}
       autoRotate
       autoRotateSpeed={1.2}
     >
@@ -1120,9 +1119,9 @@ const DEMOS: Record<string, React.ReactNode> = {
   'chroma-storefront': (
     <StorefrontMockup
       windowPoster={<ChromaSurface label="windowPoster" />}
-      sideSign={<ChromaSurface label="sideSign" />}
-      sideWall={<ChromaSurface label="sideWall" />}
-      rearWall={<ChromaSurface label="rearWall" />}
+      leftSign={<ChromaSurface label="leftSign" />}
+      rightSign={<ChromaSurface label="rightSign" />}
+      rearSign={<ChromaSurface label="rearSign" />}
       autoRotate
       autoRotateSpeed={0.7}
     >

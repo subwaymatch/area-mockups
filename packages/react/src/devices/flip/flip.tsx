@@ -611,7 +611,7 @@ export function Flip({
 
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="flex" rotation-z={landscape ? Math.PI / 2 : 0}>
           {/* upper (cover) half folds toward the viewer around the hinge */}
           <group position={[0, 0, pz]} rotation-x={alpha}>
             <group position={[0, halfH / 2, -pz]}>
@@ -683,7 +683,7 @@ export function Flip({
   if (mode === 'open') {
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="open" rotation-z={landscape ? Math.PI / 2 : 0}>
           {/* chassis */}
           <mesh ref={bodyRef} geometry={openGeometry}>
             <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.32} />
@@ -748,7 +748,7 @@ export function Flip({
 
   return (
     <group {...groupProps}>
-      <group rotation-z={landscape ? Math.PI / 2 : 0}>
+      <group key="closed" rotation-z={landscape ? Math.PI / 2 : 0}>
         {/* front half (cover screen + cameras) and rear half, with the air gap */}
         <group position-z={halfZ}>
           <mesh ref={bodyRef} geometry={halfGeometry}>

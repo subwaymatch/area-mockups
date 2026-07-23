@@ -156,9 +156,9 @@ function HarnessScene() {
     return (
       <StorefrontMockup
         windowPoster={screen}
-        sideSign={screen}
-        sideWall={screen}
-        rearWall={screen}
+        leftSign={screen}
+        rightSign={screen}
+        rearSign={screen}
         interactive={false}
         dragToRotate={false}
         controls={controls}

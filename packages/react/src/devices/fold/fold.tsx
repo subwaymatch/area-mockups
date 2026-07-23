@@ -564,7 +564,7 @@ export function Fold({
 
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="flex" rotation-z={landscape ? Math.PI / 2 : 0}>
           {/* left (cover-screen) panel folds toward the viewer */}
           <group position={[0, 0, pz]} rotation-y={alpha}>
             <group position={[-hw / 2, 0, -pz]}>
@@ -686,7 +686,7 @@ export function Fold({
   if (mode === 'open') {
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="open" rotation-z={landscape ? Math.PI / 2 : 0}>
           {/* chassis */}
           <mesh ref={bodyRef} geometry={openGeometry}>
             {chassisMaterial}
@@ -775,7 +775,7 @@ export function Fold({
 
   return (
     <group {...groupProps}>
-      <group rotation-z={landscape ? Math.PI / 2 : 0}>
+      <group key="closed" rotation-z={landscape ? Math.PI / 2 : 0}>
         {/* front (cover) slab — carries the cover screen and the speaker slot */}
         <group position-z={halfZ}>
           <mesh ref={bodyRef} geometry={frontHalfGeometry}>
