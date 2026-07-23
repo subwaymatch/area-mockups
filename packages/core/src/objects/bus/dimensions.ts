@@ -61,10 +61,10 @@ export const BUS = {
   windowBand: { y: 0.079, height: 0.66, frontX: 2.35, backX: -3.02 },
   /**
    * Driver's window on the street side (−Z), right behind the A-pillar —
-   * taller than the passenger band and dropping below its sill, like the
-   * hinged/sliding driver's glass on real low-floor buses.
+   * same height and sill line as the passenger band, like the sliding
+   * driver's glass on real low-floor buses.
    */
-  driverWindow: { x: 2.73, width: 0.6, y: 0.105, height: 0.69 },
+  driverWindow: { x: 2.73, width: 0.6, y: 0.079, height: 0.66 },
   /**
    * Curb-side doors: two-leaf full-glass slabs whose glass drops to ~350 mm
    * above the ground — the low-floor entry these buses are known for.
@@ -84,10 +84,11 @@ export const BUS = {
   rearAd: { width: 0.936, height: 0.281, y: -0.28, radius: 0.012 },
   /**
    * Full-coverage rear wrap (`coverage="full"`): the whole tail between the
-   * bumper and the roof dome — engine louvers and the rear window get
-   * covered like a real tail wrap; the taillight stacks are carved out.
+   * bumper and the roof dome, out to the corner bevels — engine louvers and
+   * the rear window get covered like a real tail wrap; each taillight lamp
+   * is carved out individually.
    */
-  rearFull: { width: 1.28, height: 1.15, y: 0.175, radius: 0.02 },
+  rearFull: { width: 1.32, height: 1.16, y: 0.18, radius: 0.02 },
   /** Rear window above the engine bay. */
   rearWindow: { width: 0.95, height: 0.44, y: 0.5 },
   /** Live LED destination sign inside the dark upper fascia band. */

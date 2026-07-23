@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { ROLLUP_BANNER } from '@area-mockups/core'
+import { ROLLUP_BANNER, rollupBannerSpec, type RollupBannerSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -12,6 +12,12 @@ type GroupProps = ThreeElements['group']
 export interface RollupBannerProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Banner graphic — any React node. It fills the visible graphic, full bleed. */
   children?: React.ReactNode
+  /**
+   * Physical graphic size in millimeters, e.g. `{ width: 1000 }` for a wide
+   * stand or `{ width: 600, height: 1600 }` for a compact one. Defaults to
+   * the standard 850 x 2000 mm unit.
+   */
+  size?: RollupBannerSize
   /** Hardware color (cassette, pole, top rail). Brushed aluminum by default. */
   color?: string
   /** CSS background painted behind your graphic content. */
@@ -45,6 +51,7 @@ export interface RollupBannerProps extends Omit<GroupProps, 'children' | 'color'
  */
 export function RollupBanner({
   children,
+  size,
   color = '#b9bdc4',
   graphicBackground = '#ffffff',
   resolution = ROLLUP_BANNER.resolution,
@@ -54,7 +61,10 @@ export function RollupBanner({
   screenStyle,
   ...groupProps
 }: RollupBannerProps) {
-  const { graphic, cassette, pole, rail, standHeight } = ROLLUP_BANNER
+  const { graphic, cassette, pole, rail, standHeight } = React.useMemo(
+    () => (size ? rollupBannerSpec(size) : ROLLUP_BANNER),
+    [size?.width, size?.height]
+  )
   const backingRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(backingRef)
 

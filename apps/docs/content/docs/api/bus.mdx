@@ -35,8 +35,10 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `curbSideAd` | `ReactNode` | - | Creative for the curb-side (+Z) surface — the named alternative to `children` (wins when both are set). |
 | `streetSideAd` | `ReactNode` | - | Creative for the street-side (−Z) ad surface. |
 | `rearAd` | `ReactNode` | - | Creative for the rear surface: the 21"×70" tail ad, or the whole tail with `coverage="full"`. |
+| `wrapOverWindows` | `boolean \| { curbSide?, streetSide?, rear? }` | `true` | Whether a full wrap runs over the passenger glass (perforated film) or the glass is carved out and stays visible — per surface. Doors and the driver's window always stay clear. |
 | `destinationSign` | `ReactNode \| string \| string[]` | - | Live LED sign. Strings get the built-in dot-matrix renderer (marquee / alternating pages); a node renders as-is. |
 | `color` | `string` | `'#eef0f2'` | Body paint. Transit fleets are usually white or silver. |
 | `adBackground` | `string` | `'#ffffff'` | CSS background behind your ad content. |
@@ -67,6 +69,21 @@ passenger windows, exactly like a real perforated-film wrap.
 >
   <FullLivery />
 </BusMockup>
+```
+
+### Full wrap with the glass kept clear
+
+`wrapOverWindows={false}` layers the graphics UNDER the glass instead: the
+passenger window band and the rear window are carved out of the wrap, so the
+3D glass shows through — the classic partial-wrap look. It also accepts a
+per-surface object (`{ rear: false }`) to mix both styles. Each rear lamp is
+carved out individually, so the tail graphic runs right up to the light
+collars either way.
+
+<ObjectDemo demo="bus-full-clear" />
+
+```tsx
+<BusMockup coverage="full" wrapOverWindows={false} curbSideAd={<Livery />} streetSideAd={<Livery />} rearAd={<TailLivery />} />
 ```
 
 ### Rear three-quarter with the tail ad

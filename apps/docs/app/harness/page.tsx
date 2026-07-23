@@ -31,8 +31,10 @@ import {
  *   orientation portrait | landscape               (tablet)
  *   open        1 | 0                              (flip)
  *   coverage    panel | full                       (bus, van)
+ *   over        1 | 0 — wrap over the glass        (bus, default 1)
  *   sign        LED text; '|' splits pages         (bus destination sign)
  *   arrivals    LED text; '|' splits board rows    (shelter)
+ *   arrivalsBack LED text for the board's back     (shelter; defaults to mirror)
  *   rx, ry      device rotation in degrees         (default 0, 0)
  *   dist        camera distance in world units     (default per device)
  *   cy          camera height                      (default 0)
@@ -72,6 +74,7 @@ function HarnessScene() {
     return (
       <BusMockup
         coverage={params.get('coverage') === 'full' ? 'full' : 'panel'}
+        wrapOverWindows={params.get('over') !== '0'}
         color={color}
         destinationSign={sign ? (sign.includes('|') ? sign.split('|') : sign) : undefined}
         streetSideAd={screen}
@@ -111,9 +114,11 @@ function HarnessScene() {
   if (device === 'shelter') {
     const dist = Number(params.get('dist') ?? 11)
     const arrivals = params.get('arrivals')
+    const arrivalsBack = params.get('arrivalsBack')
     return (
       <BusShelterMockup
         arrivals={arrivals ? (arrivals.includes('|') ? arrivals.split('|') : arrivals) : undefined}
+        arrivalsBack={arrivalsBack ? (arrivalsBack.includes('|') ? arrivalsBack.split('|') : arrivalsBack) : undefined}
         interactive={false}
         dragToRotate={false}
         controls={controls}

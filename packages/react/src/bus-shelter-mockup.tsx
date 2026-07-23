@@ -8,6 +8,7 @@ type InheritedObjectProps = Pick<
   BusShelterProps,
   | 'inner'
   | 'arrivals'
+  | 'arrivalsBack'
   | 'color'
   | 'posterBackground'
   | 'resolution'
@@ -41,6 +42,7 @@ export function BusShelterMockup({
   children,
   inner,
   arrivals,
+  arrivalsBack,
   color,
   posterBackground,
   resolution,
@@ -56,6 +58,7 @@ export function BusShelterMockup({
     <BusShelter
       inner={inner}
       arrivals={arrivals}
+      arrivalsBack={arrivalsBack}
       color={color}
       posterBackground={posterBackground}
       resolution={resolution}

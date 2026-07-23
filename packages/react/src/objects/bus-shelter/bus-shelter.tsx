@@ -22,6 +22,12 @@ export interface BusShelterProps extends Omit<GroupProps, 'children' | 'color'> 
    * message — or any React node for full custom control.
    */
   arrivals?: React.ReactNode | string | string[]
+  /**
+   * The waiting-area face of the arrivals board. By default it mirrors
+   * `arrivals` — set this (text, string array or a custom node) to show
+   * different content on the back.
+   */
+  arrivalsBack?: React.ReactNode | string | string[]
   /** Street-furniture steel color (roof, posts, frames, bench). */
   color?: string
   /** CSS background painted behind the poster content (backlit white). */
@@ -57,6 +63,7 @@ export function BusShelter({
   children,
   inner,
   arrivals,
+  arrivalsBack,
   color = '#2f333a',
   posterBackground = '#ffffff',
   resolution = BUS_SHELTER.resolution,
@@ -72,17 +79,21 @@ export function BusShelter({
 
   // Plain strings become the built-in LED arrivals board — an array is one
   // row per arrival; custom nodes pass straight through.
-  const board = isLedText(arrivals) ? (
-    <LEDText
-      text={arrivals}
-      mode={typeof arrivals === 'string' ? 'auto' : 'rows'}
-      align="left"
-      background="#0b0c0e"
-      dotSize={3}
-    />
-  ) : (
-    arrivals
-  )
+  const toBoard = (content: React.ReactNode | string | string[]) =>
+    isLedText(content) ? (
+      <LEDText
+        text={content}
+        mode={typeof content === 'string' ? 'auto' : 'rows'}
+        align="left"
+        background="#0b0c0e"
+        dotSize={3}
+      />
+    ) : (
+      content
+    )
+  const board = toBoard(arrivals)
+  // The waiting-area face mirrors the street face unless overridden.
+  const backBoard = arrivalsBack === undefined ? board : toBoard(arrivalsBack)
 
   const glassMaterial = (
     <meshPhysicalMaterial
@@ -199,6 +210,24 @@ export function BusShelter({
           >
             {board}
           </DeviceScreen>
+          {/* the waiting-area face — mirrors the street face by default */}
+          {backBoard != null && (
+            <DeviceScreen
+              width={display.width}
+              height={display.height}
+              radius={0.01}
+              resolution={display.resolution}
+              position={[0, 0, -0.049]}
+              rotation={[0, Math.PI, 0]}
+              background="#0b0c0e"
+              interactive={interactive}
+              dragToRotate={dragToRotate}
+              occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+              screenStyle={screenStyle}
+            >
+              {backBoard}
+            </DeviceScreen>
+          )}
         </group>
       )}
 

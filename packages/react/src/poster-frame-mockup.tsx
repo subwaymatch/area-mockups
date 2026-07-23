@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { PosterFrame, type PosterFrameProps } from './objects/poster-frame/poster-frame'
-import { POSTER_FRAME } from '@area-mockups/core'
+import { POSTER_FRAME, posterFrameSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   PosterFrameProps,
+  | 'size'
   | 'color'
   | 'mat'
   | 'matColor'
@@ -41,6 +42,7 @@ export interface PosterFrameMockupProps
  */
 export function PosterFrameMockup({
   children,
+  size,
   color,
   mat,
   matColor,
@@ -57,6 +59,7 @@ export function PosterFrameMockup({
 }: PosterFrameMockupProps) {
   const object = (
     <PosterFrame
+      size={size}
       color={color}
       mat={mat}
       matColor={matColor}
@@ -73,7 +76,8 @@ export function PosterFrameMockup({
     </PosterFrame>
   )
 
-  const half = (POSTER_FRAME.poster.height + POSTER_FRAME.frame.width * 2) / 2
+  const spec = size ? posterFrameSpec(size) : POSTER_FRAME
+  const half = (spec.poster.height + spec.frame.width * 2) / 2
   const shadowY = canvasProps.shadowY ?? (float ? -(half + 0.3) : -(half + 0.05))
 
   return (

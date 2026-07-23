@@ -462,6 +462,14 @@ const DEMOS: Record<string, React.ReactNode> = {
       <BrochureFrontArt />
     </BrochureMockup>
   ),
+  'brochure-both-sides': (
+    <BrochureMockup
+      panels={[<BrochureFrontArt key="f" />, <BrochureTrailsArt key="t" />, <BrochureVisitArt key="v" />]}
+      backPanels={[<BrochureTrailsArt key="bf" />, <BrochureVisitArt key="bt" />, <BrochureFrontArt key="bv" />]}
+      autoRotate
+      autoRotateSpeed={0.8}
+    />
+  ),
 
   // ---- Business card -----------------------------------------------------
   'card-basic': (
@@ -600,6 +608,17 @@ const DEMOS: Record<string, React.ReactNode> = {
       <BusFullLivery />
     </BusMockup>
   ),
+  'bus-full-clear': (
+    <BusMockup
+      coverage="full"
+      wrapOverWindows={false}
+      destinationSign="7 CROSSTOWN"
+      curbSideAd={<BusFullLivery />}
+      streetSideAd={<BusFullLivery />}
+      rearAd={<BusTailLivery />}
+      deviceProps={{ rotation: [0, 0.42, 0] }}
+    />
+  ),
   'bus-rear': (
     <BusMockup
       streetSideAd={<BusAdArt />}
@@ -656,10 +675,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   'banner-pair': (
     <MockupCanvas camera={{ position: [0, 0.4, 9.8], fov: 40 }} shadowY={-2.05}>
       <group position={[0, 0.14, 0]}>
-        <RollupBanner position={[-1.55, 0, -0.4]} rotation={[0, 0.3, 0]}>
+        <RollupBanner position={[-1.75, 0, -0.4]} rotation={[0, 0.3, 0]}>
           <BannerArt />
         </RollupBanner>
-        <RollupBanner color="#31343a" position={[1.55, 0, 0]} rotation={[0, -0.15, 0]}>
+        {/* the wide 1000×2000 stand via `size` — the cassette resizes with it */}
+        <RollupBanner size={{ width: 1000 }} color="#31343a" position={[1.55, 0, 0]} rotation={[0, -0.15, 0]}>
           <BannerArt />
         </RollupBanner>
       </group>

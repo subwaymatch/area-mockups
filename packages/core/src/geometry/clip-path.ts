@@ -47,6 +47,25 @@ export function clipRoundedRect(
 }
 
 /**
+ * Circular HOLE subpath (two half arcs), wound the same way as
+ * `clipRoundedRect` holes — for carving individual lamps, ports and other
+ * round hardware out of a wrap.
+ */
+export function clipCircle(
+  P: ClipPoint,
+  R: ClipLength,
+  sweep: 0 | 1,
+  cx: number,
+  cy: number,
+  r: number
+): string {
+  return (
+    `M ${P(cx - r, cy)} A ${R(r)} ${R(r)} 0 1 ${sweep} ${P(cx + r, cy)} ` +
+    `A ${R(r)} ${R(r)} 0 1 ${sweep} ${P(cx - r, cy)} Z `
+  )
+}
+
+/**
  * Rounded-rect OUTER-boundary subpath: the same rect traced in the reverse
  * (world-counterclockwise) direction, so `clipRoundedRect` holes cut out of
  * it under the nonzero fill rule. Pass the SAME `sweep` used for the holes —

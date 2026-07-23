@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { BUS, clipRoundedRect, clipRoundedRectOutline } from '@area-mockups/core'
+import { BUS, clipCircle, clipRoundedRect, clipRoundedRectOutline } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
 import { LEDText, isLedText } from '../../led-text'
@@ -25,17 +25,20 @@ const FULL_SIDE = {
 /**
  * SVG path (CSS px, y-down) clipping the full-coverage side wrap: the
  * shell's own side profile — wheel-arch arcs included — as the outer
- * boundary, with the operational glass as opposite-winding holes. Transit
- * wraps cover the passenger windows (perforated vinyl), so those are NOT
- * carved out — only what must stay clear is: the curb-side door leaves, the
- * street-side driver's window, and the mirror mount. `mirrored` builds the
- * street-side (−Z) variant, whose CSS x axis runs nose→tail; mirroring also
- * flips every arc's sweep flag so the geometry stays identical.
+ * boundary, with the operational glass as opposite-winding holes, cut tight
+ * to the hardware (~4 mm install margin). What must stay clear is always
+ * carved: the curb-side door leaves, the street-side driver's window and
+ * the mirror mount. The passenger window band is carved only when
+ * `overWindows` is false — transit wraps normally run over it as perforated
+ * film. `mirrored` builds the street-side (−Z) variant, whose CSS x axis
+ * runs nose→tail; mirroring also flips every arc's sweep flag so the
+ * geometry stays identical.
  */
-function buildFullSideClip(pxPerUnit: number, mirrored: boolean): string {
+function buildFullSideClip(pxPerUnit: number, mirrored: boolean, overWindows: boolean): string {
   const { skirtY, wheels, profile, windowBand, doors, driverWindow } = BUS
-  // Keep the wrap just inside the shell's beveled edge (bevelSize 0.015).
-  const inset = 0.015
+  // Keep the wrap just inside the shell's beveled edge.
+  const inset = 0.01
+  const margin = 0.004
   const X = (x: number) => ((mirrored ? profile.noseX - x : x - profile.tailX) * pxPerUnit).toFixed(1)
   const Y = (y: number) => ((profile.roofY - y) * pxPerUnit).toFixed(1)
   const P = (x: number, y: number) => `${X(x)} ${Y(y)}`
@@ -69,34 +72,45 @@ function buildFullSideClip(pxPerUnit: number, mirrored: boolean): string {
   const doorHoles = doors
     .map(({ x, width, bottomY }) =>
       clipRoundedRect(P, R, sweep, {
-        minX: x - width / 2 - 0.015,
-        maxX: x + width / 2 + 0.015,
-        minY: bottomY - 0.015,
-        maxY: doorTopY + 0.015,
-        r: 0.045,
+        minX: x - width / 2 - margin,
+        maxX: x + width / 2 + margin,
+        minY: bottomY - margin,
+        maxY: doorTopY + margin,
+        r: 0.034,
       })
     )
     .join('')
   const windowHole = clipRoundedRect(P, R, sweep, {
-    minX: driverWindow.x - driverWindow.width / 2 - 0.012,
-    maxX: driverWindow.x + driverWindow.width / 2 + 0.012,
-    minY: driverWindow.y - driverWindow.height / 2 - 0.012,
-    maxY: driverWindow.y + driverWindow.height / 2 + 0.012,
-    r: 0.05,
+    minX: driverWindow.x - driverWindow.width / 2 - margin,
+    maxX: driverWindow.x + driverWindow.width / 2 + margin,
+    minY: driverWindow.y - driverWindow.height / 2 - margin,
+    maxY: driverWindow.y + driverWindow.height / 2 + margin,
+    r: 0.034,
   })
-  const mirrorHole = clipRoundedRect(P, R, sweep, { minX: 3.11, minY: 0.3, maxX: 3.19, maxY: 0.38, r: 0.025 })
+  const bandHole = overWindows
+    ? ''
+    : clipRoundedRect(P, R, sweep, {
+        minX: windowBand.backX - margin,
+        maxX: windowBand.frontX + margin,
+        minY: windowBand.y - windowBand.height / 2 - margin,
+        maxY: windowBand.y + windowBand.height / 2 + margin,
+        r: 0.034,
+      })
+  const mirrorHole = clipRoundedRect(P, R, sweep, { minX: 3.125, minY: 0.317, maxX: 3.175, maxY: 0.363, r: 0.018 })
 
-  return (outline + (mirrored ? windowHole : doorHoles) + mirrorHole).trim()
+  return (outline + (mirrored ? windowHole : doorHoles) + bandHole + mirrorHole).trim()
 }
 
 /**
  * SVG path clipping the full-coverage rear wrap: the wrap rect itself as the
- * outer boundary with the two taillight stacks carved out. The engine
- * louvers, route-sign box and rear window sit behind the wrap plane and get
- * covered, like a real tail wrap.
+ * outer boundary with each taillight lamp carved out individually — the
+ * graphic runs right up to every lamp collar. The engine louvers, route-sign
+ * box and rear window sit behind the wrap plane and get covered like a real
+ * tail wrap, unless `overWindows` is false, which carves the rear window
+ * clear too.
  */
-function buildFullRearClip(pxPerUnit: number): string {
-  const { rearFull } = BUS
+function buildFullRearClip(pxPerUnit: number, overWindows: boolean): string {
+  const { rearFull, rearWindow } = BUS
   const halfW = rearFull.width / 2
   const topY = rearFull.y + rearFull.height / 2
   // The rear plane faces −X; its CSS x axis runs along world +z unmirrored.
@@ -110,18 +124,20 @@ function buildFullRearClip(pxPerUnit: number): string {
     maxY: topY,
     r: rearFull.radius,
   })
+  // The stacked round lamps at each corner, r 0.05 plus a slim margin.
   const lamps = ([1, -1] as const)
-    .map((side) =>
-      clipRoundedRect(P, R, 1, {
-        minX: side === 1 ? 0.485 : -0.635,
-        maxX: side === 1 ? 0.635 : -0.485,
-        minY: -0.04,
-        maxY: 0.36,
-        r: 0.03,
-      })
-    )
+    .flatMap((side) => [0.3, 0.16, 0.02].map((y) => clipCircle(P, R, 1, side * 0.56, y, 0.058)))
     .join('')
-  return (outline + lamps).trim()
+  const windowHole = overWindows
+    ? ''
+    : clipRoundedRect(P, R, 1, {
+        minX: -rearWindow.width / 2 - 0.006,
+        maxX: rearWindow.width / 2 + 0.006,
+        minY: rearWindow.y - rearWindow.height / 2 - 0.006,
+        maxY: rearWindow.y + rearWindow.height / 2 + 0.006,
+        r: 0.036,
+      })
+  return (outline + lamps + windowHole).trim()
 }
 
 export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
@@ -130,6 +146,11 @@ export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
    * The king-size panel by default; the whole side with `coverage="full"`.
    */
   children?: React.ReactNode
+  /**
+   * Creative for the curb-side (+Z) ad surface — the named alternative to
+   * `children`, symmetric with `streetSideAd`. Wins when both are given.
+   */
+  curbSideAd?: React.ReactNode
   /** Creative for the street-side (−Z) ad surface. */
   streetSideAd?: React.ReactNode
   /**
@@ -154,13 +175,22 @@ export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
    * How much of the bus the live ad surfaces cover. `'panel'` (default) is
    * the classic king-size (30"x144") side panel and 21"x70" tail panel.
    * `'full'` is the full transit wrap: the entire side elevation — skirts to
-   * roofline, tail to nose, graphics running over the passenger windows like
-   * perforated wrap film — and the entire tail between bumper and roof dome.
-   * The wheel arches, door leaves, driver's window, mirror mounts and
+   * roofline, tail to nose — and the entire tail between bumper and roof
+   * dome. The wheel arches, door leaves, driver's window, mirror mounts and
    * taillights are carved out (CSS `clip-path`), so the 3D wheels, the glass
    * the driver needs and the lights stay visible through your livery.
    */
   coverage?: 'panel' | 'full'
+  /**
+   * Whether a full-coverage wrap runs OVER the passenger glass (`true`,
+   * default — perforated-film style: the graphic covers the side window
+   * band and the rear window) or UNDER it (`false` — the glass is carved
+   * out of the wrap and stays visible). Pass a boolean for all surfaces or
+   * an object to set each surface separately, e.g.
+   * `{ curbSide: true, streetSide: true, rear: false }`. Operational glass
+   * (doors, driver's window) is always carved out regardless.
+   */
+  wrapOverWindows?: boolean | { curbSide?: boolean; streetSide?: boolean; rear?: boolean }
   /** Let pointer events (clicks, scrolling, typing) reach your ad content. */
   interactive?: boolean
   /** Hand >10px drags off to the orbit controls; taps still reach the content. */
@@ -194,6 +224,7 @@ export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
  */
 export function Bus({
   children,
+  curbSideAd,
   streetSideAd,
   rearAd,
   destinationSign,
@@ -201,6 +232,7 @@ export function Bus({
   adBackground = '#ffffff',
   resolution,
   coverage = 'panel',
+  wrapOverWindows = true,
   interactive = true,
   dragToRotate = true,
   occlude = true,
@@ -228,6 +260,11 @@ export function Bus({
   // The ad rect the DeviceScreens cover: the classic king-size panel, or the
   // whole side elevation with the operational glass carved out via clip-path.
   const fullWrap = coverage === 'full'
+  const curbAd = curbSideAd ?? children
+  const over =
+    typeof wrapOverWindows === 'boolean'
+      ? { curbSide: wrapOverWindows, streetSide: wrapOverWindows, rear: wrapOverWindows }
+      : { curbSide: true, streetSide: true, rear: true, ...wrapOverWindows }
   const side = fullWrap
     ? { width: FULL_SIDE.width, height: FULL_SIDE.height, x: FULL_SIDE.x, y: FULL_SIDE.y, radius: 0 }
     : { width: ad.width, height: ad.height, x: ad.x, y: ad.y, radius: ad.radius }
@@ -239,14 +276,14 @@ export function Bus({
     if (!fullWrap) return null
     const pxPerUnit = sideResolution / FULL_SIDE.width
     return {
-      curb: `path("${buildFullSideClip(pxPerUnit, false)}")`,
-      street: `path("${buildFullSideClip(pxPerUnit, true)}")`,
+      curb: `path("${buildFullSideClip(pxPerUnit, false, over.curbSide)}")`,
+      street: `path("${buildFullSideClip(pxPerUnit, true, over.streetSide)}")`,
     }
-  }, [fullWrap, sideResolution])
+  }, [fullWrap, sideResolution, over.curbSide, over.streetSide])
   const rearClip = React.useMemo(() => {
     if (!fullWrap) return null
-    return `path("${buildFullRearClip(rearResolution / rearFull.width)}")`
-  }, [fullWrap, rearResolution, rearFull.width])
+    return `path("${buildFullRearClip(rearResolution / rearFull.width, over.rear)}")`
+  }, [fullWrap, rearResolution, rearFull.width, over.rear])
   const curbStyle = sideClip ? { clipPath: sideClip.curb, ...screenStyle } : screenStyle
   const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
   const rearStyle = rearClip ? { clipPath: rearClip, ...screenStyle } : screenStyle
@@ -368,10 +405,12 @@ export function Bus({
       </group>
 
       {/* passenger window bands, both sides — almost half the body height.
-          A full wrap covers them with perforated film, so a side with a live
-          full wrap skips its band instead of poking through the livery. */}
+          A full wrap covering the glass (perforated film) hides its side's
+          band; with the wrap under the glass the band stays, showing through
+          the window carve-out. */}
       {[1, -1].map((s) => {
-        const wrapped = fullWrap && (s === 1 ? children != null : streetSideAd != null)
+        const wrapped =
+          fullWrap && (s === 1 ? curbAd != null && over.curbSide : streetSideAd != null && over.streetSide)
         if (wrapped) return null
         return (
           <RoundedBox
@@ -606,7 +645,7 @@ export function Bus({
         occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
         screenStyle={curbStyle}
       >
-        {children}
+        {curbAd}
       </DeviceScreen>
       {streetSideAd != null && (
         <DeviceScreen

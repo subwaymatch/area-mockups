@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { DOOHTotem, type DOOHTotemProps } from './objects/dooh-totem/dooh-totem'
-import { DOOH_TOTEM } from '@area-mockups/core'
+import { DOOH_TOTEM, doohTotemSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   DOOHTotemProps,
   | 'back'
+  | 'size'
   | 'color'
   | 'screenBackground'
   | 'resolution'
@@ -39,6 +40,7 @@ export interface DOOHTotemMockupProps
 export function DOOHTotemMockup({
   children,
   back,
+  size,
   color,
   screenBackground,
   resolution,
@@ -53,6 +55,7 @@ export function DOOHTotemMockup({
   const object = (
     <DOOHTotem
       back={back}
+      size={size}
       color={color}
       screenBackground={screenBackground}
       resolution={resolution}
@@ -67,7 +70,7 @@ export function DOOHTotemMockup({
   )
 
   // The plinth defines the pavement; ground the shadow just under it.
-  const groundY = -DOOH_TOTEM.standHeight
+  const groundY = -(size ? doohTotemSpec(size) : DOOH_TOTEM).standHeight
   const shadowY = canvasProps.shadowY ?? (float ? groundY - 0.25 : groundY - 0.02)
 
   return (

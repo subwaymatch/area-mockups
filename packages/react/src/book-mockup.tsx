@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Book, type BookProps } from './objects/book/book'
-import { BOOK } from '@area-mockups/core'
+import { BOOK, bookSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   BookProps,
   | 'back'
   | 'spine'
+  | 'size'
   | 'color'
   | 'pageColor'
   | 'coverBackground'
@@ -41,6 +42,7 @@ export function BookMockup({
   children,
   back,
   spine,
+  size,
   color,
   pageColor,
   coverBackground,
@@ -57,6 +59,7 @@ export function BookMockup({
     <Book
       back={back}
       spine={spine}
+      size={size}
       color={color}
       pageColor={pageColor}
       coverBackground={coverBackground}
@@ -71,7 +74,7 @@ export function BookMockup({
     </Book>
   )
 
-  const half = BOOK.board.height / 2
+  const half = (size ? bookSpec(size) : BOOK).board.height / 2
   const shadowY = canvasProps.shadowY ?? (float ? -(half + 0.3) : -(half + 0.05))
 
   return (

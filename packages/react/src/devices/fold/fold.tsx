@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { FOLD_COLORWAYS, findColorway, FOLD_VARIANTS, type FoldVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
@@ -464,17 +463,31 @@ export function Fold({
 
   if (mode === 'flex' && flexGeometries) {
     // Each panel pivots around a shared virtual axis at the fold line, at the
-    // inner display's neutral plane. The Armor FlexHinge's flat spine band
-    // bisects the fold: a satin plate whose exposed width grows as the book
-    // closes, edged by thin polished rails, carrying the vertical SAMSUNG
-    // engraving — end-capped by dark wedges filling the V at the top and
-    // bottom edges, like the retail hinge.
+    // inner display's neutral plane. Because both back faces stay a constant
+    // distance from that axis at every angle, the Armor FlexHinge spine is
+    // modeled as a cylinder segment of exactly that radius: it stays tangent
+    // to both halves' back shells from nearly-shut to nearly-flat, wrapping
+    // the fold like the real teardrop hinge — no seams, no detached band.
     const alpha = ((180 - angle) / 2) * (Math.PI / 180)
     const b = spec.open.body
     const hw = b.width / 2
     const pz = b.depth / 2 - 0.012
-    const bandHalf = b.depth * Math.sin(alpha)
-    const bandZ = -b.depth * Math.cos(alpha) + pz
+    // Tangent radius: pivot plane to the back face. The exposed arc spans
+    // ±alpha around straight-back, meeting each half at its back corner.
+    const spineR = pz + b.depth / 2
+    const spineH = b.height - 0.16
+    const capT = 0.05
+    // The vertical SAMSUNG engraving fits only while the exposed band is
+    // wider than the wordmark; flatter than that the spine has retracted.
+    const showEmboss = 2 * spineR * Math.sin(alpha) > spec.hinge.emboss.length * 0.155 + 0.06
+    // Sector filling the V at each end: center at the axis, arc radius
+    // `spineR`, spanning the same ±alpha — the exact cross-section of the
+    // fold's opening (shape v runs toward the back; world z = pz − v).
+    const capSector = new THREE.Shape()
+    capSector.moveTo(0, 0)
+    capSector.lineTo(-spineR * Math.sin(alpha), spineR * Math.cos(alpha))
+    capSector.absarc(0, 0, spineR, Math.PI / 2 + alpha, Math.PI / 2 - alpha, true)
+    capSector.closePath()
     const r = display.radius
     const halfScreen = (side: 'left' | 'right') => {
       const left = side === 'left'
@@ -597,44 +610,41 @@ export function Fold({
             </group>
           </group>
 
-          {/* the spine band bisecting the fold */}
+          {/* the spine wrapping the fold: a cylinder segment tangent to both
+              back shells, its exposed arc growing as the book closes — plus
+              sector end caps closing the V at the top and bottom edges, and
+              the vertical SAMSUNG engraving while the band is wide enough */}
           <group position={[0, 0, pz]}>
-            <mesh rotation-y={Math.PI} position-z={bandZ - pz - 0.003}>
-              <planeGeometry args={[bandHalf * 2 + 0.03, b.height - 0.24]} />
-              <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} side={THREE.DoubleSide} />
+            <mesh>
+              <cylinderGeometry
+                args={[spineR, spineR, spineH, 48, 1, true, Math.PI - alpha, 2 * alpha]}
+              />
+              <meshPhysicalMaterial
+                color={frameColor}
+                metalness={0.85}
+                roughness={0.3}
+                side={THREE.DoubleSide}
+              />
             </mesh>
             {([1, -1] as const).map((s) => (
-              <RoundedBox
+              <mesh
                 key={s}
-                args={[0.022, b.height - 0.24, 0.016]}
-                radius={0.007}
-                position={[s * (bandHalf + 0.005), 0, bandZ - pz + 0.002]}
-                rotation-y={s * -alpha}
+                position={[0, s === 1 ? spineH / 2 : -spineH / 2 - capT, 0]}
+                rotation-x={-Math.PI / 2}
               >
-                <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.26} />
-              </RoundedBox>
+                <extrudeGeometry args={[capSector, { depth: capT, bevelEnabled: false, curveSegments: 24 }]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.4} />
+              </mesh>
             ))}
-            <mesh
-              geometry={spineLogoGeometry}
-              rotation={[0, Math.PI, Math.PI / 2]}
-              position-z={bandZ - pz - 0.006}
-            >
-              {spineLogoMaterial}
-            </mesh>
-            {/* dark wedges filling the V at the top and bottom edges */}
-            {([1, -1] as const).map((s) => {
-              const wedgeShape = new THREE.Shape()
-              wedgeShape.moveTo(0, 0.01)
-              wedgeShape.lineTo(-(bandHalf + 0.012), -(b.depth * Math.cos(alpha)) + 0.01)
-              wedgeShape.lineTo(bandHalf + 0.012, -(b.depth * Math.cos(alpha)) + 0.01)
-              wedgeShape.closePath()
-              return (
-                <mesh key={s} position={[0, s * (b.height / 2 - 0.02), 0]} rotation-x={-Math.PI / 2}>
-                  <extrudeGeometry args={[wedgeShape, { depth: 0.028, bevelEnabled: false }]} />
-                  <meshPhysicalMaterial color="#1c1e23" metalness={0.5} roughness={0.45} />
-                </mesh>
-              )
-            })}
+            {showEmboss && (
+              <mesh
+                geometry={spineLogoGeometry}
+                rotation={[0, Math.PI, Math.PI / 2]}
+                position-z={-spineR - 0.002}
+              >
+                {spineLogoMaterial}
+              </mesh>
+            )}
           </group>
         </group>
       </group>
@@ -777,16 +787,21 @@ export function Fold({
           />
         </group>
 
-        {/* the flat hinge band capping the left edge, bridging the crevice,
-            with the vertical SAMSUNG emboss */}
-        <group position={[-body.width / 2 - spec.hinge.overhang / 2, 0, 0]}>
-          <RoundedBox args={[spec.hinge.overhang + 0.05, body.height - 0.02, spec.hinge.width]} radius={0.024}>
-            <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.38} />
-          </RoundedBox>
+        {/* the hinge spine capping the left edge: a smooth vertical capsule —
+            cylindrical band with domed ends, tucked between the two halves'
+            curved edges and bridging the crevice, like the retail teardrop
+            hinge — with the vertical SAMSUNG emboss on its crown */}
+        <group position={[-body.width / 2 - spec.hinge.overhang + spec.hinge.width / 2, 0, 0]}>
+          <mesh>
+            <capsuleGeometry
+              args={[spec.hinge.width / 2, body.height - 0.02 - spec.hinge.width, 8, 28]}
+            />
+            <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.34} />
+          </mesh>
           <mesh
             geometry={spineLogoGeometry}
             rotation={[0, -Math.PI / 2, Math.PI / 2]}
-            position-x={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
+            position-x={-spec.hinge.width / 2 - 0.002}
           >
             {spineLogoMaterial}
           </mesh>

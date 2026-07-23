@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { MAGAZINE } from '@area-mockups/core'
+import { MAGAZINE, magazineSpec, type MagazineSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -14,6 +14,12 @@ export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
   children?: React.ReactNode
   /** Back cover design — full bleed, with the same glossy stock sheen. */
   back?: React.ReactNode
+  /**
+   * Physical trim size in millimeters, e.g. `{ width: 210, height: 297 }`
+   * for A4 or `{ thickness: 12 }` for a thick issue. Defaults to the
+   * 216 x 279 x 6 mm US letter trim.
+   */
+  size?: MagazineSize
   /** Paper color of the trimmed page edges. */
   pageColor?: string
   /** Back cover color (the unprinted default is a light stock gray). */
@@ -48,6 +54,7 @@ export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
 export function Magazine({
   children,
   back,
+  size,
   pageColor = '#fbfaf7',
   backColor = '#e9e7e2',
   glossy = true,
@@ -59,7 +66,10 @@ export function Magazine({
   screenStyle,
   ...groupProps
 }: MagazineProps) {
-  const { body, cover } = MAGAZINE
+  const { body, cover } = React.useMemo(
+    () => (size ? magazineSpec(size) : MAGAZINE),
+    [size?.width, size?.height, size?.thickness]
+  )
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
 

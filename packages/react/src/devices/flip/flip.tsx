@@ -363,19 +363,22 @@ export function Flip({
     )
   }
 
-  // The rust-toned hinge band capping the folded bottom, with its engraving.
+  // The hinge spine capping the folded bottom: a smooth horizontal capsule —
+  // cylindrical band with domed ends, tucked between the two halves' curved
+  // edges — with the SAMSUNG engraving on its crown, like the retail
+  // teardrop hinge (no flat plate).
   const hingeBand = (y: number) => (
     <group position={[0, y, 0]}>
-      <RoundedBox
-        args={[openBody.width - 0.03, spec.hinge.overhang + 0.05, spec.hinge.width]}
-        radius={Math.min(0.032, spec.hinge.width / 2 - 0.004)}
-      >
-        <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.4} />
-      </RoundedBox>
+      <mesh rotation-z={Math.PI / 2}>
+        <capsuleGeometry
+          args={[spec.hinge.width / 2, openBody.width - 0.03 - spec.hinge.width, 8, 28]}
+        />
+        <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.36} />
+      </mesh>
       <mesh
         geometry={hingeLogoGeometry}
         rotation-x={Math.PI / 2}
-        position-y={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
+        position-y={-spec.hinge.width / 2 - 0.002}
       >
         <meshPhysicalMaterial
           transparent
@@ -486,12 +489,15 @@ export function Flip({
     const alpha = ((180 - angle) / 2) * (Math.PI / 180)
     const pz = openBody.depth / 2 - 0.015
     const halfH = half.height
-    // Spine housing: radius ≈ the real 6.85 mm exterior curve, spanning the
-    // rails; only the back wedge between the two tilted halves is drawn.
-    const spineR = 0.175
+    // Spine housing: a cylinder segment tangent to both halves' back shells.
+    // The halves pivot on the display's neutral plane, so their back faces
+    // stay a constant `spineR` from the axis at every angle — the exposed
+    // wedge spans exactly ±alpha and meets each back edge seamlessly, from
+    // nearly-shut to nearly-flat, like the real teardrop hinge.
+    const spineR = pz + half.depth / 2
     const spineLen = openBody.width - 0.2
-    const wedge = 2 * alpha + 0.5
-    const spineTheta = Math.PI - wedge / 2
+    const wedge = 2 * alpha
+    const spineTheta = Math.PI - alpha
     // Screen halves: the fold splits the panel at the hinge line; each plane
     // shows its half of one shared virtual viewport via a clipped wrapper.
     const r = display.radius
@@ -591,30 +597,33 @@ export function Flip({
 
           {/* the spine housing rolling into the wedge between the halves —
               frame-colored but glossier than the satin rails, with the
-              tone-on-tone SAMSUNG engraving centered on the band face */}
+              tone-on-tone SAMSUNG engraving centered on the band face while
+              the exposed wedge is wide enough to carry it */}
           <group position={[0, 0, pz]}>
             <mesh rotation-z={Math.PI / 2}>
               <cylinderGeometry args={[spineR, spineR, spineLen, 48, 1, true, spineTheta, wedge]} />
               <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.22} clearcoat={0.4} side={THREE.DoubleSide} />
             </mesh>
-            <mesh geometry={hingeLogoGeometry} rotation-y={Math.PI} position={[0, 0, -spineR - 0.003]}>
-              <meshPhysicalMaterial
-                transparent
-                opacity={0.45}
-                color="#33363c"
-                metalness={0.7}
-                roughness={0.35}
-                polygonOffset
-                polygonOffsetFactor={-1}
-              />
-            </mesh>
-            {/* dark neutral end-cap wedges between the converging rails */}
+            {2 * spineR * Math.sin(alpha) > spec.hinge.emboss.length * 0.155 + 0.05 && (
+              <mesh geometry={hingeLogoGeometry} rotation-y={Math.PI} position={[0, 0, -spineR - 0.002]}>
+                <meshPhysicalMaterial
+                  transparent
+                  opacity={0.45}
+                  color="#33363c"
+                  metalness={0.7}
+                  roughness={0.35}
+                  polygonOffset
+                  polygonOffsetFactor={-1}
+                />
+              </mesh>
+            )}
+            {/* frame-metal sector caps closing the fold's V at both ends */}
             {([1, -1] as const).map((s) => (
               <mesh key={s} rotation-y={s * (Math.PI / 2)} position={[s * (spineLen / 2 + 0.004), 0, 0]}>
                 {/* local theta 0 lands on world -z (the wedge center) for the
                     +x cap and on +z for the -x cap — start each accordingly */}
-                <circleGeometry args={[spineR * 0.98, 32, s === 1 ? -wedge / 2 : Math.PI - wedge / 2, wedge]} />
-                <meshPhysicalMaterial color="#26282d" metalness={0.5} roughness={0.4} side={THREE.DoubleSide} />
+                <circleGeometry args={[spineR * 0.995, 32, s === 1 ? -wedge / 2 : Math.PI - wedge / 2, wedge]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.7} roughness={0.38} side={THREE.DoubleSide} />
               </mesh>
             ))}
           </group>
@@ -713,8 +722,9 @@ export function Flip({
         {/* the lower half's edge kit lands on the TOP edge when folded */}
         <group position-z={-halfZ}>{freeEdgeKit(half.height / 2)}</group>
 
-        {/* hinge band capping the bottom */}
-        {hingeBand(stackBottom - spec.hinge.overhang / 2 - 0.006)}
+        {/* hinge spine capping the bottom — crown reaching the scan's
+            overhang below the stack */}
+        {hingeBand(stackBottom - spec.hinge.overhang + spec.hinge.width / 2)}
 
         {endSeams([half.height / 2 - spec.endSeamInset], half.depth)}
       </group>

@@ -33,6 +33,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | --- | --- | --- | --- |
 | `inner` | `ReactNode` | - | Creative on the inward (waiting-area) lightbox face. |
 | `arrivals` | `ReactNode \| string \| string[]` | - | Live RTPI arrivals display hanging under the roof. Strings get the built-in dot-matrix LED board (one row per string); a node renders as-is. |
+| `arrivalsBack` | `ReactNode \| string \| string[]` | mirrors `arrivals` | The waiting-area face of the arrivals board. By default it shows the same content as the front; set it to show something different. |
 | `color` | `string` | `'#2f333a'` | Street-furniture steel: roof, posts, frames, bench supports. |
 | `posterBackground` | `string` | `'#ffffff'` | CSS background behind the poster (backlit white). |
 | `resolution` | `number` | `480` | Virtual poster width in CSS px; height follows the 6-sheet. |

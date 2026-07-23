@@ -6,6 +6,7 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   BusProps,
+  | 'curbSideAd'
   | 'streetSideAd'
   | 'rearAd'
   | 'destinationSign'
@@ -13,6 +14,7 @@ type InheritedObjectProps = Pick<
   | 'adBackground'
   | 'resolution'
   | 'coverage'
+  | 'wrapOverWindows'
   | 'interactive'
   | 'dragToRotate'
   | 'occlude'
@@ -40,6 +42,7 @@ export interface BusMockupProps extends Omit<MockupCanvasProps, 'children'>, Inh
  */
 export function BusMockup({
   children,
+  curbSideAd,
   streetSideAd,
   rearAd,
   destinationSign,
@@ -47,6 +50,7 @@ export function BusMockup({
   adBackground,
   resolution,
   coverage,
+  wrapOverWindows,
   interactive,
   dragToRotate,
   occlude,
@@ -57,6 +61,7 @@ export function BusMockup({
 }: BusMockupProps) {
   const object = (
     <Bus
+      curbSideAd={curbSideAd}
       streetSideAd={streetSideAd}
       rearAd={rearAd}
       destinationSign={destinationSign}
@@ -64,6 +69,7 @@ export function BusMockup({
       adBackground={adBackground}
       resolution={resolution}
       coverage={coverage}
+      wrapOverWindows={wrapOverWindows}
       interactive={interactive}
       dragToRotate={dragToRotate}
       occlude={occlude}

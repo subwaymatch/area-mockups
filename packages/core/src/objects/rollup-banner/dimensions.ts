@@ -15,19 +15,42 @@
 /** World units per millimeter for the roll-up banner. */
 export const ROLLUP_BANNER_MM = 1 / 540
 
-export const ROLLUP_BANNER = {
-  /** Visible graphic (the live area). Content you pass as children maps onto this rect. */
-  graphic: { width: 1.574, height: 3.704, radius: 0.006 },
-  /** Aluminum cassette base: an oval-section extrusion flat on the floor, with end caps. */
-  cassette: { width: 1.667, depth: 0.648, height: 0.167 },
-  /** Rear support pole and the top clamp rail. */
-  pole: { radius: 0.022 },
-  rail: { height: 0.055, depth: 0.05 },
-  /** Distance from the graphic center down to the floor. */
-  standHeight: 3.704 / 2 + 0.16,
-  /** Default CSS px width of the virtual graphic. */
-  resolution: 420,
-} as const
+/** Physical graphic size overrides in millimeters. */
+export interface RollupBannerSize {
+  /** Graphic width. Default 850 mm (the standard trade-show unit). */
+  width?: number
+  /** Visible graphic height. Default 2000 mm. */
+  height?: number
+}
 
-/** Graphic aspect ratio (height / width). */
+/**
+ * Build a roll-up banner spec for any graphic size (millimeters). The
+ * default is the standard 850 x 2000 mm unit; pass e.g. `{ width: 1000 }`
+ * for a wide 1000 x 2000 stand. The cassette wraps the graphic width; its
+ * section and the hardware keep their real-world dimensions.
+ */
+export function rollupBannerSpec({ width = 850, height = 2000 }: RollupBannerSize = {}) {
+  const w = width * ROLLUP_BANNER_MM
+  const h = height * ROLLUP_BANNER_MM
+  return {
+    /** Visible graphic (the live area). Content you pass as children maps onto this rect. */
+    graphic: { width: w, height: h, radius: 0.006 },
+    /** Aluminum cassette base: an oval-section extrusion flat on the floor, with end caps. */
+    cassette: { width: w + 0.093, depth: 0.648, height: 0.167 },
+    /** Rear support pole and the top clamp rail. */
+    pole: { radius: 0.022 },
+    rail: { height: 0.055, depth: 0.05 },
+    /** Distance from the graphic center down to the floor. */
+    standHeight: h / 2 + 0.16,
+    /** Default CSS px width of the virtual graphic. */
+    resolution: 420,
+  }
+}
+
+export type RollupBannerSpec = ReturnType<typeof rollupBannerSpec>
+
+/** The default 850 x 2000 mm stand. */
+export const ROLLUP_BANNER: RollupBannerSpec = rollupBannerSpec()
+
+/** Graphic aspect ratio (height / width) of the default unit. */
 export const ROLLUP_BANNER_ASPECT = ROLLUP_BANNER.graphic.height / ROLLUP_BANNER.graphic.width

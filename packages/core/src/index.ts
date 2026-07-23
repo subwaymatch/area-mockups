@@ -18,6 +18,7 @@ export {
   type ClipRect,
   clipRoundedRect,
   clipRoundedRectOutline,
+  clipCircle,
 } from './geometry/clip-path'
 
 // Live-screen behaviors (CSS px math, wrapper styles, gesture handoff, culling).

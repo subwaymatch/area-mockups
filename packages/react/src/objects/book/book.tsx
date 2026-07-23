@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { BOOK } from '@area-mockups/core'
+import { BOOK, bookSpec, type BookSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -16,6 +16,12 @@ export interface BookProps extends Omit<GroupProps, 'children' | 'color'> {
   back?: React.ReactNode
   /** Spine design — a tall strip on the crown of the cloth backbone. */
   spine?: React.ReactNode
+  /**
+   * Physical trim size in millimeters, e.g. `{ width: 216, height: 279 }`
+   * for a letter-size art book or `{ thickness: 45 }` for a fat novel.
+   * Defaults to the standard 156 x 234 x 27 mm trade hardcover.
+   */
+  size?: BookSize
   /** Cloth color of the spine, back board and board edges. */
   color?: string
   /** Paper color of the page block edges. */
@@ -50,6 +56,7 @@ export function Book({
   children,
   back,
   spine: spineContent,
+  size,
   color = '#1f3a5f',
   pageColor = '#f4eede',
   coverBackground = '#ffffff',
@@ -60,7 +67,11 @@ export function Book({
   screenStyle,
   ...groupProps
 }: BookProps) {
-  const { board, thickness, pages, spine, groove, headband, cover } = BOOK
+  const spec = React.useMemo(
+    () => (size ? bookSpec(size) : BOOK),
+    [size?.width, size?.height, size?.thickness]
+  )
+  const { board, thickness, pages, spine, groove, headband, cover } = spec
   const frontRef = React.useRef<THREE.Mesh>(null!)
   const backRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(frontRef, backRef)
