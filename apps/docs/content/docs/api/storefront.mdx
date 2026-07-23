@@ -1,13 +1,17 @@
 ---
 title: Storefront
-description: A high-street shopfront with a live fascia sign and window poster.
+description: A free-standing corner shop with live surfaces on all four elevations.
 ---
 
-`<Storefront>` and `<StorefrontMockup>` render a classic single-unit shop
-façade: painted timber surround with cornice and pilasters, a 600 mm stall
-riser, big display glazing with a mullion, a glazed door on the right — and
-two live surfaces: the fascia sign band (5390×451 mm) above the glazing and
-an A1-class poster pasted inside the left window bay.
+`<Storefront>` and `<StorefrontMockup>` render a free-standing single-unit
+corner shop with four real elevations and a capped flat roof. The front is
+the classic high-street shopfront — painted timber surround with cornice
+and pilasters, a 600 mm stall riser, big display glazing with a mullion, a
+glazed door on the right. The windowed side repeats the same composition
+without the door and carries its own fascia sign; the other side and the
+rear are running-bond brickwork. Every elevation is mockup-able: the two
+fascia signs, the window poster, and painted-wall murals on the two brick
+elevations (the roof stays hardware).
 
 <ObjectDemo demo="storefront-basic" checker />
 
@@ -23,11 +27,14 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `windowPoster` | `ReactNode` | - | Poster displayed inside the left window bay. |
-| `color` | `string` | `'#2e4638'` | Shopfront paint: fascia surround, frames, door, stall riser. |
-| `wallColor` | `string` | `'#8d7a6a'` | Masonry above and around the shopfront. |
-| `faceBackground` | `string` | `'#ffffff'` | CSS background behind sign and poster content. |
-| `resolution` | `number` | `800` | Virtual fascia sign width in CSS px. The window poster is a fixed 420 px wide. |
+| `windowPoster` | `ReactNode` | - | Poster displayed inside the front's left window bay. |
+| `sideSign` | `ReactNode` | - | Fascia sign on the windowed side (+X) — the door-less twin elevation. |
+| `sideWall` | `ReactNode` | - | Painted-wall mural on the brick side (−X). Plain brick when omitted. |
+| `rearWall` | `ReactNode` | - | Painted-wall mural on the rear (−Z). Plain brick when omitted. |
+| `color` | `string` | `'#2e4638'` | Shopfront paint: fascia surrounds, frames, door, stall risers. |
+| `wallColor` | `string` | `'#8d7a6a'` | Masonry on every elevation. |
+| `faceBackground` | `string` | `'#ffffff'` | CSS background behind sign, poster and mural content. |
+| `resolution` | `number` | `800` | Virtual fascia sign width in CSS px. The window poster is a fixed 420 px wide; murals are 700 px. |
 
 The pavement sits `STOREFRONT.standHeight` below the origin — the mockup
 grounds the shadow there automatically.
@@ -41,6 +48,25 @@ what stays 3D hardware.
 <ObjectDemo demo="chroma-storefront" />
 
 ## More examples
+
+### All four elevations, orbiting
+
+Signs front and side, murals painted on both brick walls — spin the block
+to walk around it.
+
+<ObjectDemo demo="storefront-around" />
+
+```tsx
+<StorefrontMockup
+  windowPoster={<YourPoster />}
+  sideSign={<YourSign />}
+  sideWall={<YourMural />}
+  rearWall={<YourMural />}
+  autoRotate
+>
+  <YourSign />
+</StorefrontMockup>
+```
 
 ### Oxblood paint, three-quarter view
 

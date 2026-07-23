@@ -7,6 +7,9 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   StorefrontProps,
   | 'windowPoster'
+  | 'sideSign'
+  | 'sideWall'
+  | 'rearWall'
   | 'color'
   | 'wallColor'
   | 'faceBackground'
@@ -29,11 +32,12 @@ export interface StorefrontMockupProps
 }
 
 /**
- * The one-liner: a complete, interactive 3D shopfront mockup with a live
- * fascia sign and window poster.
+ * The one-liner: a complete, interactive free-standing 3D shop mockup with
+ * live surfaces on all four elevations — fascia signs front and side, the
+ * window poster, and painted-wall murals on the brick side and rear.
  *
  * ```tsx
- * <StorefrontMockup windowPoster={<YourPoster />}>
+ * <StorefrontMockup windowPoster={<YourPoster />} rearWall={<YourMural />}>
  *   <YourSign />
  * </StorefrontMockup>
  * ```
@@ -41,6 +45,9 @@ export interface StorefrontMockupProps
 export function StorefrontMockup({
   children,
   windowPoster,
+  sideSign,
+  sideWall,
+  rearWall,
   color,
   wallColor,
   faceBackground,
@@ -56,6 +63,9 @@ export function StorefrontMockup({
   const object = (
     <Storefront
       windowPoster={windowPoster}
+      sideSign={sideSign}
+      sideWall={sideWall}
+      rearWall={rearWall}
       color={color}
       wallColor={wallColor}
       faceBackground={faceBackground}

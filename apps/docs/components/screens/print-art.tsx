@@ -896,6 +896,39 @@ export function StorePosterArt() {
   )
 }
 
+/** Storefront wall mural — hand-painted-ad look for the brick elevations. */
+export function StoreMuralArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 28,
+        background: '#223a2e',
+        color: '#f3ead9',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 10,
+        border: '6px solid #e8c476',
+      }}
+    >
+      <div style={{ fontSize: 13, letterSpacing: 5, color: '#a8b8a0' }}>PARCEL &amp; PINE</div>
+      <div style={{ fontFamily: serif, fontSize: 54, lineHeight: 1.05 }}>
+        Good goods,
+        <br />
+        every day.
+      </div>
+      <div style={{ fontSize: 14, letterSpacing: 3, color: '#e8c476', marginTop: 6 }}>
+        CORNER OF 5TH &amp; MAIN
+      </div>
+    </div>
+  )
+}
+
 /** Semi-trailer side wrap — coast-to-coast freight brand. */
 export function TrailerWrapArt() {
   return (

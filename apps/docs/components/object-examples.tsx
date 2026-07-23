@@ -78,6 +78,7 @@ import {
   GreetingInsideArt,
   MagazineCoverArt,
   PosterArt,
+  StoreMuralArt,
   StorePosterArt,
   StoreSignArt,
   TrailerRearArt,
@@ -817,6 +818,18 @@ const DEMOS: Record<string, React.ReactNode> = {
       <StoreSignArt />
     </StorefrontMockup>
   ),
+  'storefront-around': (
+    <StorefrontMockup
+      windowPoster={<StorePosterArt />}
+      sideSign={<StoreSignArt />}
+      sideWall={<StoreMuralArt />}
+      rearWall={<StoreMuralArt />}
+      autoRotate
+      autoRotateSpeed={1.2}
+    >
+      <StoreSignArt />
+    </StorefrontMockup>
+  ),
 
   // ---- Semi trailer ---------------------------------------------------------------------
   'trailer-basic': (
@@ -1105,7 +1118,14 @@ const DEMOS: Record<string, React.ReactNode> = {
     </DOOHTotemMockup>
   ),
   'chroma-storefront': (
-    <StorefrontMockup windowPoster={<ChromaSurface label="windowPoster" />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <StorefrontMockup
+      windowPoster={<ChromaSurface label="windowPoster" />}
+      sideSign={<ChromaSurface label="sideSign" />}
+      sideWall={<ChromaSurface label="sideWall" />}
+      rearWall={<ChromaSurface label="rearWall" />}
+      autoRotate
+      autoRotateSpeed={0.7}
+    >
       <ChromaSurface label="children" />
     </StorefrontMockup>
   ),

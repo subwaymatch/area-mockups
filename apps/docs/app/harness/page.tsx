@@ -12,6 +12,7 @@ import {
   type LaptopVariant,
   MockupCanvas,
   MonitorMockup,
+  StorefrontMockup,
   Tablet,
   type TabletVariant,
   TVSetMockup,
@@ -147,6 +148,26 @@ function HarnessScene() {
       >
         {screen}
       </TVSetMockup>
+    )
+  }
+
+  if (device === 'store') {
+    const dist = Number(params.get('dist') ?? 12)
+    return (
+      <StorefrontMockup
+        windowPoster={screen}
+        sideSign={screen}
+        sideWall={screen}
+        rearWall={screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </StorefrontMockup>
     )
   }
 
