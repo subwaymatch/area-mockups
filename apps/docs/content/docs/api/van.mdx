@@ -36,7 +36,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
 | `wrapOverWindows` | `boolean \| { curbSide?, streetSide? }` | `false` | Whether a full wrap runs over the cab door glass (perforated-film full-print look) or the glass stays clear and carved out (default — door glass is operational). |
 | `licensePlate` | `ReactNode \| string` | - | Front and rear plates. A string renders the built-in plate face; a node renders as-is. |
-| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` covers the entire side elevations AND the whole rear face, carving out the wheel arches, door glass, handle, mirror mount, door track and taillight clusters so the 3D hardware shows through the livery. |
+| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` covers the entire side elevations AND the whole rear face — door edge to door edge — carving out the wheel arches, door glass, handle, mirror mount, door track, every taillight lamp, the third brake light and the hinge knuckles so the 3D hardware shows through the livery. Both coverages keep the barn-door shut line visible through the wrap. |
 | `resolution` | `number` | `900` panel · `1360` full | Virtual side-wrap width in CSS px; the rear panel shares its dpi. |
 
 `children` is the curb-side (+Z) panel; with the default `coverage="panel"`

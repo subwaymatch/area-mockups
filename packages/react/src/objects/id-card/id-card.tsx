@@ -30,9 +30,12 @@ export interface IDCardProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Hand >10px drags off to the orbit controls; taps still reach the content. */
   dragToRotate?: boolean
   /**
-   * How face content hides when that face turns away from the camera.
-   * `true` raycasts against the card (fast, interactive). `'blending'` uses
-   * per-pixel depth blending. `false` disables hiding.
+   * How face content composites against the 3D hardware. `'blending'`
+   * (default) uses per-pixel depth blending, so the J-hook pierced through
+   * the slot correctly crosses IN FRONT of the printed face where it
+   * physically does. `true` falls back to raycast hiding (faster, but the
+   * live face then paints over the hook at oblique angles). `false`
+   * disables hiding entirely.
    */
   occlude?: boolean | 'blending'
   /** Extra styles merged onto each face wrapper (e.g. a custom fontFamily). */
@@ -59,7 +62,7 @@ export function IDCard({
   resolution = ID_CARD.resolution,
   interactive = true,
   dragToRotate = true,
-  occlude = true,
+  occlude = 'blending',
   screenStyle,
   ...groupProps
 }: IDCardProps) {

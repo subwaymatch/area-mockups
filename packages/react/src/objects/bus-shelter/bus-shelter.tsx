@@ -75,7 +75,12 @@ export function BusShelter({
 }: BusShelterProps) {
   const { body, roof, backGlass, post, bench, lightbox, poster, flag, display, standHeight } = BUS_SHELTER
   const boxRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = useScreenOccluders(boxRef)
+  // The roof and the arrivals board's housing must occlude too — without
+  // them the live poster and LED board composite straight through the roof
+  // when the shelter is seen from above.
+  const roofRef = React.useRef<THREE.Mesh>(null!)
+  const boardRef = React.useRef<THREE.Mesh>(null!)
+  const occludeRefs = useScreenOccluders(boxRef, roofRef, boardRef)
 
   // Plain strings become the built-in LED arrivals board — an array is one
   // row per arrival; custom nodes pass straight through.
@@ -126,7 +131,7 @@ export function BusShelter({
   return (
     <group {...groupProps}>
       {/* flat roof slab */}
-      <RoundedBox args={[roof.width, roof.thickness, roof.depth]} radius={0.03} position={[0, roofY, 0]}>
+      <RoundedBox ref={roofRef} args={[roof.width, roof.thickness, roof.depth]} radius={0.03} position={[0, roofY, 0]}>
         <meshPhysicalMaterial {...steel} />
       </RoundedBox>
 
@@ -193,7 +198,7 @@ export function BusShelter({
               <meshPhysicalMaterial {...steel} />
             </mesh>
           ))}
-          <RoundedBox args={[display.width + 0.09, display.height + 0.09, 0.09]} radius={0.02}>
+          <RoundedBox ref={boardRef} args={[display.width + 0.09, display.height + 0.09, 0.09]} radius={0.02}>
             <meshPhysicalMaterial color="#1c1e22" metalness={0.4} roughness={0.5} />
           </RoundedBox>
           <DeviceScreen

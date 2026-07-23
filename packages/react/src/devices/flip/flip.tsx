@@ -416,6 +416,14 @@ export function Flip({
         <capsuleGeometry args={[stackR, openBody.width - 0.03 - stackR * 2, 12, 32]} />
         <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.36} />
       </mesh>
+      {/* hairline seams where the roll meets the two faces — without them
+          the hinge bottom reads as one featureless pill */}
+      {([1, -1] as const).map((s) => (
+        <mesh key={s} position={[0, 0, s * (stackR + 0.0028)]}>
+          <boxGeometry args={[openBody.width - 0.03 - stackR, 0.012, 0.0012]} />
+          <meshStandardMaterial color="#101216" transparent opacity={0.55} roughness={0.7} />
+        </mesh>
+      ))}
       <mesh geometry={hingeLogoGeometry} rotation-x={Math.PI / 2} position-y={-stackR - 0.002}>
         <meshPhysicalMaterial
           transparent
@@ -531,8 +539,11 @@ export function Flip({
     // stay a constant `spineR` from the axis at every angle — the exposed
     // wedge spans exactly ±alpha and meets each back edge seamlessly, from
     // nearly-shut to nearly-flat, like the real teardrop hinge.
+    // Run the spine and its caps essentially edge to edge — the halves'
+    // fold-side corners are square now, so a shorter spine would show the
+    // V's interior past its ends at shallow angles (the detached-pill read).
     const spineR = pz + half.depth / 2
-    const spineLen = openBody.width - 0.2
+    const spineLen = openBody.width - 0.03
     const wedge = 2 * alpha
     const spineTheta = Math.PI - alpha
     // Screen halves: the fold splits the panel at the hinge line; each plane

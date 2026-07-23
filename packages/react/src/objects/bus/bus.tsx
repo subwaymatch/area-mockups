@@ -577,8 +577,10 @@ export function Bus({
             { y: 0.02, color: '#f2a33c', emissive: '#ffb340' },
           ] as const
         ).map(({ y, color: lampColor, emissive }) => (
-          <mesh key={`${side}${y}`} rotation-z={Math.PI / 2} position={[-3.22, y, side * 0.56]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.03, 20]} />
+          // Long enough to stand ~proud of the full-wrap plane (x -3.245):
+          // through the carved holes the lamps read mounted ON the livery.
+          <mesh key={`${side}${y}`} rotation-z={Math.PI / 2} position={[-3.245, y, side * 0.56]}>
+            <cylinderGeometry args={[0.05, 0.05, 0.06, 20]} />
             <meshPhysicalMaterial
               color={lampColor}
               emissive={emissive}

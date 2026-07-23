@@ -503,8 +503,11 @@ export function Fold({
     const pz = b.depth / 2 - 0.012
     // Tangent radius: pivot plane to the back face. The exposed arc spans
     // ±alpha around straight-back, meeting each half at its back corner.
+    // Run the spine and its caps essentially edge to edge — the panels'
+    // fold-side corners are square now, so a shorter spine would show the
+    // V's interior past its ends at shallow angles (the detached-pill read).
     const spineR = pz + b.depth / 2
-    const spineH = b.height - 0.16
+    const spineH = b.height - 0.03
     const capT = 0.05
     // The vertical SAMSUNG engraving fits only while the exposed band is
     // wider than the wordmark; flatter than that the spine has retracted.
@@ -658,7 +661,7 @@ export function Fold({
             {([1, -1] as const).map((s) => (
               <mesh
                 key={s}
-                position={[0, s === 1 ? spineH / 2 : -spineH / 2 - capT, 0]}
+                position={[0, s === 1 ? spineH / 2 - capT : -spineH / 2, 0]}
                 rotation-x={-Math.PI / 2}
               >
                 <extrudeGeometry args={[capSector, { depth: capT, bevelEnabled: false, curveSegments: 24 }]} />
@@ -826,12 +829,21 @@ export function Fold({
           // A hair inside the stack's outer faces so the near-tangent
           // surfaces never coincide (which would shimmer along the line).
           const spineR = spec.closed.body.depth / 2 - 0.002
+          const spineLen = body.height - 0.02 - spineR * 2
           return (
             <group position={[-body.width / 2 - spec.hinge.overhang + spineR, 0, 0]}>
               <mesh>
-                <capsuleGeometry args={[spineR, body.height - 0.02 - spineR * 2, 12, 32]} />
+                <capsuleGeometry args={[spineR, spineLen, 12, 32]} />
                 <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.34} />
               </mesh>
+              {/* hairline seams where the spine's roll meets the two faces —
+                  without them the hinge side reads as one featureless pill */}
+              {([1, -1] as const).map((s) => (
+                <mesh key={s} position={[0, 0, s * (spineR + 0.0028)]}>
+                  <boxGeometry args={[0.012, spineLen + spineR, 0.0012]} />
+                  <meshStandardMaterial color="#101216" transparent opacity={0.55} roughness={0.7} />
+                </mesh>
+              ))}
               <mesh
                 geometry={spineLogoGeometry}
                 rotation={[0, -Math.PI / 2, Math.PI / 2]}

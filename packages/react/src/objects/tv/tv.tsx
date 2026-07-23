@@ -95,9 +95,13 @@ export function TVSet({
   // strut frame, and the struts terminate buried in them — no overshoot).
   const foot = React.useMemo(() => {
     const lean = 0.045
-    const padH = 0.032
-    const padLen = 0.16
-    const drop = feet.height - padH / 2
+    // Slim, flat shoes — barely taller than the strut is wide, so the
+    // junction reads as the strut ending in a low runner, not a bulb.
+    const padH = 0.022
+    const padLen = 0.19
+    // The tip stops just under the pad's top surface: deep enough to weld
+    // the two, shallow enough that the strut never distorts the shoe line.
+    const drop = feet.height - padH - 0.004
     const spanZ = feet.span / 2 - padLen / 2 + 0.02
     return {
       lean,
@@ -155,16 +159,50 @@ export function TVSet({
 
   // The rear input bay's connector column, top to bottom: 3x HDMI, 2x USB,
   // LAN, optical audio, antenna coax. Bay-local coordinates, y from the top.
-  const ports: { w: number; h: number; y: number; color: string; round?: boolean }[] = [
-    { w: 0.075, h: 0.02, y: 0.1, color: '#101114' },
-    { w: 0.075, h: 0.02, y: 0.2, color: '#101114' },
-    { w: 0.075, h: 0.02, y: 0.3, color: '#101114' },
-    { w: 0.05, h: 0.018, y: 0.42, color: '#0d1a3a' },
-    { w: 0.05, h: 0.018, y: 0.5, color: '#0d1a3a' },
-    { w: 0.062, h: 0.05, y: 0.63, color: '#101114' },
-    { w: 0.036, h: 0.034, y: 0.76, color: '#1a2415' },
-    { w: 0.04, h: 0.04, y: 0.92, color: '#26292f', round: true },
+  // `tongue` colors the connector's inner blade (HDMI gold, USB blue).
+  const ports: { w: number; h: number; y: number; color: string; round?: boolean; tongue?: string }[] = [
+    { w: 0.075, h: 0.024, y: 0.1, color: '#0a0b0d', tongue: '#a8863f' },
+    { w: 0.075, h: 0.024, y: 0.2, color: '#0a0b0d', tongue: '#a8863f' },
+    { w: 0.075, h: 0.024, y: 0.3, color: '#0a0b0d', tongue: '#a8863f' },
+    { w: 0.05, h: 0.022, y: 0.42, color: '#0a0b0d', tongue: '#274a9e' },
+    { w: 0.05, h: 0.022, y: 0.5, color: '#0a0b0d', tongue: '#274a9e' },
+    { w: 0.062, h: 0.052, y: 0.63, color: '#0a0b0d' },
+    { w: 0.036, h: 0.036, y: 0.76, color: '#141b12' },
+    { w: 0.042, h: 0.042, y: 0.92, color: '#26292f', round: true },
   ]
+  // The bay floor with every port punched THROUGH it: the openings get real
+  // side walls from the extrusion, and the connector liners sit behind them
+  // — sockets sunk INTO the panel, like the rear of a retail set.
+  const bayFloorGeometry = React.useMemo(() => {
+    const shape = roundedRectShape(portBay.width - 0.008, portBay.height - 0.008, 0.028)
+    for (const p of ports) {
+      const cy = portBay.height / 2 - p.y - 0.06
+      const cx = -0.1
+      const hole = new THREE.Path()
+      if (p.round) {
+        hole.absarc(cx, cy, p.w / 2 + 0.004, 0, Math.PI * 2, false)
+      } else {
+        const w = p.w + 0.008
+        const h = p.h + 0.008
+        roundedRectShape(w, h, Math.min(0.008, h / 2 - 0.001))
+          .getPoints(8)
+          .forEach((pt, i) => {
+            if (i === 0) hole.moveTo(pt.x + cx, pt.y + cy)
+            else hole.lineTo(pt.x + cx, pt.y + cy)
+          })
+      }
+      shape.holes.push(hole)
+    }
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.03,
+      bevelEnabled: false,
+      curveSegments: 10,
+    })
+    return geometry
+    // The port table is a module-level constant shape; portBay drives it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portBay])
+  React.useEffect(() => () => bayFloorGeometry.dispose(), [bayFloorGeometry])
 
   return (
     <group {...groupProps}>
@@ -194,41 +232,44 @@ export function TVSet({
           every connector mounts on it and stays BELOW the bulge surface,
           so the ports read as carved-in inputs, not stuck-on blocks. */}
       <group position={[bayX, bayY, bulgeBackZ + cavityDepth]}>
-        <RoundedBox args={[portBay.width - 0.008, portBay.height - 0.008, 0.016]} radius={0.028}>
-          <meshPhysicalMaterial color="#0b0c0f" metalness={0.3} roughness={0.6} />
-        </RoundedBox>
+        {/* the bay floor, ports punched through it (extrusion runs inward) */}
+        <mesh geometry={bayFloorGeometry}>
+          <meshPhysicalMaterial color="#101216" metalness={0.35} roughness={0.55} />
+        </mesh>
         {ports.map((p, i) => (
           <group key={i} position={[-0.1, portBay.height / 2 - p.y - 0.06, 0]}>
             {p.round ? (
               <>
-                {/* the coax barrel genuinely protrudes, even inside a bay */}
-                <mesh rotation-x={Math.PI / 2} position-z={-0.02}>
-                  <cylinderGeometry args={[p.w / 2, p.w / 2, 0.045, 16]} />
+                {/* the coax barrel protrudes through its drilled hole */}
+                <mesh rotation-x={Math.PI / 2} position-z={0.002}>
+                  <cylinderGeometry args={[p.w / 2, p.w / 2, 0.06, 16]} />
                   <meshPhysicalMaterial color="#b9bdc4" metalness={0.85} roughness={0.3} />
                 </mesh>
-                <mesh rotation-x={Math.PI / 2} position-z={-0.043}>
+                <mesh rotation-x={Math.PI / 2} position-z={-0.029}>
                   <cylinderGeometry args={[p.w / 4, p.w / 4, 0.002, 12]} />
                   <meshPhysicalMaterial color="#0a0b0d" metalness={0.2} roughness={0.6} />
                 </mesh>
               </>
             ) : (
               <>
-                {/* stamped socket bezel rising just proud of the bay floor */}
+                {/* dark receptacle cavity behind the punched opening */}
                 <RoundedBox
-                  args={[p.w + 0.016, p.h + 0.016, 0.024]}
-                  radius={Math.min(0.008, p.h / 2)}
-                  position-z={-0.012}
+                  args={[p.w + 0.024, p.h + 0.024, 0.022]}
+                  radius={0.006}
+                  position-z={0.02}
                 >
-                  <meshPhysicalMaterial color="#3f434b" metalness={0.7} roughness={0.45} />
+                  <meshPhysicalMaterial color={p.color} metalness={0.15} roughness={0.7} />
                 </RoundedBox>
-                {/* the dark opening of the connector itself */}
-                <RoundedBox
-                  args={[p.w, p.h, 0.006]}
-                  radius={Math.min(0.005, p.h / 3)}
-                  position-z={-0.026}
-                >
-                  <meshPhysicalMaterial color={p.color} metalness={0.25} roughness={0.55} />
-                </RoundedBox>
+                {/* the connector's inner blade, visible down the opening */}
+                {p.tongue && (
+                  <RoundedBox
+                    args={[p.w * 0.62, p.h * 0.34, 0.006]}
+                    radius={0.002}
+                    position-z={0.008}
+                  >
+                    <meshPhysicalMaterial color={p.tongue} metalness={0.6} roughness={0.4} />
+                  </RoundedBox>
+                )}
               </>
             )}
           </group>
@@ -260,12 +301,13 @@ export function TVSet({
               </group>
             ))}
           </group>
-          {/* floor pads, level on the stand plane, swallowing the strut tips */}
+          {/* flat floor shoes, level on the stand plane, the strut tips
+              buried just under their top surface */}
           {([1, -1] as const).map((end) => (
             <RoundedBox
               key={end}
-              args={[feet.strutWidth + 0.034, foot.padH, foot.padLen]}
-              radius={0.015}
+              args={[feet.strutWidth + 0.016, foot.padH, foot.padLen]}
+              radius={0.01}
               position={[
                 sideX * foot.padX,
                 -body.height / 2 + body.centerY - feet.height + foot.padH / 2,

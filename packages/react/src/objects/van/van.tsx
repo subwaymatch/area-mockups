@@ -105,47 +105,88 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean, overWindows: bo
 }
 
 /**
- * SVG path clipping the full-coverage rear wrap: the wrap rect itself as the
- * outer boundary with the two taillight clusters carved out to the wrap's
- * edge, so the brake/turn/reverse stacks stay visible through the livery.
+ * SVG path clipping the rear wrap. Both coverages carve the barn-door shut
+ * line (a real van's center crevice stays visible through any wrap); the
+ * full-coverage wrap additionally carves every taillight lamp, the third
+ * brake light and the hinge knuckles — each to a slim install margin, so
+ * the livery runs right up to the hardware and the lamps (which stand
+ * slightly proud of the wrap plane) read mounted ON the wrap, not sunken.
  */
-function buildFullRearClip(pxPerUnit: number): string {
-  const { rearFull } = VAN
-  const halfW = rearFull.width / 2
-  const topY = rearFull.y + rearFull.height / 2
+function buildRearClip(pxPerUnit: number, full: boolean): string {
+  const spec = full ? VAN.rearFull : VAN.rear
+  const halfW = spec.width / 2
+  const topY = spec.y + spec.height / 2
+  const bottomY = spec.y - spec.height / 2
   // The rear plane faces −X; its CSS x axis runs along world +z unmirrored.
   const P = (z: number, y: number) => `${((z + halfW) * pxPerUnit).toFixed(1)} ${((topY - y) * pxPerUnit).toFixed(1)}`
   const R = (u: number) => (u * pxPerUnit).toFixed(1)
 
   const outline = clipRoundedRectOutline(P, R, 1, {
     minX: -halfW,
-    minY: topY - rearFull.height,
+    minY: bottomY,
     maxX: halfW,
     maxY: topY,
-    r: rearFull.radius,
+    r: spec.radius,
   })
+  // The center shut line between the barn doors.
+  const slit = clipRoundedRect(P, R, 1, {
+    minX: -0.008,
+    maxX: 0.008,
+    minY: bottomY + 0.002,
+    maxY: topY - 0.002,
+    r: 0.004,
+  })
+  if (!full) return (outline + slit).trim()
+
   // Each lamp carved individually — brake, turn, reverse — so the livery
   // runs right up to every lens (bus-parity precision).
   const lamps = ([1, -1] as const)
     .flatMap((side) =>
       (
         [
-          { y0: -0.028, y1: 0.188 },
-          { y0: -0.183, y1: -0.037 },
-          { y0: -0.313, y1: -0.187 },
+          { y0: -0.026, y1: 0.186 },
+          { y0: -0.181, y1: -0.039 },
+          { y0: -0.311, y1: -0.189 },
         ] as const
       ).map(({ y0, y1 }) =>
         clipRoundedRect(P, R, 1, {
-          minX: side === 1 ? 0.772 : -0.908,
-          maxX: side === 1 ? 0.908 : -0.772,
+          minX: side === 1 ? 0.774 : -0.906,
+          maxX: side === 1 ? 0.906 : -0.774,
           minY: y0,
           maxY: y1,
-          r: 0.018,
+          r: 0.02,
         })
       )
     )
     .join('')
-  return (outline + lamps).trim()
+  // High-mount third brake light strip above the doors.
+  const brake = clipRoundedRect(P, R, 1, {
+    minX: -0.281,
+    maxX: 0.281,
+    minY: 1.0265,
+    maxY: 1.0735,
+    r: 0.012,
+  })
+  // Barn-door hinge knuckles at the outer door edges, two per side.
+  const hinges = ([1, -1] as const)
+    .flatMap((side) =>
+      (
+        [
+          { y0: 0.499, y1: 0.601 },
+          { y0: -0.301, y1: -0.199 },
+        ] as const
+      ).map(({ y0, y1 }) =>
+        clipRoundedRect(P, R, 1, {
+          minX: side === 1 ? 0.912 : -0.948,
+          maxX: side === 1 ? 0.948 : -0.912,
+          minY: y0,
+          maxY: y1,
+          r: 0.01,
+        })
+      )
+    )
+    .join('')
+  return (outline + slit + lamps + brake + hinges).trim()
 }
 
 export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
@@ -298,13 +339,13 @@ export function Van({
       street: `path("${buildFullWrapClip(pxPerUnit, true, over.streetSide)}")`,
     }
   }, [fullWrap, sideResolution, over.curbSide, over.streetSide])
-  const rearClip = React.useMemo(() => {
-    if (!fullWrap) return null
-    return `path("${buildFullRearClip(rearResolution / rearFull.width)}")`
-  }, [fullWrap, rearResolution, rearFull.width])
+  const rearClip = React.useMemo(
+    () => `path("${buildRearClip(rearResolution / rearSpec.width, fullWrap)}")`,
+    [fullWrap, rearResolution, rearSpec.width]
+  )
   const curbStyle = sideClip ? { clipPath: sideClip.curb, ...screenStyle } : screenStyle
   const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
-  const rearStyle = rearClip ? { clipPath: rearClip, ...screenStyle } : screenStyle
+  const rearStyle = { clipPath: rearClip, ...screenStyle }
 
   const shellGeometry = React.useMemo(() => {
     const { noseX, tailX, bumperTopY, hoodX, hoodY, cowlX, cowlY, windshieldTopX, windshieldTopY, roofStartX, roofY } = profile
@@ -627,9 +668,11 @@ export function Van({
         {trimMaterial}
       </RoundedBox>
       {/* taillight clusters: brake (red) / turn (amber) / reverse (white),
-          stacked at hand height on the rear corners like real van lamps */}
+          stacked at hand height on the rear corners like real van lamps —
+          standing ~20 mm proud of the wrap plane, so a full livery reads as
+          cut around lamps mounted ON the doors, not sunken behind them */}
       {[1, -1].map((side) => (
-        <group key={side} position={[-2.8, 0, side * 0.84]}>
+        <group key={side} position={[-2.821, 0, side * 0.84]}>
           <RoundedBox args={[0.05, 0.2, 0.12]} radius={0.02} position={[0, 0.08, 0]}>
             <meshPhysicalMaterial color="#8c1524" emissive="#c11a30" emissiveIntensity={0.45} roughness={0.25} clearcoat={1} />
           </RoundedBox>
@@ -642,21 +685,16 @@ export function Van({
         </group>
       ))}
 
-      {/* rear barn-door center seam — segments only above and below the rear
-          wrap DeviceScreen rect (y -0.67..0.95), which covers the middle */}
-      {(
-        [
-          { y: -0.77, height: 0.18 },
-          { y: 0.99, height: 0.08 },
-        ] as const
-      ).map(({ y, height }) => (
-        <mesh key={y} position={[-2.822, y, 0]}>
-          <boxGeometry args={[0.01, height, 0.014]} />
-          <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
-        </mesh>
-      ))}
-      {/* high-mount third brake light strip above the doors */}
-      <RoundedBox args={[0.025, 0.035, 0.55]} radius={0.01} position={[-2.822, 1.05, 0]}>
+      {/* rear barn-door center shut line, running the full door height —
+          every rear wrap carves a slit over it, so the crevice stays
+          visible through any livery like on a real wrapped van */}
+      <mesh position={[-2.822, 0.12, 0]}>
+        <boxGeometry args={[0.01, 1.96, 0.014]} />
+        <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
+      </mesh>
+      {/* high-mount third brake light strip above the doors, proud of the
+          wrap plane and carved out of the full wrap */}
+      <RoundedBox args={[0.025, 0.035, 0.55]} radius={0.01} position={[-2.83, 1.05, 0]}>
         <meshPhysicalMaterial color="#8c1524" emissive="#c11a30" emissiveIntensity={0.45} roughness={0.25} clearcoat={1} />
       </RoundedBox>
       {/* vertical grab handle on the right rear door leaf, kept just behind
@@ -665,10 +703,11 @@ export function Van({
         {trimMaterial}
       </RoundedBox>
       {/* barn-door hinge knuckles at the outer door edges, two per side —
-          outside the full rear wrap's span, so they show through any livery */}
+          the full rear wrap carves a tight hole around each, so they show
+          through any livery like install-cut hardware */}
       {[1, -1].map((side) =>
         [0.55, -0.25].map((y) => (
-          <RoundedBox key={`${side}${y}`} args={[0.05, 0.09, 0.024]} radius={0.008} position={[-2.825, y, side * 0.935]}>
+          <RoundedBox key={`${side}${y}`} args={[0.05, 0.09, 0.024]} radius={0.008} position={[-2.835, y, side * 0.93]}>
             {trimMaterial}
           </RoundedBox>
         ))
