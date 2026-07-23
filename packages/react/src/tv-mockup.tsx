@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { TVSet, type TVProps } from './objects/tv/tv'
-import { TV } from '@area-mockups/core'
+import { TV, tvSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   TVProps,
+  | 'size'
   | 'color'
   | 'screenBackground'
   | 'resolution'
@@ -37,6 +38,7 @@ export interface TVSetMockupProps
  */
 export function TVSetMockup({
   children,
+  size,
   color,
   screenBackground,
   resolution,
@@ -50,6 +52,7 @@ export function TVSetMockup({
 }: TVSetMockupProps) {
   const object = (
     <TVSet
+      size={size}
       color={color}
       screenBackground={screenBackground}
       resolution={resolution}
@@ -64,13 +67,14 @@ export function TVSetMockup({
   )
 
   // The feet define the media-stand plane; ground the shadow under them.
-  const standY = 0.5 - TV.standHeight
+  const spec = size === undefined ? TV : tvSpec(size)
+  const standY = 0.5 - spec.standHeight
   const shadowY = canvasProps.shadowY ?? (float ? standY - 0.25 : standY - 0.02)
 
   return (
     <MockupCanvas
       {...canvasProps}
-      camera={canvasProps.camera ?? { position: [0, 0.3, 11.6], fov: 40 }}
+      camera={canvasProps.camera ?? { position: [0, 0.3, 11.6 * Math.max(1, spec.body.width / TV.body.width)], fov: 40 }}
       shadowY={shadowY}
     >
       <group position={[0, 0.5, 0]}>

@@ -26,19 +26,25 @@ export const ID_CARD = {
    */
   face: { width: 1.687, height: 2.235, radius: 0.1, offsetY: -0.22 },
   /**
-   * Hardware chain, bottom to top exactly as on real lanyards: an elongated
-   * trigger snap hook whose nose wire threads the slot, the swivel barrel,
-   * the flat D-shaped eye clamped by the barrel, and the sheet-metal crimp
-   * that captures the folded strap ends through the eye.
+   * Hardware chain, bottom to top exactly as on real lanyards: the classic
+   * FLAT stamped-steel swivel J-hook (an open ring segment whose bottom bar
+   * hangs in the card's slot, closed by a thin spring gate), the stem and
+   * swivel barrel above it, and the sheet-metal crimp that captures the
+   * folded strap ends. Reference: the standard "metal swivel J hook clip"
+   * used on nearly every retail lanyard — flat polished steel, not wire.
    */
   hook: {
-    hookRadius: 0.15,
-    /** Vertical stretch turning the wire circle into the J-hook profile. */
-    hookScaleY: 1.9,
-    hookTube: 0.034,
-    barrel: { radius: 0.09, height: 0.24 },
-    eye: { radius: 0.11, scaleX: 1.4, tube: 0.03 },
-    crimp: { width: 0.5, height: 0.26, depth: 0.07 },
+    /** Ring segment of the J: outer/inner radii of the flat stamped hook. */
+    outerR: 0.168,
+    innerR: 0.112,
+    /** Stamped-steel thickness. */
+    depth: 0.022,
+    /** Mouth opening (degrees, CCW from +x): the gap the gate spans. */
+    mouthStart: 12,
+    mouthEnd: 74,
+    stem: { width: 0.068, height: 0.17 },
+    barrel: { radius: 0.07, height: 0.18, collar: 0.095 },
+    crimp: { width: 0.44, height: 0.24, depth: 0.062 },
   },
   /** Woven strap halves rising from the crimp in a hanging ~30° V. */
   strap: { width: 0.47, thickness: 0.022, length: 2.6, spreadAngle: 0.26, backTilt: 0.1 },

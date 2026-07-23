@@ -97,16 +97,52 @@ export function IDCard({
     <meshPhysicalMaterial color={lanyardColor} metalness={0} roughness={0.85} sheen={1} sheenColor="#ffffff" sheenRoughness={0.6} />
   )
 
-  // Hardware chain: the J-hook's nose wire rests INSIDE the slot, loaded
-  // against its bottom edge the way a hanging badge sits; the swivel barrel
-  // rises from the hook, clamps the flat D-eye, and the crimp overlaps the
-  // eye's top arc with the strap fold passing through the aperture.
+  // Hardware chain, referenced from the standard retail swivel J-hook: the
+  // FLAT stamped-steel hook hangs coplanar with the card, its bottom bar
+  // resting inside the slot on the slot's lower edge; the stem rises to the
+  // swivel barrel, and the crimp above it swallows the strap fold.
   const slotBottom = slot.centerY - slot.height / 2
-  const hookY = slotBottom + hook.hookTube + hook.hookRadius * hook.hookScaleY
-  const hookTop = hookY + hook.hookRadius * hook.hookScaleY
-  const barrelY = hookTop + hook.barrel.height / 2 - 0.05
-  const eyeY = barrelY + hook.barrel.height / 2 + hook.eye.radius - hook.eye.tube - 0.02
-  const crimpY = eyeY + hook.crimp.height / 2
+  const ringY = slotBottom + 0.005 + hook.outerR
+  const stemBottom = ringY + hook.innerR - 0.03
+  const stemTop = ringY + hook.outerR + hook.stem.height - 0.03
+  const barrelY = stemTop + hook.barrel.height / 2 - 0.03
+  const crimpY = barrelY + hook.barrel.height / 2 + hook.crimp.height / 2 - 0.025
+
+  // The flat J profile: an annular arc open at the upper right (the mouth),
+  // extruded at stamped-steel thickness.
+  const hookGeometry = React.useMemo(() => {
+    const a0 = (hook.mouthEnd * Math.PI) / 180
+    const a1 = ((hook.mouthStart + 360) * Math.PI) / 180
+    const s = new THREE.Shape()
+    s.absarc(0, 0, hook.outerR, a0, a1, false)
+    s.absarc(0, 0, hook.innerR, a1, a0, true)
+    s.closePath()
+    const g = new THREE.ExtrudeGeometry(s, {
+      depth: hook.depth - 0.008,
+      bevelEnabled: true,
+      bevelThickness: 0.004,
+      bevelSize: 0.004,
+      bevelSegments: 2,
+      curveSegments: 32,
+    })
+    g.translate(0, 0, -(hook.depth - 0.008) / 2)
+    return g
+  }, [hook])
+  React.useEffect(() => () => hookGeometry.dispose(), [hookGeometry])
+
+  // Spring gate: a thin flat strip closing the mouth, from beside the stem
+  // down to the hook's nose tip.
+  const gate = React.useMemo(() => {
+    const rMid = (hook.outerR + hook.innerR) / 2
+    const aNose = (hook.mouthStart * Math.PI) / 180
+    const nose = { x: rMid * Math.cos(aNose), y: rMid * Math.sin(aNose) }
+    const root = { x: hook.stem.width / 2 + 0.008, y: hook.outerR + 0.02 }
+    return {
+      length: Math.hypot(nose.x - root.x, nose.y - root.y) + 0.02,
+      angle: Math.atan2(nose.y - root.y, nose.x - root.x) + Math.PI / 2,
+      mid: { x: (nose.x + root.x) / 2, y: (nose.y + root.y) / 2 },
+    }
+  }, [hook])
   const faceProps = {
     width: face.width,
     height: face.height,
@@ -126,33 +162,38 @@ export function IDCard({
         <meshPhysicalMaterial color={color} metalness={0} roughness={0.55} clearcoat={0.4} clearcoatRoughness={0.4} />
       </mesh>
 
-      {/* elongated trigger snap J-hook: an open wire loop stretched tall,
-          its nose resting inside the slot, closed by the spring gate */}
-      <group position={[0, hookY, 0]} scale={[1, hook.hookScaleY, 1]}>
-        <mesh rotation-z={Math.PI / 2 + 0.5}>
-          <torusGeometry args={[hook.hookRadius, hook.hookTube, 10, 40, Math.PI * 1.72]} />
+      {/* the flat stamped-steel J-hook, hanging coplanar with the card, its
+          bottom bar resting inside the slot */}
+      <group position={[0, ringY, 0]}>
+        <mesh geometry={hookGeometry}>{metal}</mesh>
+        {/* thin spring gate closing the mouth */}
+        <RoundedBox
+          args={[0.016, gate.length, 0.012]}
+          radius={0.005}
+          position={[gate.mid.x, gate.mid.y, 0]}
+          rotation-z={gate.angle}
+        >
           {metal}
-        </mesh>
-        <mesh position={[0.06, 0.09, 0]} rotation-z={-0.45}>
-          <cylinderGeometry args={[0.016, 0.016, 0.21, 8]} />
-          {metal}
-        </mesh>
+        </RoundedBox>
       </group>
-      {/* swivel barrel */}
-      <mesh position={[0, barrelY, 0]}>
-        <cylinderGeometry args={[hook.barrel.radius, hook.barrel.radius, hook.barrel.height, 14]} />
+      {/* stem rising from the ring to the swivel */}
+      <RoundedBox
+        args={[hook.stem.width, stemTop - stemBottom, hook.depth - 0.004]}
+        radius={0.012}
+        position={[0, (stemTop + stemBottom) / 2, 0]}
+      >
         {metal}
-      </mesh>
-      {/* flat D-eye, its bottom arc clamped inside the barrel */}
-      <mesh position={[0, eyeY, 0]} scale={[hook.eye.scaleX, 1, 1]}>
-        <torusGeometry args={[hook.eye.radius, hook.eye.tube, 10, 24]} />
-        {metal}
-      </mesh>
-      {/* strap fold carrying the load through the eye's aperture */}
-      <RoundedBox args={[0.34, 0.42, 0.02]} radius={0.008} position={[0, eyeY + 0.12, -0.004]}>
-        {fabric}
       </RoundedBox>
-      {/* crimp sleeve clamping the folded strap ends, overlapping the eye */}
+      {/* swivel barrel with its collar — the joint that lets the badge spin */}
+      <mesh position={[0, barrelY, 0]}>
+        <cylinderGeometry args={[hook.barrel.radius, hook.barrel.radius, hook.barrel.height, 16]} />
+        {metal}
+      </mesh>
+      <mesh position={[0, barrelY + hook.barrel.height / 2 - 0.03, 0]}>
+        <cylinderGeometry args={[hook.barrel.collar, hook.barrel.collar, 0.05, 16]} />
+        {metal}
+      </mesh>
+      {/* crimp sleeve above the swivel, swallowing the folded strap ends */}
       <RoundedBox
         args={[hook.crimp.width, hook.crimp.height, hook.crimp.depth]}
         radius={0.02}

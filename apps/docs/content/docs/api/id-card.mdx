@@ -5,9 +5,10 @@ description: A CR80 badge hanging from a lanyard, with live front and back faces
 
 `<IDCard>` and `<IDCardMockup>` render a portrait CR80 badge (54×85.6 mm,
 30 mil PVC) hanging from a lanyard: a real 14×3 mm punched slot through the
-card, the full hardware chain from real lanyards — trigger snap hook through
-the slot, swivel barrel, split ring, strap crimp — and two woven strap halves
-rising in a hanging ~30° V out of the top of the frame.
+card, the full hardware chain from real lanyards — a flat stamped-steel
+swivel J-hook hanging in the slot with its spring gate closing the mouth,
+swivel barrel, strap crimp — and two woven strap halves rising in a hanging
+~30° V out of the top of the frame.
 
 The printable face is live DOM on the front and, optionally, the back. Like
 a real badge, the design keeps clear of the punch strip: the live area is
@@ -32,6 +33,14 @@ Beyond the [shared screen props](/docs/screen-content):
 | `lanyardColor` | `string` | `'#b3223a'` | Woven strap color (lanyards come in saturated solids). |
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind each face's content. |
 | `resolution` | `number` | `420` | Virtual face width in CSS px (~300 dpi); height follows the printable area. |
+
+## Mockup-able areas
+
+Every live surface filled with chroma green, labeled with the prop that
+feeds it — the fastest way to see exactly where your content lands and
+what stays 3D hardware.
+
+<ObjectDemo demo="chroma-id-card" />
 
 ## More examples
 

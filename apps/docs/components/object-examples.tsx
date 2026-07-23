@@ -44,6 +44,8 @@ import {
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import { withPreviewControls } from './preview-controls'
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock'
+import { DEMO_SOURCES } from '../lib/demo-sources.generated'
 import {
   ArrivalsBoardArt,
   BadgeBackArt,
@@ -193,6 +195,41 @@ function BusTailLivery() {
       <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>ZERO EMISSION</div>
       <div style={{ fontSize: 18, fontWeight: 600, opacity: 0.85 }}>transit.example/electric</div>
       <div style={{ width: '52%', height: 8, background: '#7fe3d2', borderRadius: 4 }} />
+    </div>
+  )
+}
+
+/**
+ * Chroma-key fill for the "mockup-able areas" example on each API page:
+ * broadcast green with the surface's prop name printed across it, so users
+ * can see exactly where each prop's content lands (and what stays 3D).
+ */
+function ChromaSurface({ label }: { label: string }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: '#00b140',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        containerType: 'size',
+        overflow: 'hidden',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: 'ui-monospace, monospace',
+          fontWeight: 700,
+          fontSize: 'min(11cqw, 34cqh)',
+          color: '#063d1e',
+          letterSpacing: '0.05em',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {label}
+      </span>
     </div>
   )
 }
@@ -550,6 +587,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       coverage="full"
       streetSide={<FullSideLivery />}
       rear={<VanRearArt />}
+      licensePlate="RGL 4×4"
       deviceProps={{ rotation: [0, -0.42, 0] }}
     >
       <FullSideLivery />
@@ -897,6 +935,227 @@ const DEMOS: Record<string, React.ReactNode> = {
       <GalaxyWatchFace />
     </WatchMockup>
   ),
+
+  // ---- Chroma surface maps: every mockup-able area in chroma green -----------
+  'chroma-phone': (
+    <PhoneMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </PhoneMockup>
+  ),
+  'chroma-iphone': (
+    <IPhoneMockup deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </IPhoneMockup>
+  ),
+  'chroma-laptop': (
+    <LaptopMockup deviceProps={{ rotation: [0.05, -0.35, 0] }}>
+      <ChromaSurface label="children" />
+    </LaptopMockup>
+  ),
+  'chroma-tablet': (
+    <TabletMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </TabletMockup>
+  ),
+  'chroma-watch': (
+    <WatchMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </WatchMockup>
+  ),
+  'chroma-monitor': (
+    <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </MonitorMockup>
+  ),
+  'chroma-fold': (
+    <FoldMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </FoldMockup>
+  ),
+  'chroma-flip': (
+    <FlipMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </FlipMockup>
+  ),
+  'chroma-tv': (
+    <TVSetMockup deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <ChromaSurface label="children" />
+    </TVSetMockup>
+  ),
+  'chroma-book': (
+    <BookMockup back={<ChromaSurface label="back" />} spine={<ChromaSurface label="spine" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </BookMockup>
+  ),
+  'chroma-magazine': (
+    <MagazineMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </MagazineMockup>
+  ),
+  'chroma-brochure': (
+    <BrochureMockup
+      panels={[<ChromaSurface key="0" label="panels[0]" />, <ChromaSurface key="1" label="panels[1]" />, <ChromaSurface key="2" label="panels[2]" />]}
+      backPanels={[<ChromaSurface key="0" label="backPanels[0]" />, <ChromaSurface key="1" label="backPanels[1]" />, <ChromaSurface key="2" label="backPanels[2]" />]}
+      autoRotate
+      autoRotateSpeed={0.8}
+    />
+  ),
+  'chroma-card': (
+    <BusinessCardMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </BusinessCardMockup>
+  ),
+  'chroma-poster': (
+    <PosterFrameMockup deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <ChromaSurface label="children" />
+    </PosterFrameMockup>
+  ),
+  'chroma-billboard': (
+    <BillboardMockup deviceProps={{ rotation: [0, -0.15, 0] }}>
+      <ChromaSurface label="children" />
+    </BillboardMockup>
+  ),
+  'chroma-van': (
+    <VanMockup
+      coverage="full"
+      streetSide={<ChromaSurface label="streetSide" />}
+      rear={<ChromaSurface label="rear" />}
+      licensePlate={<ChromaSurface label="licensePlate" />}
+      autoRotate
+      autoRotateSpeed={0.6}
+    >
+      <ChromaSurface label="curbSide" />
+    </VanMockup>
+  ),
+  'chroma-id-card': (
+    <IDCardMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </IDCardMockup>
+  ),
+  'chroma-bus': (
+    <BusMockup
+      coverage="full"
+      streetSideAd={<ChromaSurface label="streetSideAd" />}
+      rearAd={<ChromaSurface label="rearAd" />}
+      destinationSign={<ChromaSurface label="destinationSign" />}
+      autoRotate
+      autoRotateSpeed={0.6}
+    >
+      <ChromaSurface label="curbSideAd" />
+    </BusMockup>
+  ),
+  'chroma-box': (
+    <ProductBoxMockup
+      side={<ChromaSurface label="side" />}
+      left={<ChromaSurface label="left" />}
+      top={<ChromaSurface label="top" />}
+      bottom={<ChromaSurface label="bottom" />}
+      back={<ChromaSurface label="back" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </ProductBoxMockup>
+  ),
+  'chroma-banner': (
+    <RollupBannerMockup deviceProps={{ rotation: [0, 0.2, 0] }}>
+      <ChromaSurface label="children" />
+    </RollupBannerMockup>
+  ),
+  'chroma-shelter': (
+    <BusShelterMockup
+      inner={<ChromaSurface label="inner" />}
+      arrivals={<ChromaSurface label="arrivals" />}
+      arrivalsBack={<ChromaSurface label="arrivalsBack" />}
+      deviceProps={{ rotation: [0, -0.55, 0] }}
+    >
+      <ChromaSurface label="children" />
+    </BusShelterMockup>
+  ),
+  'chroma-greeting': (
+    <GreetingCardMockup
+      backCover={<ChromaSurface label="backCover" />}
+      insideLeft={<ChromaSurface label="insideLeft" />}
+      insideRight={<ChromaSurface label="insideRight" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </GreetingCardMockup>
+  ),
+  'chroma-vinyl': (
+    <VinylRecordMockup
+      back={<ChromaSurface label="back" />}
+      label={<ChromaSurface label="label" />}
+      backLabel={<ChromaSurface label="backLabel" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </VinylRecordMockup>
+  ),
+  'chroma-a-frame': (
+    <AFrameSignMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </AFrameSignMockup>
+  ),
+  'chroma-dooh': (
+    <DOOHTotemMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.7}>
+      <ChromaSurface label="children" />
+    </DOOHTotemMockup>
+  ),
+  'chroma-storefront': (
+    <StorefrontMockup windowPoster={<ChromaSurface label="windowPoster" />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </StorefrontMockup>
+  ),
+  'chroma-semi': (
+    <SemiTrailerMockup
+      streetSide={<ChromaSurface label="streetSide" />}
+      rear={<ChromaSurface label="rear" />}
+      autoRotate
+      autoRotateSpeed={0.6}
+    >
+      <ChromaSurface label="children" />
+    </SemiTrailerMockup>
+  ),
+  'chroma-mailer': (
+    <MailerBoxMockup
+      front={<ChromaSurface label="front" />}
+      back={<ChromaSurface label="back" />}
+      side={<ChromaSurface label="side" />}
+      left={<ChromaSurface label="left" />}
+      bottom={<ChromaSurface label="bottom" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </MailerBoxMockup>
+  ),
+  'chroma-bag': (
+    <ShoppingBagMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </ShoppingBagMockup>
+  ),
+  'chroma-custom-panel': (
+    <CustomPanelMockup size={{ width: 600, height: 400 }} back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </CustomPanelMockup>
+  ),
+  'chroma-custom-box': (
+    <CustomBoxMockup
+      size={{ width: 300, height: 220, depth: 160 }}
+      back={<ChromaSurface label="back" />}
+      left={<ChromaSurface label="left" />}
+      right={<ChromaSurface label="right" />}
+      top={<ChromaSurface label="top" />}
+      bottom={<ChromaSurface label="bottom" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </CustomBoxMockup>
+  ),
 }
 
 /**
@@ -917,9 +1176,23 @@ export function ObjectDemo({
 }) {
   const scene = DEMOS[demo]
   if (!scene) return <p>Unknown demo: {demo}</p>
+  const sources = DEMO_SOURCES[demo]
   return (
-    <div className={`object-demo${checker ? ' object-demo--checker' : ''}`} style={{ height }}>
-      <LazyScene>{withPreviewControls(scene)}</LazyScene>
-    </div>
+    <>
+      <div className={`object-demo${checker ? ' object-demo--checker' : ''}`} style={{ height }}>
+        <LazyScene>{withPreviewControls(scene)}</LazyScene>
+      </div>
+      {sources && (
+        <details className="object-demo-source">
+          <summary>View the full TSX behind this demo</summary>
+          {sources.map((part) => (
+            <div key={part.name} className="object-demo-source-part">
+              {part.name !== 'Demo' && <p className="object-demo-source-name">{part.name}</p>}
+              <DynamicCodeBlock lang="tsx" code={part.code} />
+            </div>
+          ))}
+        </details>
+      )}
+    </>
   )
 }

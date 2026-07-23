@@ -33,12 +33,12 @@ const FULL_WRAP_RESOLUTION = Math.round(VAN.resolution * (FULL_WRAP.width / VAN.
 const SIDE_CUTOUTS = {
   /** Mirrors doorGlassGeometry (shape-local coords + its [1.52, 0.24] mount). */
   doorGlass: { x: 1.52, y: 0.24, halfW: 0.5, h: 0.56, rake: 0.486 },
-  /** Door handle RoundedBox [0.162 × 0.029] at (1.2, −0.26). */
-  handle: { minX: 1.099, minY: -0.295, maxX: 1.301, maxY: -0.225, r: 0.035 },
-  /** Mirror arms + head footprint beside the A-pillar. */
-  mirror: { minX: 1.975, minY: 0.365, maxX: 2.115, maxY: 0.675, r: 0.045 },
+  /** Door handle RoundedBox [0.162 × 0.029] at (1.2, −0.26), cut tight. */
+  handle: { minX: 1.111, minY: -0.283, maxX: 1.289, maxY: -0.237, r: 0.022 },
+  /** Mirror arms + head footprint beside the A-pillar, cut tight. */
+  mirror: { minX: 1.987, minY: 0.369, maxX: 2.103, maxY: 0.661, r: 0.03 },
   /** Curb-side sliding-door track groove [3.4 × 0.038] at (−0.8, 1.14). */
-  track: { minX: -2.52, minY: 1.114, maxX: 0.92, maxY: 1.166, r: 0.026 },
+  track: { minX: -2.51, minY: 1.118, maxX: 0.91, maxY: 1.162, r: 0.02 },
 } as const
 
 /**
@@ -48,10 +48,10 @@ const SIDE_CUTOUTS = {
  * street-side (−Z) variant, whose CSS x axis runs nose→tail; mirroring also
  * flips every arc's sweep flag so the geometry stays identical.
  */
-function buildFullWrapClip(pxPerUnit: number, mirrored: boolean): string {
+function buildFullWrapClip(pxPerUnit: number, mirrored: boolean, overWindows: boolean): string {
   const { rockerY, wheels, profile } = VAN
-  // Keep the wrap just inside the shell's beveled edge (bevelSize 0.015).
-  const inset = 0.015
+  // Keep the wrap just inside the shell's beveled edge.
+  const inset = 0.01
   const X = (x: number) => ((mirrored ? profile.noseX - x : x - profile.tailX) * pxPerUnit).toFixed(1)
   const Y = (y: number) => ((profile.roofY - y) * pxPerUnit).toFixed(1)
   const P = (x: number, y: number) => `${X(x)} ${Y(y)}`
@@ -97,7 +97,7 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean): string {
 
   return (
     outline +
-    glass +
+    (overWindows ? '' : glass) +
     clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.handle) +
     clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.mirror) +
     (mirrored ? '' : clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.track))
@@ -124,15 +124,25 @@ function buildFullRearClip(pxPerUnit: number): string {
     maxY: topY,
     r: rearFull.radius,
   })
+  // Each lamp carved individually — brake, turn, reverse — so the livery
+  // runs right up to every lens (bus-parity precision).
   const lamps = ([1, -1] as const)
-    .map((side) =>
-      clipRoundedRect(P, R, 1, {
-        minX: side === 1 ? 0.765 : -0.915,
-        maxX: side === 1 ? 0.915 : -0.765,
-        minY: -0.32,
-        maxY: 0.2,
-        r: 0.03,
-      })
+    .flatMap((side) =>
+      (
+        [
+          { y0: -0.028, y1: 0.188 },
+          { y0: -0.183, y1: -0.037 },
+          { y0: -0.313, y1: -0.187 },
+        ] as const
+      ).map(({ y0, y1 }) =>
+        clipRoundedRect(P, R, 1, {
+          minX: side === 1 ? 0.772 : -0.908,
+          maxX: side === 1 ? 0.908 : -0.772,
+          minY: y0,
+          maxY: y1,
+          r: 0.018,
+        })
+      )
     )
     .join('')
   return (outline + lamps).trim()
@@ -141,6 +151,11 @@ function buildFullRearClip(pxPerUnit: number): string {
 export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Livery for the curb-side (+Z) wrap panel — any React node, full bleed. */
   children?: React.ReactNode
+  /**
+   * Livery for the curb-side (+Z) wrap panel — the named alternative to
+   * `children`, symmetric with `streetSide`. Wins when both are given.
+   */
+  curbSide?: React.ReactNode
   /** Livery for the street-side (−Z) wrap panel. */
   streetSide?: React.ReactNode
   /**
@@ -165,6 +180,18 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
    * hardware and lights show through your livery.
    */
   coverage?: 'panel' | 'full'
+  /**
+   * Whether a full-coverage wrap runs OVER the cab door glass (perforated
+   * film, the full-print fleet look) or the glass stays clear (`false`,
+   * default — door glass is operational, so real wraps usually cut around
+   * it). Pass a boolean for both sides or `{ curbSide?, streetSide? }`.
+   */
+  wrapOverWindows?: boolean | { curbSide?: boolean; streetSide?: boolean }
+  /**
+   * License plates, front and rear. A string renders the built-in plate
+   * (dark plate type on the white blank); any React node renders as-is.
+   */
+  licensePlate?: React.ReactNode | string
   /** Let pointer events (clicks, scrolling, typing) reach your wrap content. */
   interactive?: boolean
   /** Hand >10px drags off to the orbit controls; taps still reach the content. */
@@ -195,12 +222,15 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
  */
 export function Van({
   children,
+  curbSide,
   streetSide,
   rear,
   color = '#eef0f2',
   wrapBackground = '#ffffff',
   resolution,
   coverage = 'panel',
+  wrapOverWindows = false,
+  licensePlate,
   interactive = true,
   dragToRotate = true,
   occlude = true,
@@ -214,6 +244,45 @@ export function Van({
   // The side rect the DeviceScreens cover: the classic mid-panel, or the
   // whole side elevation with the hardware carved out via clip-path.
   const fullWrap = coverage === 'full'
+  const curbLivery = curbSide ?? children
+  // A string becomes the built-in plate face (plate type on the white
+  // blank); custom nodes render as-is on both plates.
+  const plateFace =
+    licensePlate == null ? null : typeof licensePlate === 'string' ? (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          boxSizing: 'border-box',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#f4f6f8',
+          border: '2px solid #a9aeb6',
+          borderRadius: 4,
+          containerType: 'size',
+        }}
+      >
+        <span
+          style={{
+            color: '#181b20',
+            fontFamily: '"Arial Narrow", "Helvetica Neue", Arial, sans-serif',
+            fontWeight: 700,
+            fontSize: '52cqh',
+            letterSpacing: '0.1em',
+            whiteSpace: 'pre',
+          }}
+        >
+          {licensePlate}
+        </span>
+      </div>
+    ) : (
+      licensePlate
+    )
+  const over =
+    typeof wrapOverWindows === 'boolean'
+      ? { curbSide: wrapOverWindows, streetSide: wrapOverWindows }
+      : { curbSide: false, streetSide: false, ...wrapOverWindows }
   const side = fullWrap
     ? { width: FULL_WRAP.width, height: FULL_WRAP.height, x: FULL_WRAP.x, y: FULL_WRAP.y, radius: 0 }
     : { width: wrap.width, height: wrap.height, x: wrap.x, y: wrap.y, radius: wrap.radius }
@@ -225,10 +294,10 @@ export function Van({
     if (!fullWrap) return null
     const pxPerUnit = sideResolution / FULL_WRAP.width
     return {
-      curb: `path("${buildFullWrapClip(pxPerUnit, false)}")`,
-      street: `path("${buildFullWrapClip(pxPerUnit, true)}")`,
+      curb: `path("${buildFullWrapClip(pxPerUnit, false, over.curbSide)}")`,
+      street: `path("${buildFullWrapClip(pxPerUnit, true, over.streetSide)}")`,
     }
-  }, [fullWrap, sideResolution])
+  }, [fullWrap, sideResolution, over.curbSide, over.streetSide])
   const rearClip = React.useMemo(() => {
     if (!fullWrap) return null
     return `path("${buildFullRearClip(rearResolution / rearFull.width)}")`
@@ -355,16 +424,21 @@ export function Van({
 
       {/* cab door glass, both sides — trapezoid following the A-pillar. The
           0.02 extrusion runs +z from its base, so each side gets its own base
-          z that leaves the outer face ~10mm proud of the shell. */}
-      {[1, -1].map((side) => (
-        <mesh
-          key={side}
-          geometry={doorGlassGeometry}
-          position={[1.52, 0.24, side === 1 ? body.width / 2 - 0.01 : -body.width / 2 - 0.01]}
-        >
-          {glassMaterial}
-        </mesh>
-      ))}
+          z that leaves the outer face ~10mm proud of the shell — or recessed
+          beneath the wrap plane when that side's wrap covers the glass. */}
+      {[1, -1].map((side) => {
+        const covered = fullWrap && (side === 1 ? over.curbSide && curbLivery != null : over.streetSide && streetSide != null)
+        // The 0.02 extrusion always runs +z, so each side's base leaves the
+        // outer face ~10mm proud — or tucked under the wrap plane when the
+        // wrap covers the glass.
+        const base =
+          side === 1 ? body.width / 2 - (covered ? 0.018 : 0.01) : -body.width / 2 + (covered ? 0.002 : -0.01)
+        return (
+          <mesh key={side} geometry={doorGlassGeometry} position={[1.52, 0.24, base]}>
+            {glassMaterial}
+          </mesh>
+        )
+      })}
 
       {/* cab door handles, ~1 m above the ground on both sides */}
       {[1, -1].map((side) => (
@@ -501,6 +575,23 @@ export function Van({
       <RoundedBox args={[0.03, 0.13, 0.52]} radius={0.012} position={[2.82, -0.42, 0]}>
         <meshPhysicalMaterial color="#dfe2e6" metalness={0.1} roughness={0.5} />
       </RoundedBox>
+      {plateFace != null && (
+        <DeviceScreen
+          width={0.5}
+          height={0.12}
+          radius={0.008}
+          resolution={200}
+          position={[2.839, -0.42, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          background="#f4f6f8"
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+        >
+          {plateFace}
+        </DeviceScreen>
+      )}
       {/* headlight units flanking the grille, tops kissing the hood line,
           reaching out to the corners with the amber segment wrapping the end */}
       {[1, -1].map((side) => (
@@ -590,6 +681,23 @@ export function Van({
       <RoundedBox args={[0.014, 0.125, 0.27]} radius={0.008} position={[-2.834, -0.78, -0.3]}>
         <meshPhysicalMaterial color="#e6e9ed" metalness={0.05} roughness={0.5} />
       </RoundedBox>
+      {plateFace != null && (
+        <DeviceScreen
+          width={0.26}
+          height={0.115}
+          radius={0.006}
+          resolution={160}
+          position={[-2.843, -0.78, -0.3]}
+          rotation={[0, -Math.PI / 2, 0]}
+          background="#f4f6f8"
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+        >
+          {plateFace}
+        </DeviceScreen>
+      )}
 
       {/* door mirrors: heads reach only ~165 mm beyond the body per side,
           each hung from two short arms off the door at beltline */}
@@ -622,7 +730,7 @@ export function Van({
         occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
         screenStyle={curbStyle}
       >
-        {children}
+        {curbLivery}
       </DeviceScreen>
       {streetSide != null && (
         <DeviceScreen

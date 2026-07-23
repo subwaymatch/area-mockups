@@ -6,12 +6,15 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   VanProps,
+  | 'curbSide'
   | 'streetSide'
   | 'rear'
   | 'color'
   | 'wrapBackground'
   | 'resolution'
   | 'coverage'
+  | 'wrapOverWindows'
+  | 'licensePlate'
   | 'interactive'
   | 'dragToRotate'
   | 'occlude'
@@ -39,12 +42,15 @@ export interface VanMockupProps extends Omit<MockupCanvasProps, 'children'>, Inh
  */
 export function VanMockup({
   children,
+  curbSide,
   streetSide,
   rear,
   color,
   wrapBackground,
   resolution,
   coverage,
+  wrapOverWindows,
+  licensePlate,
   interactive,
   dragToRotate,
   occlude,
@@ -55,12 +61,15 @@ export function VanMockup({
 }: VanMockupProps) {
   const object = (
     <Van
+      curbSide={curbSide}
       streetSide={streetSide}
       rear={rear}
       color={color}
       wrapBackground={wrapBackground}
       resolution={resolution}
       coverage={coverage}
+      wrapOverWindows={wrapOverWindows}
+      licensePlate={licensePlate}
       interactive={interactive}
       dragToRotate={dragToRotate}
       occlude={occlude}

@@ -13,6 +13,7 @@ import {
   MonitorMockup,
   Tablet,
   type TabletVariant,
+  TVSetMockup,
   VanMockup,
   Watch,
   type WatchVariant,
@@ -128,6 +129,23 @@ function HarnessScene() {
       >
         {screen}
       </BusShelterMockup>
+    )
+  }
+
+  if (device === 'tv') {
+    const dist = Number(params.get('dist') ?? 11.6)
+    return (
+      <TVSetMockup
+        size={params.get('inches') ? Number(params.get('inches')) : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </TVSetMockup>
     )
   }
 
