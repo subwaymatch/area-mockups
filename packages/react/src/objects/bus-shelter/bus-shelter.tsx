@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { BUS_SHELTER } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
+import { LEDText, isLedText } from '../../led-text'
 
 type GroupProps = ThreeElements['group']
 
@@ -15,9 +16,12 @@ export interface BusShelterProps extends Omit<GroupProps, 'children' | 'color'> 
   inner?: React.ReactNode
   /**
    * Live RTPI arrivals display hanging under the roof — bus times, service
-   * alerts, anything. Renders on a dark board facing the street.
+   * alerts, anything. Renders on a dark board facing the street. Pass an
+   * array of strings for the built-in dot-matrix LED board (one row per
+   * arrival, rows scroll when they overflow), a single string for a one-line
+   * message — or any React node for full custom control.
    */
-  arrivals?: React.ReactNode
+  arrivals?: React.ReactNode | string | string[]
   /** Street-furniture steel color (roof, posts, frames, bench). */
   color?: string
   /** CSS background painted behind the poster content (backlit white). */
@@ -65,6 +69,20 @@ export function BusShelter({
   const { body, roof, backGlass, post, bench, lightbox, poster, flag, display, standHeight } = BUS_SHELTER
   const boxRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(boxRef)
+
+  // Plain strings become the built-in LED arrivals board — an array is one
+  // row per arrival; custom nodes pass straight through.
+  const board = isLedText(arrivals) ? (
+    <LEDText
+      text={arrivals}
+      mode={typeof arrivals === 'string' ? 'auto' : 'rows'}
+      align="left"
+      background="#0b0c0e"
+      dotSize={3}
+    />
+  ) : (
+    arrivals
+  )
 
   const glassMaterial = (
     <meshPhysicalMaterial
@@ -156,7 +174,7 @@ export function BusShelter({
       </group>
 
       {/* RTPI arrivals display hanging under the roof near the front edge */}
-      {arrivals != null && (
+      {board != null && (
         <group position={[display.x, roofY - roof.thickness / 2 - display.drop - display.height / 2 - 0.05, body.depth / 2 - 0.3]}>
           {([1, -1] as const).map((s) => (
             <mesh key={s} position={[s * (display.width / 2 - 0.12), display.height / 2 + 0.05 + display.drop / 2, 0]}>
@@ -179,7 +197,7 @@ export function BusShelter({
             occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
             screenStyle={screenStyle}
           >
-            {arrivals}
+            {board}
           </DeviceScreen>
         </group>
       )}

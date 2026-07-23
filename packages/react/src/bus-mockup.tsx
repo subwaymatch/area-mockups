@@ -12,6 +12,7 @@ type InheritedObjectProps = Pick<
   | 'color'
   | 'adBackground'
   | 'resolution'
+  | 'coverage'
   | 'interactive'
   | 'dragToRotate'
   | 'occlude'
@@ -45,6 +46,7 @@ export function BusMockup({
   color,
   adBackground,
   resolution,
+  coverage,
   interactive,
   dragToRotate,
   occlude,
@@ -61,6 +63,7 @@ export function BusMockup({
       color={color}
       adBackground={adBackground}
       resolution={resolution}
+      coverage={coverage}
       interactive={interactive}
       dragToRotate={dragToRotate}
       occlude={occlude}

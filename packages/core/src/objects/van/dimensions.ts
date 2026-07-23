@@ -56,6 +56,12 @@ export const VAN = {
   wrap: { width: 3.72, height: 1.52, x: -0.86, y: 0.34, radius: 0.02 },
   /** Live wrap panel on the rear doors, between the taillight clusters. */
   rear: { width: 1.42, height: 1.62, y: 0.14, radius: 0.02 },
+  /**
+   * Full-coverage rear wrap (`coverage="full"`): the whole barn-door face
+   * from just above the bumper strip to just under the third brake light,
+   * with the taillight clusters carved out.
+   */
+  rearFull: { width: 1.8, height: 1.72, y: 0.16, radius: 0.02 },
   /** Default CSS px width of the virtual side wrap panel. */
   resolution: 900,
 } as const

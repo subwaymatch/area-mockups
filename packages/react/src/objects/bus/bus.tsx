@@ -2,27 +2,165 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { BUS } from '@area-mockups/core'
+import { BUS, clipRoundedRect, clipRoundedRectOutline } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
+import { LEDText, isLedText } from '../../led-text'
 
 type GroupProps = ThreeElements['group']
 
+/**
+ * Full-coverage side wrap: the whole side elevation, skirts to roofline,
+ * tail to nose. The extruded shell makes the entire side face coplanar, so
+ * one DOM plane can cover it; the body outline and the operational-glass
+ * cutouts below are carved out of that plane with a CSS `clip-path`.
+ */
+const FULL_SIDE = {
+  width: BUS.profile.noseX - BUS.profile.tailX,
+  height: BUS.profile.roofY - BUS.skirtY,
+  x: (BUS.profile.noseX + BUS.profile.tailX) / 2,
+  y: (BUS.profile.roofY + BUS.skirtY) / 2,
+} as const
+
+/**
+ * SVG path (CSS px, y-down) clipping the full-coverage side wrap: the
+ * shell's own side profile — wheel-arch arcs included — as the outer
+ * boundary, with the operational glass as opposite-winding holes. Transit
+ * wraps cover the passenger windows (perforated vinyl), so those are NOT
+ * carved out — only what must stay clear is: the curb-side door leaves, the
+ * street-side driver's window, and the mirror mount. `mirrored` builds the
+ * street-side (−Z) variant, whose CSS x axis runs nose→tail; mirroring also
+ * flips every arc's sweep flag so the geometry stays identical.
+ */
+function buildFullSideClip(pxPerUnit: number, mirrored: boolean): string {
+  const { skirtY, wheels, profile, windowBand, doors, driverWindow } = BUS
+  // Keep the wrap just inside the shell's beveled edge (bevelSize 0.015).
+  const inset = 0.015
+  const X = (x: number) => ((mirrored ? profile.noseX - x : x - profile.tailX) * pxPerUnit).toFixed(1)
+  const Y = (y: number) => ((profile.roofY - y) * pxPerUnit).toFixed(1)
+  const P = (x: number, y: number) => `${X(x)} ${Y(y)}`
+  const R = (u: number) => (u * pxPerUnit).toFixed(1)
+  // One sweep flag serves the whole trace (see core's clip-path helper); the
+  // street-side mirror flips orientation, and the flag with it.
+  const sweep = mirrored ? 0 : 1
+
+  const bottom = skirtY + inset
+  const top = profile.roofY - inset
+  const tail = profile.tailX + inset
+  const nose = profile.noseX - inset
+  const arch = wheels.archRadius
+
+  // The same trace as shellGeometry's profile shape, world-counterclockwise.
+  const outline =
+    `M ${P(tail + 0.06, bottom)} ` +
+    `L ${P(wheels.rearX - arch, bottom)} ` +
+    `A ${R(arch)} ${R(arch)} 0 0 ${sweep} ${P(wheels.rearX + arch, bottom)} ` +
+    `L ${P(wheels.frontX - arch, bottom)} ` +
+    `A ${R(arch)} ${R(arch)} 0 0 ${sweep} ${P(wheels.frontX + arch, bottom)} ` +
+    `L ${P(nose - 0.07, bottom)} Q ${P(nose, bottom)} ${P(nose, bottom + 0.07)} ` +
+    `L ${P(nose, profile.windshieldBaseY)} ` +
+    `L ${P(profile.windshieldTopX - inset, profile.windshieldTopY)} ` +
+    `L ${P(profile.signBandTopX - inset, profile.signBandTopY)} ` +
+    `Q ${P(profile.signBandTopX - inset - 0.06, top)} ${P(profile.roofStartX, top)} ` +
+    `L ${P(tail + 0.1, top)} Q ${P(tail, top)} ${P(tail, top - 0.08)} ` +
+    `L ${P(tail, bottom + 0.06)} Q ${P(tail, bottom)} ${P(tail + 0.06, bottom)} Z `
+
+  const doorTopY = windowBand.y + windowBand.height / 2
+  const doorHoles = doors
+    .map(({ x, width, bottomY }) =>
+      clipRoundedRect(P, R, sweep, {
+        minX: x - width / 2 - 0.015,
+        maxX: x + width / 2 + 0.015,
+        minY: bottomY - 0.015,
+        maxY: doorTopY + 0.015,
+        r: 0.045,
+      })
+    )
+    .join('')
+  const windowHole = clipRoundedRect(P, R, sweep, {
+    minX: driverWindow.x - driverWindow.width / 2 - 0.012,
+    maxX: driverWindow.x + driverWindow.width / 2 + 0.012,
+    minY: driverWindow.y - driverWindow.height / 2 - 0.012,
+    maxY: driverWindow.y + driverWindow.height / 2 + 0.012,
+    r: 0.05,
+  })
+  const mirrorHole = clipRoundedRect(P, R, sweep, { minX: 3.11, minY: 0.3, maxX: 3.19, maxY: 0.38, r: 0.025 })
+
+  return (outline + (mirrored ? windowHole : doorHoles) + mirrorHole).trim()
+}
+
+/**
+ * SVG path clipping the full-coverage rear wrap: the wrap rect itself as the
+ * outer boundary with the two taillight stacks carved out. The engine
+ * louvers, route-sign box and rear window sit behind the wrap plane and get
+ * covered, like a real tail wrap.
+ */
+function buildFullRearClip(pxPerUnit: number): string {
+  const { rearFull } = BUS
+  const halfW = rearFull.width / 2
+  const topY = rearFull.y + rearFull.height / 2
+  // The rear plane faces −X; its CSS x axis runs along world +z unmirrored.
+  const P = (z: number, y: number) => `${((z + halfW) * pxPerUnit).toFixed(1)} ${((topY - y) * pxPerUnit).toFixed(1)}`
+  const R = (u: number) => (u * pxPerUnit).toFixed(1)
+
+  const outline = clipRoundedRectOutline(P, R, 1, {
+    minX: -halfW,
+    minY: topY - rearFull.height,
+    maxX: halfW,
+    maxY: topY,
+    r: rearFull.radius,
+  })
+  const lamps = ([1, -1] as const)
+    .map((side) =>
+      clipRoundedRect(P, R, 1, {
+        minX: side === 1 ? 0.485 : -0.635,
+        maxX: side === 1 ? 0.635 : -0.485,
+        minY: -0.04,
+        maxY: 0.36,
+        r: 0.03,
+      })
+    )
+    .join('')
+  return (outline + lamps).trim()
+}
+
 export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
-  /** Creative for the curb-side (+Z) king-size ad panel — any React node, full bleed. */
+  /**
+   * Creative for the curb-side (+Z) ad surface — any React node, full bleed.
+   * The king-size panel by default; the whole side with `coverage="full"`.
+   */
   children?: React.ReactNode
-  /** Creative for the street-side (−Z) king-size ad panel. */
+  /** Creative for the street-side (−Z) ad surface. */
   streetSideAd?: React.ReactNode
-  /** Creative for the rear tail-ad panel (21"x70") on the engine door. */
+  /**
+   * Creative for the rear ad surface on the engine door: the 21"x70" tail-ad
+   * panel by default, or the whole tail with `coverage="full"`.
+   */
   rearAd?: React.ReactNode
-  /** Optional live LED destination sign in the dark band above the windshield. */
-  destinationSign?: React.ReactNode
+  /**
+   * Live LED destination sign in the dark band above the windshield. Pass a
+   * string (scrolls as a marquee when it overflows) or an array of strings
+   * (flips between them like a real alternating sign) for the built-in
+   * dot-matrix LED renderer — or any React node for full custom control.
+   */
+  destinationSign?: React.ReactNode | string | string[]
   /** Body paint. Transit fleets are usually white or silver. */
   color?: string
   /** CSS background painted behind your ad content. */
   adBackground?: string
-  /** CSS pixel width of the virtual ad panel. Height follows the 30x144 king size. */
+  /** CSS pixel width of the virtual ad surface. Height follows its aspect. */
   resolution?: number
+  /**
+   * How much of the bus the live ad surfaces cover. `'panel'` (default) is
+   * the classic king-size (30"x144") side panel and 21"x70" tail panel.
+   * `'full'` is the full transit wrap: the entire side elevation — skirts to
+   * roofline, tail to nose, graphics running over the passenger windows like
+   * perforated wrap film — and the entire tail between bumper and roof dome.
+   * The wheel arches, door leaves, driver's window, mirror mounts and
+   * taillights are carved out (CSS `clip-path`), so the 3D wheels, the glass
+   * the driver needs and the lights stay visible through your livery.
+   */
+  coverage?: 'panel' | 'full'
   /** Let pointer events (clicks, scrolling, typing) reach your ad content. */
   interactive?: boolean
   /** Hand >10px drags off to the orbit controls; taps still reach the content. */
@@ -41,11 +179,14 @@ export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
  * A procedurally built 40 ft / 12 m low-floor city transit bus (generic
  * Xcelsior/LFS/Citaro-class silhouette, no brand): a one-box shell extruded
  * from the side profile — no hood, lightly-raked two-piece windshield under
- * a dark sign fascia, flat roof — with the near-half-height window band,
- * two full-glass curb-side doors, roof HVAC pod, wheels, stacked round
- * taillights, rear louvers, mirrors and bumpers added on. The curb side
- * carries a live king-size (30" x 144") ad panel between the wheels, and
- * the destination sign can be live DOM too. No 3D asset files are loaded.
+ * a dark sign fascia, flat roof — with the near-half-height window band, the
+ * driver's window behind the street-side A-pillar, two full-glass curb-side
+ * doors, roof HVAC pod, wheels, stacked round taillights, rear louvers,
+ * mirrors and bumpers added on. The curb side carries a live king-size
+ * (30" x 144") ad panel between the wheels — or, with `coverage="full"`, the
+ * entire sides and tail become the live surface, transit-wrap style — and
+ * the destination sign can be live DOM too (plain strings get the built-in
+ * LED renderer). No 3D asset files are loaded.
  *
  * The origin is the body center; the road sits `BUS.groundY` below it. The
  * ad panel faces +Z. Must be rendered inside a react-three-fiber `<Canvas>`
@@ -58,16 +199,61 @@ export function Bus({
   destinationSign,
   color = '#eef0f2',
   adBackground = '#ffffff',
-  resolution = BUS.resolution,
+  resolution,
+  coverage = 'panel',
   interactive = true,
   dragToRotate = true,
   occlude = true,
   screenStyle,
   ...groupProps
 }: BusProps) {
-  const { body, skirtY, wheels, profile, windowBand, doors, hvac, ad, rearAd: rearAdSpec, rearWindow, destination } = BUS
+  const {
+    body,
+    skirtY,
+    wheels,
+    profile,
+    windowBand,
+    driverWindow,
+    doors,
+    hvac,
+    ad,
+    rearAd: rearAdSpec,
+    rearFull,
+    rearWindow,
+    destination,
+  } = BUS
   const shellRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(shellRef)
+
+  // The ad rect the DeviceScreens cover: the classic king-size panel, or the
+  // whole side elevation with the operational glass carved out via clip-path.
+  const fullWrap = coverage === 'full'
+  const side = fullWrap
+    ? { width: FULL_SIDE.width, height: FULL_SIDE.height, x: FULL_SIDE.x, y: FULL_SIDE.y, radius: 0 }
+    : { width: ad.width, height: ad.height, x: ad.x, y: ad.y, radius: ad.radius }
+  const sideResolution = resolution ?? (fullWrap ? BUS.fullResolution : BUS.resolution)
+  const rearSpec = fullWrap ? rearFull : rearAdSpec
+  // The rear surface shares the side surface's dpi.
+  const rearResolution = Math.round(rearSpec.width * (sideResolution / side.width))
+  const sideClip = React.useMemo(() => {
+    if (!fullWrap) return null
+    const pxPerUnit = sideResolution / FULL_SIDE.width
+    return {
+      curb: `path("${buildFullSideClip(pxPerUnit, false)}")`,
+      street: `path("${buildFullSideClip(pxPerUnit, true)}")`,
+    }
+  }, [fullWrap, sideResolution])
+  const rearClip = React.useMemo(() => {
+    if (!fullWrap) return null
+    return `path("${buildFullRearClip(rearResolution / rearFull.width)}")`
+  }, [fullWrap, rearResolution, rearFull.width])
+  const curbStyle = sideClip ? { clipPath: sideClip.curb, ...screenStyle } : screenStyle
+  const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
+  const rearStyle = rearClip ? { clipPath: rearClip, ...screenStyle } : screenStyle
+
+  // Plain strings become the built-in LED destination sign; custom nodes
+  // pass straight through.
+  const sign = isLedText(destinationSign) ? <LEDText text={destinationSign} /> : destinationSign
 
   const shellGeometry = React.useMemo(() => {
     const { noseX, tailX, windshieldBaseY, windshieldTopX, windshieldTopY, signBandTopX, signBandTopY, roofStartX, roofY } = profile
@@ -162,7 +348,7 @@ export function Bus({
         </mesh>
 
         {/* live LED destination sign inside the fascia */}
-        {destinationSign != null && (
+        {sign != null && (
           <DeviceScreen
             width={destination.width}
             height={destination.height}
@@ -176,22 +362,39 @@ export function Bus({
             occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
             screenStyle={screenStyle}
           >
-            {destinationSign}
+            {sign}
           </DeviceScreen>
         )}
       </group>
 
-      {/* passenger window bands, both sides — almost half the body height */}
-      {[1, -1].map((side) => (
-        <RoundedBox
-          key={side}
-          args={[bandLength, windowBand.height, 0.1]}
-          radius={0.03}
-          position={[bandCenterX, windowBand.y, side * (body.width / 2 - 0.03)]}
-        >
-          {glassMaterial}
-        </RoundedBox>
-      ))}
+      {/* passenger window bands, both sides — almost half the body height.
+          A full wrap covers them with perforated film, so a side with a live
+          full wrap skips its band instead of poking through the livery. */}
+      {[1, -1].map((s) => {
+        const wrapped = fullWrap && (s === 1 ? children != null : streetSideAd != null)
+        if (wrapped) return null
+        return (
+          <RoundedBox
+            key={s}
+            args={[bandLength, windowBand.height, 0.1]}
+            radius={0.03}
+            position={[bandCenterX, windowBand.y, s * (body.width / 2 - 0.03)]}
+          >
+            {glassMaterial}
+          </RoundedBox>
+        )
+      })}
+
+      {/* driver's window behind the street-side A-pillar: taller than the
+          passenger band, sill dropping below it — always clear glass (it is
+          carved out of a full wrap; vinyl never covers the driver's view) */}
+      <RoundedBox
+        args={[driverWindow.width, driverWindow.height, 0.1]}
+        radius={0.03}
+        position={[driverWindow.x, driverWindow.y, -(body.width / 2 - 0.03)]}
+      >
+        {glassMaterial}
+      </RoundedBox>
 
       {/* curb-side doors: two-leaf full-glass slabs dropping to the low-floor
           entry, with a center mullion slightly proud of the glass marking the
@@ -389,51 +592,52 @@ export function Bus({
         </RoundedBox>
       ))}
 
-      {/* the live ads: king-size panels on both sides, tail ad on the rear */}
+      {/* the live ads: king-size panels (or full transit wraps) on both
+          sides, tail ad (or full tail wrap) on the rear */}
       <DeviceScreen
-        width={ad.width}
-        height={ad.height}
-        radius={ad.radius}
-        resolution={resolution}
-        position={[ad.x, ad.y, body.width / 2 + 0.008]}
+        width={side.width}
+        height={side.height}
+        radius={side.radius}
+        resolution={sideResolution}
+        position={[side.x, side.y, body.width / 2 + 0.008]}
         background={adBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}
         occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-        screenStyle={screenStyle}
+        screenStyle={curbStyle}
       >
         {children}
       </DeviceScreen>
       {streetSideAd != null && (
         <DeviceScreen
-          width={ad.width}
-          height={ad.height}
-          radius={ad.radius}
-          resolution={resolution}
-          position={[ad.x, ad.y, -body.width / 2 - 0.008]}
+          width={side.width}
+          height={side.height}
+          radius={side.radius}
+          resolution={sideResolution}
+          position={[side.x, side.y, -body.width / 2 - 0.008]}
           rotation={[0, Math.PI, 0]}
           background={adBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
           occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-          screenStyle={screenStyle}
+          screenStyle={streetStyle}
         >
           {streetSideAd}
         </DeviceScreen>
       )}
       {rearAd != null && (
         <DeviceScreen
-          width={rearAdSpec.width}
-          height={rearAdSpec.height}
-          radius={rearAdSpec.radius}
-          resolution={Math.round(resolution * (rearAdSpec.width / ad.width))}
-          position={[-body.length / 2 - 0.028, rearAdSpec.y, 0]}
+          width={rearSpec.width}
+          height={rearSpec.height}
+          radius={rearSpec.radius}
+          resolution={rearResolution}
+          position={[-body.length / 2 - (fullWrap ? 0.045 : 0.028), rearSpec.y, 0]}
           rotation={[0, -Math.PI / 2, 0]}
           background={adBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
           occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-          screenStyle={screenStyle}
+          screenStyle={rearStyle}
         >
           {rearAd}
         </DeviceScreen>

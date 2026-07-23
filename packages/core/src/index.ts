@@ -12,6 +12,13 @@ export type Orientation = 'portrait' | 'landscape'
 // Geometry math.
 export { roundedRectShape } from './geometry/rounded-rect'
 export { gearShape } from './geometry/gear'
+export {
+  type ClipPoint,
+  type ClipLength,
+  type ClipRect,
+  clipRoundedRect,
+  clipRoundedRectOutline,
+} from './geometry/clip-path'
 
 // Live-screen behaviors (CSS px math, wrapper styles, gesture handoff, culling).
 export {
@@ -33,6 +40,18 @@ export {
   createScreenDragHandoff,
 } from './screen/drag-handoff'
 export { type BackfaceCuller, createBackfaceCuller } from './screen/backface'
+export {
+  LED_TEXT_COLOR,
+  LED_TEXT_BACKGROUND,
+  LED_MARQUEE_SPEED,
+  LED_CYCLE_INTERVAL,
+  LED_DOT_SIZE,
+  type LedPanelStyleOptions,
+  ledPanelStyle,
+  ledMaskStyle,
+  ledMarqueeKeyframes,
+  ledCycleKeyframes,
+} from './screen/led-text'
 
 // The shared stage: camera, orbit, shadows, touch, zoom, fullscreen, lights, float.
 export {

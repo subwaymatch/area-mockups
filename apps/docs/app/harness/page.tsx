@@ -3,6 +3,8 @@
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
+  BusMockup,
+  BusShelterMockup,
   FlipMockup,
   FoldMockup,
   Laptop,
@@ -11,6 +13,7 @@ import {
   MonitorMockup,
   Tablet,
   type TabletVariant,
+  VanMockup,
   Watch,
   type WatchVariant,
 } from 'area-mockups'
@@ -21,11 +24,15 @@ import {
  * high-resolution frames for model-vs-photo comparisons.
  *
  * Params:
- *   device      tablet | monitor | flip            (default tablet)
+ *   device      tablet | monitor | flip | fold | watch | laptop
+ *               | bus | van | shelter              (default tablet)
  *   variant     device variant id                  (tablet only)
  *   colorway    retail colorway id                 | color=#hex overrides
  *   orientation portrait | landscape               (tablet)
  *   open        1 | 0                              (flip)
+ *   coverage    panel | full                       (bus, van)
+ *   sign        LED text; '|' splits pages         (bus destination sign)
+ *   arrivals    LED text; '|' splits board rows    (shelter)
  *   rx, ry      device rotation in degrees         (default 0, 0)
  *   dist        camera distance in world units     (default per device)
  *   cy          camera height                      (default 0)
@@ -58,6 +65,66 @@ function HarnessScene() {
         }}
       />
     )
+
+  if (device === 'bus') {
+    const dist = Number(params.get('dist') ?? 11.8)
+    const sign = params.get('sign')
+    return (
+      <BusMockup
+        coverage={params.get('coverage') === 'full' ? 'full' : 'panel'}
+        color={color}
+        destinationSign={sign ? (sign.includes('|') ? sign.split('|') : sign) : undefined}
+        streetSideAd={screen}
+        rearAd={screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </BusMockup>
+    )
+  }
+
+  if (device === 'van') {
+    const dist = Number(params.get('dist') ?? 10.6)
+    return (
+      <VanMockup
+        coverage={params.get('coverage') === 'full' ? 'full' : 'panel'}
+        color={color}
+        streetSide={screen}
+        rear={screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </VanMockup>
+    )
+  }
+
+  if (device === 'shelter') {
+    const dist = Number(params.get('dist') ?? 11)
+    const arrivals = params.get('arrivals')
+    return (
+      <BusShelterMockup
+        arrivals={arrivals ? (arrivals.includes('|') ? arrivals.split('|') : arrivals) : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </BusShelterMockup>
+    )
+  }
 
   if (device === 'monitor') {
     const dist = Number(params.get('dist') ?? 9.4)

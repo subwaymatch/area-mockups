@@ -1,27 +1,30 @@
 ---
 title: Bus (city transit)
-description: A 40 ft low-floor transit bus with a live king-size ad and LED destination sign.
+description: A 40 ft low-floor transit bus with live ad panels, full-wrap coverage and an LED destination sign.
 ---
 
 `<Bus>` and `<BusMockup>` render a generic 40 ft / 12 m low-floor city
 transit bus (Xcelsior/LFS/Citaro-class silhouette, no brand): a one-box
 shell with no hood, a lightly-raked two-piece windshield under the dark sign
-fascia, a window band covering nearly half the body height, two full-glass
-curb-side doors, flat roof with HVAC pod, stacked round taillights and rear
-louvers. Two live surfaces:
+fascia, a window band covering nearly half the body height, the driver's
+window behind the street-side A-pillar, two full-glass curb-side doors, flat
+roof with HVAC pod, stacked round taillights and rear louvers. Live
+surfaces:
 
-- the classic **king-size ad panel** (30"×144") between the wheels, a
-  960×200 DOM surface, and
+- the classic **king-size ad panel** (30"×144") between the wheels — or the
+  **entire sides and tail** with `coverage="full"`, transit-wrap style, and
 - optionally the **LED destination sign** above the windshield via
   `destinationSign`.
 
-The destination sign is live DOM, so a CSS keyframe animation gives you a
-real scrolling marquee behind a dot-matrix mask.
+Pass `destinationSign` a plain string and the built-in dot-matrix LED
+renderer takes over — it scrolls as a marquee when the text overflows. Pass
+an array of strings and the sign flips between them like a real alternating
+destination sign. Any React node still works for full custom control.
 
 <ObjectDemo demo="bus-basic" checker />
 
 ```tsx
-<BusMockup destinationSign={<Route42Marquee />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+<BusMockup destinationSign={['42 DOWNTOWN', 'VIA 5TH AVE']} deviceProps={{ rotation: [0, 0.35, 0] }}>
   <YourCreative />
 </BusMockup>
 ```
@@ -32,24 +35,50 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `streetSideAd` | `ReactNode` | - | Creative for the street-side (−Z) king-size panel. |
-| `rearAd` | `ReactNode` | - | Creative for the 21"×70" tail ad on the engine door. |
-| `destinationSign` | `ReactNode` | - | Live LED sign content (480×76 virtual px, dark background) — try a scrolling marquee. |
+| `streetSideAd` | `ReactNode` | - | Creative for the street-side (−Z) ad surface. |
+| `rearAd` | `ReactNode` | - | Creative for the rear surface: the 21"×70" tail ad, or the whole tail with `coverage="full"`. |
+| `destinationSign` | `ReactNode \| string \| string[]` | - | Live LED sign. Strings get the built-in dot-matrix renderer (marquee / alternating pages); a node renders as-is. |
 | `color` | `string` | `'#eef0f2'` | Body paint. Transit fleets are usually white or silver. |
 | `adBackground` | `string` | `'#ffffff'` | CSS background behind your ad content. |
-| `resolution` | `number` | `960` | Virtual king-size width in CSS px; the tail ad shares its dpi. |
+| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` turns the entire side elevations and the tail into the live surfaces, graphics running over the passenger windows like perforated wrap film. |
+| `resolution` | `number` | `960` panel · `1920` full | Virtual side-surface width in CSS px; the rear surface shares its dpi. |
 
 ## More examples
+
+### The full transit wrap
+
+`coverage="full"` stretches the live panels across the whole side elevation
+— skirts to roofline, tail to nose — and the whole tail. The panels are
+real DOM composited over the WebGL canvas, so a CSS `clip-path` (computed
+from the same dimension spec the geometry is built from) carves out the body
+outline, wheel arches, door leaves, mirror mounts, taillights — and the
+driver's window, which vinyl never covers. Graphics DO run over the
+passenger windows, exactly like a real perforated-film wrap.
+
+<ObjectDemo demo="bus-full" />
+
+```tsx
+<BusMockup
+  coverage="full"
+  destinationSign={['12 EASTBROOK', 'VIA HARBOR FRONT']}
+  streetSideAd={<FullLivery />}
+  rearAd={<TailLivery />}
+  deviceProps={{ rotation: [0, 0.42, 0] }}
+>
+  <FullLivery />
+</BusMockup>
+```
 
 ### Rear three-quarter with the tail ad
 
 Rear window, stacked brake/turn lamps, engine louvers — and the 21"×70"
-tail ad between them.
+tail ad between them. A custom node as the destination sign, for when the
+built-in LED look isn't enough.
 
 <ObjectDemo demo="bus-rear" />
 
 ```tsx
-<BusMockup streetSideAd={<Creative />} rearAd={<TailAd />} deviceProps={{ rotation: [0, 2.35, 0] }}>
+<BusMockup streetSideAd={<Creative />} rearAd={<TailAd />} destinationSign={<Route42Marquee />} deviceProps={{ rotation: [0, 2.35, 0] }}>
   <Creative />
 </BusMockup>
 ```
@@ -57,12 +86,12 @@ tail ad between them.
 ### A liveried fleet bus
 
 `color` paints the shell; match `adBackground` to the creative for a
-wrapped look.
+wrapped look. A single long string on the sign auto-scrolls.
 
 <ObjectDemo demo="bus-livery" />
 
 ```tsx
-<BusMockup color="#1d4433" adBackground="#f4c534" autoRotate destinationSign={<Route42 />}>
+<BusMockup color="#1d4433" adBackground="#f4c534" autoRotate destinationSign="42 GREENWAY · NEXT STOP CANAL ST">
   <YourCreative />
 </BusMockup>
 ```

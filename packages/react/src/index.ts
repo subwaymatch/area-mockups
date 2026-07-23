@@ -36,6 +36,7 @@ export { CustomBoxMockup, type CustomBoxMockupProps } from './custom-box-mockup'
 
 // Composable pieces: bring your own scene, or drop a device into an existing one.
 export { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
+export { LEDText, type LEDTextProps } from './led-text'
 export { Phone, type PhoneProps } from './devices/phone/phone'
 export { IPhone, type IPhoneProps } from './devices/iphone/iphone'
 export { Laptop, type LaptopProps } from './devices/laptop/laptop'

@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { VAN } from '@area-mockups/core'
+import { VAN, clipRoundedRect, clipRoundedRectOutline } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
 
@@ -41,22 +41,6 @@ const SIDE_CUTOUTS = {
   track: { minX: -2.52, minY: 1.114, maxX: 0.92, maxY: 1.166, r: 0.026 },
 } as const
 
-/** Rounded-rect cutout subpath, traced world-clockwise so the nonzero fill
-    rule reads it as a hole against the world-counterclockwise outline. */
-function holeRect(
-  P: (x: number, y: number) => string,
-  R: (u: number) => string,
-  sw: number,
-  { minX, minY, maxX, maxY, r }: { minX: number; minY: number; maxX: number; maxY: number; r: number }
-): string {
-  return (
-    `M ${P(minX + r, maxY)} L ${P(maxX - r, maxY)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(maxX, maxY - r)} ` +
-    `L ${P(maxX, minY + r)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(maxX - r, minY)} ` +
-    `L ${P(minX + r, minY)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(minX, minY + r)} ` +
-    `L ${P(minX, maxY - r)} A ${R(r)} ${R(r)} 0 0 ${sw} ${P(minX + r, maxY)} Z `
-  )
-}
-
 /**
  * SVG path (CSS px, y-down) clipping the full-coverage wrap: the shell's own
  * side profile — including the wheel-arch arcs — as the outer boundary, with
@@ -72,10 +56,9 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean): string {
   const Y = (y: number) => ((profile.roofY - y) * pxPerUnit).toFixed(1)
   const P = (x: number, y: number) => `${X(x)} ${Y(y)}`
   const R = (u: number) => (u * pxPerUnit).toFixed(1)
-  // World-ccw curves render css-cw (the y axis flips): sweep 1 — and the
-  // street-side mirror flips orientation once more.
-  const swOut = mirrored ? 0 : 1
-  const swHole = mirrored ? 1 : 0
+  // One sweep flag serves the whole trace (see core's clip-path helper); the
+  // street-side mirror flips orientation, and the flag with it.
+  const sweep = mirrored ? 0 : 1
 
   const bottom = rockerY + inset
   const top = profile.roofY - inset
@@ -87,9 +70,9 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean): string {
   const outline =
     `M ${P(tail + 0.06, bottom)} ` +
     `L ${P(wheels.rearX - arch, bottom)} ` +
-    `A ${R(arch)} ${R(arch)} 0 0 ${swOut} ${P(wheels.rearX + arch, bottom)} ` +
+    `A ${R(arch)} ${R(arch)} 0 0 ${sweep} ${P(wheels.rearX + arch, bottom)} ` +
     `L ${P(wheels.frontX - arch, bottom)} ` +
-    `A ${R(arch)} ${R(arch)} 0 0 ${swOut} ${P(wheels.frontX + arch, bottom)} ` +
+    `A ${R(arch)} ${R(arch)} 0 0 ${sweep} ${P(wheels.frontX + arch, bottom)} ` +
     `L ${P(nose - 0.09, bottom)} Q ${P(nose, bottom)} ${P(nose, bottom + 0.09)} ` +
     `L ${P(nose, profile.bumperTopY)} ` +
     `L ${P(profile.hoodX - inset, profile.hoodY - inset)} ` +
@@ -115,10 +98,44 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean): string {
   return (
     outline +
     glass +
-    holeRect(P, R, swHole, SIDE_CUTOUTS.handle) +
-    holeRect(P, R, swHole, SIDE_CUTOUTS.mirror) +
-    (mirrored ? '' : holeRect(P, R, swHole, SIDE_CUTOUTS.track))
+    clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.handle) +
+    clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.mirror) +
+    (mirrored ? '' : clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.track))
   ).trim()
+}
+
+/**
+ * SVG path clipping the full-coverage rear wrap: the wrap rect itself as the
+ * outer boundary with the two taillight clusters carved out to the wrap's
+ * edge, so the brake/turn/reverse stacks stay visible through the livery.
+ */
+function buildFullRearClip(pxPerUnit: number): string {
+  const { rearFull } = VAN
+  const halfW = rearFull.width / 2
+  const topY = rearFull.y + rearFull.height / 2
+  // The rear plane faces −X; its CSS x axis runs along world +z unmirrored.
+  const P = (z: number, y: number) => `${((z + halfW) * pxPerUnit).toFixed(1)} ${((topY - y) * pxPerUnit).toFixed(1)}`
+  const R = (u: number) => (u * pxPerUnit).toFixed(1)
+
+  const outline = clipRoundedRectOutline(P, R, 1, {
+    minX: -halfW,
+    minY: topY - rearFull.height,
+    maxX: halfW,
+    maxY: topY,
+    r: rearFull.radius,
+  })
+  const lamps = ([1, -1] as const)
+    .map((side) =>
+      clipRoundedRect(P, R, 1, {
+        minX: side === 1 ? 0.765 : -0.915,
+        maxX: side === 1 ? 0.915 : -0.765,
+        minY: -0.32,
+        maxY: 0.2,
+        r: 0.03,
+      })
+    )
+    .join('')
+  return (outline + lamps).trim()
 }
 
 export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
@@ -126,7 +143,10 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
   children?: React.ReactNode
   /** Livery for the street-side (−Z) wrap panel. */
   streetSide?: React.ReactNode
-  /** Livery for the rear-door panel, between the taillight clusters. */
+  /**
+   * Livery for the rear doors: the panel between the taillight clusters by
+   * default, or the whole barn-door face with `coverage="full"`.
+   */
   rear?: React.ReactNode
   /** Body paint. Wrap fleets are usually white. */
   color?: string
@@ -135,12 +155,14 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
   /** CSS pixel width of the virtual wrap panel. Height follows the panel aspect. */
   resolution?: number
   /**
-   * How much of the cargo side the live wraps cover. `'panel'` (default) is
-   * the classic rectangular mid-panel, clear of the arches and glass.
-   * `'full'` covers the entire side elevation — rockers to roofline, tail to
-   * nose — with the wheel arches, door glass, door handle, mirror mount and
-   * curb-side door track carved out of the wrap (CSS `clip-path`), so the 3D
-   * wheels, windows and hardware show through your livery.
+   * How much of the van the live wraps cover. `'panel'` (default) is the
+   * classic rectangular mid-panel, clear of the arches and glass, plus the
+   * between-the-taillights rear panel. `'full'` covers the entire side
+   * elevation — rockers to roofline, tail to nose — with the wheel arches,
+   * door glass, door handle, mirror mount and curb-side door track carved
+   * out of the wrap (CSS `clip-path`), and the entire barn-door rear face
+   * with the taillight clusters carved out — so the 3D wheels, windows,
+   * hardware and lights show through your livery.
    */
   coverage?: 'panel' | 'full'
   /** Let pointer events (clicks, scrolling, typing) reach your wrap content. */
@@ -161,9 +183,11 @@ export interface VanProps extends Omit<GroupProps, 'children' | 'color'> {
  * A procedurally built cargo van (generic Transit/Sprinter-style silhouette,
  * no brand): the shell is the side profile — clamshell hood, cowl break,
  * raked windshield, high roof, wheel-arch cutouts — extruded across the
- * width, with wheels, glass, lights, mirrors and bumpers added on. The flat
- * cargo side carries a live vinyl-wrap panel for your livery. No 3D asset
- * files are loaded.
+ * width, with wheels (six-lug steel rims), glass, wipers, door shut lines,
+ * a sliding-door step, roof ribs, antenna, lights, rear hinges and license
+ * plate, mirrors and bumpers added on. The flat cargo side carries a live
+ * vinyl-wrap panel for your livery — or, with `coverage="full"`, the whole
+ * side elevation and the whole rear face. No 3D asset files are loaded.
  *
  * The origin is the body center; the road sits `VAN.groundY` below it. The
  * wrap panel faces +Z. Must be rendered inside a react-three-fiber `<Canvas>`
@@ -183,7 +207,7 @@ export function Van({
   screenStyle,
   ...groupProps
 }: VanProps) {
-  const { body, rockerY, wheels, profile, wrap, rear: rearSpec } = VAN
+  const { body, rockerY, wheels, profile, wrap, rear: rearPanel, rearFull } = VAN
   const shellRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(shellRef)
 
@@ -193,6 +217,7 @@ export function Van({
   const side = fullWrap
     ? { width: FULL_WRAP.width, height: FULL_WRAP.height, x: FULL_WRAP.x, y: FULL_WRAP.y, radius: 0 }
     : { width: wrap.width, height: wrap.height, x: wrap.x, y: wrap.y, radius: wrap.radius }
+  const rearSpec = fullWrap ? rearFull : rearPanel
   const sideResolution = resolution ?? (fullWrap ? FULL_WRAP_RESOLUTION : VAN.resolution)
   // The rear panel shares the side wrap's dpi.
   const rearResolution = Math.round(rearSpec.width * (sideResolution / side.width))
@@ -204,8 +229,13 @@ export function Van({
       street: `path("${buildFullWrapClip(pxPerUnit, true)}")`,
     }
   }, [fullWrap, sideResolution])
+  const rearClip = React.useMemo(() => {
+    if (!fullWrap) return null
+    return `path("${buildFullRearClip(rearResolution / rearFull.width)}")`
+  }, [fullWrap, rearResolution, rearFull.width])
   const curbStyle = sideClip ? { clipPath: sideClip.curb, ...screenStyle } : screenStyle
   const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
+  const rearStyle = rearClip ? { clipPath: rearClip, ...screenStyle } : screenStyle
 
   const shellGeometry = React.useMemo(() => {
     const { noseX, tailX, bumperTopY, hoodX, hoodY, cowlX, cowlY, windshieldTopX, windshieldTopY, roofStartX, roofY } = profile
@@ -304,12 +334,23 @@ export function Van({
         />
       </mesh>
 
-      {/* windshield on the cowl-to-header segment */}
+      {/* windshield on the cowl-to-header segment, with the two wipers
+          parked across its base — the give-away cue of a working cab */}
       <group position={[windshield.mid[0], windshield.mid[1], 0]} rotation-z={windshield.tilt}>
         <mesh rotation-y={Math.PI / 2}>
           <planeGeometry args={[body.width - 0.28, windshield.length - 0.1]} />
           {glassMaterial}
         </mesh>
+        {[-0.28, 0.36].map((z) => (
+          <mesh
+            key={z}
+            position={[0.024, -windshield.length / 2 + 0.28, z]}
+            rotation-x={0.42}
+          >
+            <boxGeometry args={[0.014, 0.5, 0.028]} />
+            <meshPhysicalMaterial color="#0e0f12" metalness={0.2} roughness={0.85} />
+          </mesh>
+        ))}
       </group>
 
       {/* cab door glass, both sides — trapezoid following the A-pillar. The
@@ -332,6 +373,20 @@ export function Van({
         </RoundedBox>
       ))}
 
+      {/* cab-door shut lines, both sides: the A-pillar-side seam and the
+          B-pillar seam behind the door — sunk under a full wrap's plane, so
+          a full livery covers them like real wrap film does */}
+      {[1, -1].map((side) => (
+        <group key={side}>
+          {[2.06, 1.03].map((x) => (
+            <mesh key={x} position={[x, -0.27, side * 0.977]}>
+              <boxGeometry args={[0.011, 1.1, 0.01]} />
+              <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
       {/* curb-side sliding-door track groove, from behind the door to the
           rear quarter — held above the wrap panel's top edge (y 1.10) so it
           never cuts through the live DeviceScreen */}
@@ -339,6 +394,39 @@ export function Van({
         <boxGeometry args={[3.4, 0.038, 0.012]} />
         <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
       </mesh>
+
+      {/* black entry step under the curb-side sliding door, hung below the
+          rocker line — outside every wrap region, so it stays visible */}
+      <RoundedBox args={[1.55, 0.09, 0.06]} radius={0.02} position={[0.05, -0.93, body.width / 2 - 0.02]}>
+        {trimMaterial}
+      </RoundedBox>
+
+      {/* high-roof cap detail: shallow longitudinal ribs pressed into the
+          sheet metal, the Sprinter/Transit roof signature from a 3/4 view */}
+      {[-0.54, -0.18, 0.18, 0.54].map((z) => (
+        <RoundedBox key={z} args={[3.5, 0.014, 0.055]} radius={0.006} position={[-0.68, profile.roofY + 0.005, z]}>
+          <meshPhysicalMaterial color={color} metalness={0.4} roughness={0.35} clearcoat={1} clearcoatRoughness={0.15} />
+        </RoundedBox>
+      ))}
+
+      {/* stub antenna on the front roof corner */}
+      <group position={[1.08, profile.roofY, -0.56]}>
+        <mesh position={[0, 0.015, 0]}>
+          <cylinderGeometry args={[0.022, 0.028, 0.03, 12]} />
+          {trimMaterial}
+        </mesh>
+        <mesh position={[0, 0.11, 0]} rotation-z={0.12}>
+          <cylinderGeometry args={[0.007, 0.009, 0.19, 8]} />
+          {trimMaterial}
+        </mesh>
+      </group>
+
+      {/* fog-light recesses set into the bumper corners */}
+      {[1, -1].map((side) => (
+        <RoundedBox key={side} args={[0.06, 0.095, 0.17]} radius={0.025} position={[2.845, -0.7, side * 0.6]}>
+          <meshPhysicalMaterial color="#0e0f11" metalness={0.3} roughness={0.55} />
+        </RoundedBox>
+      ))}
 
       {/* running gear: dark wheel-well liners fill the arch openings, axles
           tie each wheel pair together, and an underbody pan closes the gap
@@ -360,7 +448,9 @@ export function Van({
         <meshPhysicalMaterial color="#0d0e11" metalness={0.1} roughness={0.95} />
       </mesh>
 
-      {/* wheels: tire, rim, hub — four corners */}
+      {/* wheels: tire, rim, hub and a six-lug ring — four corners. The lugs
+          sit just proud of the outer rim face, the cue that makes a plain
+          cylinder read as a steel commercial wheel. */}
       {([wheels.frontX, wheels.rearX] as const).map((x) =>
         [1, -1].map((side) => (
           <group key={`${x}${side}`} position={[x, wheels.centerY, side * (body.width / 2 - 0.145)]}>
@@ -376,6 +466,19 @@ export function Van({
               <cylinderGeometry args={[0.06, 0.06, wheels.width + 0.012, 16]} />
               <meshPhysicalMaterial color="#3c4046" metalness={0.7} roughness={0.4} />
             </mesh>
+            {Array.from({ length: 6 }, (_, i) => {
+              const angle = (i / 6) * Math.PI * 2
+              return (
+                <mesh
+                  key={i}
+                  rotation-x={Math.PI / 2}
+                  position={[Math.cos(angle) * 0.115, Math.sin(angle) * 0.115, side * (wheels.width / 2 + 0.007)]}
+                >
+                  <cylinderGeometry args={[0.017, 0.017, 0.016, 10]} />
+                  <meshPhysicalMaterial color="#4a4f56" metalness={0.75} roughness={0.35} />
+                </mesh>
+              )
+            })}
           </group>
         ))
       )}
@@ -470,6 +573,23 @@ export function Van({
       <RoundedBox args={[0.024, 0.162, 0.03]} radius={0.008} position={[-2.82, -0.26, -0.12]}>
         {trimMaterial}
       </RoundedBox>
+      {/* barn-door hinge knuckles at the outer door edges, two per side —
+          outside the full rear wrap's span, so they show through any livery */}
+      {[1, -1].map((side) =>
+        [0.55, -0.25].map((y) => (
+          <RoundedBox key={`${side}${y}`} args={[0.05, 0.09, 0.024]} radius={0.008} position={[-2.825, y, side * 0.935]}>
+            {trimMaterial}
+          </RoundedBox>
+        ))
+      )}
+      {/* license recess and plate low on the left door leaf, under every
+          wrap region's bottom edge */}
+      <RoundedBox args={[0.03, 0.17, 0.34]} radius={0.012} position={[-2.822, -0.78, -0.3]}>
+        <meshPhysicalMaterial color="#15171a" metalness={0.2} roughness={0.7} />
+      </RoundedBox>
+      <RoundedBox args={[0.014, 0.125, 0.27]} radius={0.008} position={[-2.834, -0.78, -0.3]}>
+        <meshPhysicalMaterial color="#e6e9ed" metalness={0.05} roughness={0.5} />
+      </RoundedBox>
 
       {/* door mirrors: heads reach only ~165 mm beyond the body per side,
           each hung from two short arms off the door at beltline */}
@@ -533,7 +653,7 @@ export function Van({
           interactive={interactive}
           dragToRotate={dragToRotate}
           occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
-          screenStyle={screenStyle}
+          screenStyle={rearStyle}
         >
           {rear}
         </DeviceScreen>

@@ -133,6 +133,70 @@ function FullSideLivery() {
   )
 }
 
+/**
+ * Full-bleed transit-wrap livery for the bus's `coverage="full"` demo — a
+ * long 4.2:1 canvas. The color field and type deliberately run across the
+ * passenger-window band (real wraps use perforated film there), while the
+ * carved doors and driver's window punch through it.
+ */
+function BusFullLivery() {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        background: 'linear-gradient(100deg, #14375c 0%, #1d5d8f 46%, #2fa3a0 100%)',
+        color: '#eefbf7',
+        fontFamily: 'inherit',
+      }}
+    >
+      <svg
+        viewBox="0 0 1920 455"
+        preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        aria-hidden
+      >
+        <path d="M0 455 L0 330 C 320 240 560 400 880 320 C 1200 240 1440 380 1920 260 L1920 455 Z" fill="rgba(9, 26, 40, 0.45)" />
+        <path d="M0 300 C 320 210 560 370 880 290 C 1200 210 1440 350 1920 230" fill="none" stroke="#7fe3d2" strokeWidth="9" />
+        <circle cx="1620" cy="120" r="62" fill="#f4c944" />
+      </svg>
+      <div style={{ position: 'absolute', top: 60, left: 90, fontSize: 96, fontWeight: 800, letterSpacing: -3, lineHeight: 1 }}>
+        CLEANER AIR <span style={{ color: '#8ff0da' }}>FOR ALL</span>
+      </div>
+      <div style={{ position: 'absolute', top: 175, left: 94, fontSize: 30, fontWeight: 600, opacity: 0.9 }}>
+        Every ride is zero-emission · transit.example/electric
+      </div>
+    </div>
+  )
+}
+
+/** Matching tail wrap for the bus's full-coverage demo. */
+function BusTailLivery() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: 'linear-gradient(160deg, #1d5d8f 0%, #14375c 100%)',
+        color: '#eefbf7',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>ZERO EMISSION</div>
+      <div style={{ fontSize: 18, fontWeight: 600, opacity: 0.85 }}>transit.example/electric</div>
+      <div style={{ width: '52%', height: 8, background: '#7fe3d2', borderRadius: 4 }} />
+    </div>
+  )
+}
+
 /** Minimal typographic cover for composition demos — one prop, one accent. */
 function MiniCover({ title, from, to }: { title: string; from: string; to: string }) {
   return (
@@ -518,8 +582,22 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Bus --------------------------------------------------------------------
   'bus-basic': (
-    <BusMockup destinationSign={<DestinationArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+    <BusMockup
+      destinationSign={['42 DOWNTOWN', 'VIA 5TH AVE']}
+      deviceProps={{ rotation: [0, 0.35, 0] }}
+    >
       <BusAdArt />
+    </BusMockup>
+  ),
+  'bus-full': (
+    <BusMockup
+      coverage="full"
+      destinationSign={['12 EASTBROOK', 'VIA HARBOR FRONT']}
+      streetSideAd={<BusFullLivery />}
+      rearAd={<BusTailLivery />}
+      deviceProps={{ rotation: [0, 0.42, 0] }}
+    >
+      <BusFullLivery />
     </BusMockup>
   ),
   'bus-rear': (
@@ -533,7 +611,13 @@ const DEMOS: Record<string, React.ReactNode> = {
     </BusMockup>
   ),
   'bus-livery': (
-    <BusMockup color="#1d4433" adBackground="#f4c534" autoRotate autoRotateSpeed={0.6} destinationSign={<DestinationArt />}>
+    <BusMockup
+      color="#1d4433"
+      adBackground="#f4c534"
+      autoRotate
+      autoRotateSpeed={0.6}
+      destinationSign="42 GREENWAY · NEXT STOP CANAL ST · EXACT FARE PLEASE"
+    >
       <BusAdArt />
     </BusMockup>
   ),
@@ -584,7 +668,10 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Bus shelter ---------------------------------------------------------------
   'shelter-basic': (
-    <BusShelterMockup arrivals={<ArrivalsBoardArt />} deviceProps={{ rotation: [0, -0.55, 0] }}>
+    <BusShelterMockup
+      arrivals={['12  Harbor Loop      2 min', '4X  Union Sq Express  7 min', '31  Larchmont        12 min']}
+      deviceProps={{ rotation: [0, -0.55, 0] }}
+    >
       <PosterArt />
     </BusShelterMockup>
   ),
