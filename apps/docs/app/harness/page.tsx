@@ -10,6 +10,7 @@ import {
   IDCardMockup,
   Laptop,
   type LaptopVariant,
+  MagazineMockup,
   MockupCanvas,
   MonitorMockup,
   StorefrontMockup,
@@ -28,7 +29,8 @@ import {
  *
  * Params:
  *   device      tablet | monitor | flip | fold | watch | laptop
- *               | bus | van | shelter | tv | idcard (default tablet)
+ *               | bus | van | shelter | tv | idcard | store
+ *               | magazine (default tablet)
  *   variant     device variant id                  (tablet only)
  *   colorway    retail colorway id                 | color=#hex overrides
  *   orientation portrait | landscape               (tablet)
@@ -60,6 +62,8 @@ function HarnessScene() {
   const screen =
     params.get('screen') === 'dark' ? (
       <div style={{ width: '100%', height: '100%', background: '#000' }} />
+    ) : params.get('screen') === 'light' ? (
+      <div style={{ width: '100%', height: '100%', background: '#dfe3e8' }} />
     ) : (
       <div
         style={{
@@ -168,6 +172,24 @@ function HarnessScene() {
       >
         {screen}
       </StorefrontMockup>
+    )
+  }
+
+  if (device === 'magazine') {
+    const dist = Number(params.get('dist') ?? 8.2)
+    return (
+      <MagazineMockup
+        glossy={params.get('glossy') === '1'}
+        back={params.get('back') === '1' ? screen : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </MagazineMockup>
     )
   }
 

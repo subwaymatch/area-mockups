@@ -23,12 +23,59 @@ const FULL_SIDE = {
 } as const
 
 /**
+ * The shell's side profile as a THREE shape — shared by the extruded body
+ * and the full wrap's depth occluder, so per-pixel blending hides exactly
+ * what the wrap's clip covers and nothing more (glass in the carves stays
+ * visible; proud hardware like the door mirrors draws over the livery).
+ */
+function busProfileShape(): THREE.Shape {
+  const { skirtY, wheels, profile } = BUS
+  const { noseX, tailX, windshieldBaseY, windshieldTopX, windshieldTopY, signBandTopX, signBandTopY, roofStartX, roofY } = profile
+  const arch = wheels.archRadius
+  const s = new THREE.Shape()
+  // counterclockwise from the rear skirt, arcs cut the wheel arches
+  s.moveTo(tailX + 0.06, skirtY)
+  s.lineTo(wheels.rearX - arch, skirtY)
+  s.absarc(wheels.rearX, skirtY, arch, Math.PI, 0, true)
+  s.lineTo(wheels.frontX - arch, skirtY)
+  s.absarc(wheels.frontX, skirtY, arch, Math.PI, 0, true)
+  s.lineTo(noseX - 0.07, skirtY)
+  s.quadraticCurveTo(noseX, skirtY, noseX, skirtY + 0.07)
+  // flat nose, light windshield rake, dark sign band, front roof dome
+  s.lineTo(noseX, windshieldBaseY)
+  s.lineTo(windshieldTopX, windshieldTopY)
+  s.lineTo(signBandTopX, signBandTopY)
+  s.quadraticCurveTo(signBandTopX - 0.06, roofY, roofStartX, roofY)
+  s.lineTo(tailX + 0.1, roofY)
+  s.quadraticCurveTo(tailX, roofY, tailX, roofY - 0.08)
+  s.lineTo(tailX, skirtY + 0.06)
+  s.quadraticCurveTo(tailX, skirtY, tailX + 0.06, skirtY)
+  return s
+}
+
+/** Rounded-rect hole path (world coords) matching one wrap-clip carve. */
+function roundedHolePath(minX: number, minY: number, maxX: number, maxY: number, r: number): THREE.Path {
+  const p = new THREE.Path()
+  p.moveTo(minX + r, minY)
+  p.lineTo(maxX - r, minY)
+  p.quadraticCurveTo(maxX, minY, maxX, minY + r)
+  p.lineTo(maxX, maxY - r)
+  p.quadraticCurveTo(maxX, maxY, maxX - r, maxY)
+  p.lineTo(minX + r, maxY)
+  p.quadraticCurveTo(minX, maxY, minX, maxY - r)
+  p.lineTo(minX, minY + r)
+  p.quadraticCurveTo(minX, minY, minX + r, minY)
+  p.closePath()
+  return p
+}
+
+/**
  * SVG path (CSS px, y-down) clipping the full-coverage side wrap: the
  * shell's own side profile — wheel-arch arcs included — as the outer
  * boundary, with the operational glass as opposite-winding holes, cut tight
  * to the hardware (~4 mm install margin). What must stay clear is always
- * carved: the curb-side door leaves, the street-side driver's window and
- * the mirror mount. The passenger window band is carved only when
+ * carved: the curb-side door leaves and the street-side driver's window.
+ * The passenger window band is carved only when
  * `overWindows` is false — transit wraps normally run over it as perforated
  * film. `mirrored` builds the street-side (−Z) variant, whose CSS x axis
  * runs nose→tail; mirroring also flips every arc's sweep flag so the
@@ -68,14 +115,20 @@ function buildFullSideClip(pxPerUnit: number, mirrored: boolean, overWindows: bo
     `L ${P(tail + 0.1, top)} Q ${P(tail, top)} ${P(tail, top - 0.08)} ` +
     `L ${P(tail, bottom + 0.06)} Q ${P(tail, bottom)} ${P(tail + 0.06, bottom)} Z `
 
+  // With the band also carved (overWindows false), a door hole reaching the
+  // band top would overlap the band hole — and two overlapping holes cancel
+  // back to FILLED under the nonzero rule (a stray strip of livery over the
+  // door glass). Stop the doors at the band's bottom edge so the two carves
+  // meet instead of crossing.
   const doorTopY = windowBand.y + windowBand.height / 2
+  const doorCarveTop = overWindows ? doorTopY + margin : windowBand.y - windowBand.height / 2 - margin
   const doorHoles = doors
     .map(({ x, width, bottomY }) =>
       clipRoundedRect(P, R, sweep, {
         minX: x - width / 2 - margin,
         maxX: x + width / 2 + margin,
         minY: bottomY - margin,
-        maxY: doorTopY + margin,
+        maxY: doorCarveTop,
         r: 0.034,
       })
     )
@@ -96,9 +149,11 @@ function buildFullSideClip(pxPerUnit: number, mirrored: boolean, overWindows: bo
         maxY: windowBand.y + windowBand.height / 2 + margin,
         r: 0.034,
       })
-  const mirrorHole = clipRoundedRect(P, R, sweep, { minX: 3.125, minY: 0.317, maxX: 3.175, maxY: 0.363, r: 0.018 })
-
-  return (outline + (mirrored ? windowHole : doorHoles) + bandHole + mirrorHole).trim()
+  // (No carve for the mirror mount: it sits at the outline's windshield
+  // edge, where a "hole" subpath escapes the outer boundary and renders as
+  // an isolated filled dot under the nonzero rule — the floating speck of
+  // livery on the mirror arm. The mount is proud 3D hardware anyway.)
+  return (outline + (mirrored ? windowHole : doorHoles) + bandHole).trim()
 }
 
 /**
@@ -124,9 +179,9 @@ function buildFullRearClip(pxPerUnit: number, overWindows: boolean): string {
     maxY: topY,
     r: rearFull.radius,
   })
-  // The stacked round lamps at each corner, r 0.05 plus a slim margin.
+  // The stacked round lamps at each corner, r 0.045 plus a slim margin.
   const lamps = ([1, -1] as const)
-    .flatMap((side) => [0.3, 0.16, 0.02].map((y) => clipCircle(P, R, 1, side * 0.56, y, 0.058)))
+    .flatMap((side) => [0.3, 0.16, 0.02].map((y) => clipCircle(P, R, 1, side * 0.56, y, 0.053)))
     .join('')
   const windowHole = overWindows
     ? ''
@@ -176,9 +231,9 @@ export interface BusProps extends Omit<GroupProps, 'children' | 'color'> {
    * the classic king-size (30"x144") side panel and 21"x70" tail panel.
    * `'full'` is the full transit wrap: the entire side elevation — skirts to
    * roofline, tail to nose — and the entire tail between bumper and roof
-   * dome. The wheel arches, door leaves, driver's window, mirror mounts and
-   * taillights are carved out (CSS `clip-path`), so the 3D wheels, the glass
-   * the driver needs and the lights stay visible through your livery.
+   * dome. The wheel arches, door leaves, driver's window and taillights are
+   * carved out (CSS `clip-path`), so the 3D wheels, the glass the driver
+   * needs and the lights stay visible through your livery.
    */
   coverage?: 'panel' | 'full'
   /**
@@ -288,32 +343,72 @@ export function Bus({
   const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
   const rearStyle = rearClip ? { clipPath: rearClip, ...screenStyle } : screenStyle
 
+  // Depth occluders for the full-coverage sides: the wrap outline as real
+  // geometry with the same glass carves as the clip, so per-pixel blending
+  // hides only what the livery visually covers — and the proud door
+  // mirrors draw over the wrap instead of being pierced by it.
+  const sideOccluderGeometries = React.useMemo(() => {
+    if (!fullWrap) return null
+    const margin = 0.004
+    const doorTopY = windowBand.y + windowBand.height / 2
+    const build = (overGlass: boolean, mirroredSide: boolean) => {
+      const s = busProfileShape()
+      // Door holes meet (never cross) the band hole — see buildFullSideClip.
+      const doorHoleTop = overGlass ? doorTopY + margin : windowBand.y - windowBand.height / 2 - margin
+      if (mirroredSide) {
+        s.holes.push(
+          roundedHolePath(
+            driverWindow.x - driverWindow.width / 2 - margin,
+            driverWindow.y - driverWindow.height / 2 - margin,
+            driverWindow.x + driverWindow.width / 2 + margin,
+            driverWindow.y + driverWindow.height / 2 + margin,
+            0.034
+          )
+        )
+      } else {
+        for (const { x, width, bottomY } of doors) {
+          s.holes.push(roundedHolePath(x - width / 2 - margin, bottomY - margin, x + width / 2 + margin, doorHoleTop, 0.034))
+        }
+      }
+      if (!overGlass) {
+        s.holes.push(
+          roundedHolePath(
+            windowBand.backX - margin,
+            windowBand.y - windowBand.height / 2 - margin,
+            windowBand.frontX + margin,
+            windowBand.y + windowBand.height / 2 + margin,
+            0.034
+          )
+        )
+      }
+      const geometry = new THREE.ShapeGeometry(s, 16)
+      geometry.translate(-FULL_SIDE.x, -FULL_SIDE.y, 0)
+      if (mirroredSide) geometry.scale(-1, 1, 1)
+      return geometry
+    }
+    return { curb: build(over.curbSide, false), street: build(over.streetSide, true) }
+  }, [fullWrap, over.curbSide, over.streetSide, windowBand, doors, driverWindow])
+  React.useEffect(
+    () => () => {
+      sideOccluderGeometries?.curb.dispose()
+      sideOccluderGeometries?.street.dispose()
+    },
+    [sideOccluderGeometries]
+  )
+  // Full-coverage sides composite per-pixel so proud hardware (the door
+  // mirrors and their arms) draws over the livery; everything else keeps
+  // the fast raycast mode.
+  const sideScreenOcclusion = (blendGeometry?: THREE.BufferGeometry) =>
+    fullWrap && occlude !== false
+      ? { occlude: 'blending' as const, occluderGeometry: blendGeometry }
+      : { occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined }
+
   // Plain strings become the built-in LED destination sign; custom nodes
   // pass straight through.
   const sign = isLedText(destinationSign) ? <LEDText text={destinationSign} /> : destinationSign
 
   const shellGeometry = React.useMemo(() => {
-    const { noseX, tailX, windshieldBaseY, windshieldTopX, windshieldTopY, signBandTopX, signBandTopY, roofStartX, roofY } = profile
-    const arch = wheels.archRadius
-    const s = new THREE.Shape()
-    // counterclockwise from the rear skirt, arcs cut the wheel arches
-    s.moveTo(tailX + 0.06, skirtY)
-    s.lineTo(wheels.rearX - arch, skirtY)
-    s.absarc(wheels.rearX, skirtY, arch, Math.PI, 0, true)
-    s.lineTo(wheels.frontX - arch, skirtY)
-    s.absarc(wheels.frontX, skirtY, arch, Math.PI, 0, true)
-    s.lineTo(noseX - 0.07, skirtY)
-    s.quadraticCurveTo(noseX, skirtY, noseX, skirtY + 0.07)
-    // flat nose, light windshield rake, dark sign band, front roof dome
-    s.lineTo(noseX, windshieldBaseY)
-    s.lineTo(windshieldTopX, windshieldTopY)
-    s.lineTo(signBandTopX, signBandTopY)
-    s.quadraticCurveTo(signBandTopX - 0.06, roofY, roofStartX, roofY)
-    s.lineTo(tailX + 0.1, roofY)
-    s.quadraticCurveTo(tailX, roofY, tailX, roofY - 0.08)
-    s.lineTo(tailX, skirtY + 0.06)
-    s.quadraticCurveTo(tailX, skirtY, tailX + 0.06, skirtY)
-
+    const s = busProfileShape()
     const depth = body.width - body.bevel * 2
     const geometry = new THREE.ExtrudeGeometry(s, {
       depth,
@@ -577,10 +672,11 @@ export function Bus({
             { y: 0.02, color: '#f2a33c', emissive: '#ffb340' },
           ] as const
         ).map(({ y, color: lampColor, emissive }) => (
-          // Long enough to stand ~proud of the full-wrap plane (x -3.245):
-          // through the carved holes the lamps read mounted ON the livery.
-          <mesh key={`${side}${y}`} rotation-z={Math.PI / 2} position={[-3.245, y, side * 0.56]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.06, 20]} />
+          // Slim lens pucks: rooted in the tail face, ending just ~5 mm proud
+          // of the full-wrap plane (x -3.245) — through the carved holes the
+          // lamps read mounted ON the livery without jutting like knobs.
+          <mesh key={`${side}${y}`} rotation-z={Math.PI / 2} position={[-3.227, y, side * 0.56]}>
+            <cylinderGeometry args={[0.045, 0.045, 0.045, 20]} />
             <meshPhysicalMaterial
               color={lampColor}
               emissive={emissive}
@@ -644,7 +740,7 @@ export function Bus({
         background={adBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}
-        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+        {...sideScreenOcclusion(sideOccluderGeometries?.curb)}
         screenStyle={curbStyle}
       >
         {curbAd}
@@ -660,7 +756,7 @@ export function Bus({
           background={adBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          {...sideScreenOcclusion(sideOccluderGeometries?.street)}
           screenStyle={streetStyle}
         >
           {streetSideAd}

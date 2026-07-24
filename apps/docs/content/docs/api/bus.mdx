@@ -58,12 +58,14 @@ what stays 3D hardware.
 ### The full transit wrap
 
 `coverage="full"` stretches the live panels across the whole side elevation
-— skirts to roofline, tail to nose — and the whole tail. The panels are
-real DOM composited over the WebGL canvas, so a CSS `clip-path` (computed
-from the same dimension spec the geometry is built from) carves out the body
-outline, wheel arches, door leaves, mirror mounts, taillights — and the
-driver's window, which vinyl never covers. Graphics DO run over the
-passenger windows, exactly like a real perforated-film wrap.
+— skirts to roofline, tail to nose — and the whole tail. A CSS `clip-path`
+(computed from the same dimension spec the geometry is built from) carves
+out the body outline, wheel arches, door leaves, taillights — and the
+driver's window, which vinyl never covers — and the sides composite
+per-pixel against a depth occluder shaped like that clip, so the proud
+door mirrors draw over the livery instead of being covered by it. Graphics
+DO run over the passenger windows, exactly like a real perforated-film
+wrap.
 
 <ObjectDemo demo="bus-full" />
 

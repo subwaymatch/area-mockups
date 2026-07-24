@@ -36,7 +36,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
 | `wrapOverWindows` | `boolean \| { curbSide?, streetSide? }` | `false` | Whether a full wrap runs over the cab door glass (perforated-film full-print look) or the glass stays clear and carved out (default — door glass is operational). |
 | `licensePlate` | `ReactNode \| string` | - | Front and rear plates. A string renders the built-in plate face; a node renders as-is. |
-| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` covers the entire side elevations AND the whole rear face — door edge to door edge — carving out the wheel arches, door glass, handle, mirror mount, door track, every taillight lamp, the third brake light and the hinge knuckles so the 3D hardware shows through the livery. Both coverages keep the barn-door shut line visible through the wrap. |
+| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` covers the entire side elevations AND the whole rear face — door edge to door edge — carving out the wheel arches and door glass, while the proud hardware (mirrors, handles, door track, cab-door shut lines) draws on top of the livery via per-pixel depth compositing, like hardware remounted over the vinyl. On the rear, every taillight lamp, the third brake light and the hinge knuckles are carved to a slim install margin. Both coverages keep the barn-door shut line visible through the wrap. |
 | `resolution` | `number` | `900` panel · `1360` full | Virtual side-wrap width in CSS px; the rear panel shares its dpi. |
 
 `children` is the curb-side (+Z) panel; with the default `coverage="panel"`
@@ -57,12 +57,13 @@ what stays 3D hardware.
 
 `coverage="full"` stretches the live panels across the entire side elevation
 — rockers to roofline, tail to nose — and across the whole barn-door rear
-face. The panels are real DOM composited over the WebGL canvas, so a CSS
-`clip-path` (computed from the same dimension spec the geometry is built
-from) carves the body outline, wheel arches, door glass, handle, mirror
-mount, door track and rear taillight clusters out of them — the 3D wheels,
-windows, hardware and lights show through your livery, and pointer events
-over the carved regions fall through to the orbit controls.
+face. A CSS `clip-path` (computed from the same dimension spec the geometry
+is built from) carves the body outline, wheel arches, door glass and rear
+taillight clusters out of the live panels, and the sides composite per-pixel
+against a depth occluder shaped like that clip — so the wheels and glass
+show through the carves while the proud hardware (mirrors, door handles,
+the sliding-door track, the cab-door shut lines) draws over your livery,
+the way remounted hardware sits on real vinyl.
 
 <ObjectDemo demo="van-full" />
 

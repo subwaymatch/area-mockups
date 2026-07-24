@@ -33,13 +33,62 @@ const FULL_WRAP_RESOLUTION = Math.round(VAN.resolution * (FULL_WRAP.width / VAN.
 const SIDE_CUTOUTS = {
   /** Mirrors doorGlassGeometry (shape-local coords + its [1.52, 0.24] mount). */
   doorGlass: { x: 1.52, y: 0.24, halfW: 0.5, h: 0.56, rake: 0.486 },
-  /** Door handle RoundedBox [0.162 × 0.029] at (1.2, −0.26), cut tight. */
-  handle: { minX: 1.111, minY: -0.283, maxX: 1.289, maxY: -0.237, r: 0.022 },
-  /** Mirror arms + head footprint beside the A-pillar, cut tight. */
-  mirror: { minX: 1.987, minY: 0.369, maxX: 2.103, maxY: 0.661, r: 0.03 },
-  /** Curb-side sliding-door track groove [3.4 × 0.038] at (−0.8, 1.14). */
-  track: { minX: -2.51, minY: 1.118, maxX: 0.91, maxY: 1.162, r: 0.02 },
 } as const
+
+/**
+ * The shell's side profile as a THREE shape — shared by the extruded body
+ * and the full wrap's depth occluder, so per-pixel blending hides exactly
+ * what the wrap's clip covers and nothing more (wheels in the arches and
+ * carved glass stay visible; proud hardware draws over the livery).
+ */
+function vanProfileShape(): THREE.Shape {
+  const { rockerY, wheels, profile } = VAN
+  const { noseX, tailX, bumperTopY, hoodX, hoodY, cowlX, cowlY, windshieldTopX, windshieldTopY, roofStartX, roofY } = profile
+  const arch = wheels.archRadius
+  const s = new THREE.Shape()
+  // counterclockwise from the rear rocker, arcs cut the wheel arches
+  s.moveTo(tailX + 0.06, rockerY)
+  s.lineTo(wheels.rearX - arch, rockerY)
+  s.absarc(wheels.rearX, rockerY, arch, Math.PI, 0, true)
+  s.lineTo(wheels.frontX - arch, rockerY)
+  s.absarc(wheels.frontX, rockerY, arch, Math.PI, 0, true)
+  s.lineTo(noseX - 0.09, rockerY)
+  s.quadraticCurveTo(noseX, rockerY, noseX, rockerY + 0.09)
+  s.lineTo(noseX, bumperTopY)
+  // clamshell hood: short nose face up to the near-horizontal hood top,
+  // back to the cowl crease where the windshield starts
+  s.lineTo(hoodX, hoodY)
+  s.lineTo(cowlX, cowlY)
+  // raked windshield to the header, then the high-roof cap ramps back
+  s.lineTo(windshieldTopX, windshieldTopY)
+  s.quadraticCurveTo(windshieldTopX - 0.12, roofY, roofStartX, roofY)
+  s.lineTo(tailX + 0.09, roofY)
+  s.quadraticCurveTo(tailX, roofY, tailX, roofY - 0.09)
+  s.lineTo(tailX, rockerY + 0.06)
+  s.quadraticCurveTo(tailX, rockerY, tailX + 0.06, rockerY)
+  return s
+}
+
+/** The cab door glass trapezoid as a hole path (world coords). */
+function doorGlassHolePath(): THREE.Path {
+  const g = SIDE_CUTOUTS.doorGlass
+  const gx0 = g.x - g.halfW
+  const gx1 = g.x + g.halfW
+  const gy0 = g.y
+  const gy1 = g.y + g.h
+  const gCx = g.x + g.halfW - g.rake * g.h
+  const gDx = g.x + 0.34 - g.rake * g.h
+  const gEx = g.x - 0.42
+  const hole = new THREE.Path()
+  hole.moveTo(gx0, gy0)
+  hole.lineTo(gx0, gy1 - 0.08)
+  hole.quadraticCurveTo(gx0, gy1, gEx, gy1)
+  hole.lineTo(gDx, gy1)
+  hole.quadraticCurveTo(gCx - 0.1, gy1, gCx, gy1)
+  hole.lineTo(gx1, gy0)
+  hole.closePath()
+  return hole
+}
 
 /**
  * SVG path (CSS px, y-down) clipping the full-coverage wrap: the shell's own
@@ -95,13 +144,10 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean, overWindows: bo
     `M ${P(gx0, gy0)} L ${P(gx0, gy1 - 0.08)} Q ${P(gx0, gy1)} ${P(gEx, gy1)} ` +
     `L ${P(gDx, gy1)} Q ${P(gCx - 0.1, gy1)} ${P(gCx, gy1)} L ${P(gx1, gy0)} Z `
 
-  return (
-    outline +
-    (overWindows ? '' : glass) +
-    clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.handle) +
-    clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.mirror) +
-    (mirrored ? '' : clipRoundedRect(P, R, sweep, SIDE_CUTOUTS.track))
-  ).trim()
+  // No hardware carves: the full-coverage sides composite per-pixel
+  // ('blending'), so the proud mirror, handle, door track and hinges draw
+  // over the livery on their own — like hardware remounted over the vinyl.
+  return (outline + (overWindows ? '' : glass)).trim()
 }
 
 /**
@@ -347,31 +393,38 @@ export function Van({
   const streetStyle = sideClip ? { clipPath: sideClip.street, ...screenStyle } : screenStyle
   const rearStyle = { clipPath: rearClip, ...screenStyle }
 
-  const shellGeometry = React.useMemo(() => {
-    const { noseX, tailX, bumperTopY, hoodX, hoodY, cowlX, cowlY, windshieldTopX, windshieldTopY, roofStartX, roofY } = profile
-    const arch = wheels.archRadius
-    const s = new THREE.Shape()
-    // counterclockwise from the rear rocker, arcs cut the wheel arches
-    s.moveTo(tailX + 0.06, rockerY)
-    s.lineTo(wheels.rearX - arch, rockerY)
-    s.absarc(wheels.rearX, rockerY, arch, Math.PI, 0, true)
-    s.lineTo(wheels.frontX - arch, rockerY)
-    s.absarc(wheels.frontX, rockerY, arch, Math.PI, 0, true)
-    s.lineTo(noseX - 0.09, rockerY)
-    s.quadraticCurveTo(noseX, rockerY, noseX, rockerY + 0.09)
-    s.lineTo(noseX, bumperTopY)
-    // clamshell hood: short nose face up to the near-horizontal hood top,
-    // back to the cowl crease where the windshield starts
-    s.lineTo(hoodX, hoodY)
-    s.lineTo(cowlX, cowlY)
-    // raked windshield to the header, then the high-roof cap ramps back
-    s.lineTo(windshieldTopX, windshieldTopY)
-    s.quadraticCurveTo(windshieldTopX - 0.12, roofY, roofStartX, roofY)
-    s.lineTo(tailX + 0.09, roofY)
-    s.quadraticCurveTo(tailX, roofY, tailX, roofY - 0.09)
-    s.lineTo(tailX, rockerY + 0.06)
-    s.quadraticCurveTo(tailX, rockerY, tailX + 0.06, rockerY)
+  // Depth occluders for the full-coverage sides: the wrap outline as real
+  // geometry (door glass carved when the wrap keeps clear of it), so
+  // per-pixel blending hides only what the livery visually covers.
+  const sideOccluderGeometries = React.useMemo(() => {
+    if (!fullWrap) return null
+    const build = (overGlass: boolean, mirroredSide: boolean) => {
+      const s = vanProfileShape()
+      if (!overGlass) s.holes.push(doorGlassHolePath())
+      const geometry = new THREE.ShapeGeometry(s, 16)
+      geometry.translate(-FULL_WRAP.x, -FULL_WRAP.y, 0)
+      if (mirroredSide) geometry.scale(-1, 1, 1)
+      return geometry
+    }
+    return { curb: build(over.curbSide, false), street: build(over.streetSide, true) }
+  }, [fullWrap, over.curbSide, over.streetSide])
+  React.useEffect(
+    () => () => {
+      sideOccluderGeometries?.curb.dispose()
+      sideOccluderGeometries?.street.dispose()
+    },
+    [sideOccluderGeometries]
+  )
+  // Full-coverage sides composite per-pixel so proud hardware (mirrors,
+  // handles, track, hinges) draws over the livery; everything else keeps
+  // the fast raycast mode.
+  const sideScreenOcclusion = (blendGeometry?: THREE.BufferGeometry) =>
+    fullWrap && occlude !== false
+      ? { occlude: 'blending' as const, occluderGeometry: blendGeometry }
+      : { occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined }
 
+  const shellGeometry = React.useMemo(() => {
+    const s = vanProfileShape()
     const depth = body.width - body.bevel * 2
     const geometry = new THREE.ExtrudeGeometry(s, {
       depth,
@@ -488,25 +541,33 @@ export function Van({
         </RoundedBox>
       ))}
 
-      {/* cab-door shut lines, both sides: the A-pillar-side seam and the
-          B-pillar seam behind the door — sunk under a full wrap's plane, so
-          a full livery covers them like real wrap film does */}
+      {/* cab-door shut lines, both sides: the A-pillar seam, the B-pillar
+          seam and the sill seam joining them along the door bottom — one
+          continuous gap outlining the door leaf like the rear barn-door
+          crevice. Held proud of the full wrap's DOM plane, so per-pixel
+          blending draws the gap over any livery (a real wrap tucks into
+          the shut line, the crevice always reads). */}
       {[1, -1].map((side) => (
         <group key={side}>
           {[2.06, 1.03].map((x) => (
-            <mesh key={x} position={[x, -0.27, side * 0.977]}>
-              <boxGeometry args={[0.011, 1.1, 0.01]} />
+            <mesh key={x} position={[x, -0.3, side * 0.986]}>
+              <boxGeometry args={[0.012, 1.12, 0.018]} />
               <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
             </mesh>
           ))}
+          <mesh position={[1.545, -0.857, side * 0.986]}>
+            <boxGeometry args={[1.042, 0.012, 0.018]} />
+            <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
+          </mesh>
         </group>
       ))}
 
       {/* curb-side sliding-door track groove, from behind the door to the
-          rear quarter — held above the wrap panel's top edge (y 1.10) so it
-          never cuts through the live DeviceScreen */}
-      <mesh position={[-0.8, 1.14, body.width / 2 + 0.005]}>
-        <boxGeometry args={[3.4, 0.038, 0.012]} />
+          rear quarter — above the panel wrap's top edge (y 1.10), and held
+          proud of the full wrap's DOM plane so blending draws it over any
+          livery like remounted hardware */}
+      <mesh position={[-0.8, 1.14, body.width / 2 + 0.012]}>
+        <boxGeometry args={[3.4, 0.038, 0.018]} />
         <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
       </mesh>
 
@@ -766,7 +827,7 @@ export function Van({
         background={wrapBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}
-        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+        {...sideScreenOcclusion(sideOccluderGeometries?.curb)}
         screenStyle={curbStyle}
       >
         {curbLivery}
@@ -782,7 +843,7 @@ export function Van({
           background={wrapBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          {...sideScreenOcclusion(sideOccluderGeometries?.street)}
           screenStyle={streetStyle}
         >
           {streetSide}

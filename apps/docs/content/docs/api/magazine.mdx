@@ -1,13 +1,14 @@
 ---
 title: Magazine
-description: A perfect-bound glossy monthly with live front and back covers.
+description: A perfect-bound monthly on matte stock with live front and back covers.
 ---
 
 `<Magazine>` and `<MagazineMockup>` render a 216×279 mm letter-trim,
 perfect-bound magazine: a thin page block with crisp trimmed paper edges on
-the three open sides, the glossy cover stock wrapping the bound spine, and
-live 480×620 DOM front and back covers, each under a soft cover-gloss
-sheen.
+the three open sides, the cover stock wrapping the bound spine, and live
+480×620 DOM front and back covers. The stock is matte paper by default —
+flat under any light; opt into `glossy` for the coated look with a soft
+diagonal sheen.
 
 Real editorial CSS lays out exactly as it would in a browser at 480×620.
 
@@ -25,11 +26,11 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `back` | `ReactNode` | - | Back cover design — full bleed, same glossy sheen. |
+| `back` | `ReactNode` | - | Back cover design — full bleed, same stock finish. |
 | `size` | `{ width?, height?, thickness? }` | `216×279×6` | Physical trim in mm — e.g. `{ width: 210, height: 297 }` for A4, `{ thickness: 12 }` for a thick issue. |
 | `pageColor` | `string` | `'#fbfaf7'` | Paper color of the trimmed page edges. |
 | `backColor` | `string` | `'#e9e7e2'` | Back cover and spine-wrap color. |
-| `glossy` | `boolean` | `true` | Soft diagonal sheen over the cover art (the glossy stock look). |
+| `glossy` | `boolean` | `false` | Coated gloss stock: a soft diagonal sheen over the cover art and a clearcoat on the spine and back. Off = matte paper. |
 | `coverBackground` | `string` | `'#ffffff'` | CSS background behind your cover content. |
 | `resolution` | `number` | `480` | Virtual cover width in CSS px; height follows the trim aspect. |
 
@@ -45,7 +46,7 @@ what stays 3D hardware.
 
 ### The back-cover ad
 
-Magazines sell their back page — `back` prints it, gloss sheen and all.
+Magazines sell their back page — `back` prints it, full bleed.
 
 <ObjectDemo demo="magazine-back" />
 

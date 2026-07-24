@@ -96,6 +96,17 @@ export function DeviceScreen({
     gl.domElement.style.pointerEvents = 'auto'
   }, [usingBlending, gl])
 
+  // drei's blending setup is a per-<Html> layout effect that mutates GLOBAL
+  // canvas style: blending instances raise the canvas (so their DOM slides
+  // under it), but every NON-blending instance resets it back to zIndex
+  // null. On a device mixing modes (full-wrap sides on 'blending', rear
+  // and plate on raycast), whichever <Html> mounts last wins — and a
+  // raycast screen mounting after the sides silently breaks the per-pixel
+  // compositing (proud hardware vanishes under the wrap DOM). Re-assert
+  // the blending canvas config from the frame loop so it always wins,
+  // whatever the mount order.
+  const blendingCanvasZ = String(Math.floor(16777271 / 2)) // drei's default zIndexRange[0] / 2
+
   // Tap-vs-drag handoff: presses stay with the content, real drags are
   // replayed on the canvas so the orbit controls take over the gesture.
   const dragHandoff = React.useMemo(() => createScreenDragHandoff(() => gl.domElement), [gl])
@@ -112,6 +123,12 @@ export function DeviceScreen({
   const occlusionBlocked = React.useMemo(() => createScreenOcclusionTester(), [])
   const occludeMeshes = Array.isArray(occlude) ? occlude : undefined
   useFrame(({ camera }) => {
+    if (usingBlending) {
+      const canvas = gl.domElement.style
+      if (canvas.zIndex !== blendingCanvasZ) canvas.zIndex = blendingCanvasZ
+      if (canvas.position !== 'absolute') canvas.position = 'absolute'
+      if (canvas.pointerEvents !== 'auto') canvas.pointerEvents = 'auto'
+    }
     if (!anchorRef.current || !contentRef.current) return
     const content = contentRef.current
     cullBackface(anchorRef.current, content, camera)
