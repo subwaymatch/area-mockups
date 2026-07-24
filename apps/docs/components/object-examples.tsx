@@ -808,18 +808,25 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Storefront ---------------------------------------------------------------------
   'storefront-basic': (
-    <StorefrontMockup windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <StorefrontMockup windows={{ frontLeft: <StorePosterArt />, frontRight: <StorePosterArt /> }} deviceProps={{ rotation: [0, -0.25, 0] }}>
       <StoreSignArt />
     </StorefrontMockup>
   ),
   'storefront-paint': (
-    <StorefrontMockup color="#5c2330" windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <StorefrontMockup color="#5c2330" windows={{ frontLeft: <StorePosterArt />, door: <StorePosterArt /> }} deviceProps={{ rotation: [0, 0.3, 0] }}>
       <StoreSignArt />
     </StorefrontMockup>
   ),
   'storefront-around': (
     <StorefrontMockup
-      windowPoster={<StorePosterArt />}
+      windows={{
+        frontLeft: <StorePosterArt />,
+        frontRight: <StorePosterArt />,
+        door: <StorePosterArt />,
+        left: <StorePosterArt />,
+        right: <StorePosterArt />,
+        rear: <StorePosterArt />,
+      }}
       leftSign={<StoreSignArt />}
       rightSign={<StoreSignArt />}
       rearSign={<StoreSignArt />}
@@ -1118,7 +1125,14 @@ const DEMOS: Record<string, React.ReactNode> = {
   ),
   'chroma-storefront': (
     <StorefrontMockup
-      windowPoster={<ChromaSurface label="windowPoster" />}
+      windows={{
+        frontLeft: <ChromaSurface label="windows.frontLeft" />,
+        frontRight: <ChromaSurface label="windows.frontRight" />,
+        door: <ChromaSurface label="windows.door" />,
+        left: <ChromaSurface label="windows.left" />,
+        right: <ChromaSurface label="windows.right" />,
+        rear: <ChromaSurface label="windows.rear" />,
+      }}
       leftSign={<ChromaSurface label="leftSign" />}
       rightSign={<ChromaSurface label="rightSign" />}
       rearSign={<ChromaSurface label="rearSign" />}

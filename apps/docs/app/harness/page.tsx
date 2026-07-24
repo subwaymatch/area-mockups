@@ -155,7 +155,7 @@ function HarnessScene() {
     const dist = Number(params.get('dist') ?? 12)
     return (
       <StorefrontMockup
-        windowPoster={screen}
+        windows={{ frontLeft: screen, frontRight: screen, door: screen, left: screen, right: screen, rear: screen }}
         leftSign={screen}
         rightSign={screen}
         rearSign={screen}

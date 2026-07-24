@@ -11,9 +11,10 @@
  * - the other three sides (+X, −X, −Z): the same composition without the
  *   door — windows only — each carrying its own live fascia sign.
  *
- * Live surfaces: the front fascia sign (`children`), the front window
- * poster, and the left/right/rear fascia signs — every elevation is
- * mockup-able (the roof is not).
+ * Live surfaces: the four fascia signs (front `children` plus
+ * left/right/rear), both front display bays, the glazed door leaf and the
+ * center pane of each other elevation — every elevation is mockup-able
+ * (the roof is not).
  *
  * This is pure, renderer-agnostic data: the 3D model consumes it today and a
  * future 2D (CSS/SVG) renderer can consume the same numbers.
@@ -37,8 +38,6 @@ export const STOREFRONT = {
   riser: { height: 0.545 },
   /** Display window band between riser and fascia (door bay on the front right). */
   window: { top: 0.804, doorX: 1.6, doorWidth: 0.909, mullionX: -0.65 },
-  /** Live A1-class window poster, pasted on the front-left glass bay at eye level. */
-  poster: { width: 0.62, height: 0.88, x: -1.7, y: -0.136, radius: 0.006 },
   /** Flat roof cap overhanging the parapet line. */
   roof: { thickness: 0.07, overhang: 0.03 },
   /** Distance from the building center down to the pavement. */

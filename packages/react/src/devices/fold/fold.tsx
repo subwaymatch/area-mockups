@@ -503,6 +503,12 @@ export function Fold({
     // at the crease at every angle — nearly shut included — instead of
     // interpenetrating (crossed DOM planes glitch near 0°).
     const pz = b.depth / 2 + 0.006
+    // Below ~26° the whole rig glides into the folded pose's canonical
+    // placement — a quarter-turn of the assembly around the vertical hinge
+    // line plus re-centering onto the spine edge — converging exactly
+    // where the dedicated closed pose renders, so the ~0° swap never
+    // jumps. Identity above 26°.
+    const w = THREE.MathUtils.smoothstep(26 - angle, 0, 26)
     // Tangent radius: pivot plane to the back face. The exposed arc spans
     // ±alpha around straight-back, meeting each half at its back corner.
     // Run the spine and its caps essentially edge to edge — the panels'
@@ -567,6 +573,11 @@ export function Fold({
     return (
       <group {...groupProps}>
         <group key="flex" rotation-z={landscape ? Math.PI / 2 : 0}>
+          {/* convergence chain: re-center onto the spine edge → quarter-turn
+              the assembly around the vertical hinge line — weighted by `w` */}
+          <group position={[(-hw / 2) * w, 0, -pz * w]}>
+          <group position={[0, 0, pz]} rotation-y={alpha * w}>
+          <group position={[0, 0, -pz]}>
           {/* left (cover-screen) panel folds toward the viewer */}
           <group position={[0, 0, pz]} rotation-y={alpha}>
             <group position={[-hw / 2, 0, -pz]}>
@@ -679,6 +690,9 @@ export function Fold({
                 {spineLogoMaterial}
               </mesh>
             )}
+          </group>
+          </group>
+          </group>
           </group>
         </group>
       </group>

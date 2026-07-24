@@ -6,7 +6,7 @@ import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   StorefrontProps,
-  | 'windowPoster'
+  | 'windows'
   | 'leftSign'
   | 'rightSign'
   | 'rearSign'
@@ -35,14 +35,14 @@ export interface StorefrontMockupProps
  * live fascia signs on all four glazed elevations plus the window poster.
  *
  * ```tsx
- * <StorefrontMockup windowPoster={<YourPoster />} rearSign={<YourSign />}>
+ * <StorefrontMockup windows={{ frontLeft: <YourPoster /> }} rearSign={<YourSign />}>
  *   <YourSign />
  * </StorefrontMockup>
  * ```
  */
 export function StorefrontMockup({
   children,
-  windowPoster,
+  windows,
   leftSign,
   rightSign,
   rearSign,
@@ -59,7 +59,7 @@ export function StorefrontMockup({
 }: StorefrontMockupProps) {
   const object = (
     <Storefront
-      windowPoster={windowPoster}
+      windows={windows}
       leftSign={leftSign}
       rightSign={rightSign}
       rearSign={rearSign}

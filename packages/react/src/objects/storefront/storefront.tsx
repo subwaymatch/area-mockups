@@ -11,11 +11,23 @@ type GroupProps = ThreeElements['group']
 export interface StorefrontProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Front fascia sign design — any React node, full bleed on the sign band. */
   children?: React.ReactNode
-  /** Poster displayed inside the front's left window bay. */
-  windowPoster?: React.ReactNode
-  /** Fascia sign on the left side (+X as you face the shop). Windows-only elevation. */
+  /**
+   * Live window graphics — every big pane is a mockup surface. `frontLeft`
+   * and `frontRight` are the two display bays either side of the front
+   * mullion, `door` is the glazed door leaf, and `left`/`right`/`rear` are
+   * the wide center panes of the other three elevations.
+   */
+  windows?: {
+    frontLeft?: React.ReactNode
+    frontRight?: React.ReactNode
+    door?: React.ReactNode
+    left?: React.ReactNode
+    right?: React.ReactNode
+    rear?: React.ReactNode
+  }
+  /** Fascia sign on the left elevation (−X as you face the shop). */
   leftSign?: React.ReactNode
-  /** Fascia sign on the right side (−X as you face the shop). Windows-only elevation. */
+  /** Fascia sign on the right elevation (+X as you face the shop). */
   rightSign?: React.ReactNode
   /** Fascia sign on the rear (−Z). Windows-only elevation. */
   rearSign?: React.ReactNode
@@ -48,8 +60,9 @@ export interface StorefrontProps extends Omit<GroupProps, 'children' | 'color'> 
  * lights, glazed door with a vertical pull, corniced fascia on console
  * brackets. The other three elevations repeat the same composition without
  * the door — windows only — and each carries its own live fascia sign.
- * Every elevation is live DOM; the roof is plain hardware. No 3D asset
- * files are loaded.
+ * Every big pane is a mockup surface too (`windows`): both front display
+ * bays, the glazed door leaf and the center pane of each other elevation.
+ * The roof is plain hardware. No 3D asset files are loaded.
  *
  * The origin is the building center; the pavement sits
  * `STOREFRONT.standHeight` below it. Must be rendered inside a
@@ -57,7 +70,7 @@ export interface StorefrontProps extends Omit<GroupProps, 'children' | 'color'> 
  */
 export function Storefront({
   children,
-  windowPoster,
+  windows,
   leftSign,
   rightSign,
   rearSign,
@@ -70,7 +83,7 @@ export function Storefront({
   screenStyle,
   ...groupProps
 }: StorefrontProps) {
-  const { body, fascia, sign, sideSign, rearSign: rearSignSpec, riser, window: win, poster, roof, standHeight } = STOREFRONT
+  const { body, fascia, sign, sideSign, rearSign: rearSignSpec, riser, window: win, roof, standHeight } = STOREFRONT
   const wallRef = React.useRef<THREE.Mesh>(null!)
   const roofRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(wallRef, roofRef)
@@ -98,6 +111,14 @@ export function Storefront({
   const glazeW = win.doorX - 0.35 + body.width / 2 - 0.3
   // transom rail ~450 mm below the window head
   const transomY = win.top - 0.409
+  // The big display panes (live mockup areas) run riser-top to transom rail.
+  const paneTop = transomY - 0.033
+  const paneBottom = riserTop + 0.02
+  const paneH = paneTop - paneBottom
+  const paneCY = (paneTop + paneBottom) / 2
+  // Front bays either side of the mullion (mullion is 0.1 wide).
+  const bayL = { x0: glazeX - glazeW / 2, x1: win.mullionX - 0.06 }
+  const bayR = { x0: win.mullionX + 0.06, x1: glazeX + glazeW / 2 }
 
   const screenCommon = {
     resolution,
@@ -109,9 +130,15 @@ export function Storefront({
   }
 
   // One windows-only elevation, built facing local +Z at `faceDist` — the
-  // same composition as the front minus the door — with its fascia sign.
-  // The caller rotates it onto the right face of the building.
-  const windowedElevation = (faceDist: number, faceLen: number, signWidth: number, signNode: React.ReactNode) => {
+  // same composition as the front minus the door — with its fascia sign
+  // and a live center pane between the two mullions.
+  const windowedElevation = (
+    faceDist: number,
+    faceLen: number,
+    signWidth: number,
+    signNode: React.ReactNode,
+    windowNode: React.ReactNode
+  ) => {
     const glazeL = faceLen - 0.6
     return (
       <>
@@ -166,6 +193,19 @@ export function Storefront({
             {signNode}
           </DeviceScreen>
         )}
+        {/* live center pane between the two mullions */}
+        {windowNode != null && (
+          <DeviceScreen
+            {...screenCommon}
+            width={(glazeL * 2) / 3 - 0.12}
+            height={paneH}
+            radius={0.004}
+            resolution={420}
+            position={[0, paneCY, faceDist + 0.012]}
+          >
+            {windowNode}
+          </DeviceScreen>
+        )}
       </>
     )
   }
@@ -201,8 +241,30 @@ export function Storefront({
           <meshPhysicalMaterial {...paint} />
         </RoundedBox>
       ))}
-      <RoundedBox args={[body.width, riser.height, 0.1]} radius={0.012} position={[0, -standHeight + riser.height / 2, frontZ + 0.015]}>
+      {/* stall riser under the windows — it stops at the door bay, so the
+          glazed door runs all the way to the pavement instead of being
+          cut off at knee height */}
+      <RoundedBox
+        args={[win.doorX + body.width / 2, riser.height, 0.1]}
+        radius={0.012}
+        position={[(win.doorX - body.width / 2) / 2, -standHeight + riser.height / 2, frontZ + 0.015]}
+      >
         <meshPhysicalMaterial {...paint} />
+      </RoundedBox>
+      <RoundedBox
+        args={[body.width / 2 - win.doorX - win.doorWidth, riser.height, 0.1]}
+        radius={0.012}
+        position={[(win.doorX + win.doorWidth + body.width / 2) / 2, -standHeight + riser.height / 2, frontZ + 0.015]}
+      >
+        <meshPhysicalMaterial {...paint} />
+      </RoundedBox>
+      {/* low threshold plate under the door leaf */}
+      <RoundedBox
+        args={[win.doorWidth, 0.035, 0.03]}
+        radius={0.008}
+        position={[win.doorX + win.doorWidth / 2, -standHeight + 0.018, frontZ + 0.028]}
+      >
+        <meshPhysicalMaterial color="#9aa0a8" metalness={0.7} roughness={0.4} />
       </RoundedBox>
 
       {/* display glazing: window bays left of the door, door bay right */}
@@ -277,29 +339,55 @@ export function Storefront({
         {children}
       </DeviceScreen>
 
-      {/* front window poster, pasted inside the left bay */}
-      {windowPoster != null && (
+      {/* the two front display bays, live either side of the mullion */}
+      {windows?.frontLeft != null && (
         <DeviceScreen
           {...screenCommon}
-          width={poster.width}
-          height={poster.height}
-          radius={poster.radius}
-          resolution={420}
-          position={[poster.x, poster.y, frontZ + 0.008]}
+          width={bayL.x1 - bayL.x0}
+          height={paneH}
+          radius={0.004}
+          resolution={480}
+          position={[(bayL.x0 + bayL.x1) / 2, paneCY, frontZ + 0.012]}
         >
-          {windowPoster}
+          {windows.frontLeft}
+        </DeviceScreen>
+      )}
+      {windows?.frontRight != null && (
+        <DeviceScreen
+          {...screenCommon}
+          width={bayR.x1 - bayR.x0}
+          height={paneH}
+          radius={0.004}
+          resolution={460}
+          position={[(bayR.x0 + bayR.x1) / 2, paneCY, frontZ + 0.012]}
+        >
+          {windows.frontRight}
+        </DeviceScreen>
+      )}
+      {/* the glazed door leaf, live above its kick rail */}
+      {windows?.door != null && (
+        <DeviceScreen
+          {...screenCommon}
+          width={win.doorWidth - 0.24}
+          height={windowH + riser.height - 0.36}
+          radius={0.004}
+          resolution={260}
+          position={[win.doorX + win.doorWidth / 2, riserTop + windowH / 2 - 0.15, frontZ + 0.062]}
+        >
+          {windows.door}
         </DeviceScreen>
       )}
 
-      {/* ---------- windows-only elevations: left (+X), right (−X), rear (−Z) ---------- */}
+      {/* ---------- windows-only elevations: right (+X), left (−X), rear (−Z),
+          left/right named as you face the shop from the street ---------- */}
       <group rotation-y={Math.PI / 2}>
-        {windowedElevation(body.width / 2, body.depth, sideSign.width, leftSign)}
+        {windowedElevation(body.width / 2, body.depth, sideSign.width, rightSign, windows?.right)}
       </group>
       <group rotation-y={-Math.PI / 2}>
-        {windowedElevation(body.width / 2, body.depth, sideSign.width, rightSign)}
+        {windowedElevation(body.width / 2, body.depth, sideSign.width, leftSign, windows?.left)}
       </group>
       <group rotation-y={Math.PI}>
-        {windowedElevation(body.depth / 2, body.width, rearSignSpec.width, rearSign)}
+        {windowedElevation(body.depth / 2, body.width, rearSignSpec.width, rearSign, windows?.rear)}
       </group>
     </group>
   )

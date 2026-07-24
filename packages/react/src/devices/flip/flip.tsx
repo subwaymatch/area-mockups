@@ -536,6 +536,11 @@ export function Flip({
     // interpenetrating (crossed DOM planes glitch near 0°).
     const pz = openBody.depth / 2 + 0.006
     const halfH = half.height
+    // Below ~26° the whole rig glides into the folded pose's canonical
+    // placement — fold the assembly forward around the hinge, half-turn it
+    // upright in-plane, re-center — converging exactly where the dedicated
+    // closed pose renders, so the ~0° swap never jumps. Identity above 26°.
+    const w = THREE.MathUtils.smoothstep(26 - angle, 0, 26)
     // Spine housing: a cylinder segment tangent to both halves' back shells.
     // The halves pivot on the display's neutral plane, so their back faces
     // stay a constant `spineR` from the axis at every angle — the exposed
@@ -614,6 +619,14 @@ export function Flip({
     return (
       <group {...groupProps}>
         <group key="flex" rotation-z={landscape ? Math.PI / 2 : 0}>
+          {/* convergence chain: re-center → half-turn upright in-plane
+              around the folding compact's center → fold the assembly
+              forward around the hinge line — all weighted by `w` */}
+          <group position={[0, (halfH / 2) * w, -pz * w]}>
+          <group position={[0, -halfH / 2, pz]} rotation-z={Math.PI * w}>
+          <group position={[0, halfH / 2, -pz]}>
+          <group position={[0, 0, pz]} rotation-x={alpha * w}>
+          <group position={[0, 0, -pz]}>
           {/* upper (cover) half folds toward the viewer around the hinge */}
           <group position={[0, 0, pz]} rotation-x={alpha}>
             <group position={[0, halfH / 2, -pz]}>
@@ -676,6 +689,11 @@ export function Flip({
                 <meshPhysicalMaterial color={frameColor} metalness={0.7} roughness={0.38} side={THREE.DoubleSide} />
               </mesh>
             ))}
+          </group>
+          </group>
+          </group>
+          </group>
+          </group>
           </group>
         </group>
       </group>
