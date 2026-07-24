@@ -362,6 +362,11 @@ export function Van({
   const { body, rockerY, wheels, profile, wrap, rear: rearPanel, rearFull } = VAN
   const shellRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(shellRef)
+  // Screens occlude against OTHER registered bodies only — see the bus's
+  // matching note: the convex shell's own ray hits at oblique angles were
+  // false positives, and the backface culler covers every view the body
+  // itself could block.
+  const otherOccludeRefs = React.useMemo(() => occludeRefs.filter((ref) => ref !== shellRef), [occludeRefs])
 
   // The side rect the DeviceScreens cover: the classic mid-panel, or the
   // whole side elevation with the hardware carved out via clip-path.
@@ -457,7 +462,7 @@ export function Van({
   const sideScreenOcclusion = (blendGeometry?: THREE.BufferGeometry) =>
     fullWrap && occlude !== false
       ? { occlude: 'blending' as const, occluderGeometry: blendGeometry }
-      : { occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined }
+      : { occlude: occlude === true ? otherOccludeRefs : occlude === 'blending' ? ('blending' as const) : undefined }
 
   const shellGeometry = React.useMemo(() => {
     const s = vanProfileShape()
@@ -724,7 +729,7 @@ export function Van({
           background="#f4f6f8"
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
         >
           {plateFace}
@@ -828,7 +833,7 @@ export function Van({
           background="#f4f6f8"
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
         >
           {plateFace}
@@ -896,7 +901,7 @@ export function Van({
           background={wrapBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={rearStyle}
         >
           {rear}

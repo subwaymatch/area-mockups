@@ -311,6 +311,13 @@ export function Bus({
   } = BUS
   const shellRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(shellRef)
+  // Screens occlude against OTHER registered bodies only. The shell is a
+  // convex hull, so the backface culler already hides every surface the
+  // body itself could cover — own-shell ray hits at oblique angles were
+  // false positives that blanked a plainly visible surface (the rear wrap
+  // vanishing at rear-quarter views). The shell stays registered so it
+  // still occludes every other mockup in the scene.
+  const otherOccludeRefs = React.useMemo(() => occludeRefs.filter((ref) => ref !== shellRef), [occludeRefs])
 
   // The ad rect the DeviceScreens cover: the classic king-size panel, or the
   // whole side elevation with the operational glass carved out via clip-path.
@@ -401,7 +408,7 @@ export function Bus({
   const sideScreenOcclusion = (blendGeometry?: THREE.BufferGeometry) =>
     fullWrap && occlude !== false
       ? { occlude: 'blending' as const, occluderGeometry: blendGeometry }
-      : { occlude: occlude === true ? occludeRefs : occlude === 'blending' ? ('blending' as const) : undefined }
+      : { occlude: occlude === true ? otherOccludeRefs : occlude === 'blending' ? ('blending' as const) : undefined }
 
   // Plain strings become the built-in LED destination sign; custom nodes
   // pass straight through.
@@ -491,7 +498,7 @@ export function Bus({
             background="#0a0a08"
             interactive={interactive}
             dragToRotate={dragToRotate}
-            occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+            occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
             screenStyle={screenStyle}
           >
             {sign}
@@ -775,7 +782,7 @@ export function Bus({
           background={adBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={rearStyle}
         >
           {rearAd}
