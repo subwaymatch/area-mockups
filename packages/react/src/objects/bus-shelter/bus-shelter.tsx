@@ -210,7 +210,11 @@ export function BusShelter({
             background="#0b0c0e"
             interactive={interactive}
             dragToRotate={dragToRotate}
-            occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+            // Per-pixel blending: the hanging board sits INSIDE the shelter,
+            // so pillars, glass frames and the roof edge cross in front of it
+            // at many angles — raycast's all-or-nothing hide either blanks
+            // the whole board or lets the LED text pierce a thin pillar.
+            occlude={occlude === false ? undefined : 'blending'}
             screenStyle={screenStyle}
           >
             {board}
@@ -227,7 +231,7 @@ export function BusShelter({
               background="#0b0c0e"
               interactive={interactive}
               dragToRotate={dragToRotate}
-              occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+              occlude={occlude === false ? undefined : 'blending'}
               screenStyle={screenStyle}
             >
               {backBoard}

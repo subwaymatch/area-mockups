@@ -46,7 +46,9 @@ export function cameraDistance(position?: readonly [number, number, number]): nu
  * (billboard, van) must not snap back to a closer maxDistance on the first drag.
  */
 export function orbitDistanceRange(distance: number): { min: number; max: number } {
-  return { min: Math.min(4, distance * 0.6), max: Math.max(12, distance * 1.35) }
+  // The near limit allows ~8x magnification over the configured distance —
+  // deep enough to inspect seams and ports close up.
+  return { min: distance * 0.12, max: Math.max(12, distance * 1.35) }
 }
 
 /**

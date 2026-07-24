@@ -25,15 +25,20 @@ const FULL_WRAP = {
 const FULL_WRAP_RESOLUTION = Math.round(VAN.resolution * (FULL_WRAP.width / VAN.wrap.width))
 
 /**
- * Regions carved out of the full-coverage wrap, in world units on the side
- * elevation. Each matches a physical feature rendered by the meshes below
- * (with a little trim margin, like a real wrap install): the cab door glass,
- * the door handle, the mirror arms + head, and the curb-side door track.
+ * Cab door, in world units on the side elevation — proportioned from
+ * ProMaster/Sprinter-class references: the shut line runs up the vertical
+ * B-pillar edge, across a flat top just under the roof rail, down a front
+ * edge raked parallel to the A-pillar to the beltline, then near-vertical
+ * to the wheel arch. The door glass repeats the same raked front with a
+ * flat top and a vertical rear edge. Seams are a real door gap (~5 mm),
+ * not the chunky bars of a cartoon.
  */
-const SIDE_CUTOUTS = {
-  /** Mirrors doorGlassGeometry (shape-local coords + its [1.52, 0.24] mount). */
-  doorGlass: { x: 1.52, y: 0.24, halfW: 0.5, h: 0.56, rake: 0.486 },
-} as const
+const SEAM_RAKE = 0.486 // dx per unit dy of the windshield slope
+/** Raked front seam above the beltline, parallel to the A-pillar. */
+const RAKED_SEAM = { bottomX: 2.06, bottomY: 0.245, topY: 0.8825, half: 0.0025 } as const
+const rakedSeamX = (y: number) => RAKED_SEAM.bottomX - SEAM_RAKE * (y - RAKED_SEAM.bottomY)
+/** Door glass frame: raked front, flat top, vertical rear (world coords). */
+const DOOR_GLASS = { rearX: 1.09, frontX: 2.03, bottomY: 0.26, topY: 0.8 } as const
 
 /**
  * The shell's side profile as a THREE shape — shared by the extruded body
@@ -70,20 +75,22 @@ function vanProfileShape(): THREE.Shape {
 }
 
 /**
- * Cab-door shut-line slits, in world units on the side elevation: A-pillar
- * seam (stopped just above the front wheel arch, which reaches y −0.47 at
- * that x), B-pillar seam (stopped short of the door glass at y 0.24), and
- * the sill seam between them (clear of both the B-slit and the arch's
- * front edge at x 1.467). Every full wrap carves these — a real crevice is
- * a GAP the film tucks into, never a ridge over it — and the blending
- * occluder opens matching holes so the recessed seam meshes show through.
- * The rects never touch each other or the glass carve: overlapping holes
- * cancel back to filled under the nonzero rule.
+ * Axis-aligned shut-line slits (the raked front segment above the beltline
+ * is `RAKED_SEAM`). Every full wrap carves these — a real crevice is a GAP
+ * the film tucks into, never a ridge over it — and the blending occluder
+ * opens matching holes so the recessed seam meshes show through. Edges
+ * meet exactly but never cross each other or the glass carve: overlapping
+ * holes cancel back to filled under the nonzero rule.
  */
 const DOOR_SEAMS = [
-  { minX: 2.052, maxX: 2.068, minY: -0.47, maxY: 0.26 },
-  { minX: 1.022, maxX: 1.038, minY: -0.86, maxY: 0.234 },
-  { minX: 1.042, maxX: 1.462, minY: -0.865, maxY: -0.849 },
+  // B-pillar edge, sill to door top
+  { minX: 1.0275, maxX: 1.0325, minY: -0.86, maxY: 0.8775 },
+  // door top, under the roof rail, corner-meeting the raked front seam
+  { minX: 1.0275, maxX: 1.7477, minY: 0.8775, maxY: 0.8825 },
+  // front edge below the beltline, stopped above the wheel arch (y −0.47)
+  { minX: 2.0575, maxX: 2.0625, minY: -0.47, maxY: 0.245 },
+  // sill seam, clear of the B-slit and the arch's front edge (x 1.467)
+  { minX: 1.042, maxX: 1.462, minY: -0.8595, maxY: -0.8545 },
 ] as const
 
 /** Rounded-rect hole path (world coords) matching one wrap-clip carve. */
@@ -102,25 +109,32 @@ function roundedHolePath(minX: number, minY: number, maxX: number, maxY: number,
   return p
 }
 
-/** The cab door glass trapezoid as a hole path (world coords). */
-function doorGlassHolePath(): THREE.Path {
-  const g = SIDE_CUTOUTS.doorGlass
-  const gx0 = g.x - g.halfW
-  const gx1 = g.x + g.halfW
-  const gy0 = g.y
-  const gy1 = g.y + g.h
-  const gCx = g.x + g.halfW - g.rake * g.h
-  const gDx = g.x + 0.34 - g.rake * g.h
-  const gEx = g.x - 0.42
-  const hole = new THREE.Path()
-  hole.moveTo(gx0, gy0)
-  hole.lineTo(gx0, gy1 - 0.08)
-  hole.quadraticCurveTo(gx0, gy1, gEx, gy1)
-  hole.lineTo(gDx, gy1)
-  hole.quadraticCurveTo(gCx - 0.1, gy1, gCx, gy1)
-  hole.lineTo(gx1, gy0)
-  hole.closePath()
-  return hole
+/**
+ * The cab door glass as a THREE shape (world coords, counterclockwise):
+ * raked front edge parallel to the A-pillar, flat top under the roof rail,
+ * vertical rear edge — rounded corners. Shared by the glass mesh, the
+ * blending occluder's hole and (reverse-traced) the wrap clip.
+ */
+function doorGlassShape(): THREE.Shape {
+  const { rearX, frontX, bottomY, topY } = DOOR_GLASS
+  const ftX = frontX - SEAM_RAKE * (topY - bottomY)
+  const len = Math.hypot(ftX - frontX, topY - bottomY)
+  const ux = (ftX - frontX) / len
+  const uy = (topY - bottomY) / len
+  const rB = 0.03
+  const rT = 0.05
+  const s = new THREE.Shape()
+  s.moveTo(rearX + rB, bottomY)
+  s.lineTo(frontX - rB, bottomY)
+  s.quadraticCurveTo(frontX, bottomY, frontX + ux * rB, bottomY + uy * rB)
+  s.lineTo(ftX - ux * rT, topY - uy * rT)
+  s.quadraticCurveTo(ftX, topY, ftX - rT, topY)
+  s.lineTo(rearX + rT, topY)
+  s.quadraticCurveTo(rearX, topY, rearX, topY - rT)
+  s.lineTo(rearX, bottomY + rB)
+  s.quadraticCurveTo(rearX, bottomY, rearX + rB, bottomY)
+  s.closePath()
+  return s
 }
 
 /**
@@ -164,25 +178,35 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean, overWindows: bo
     `L ${P(tail + 0.09, top)} Q ${P(tail, top)} ${P(tail, top - 0.09)} ` +
     `L ${P(tail, bottom + 0.06)} Q ${P(tail, bottom)} ${P(tail + 0.06, bottom)} Z `
 
-  // Door glass trapezoid, traced world-clockwise (reverse of the mesh shape).
-  const g = SIDE_CUTOUTS.doorGlass
-  const gx0 = g.x - g.halfW
-  const gx1 = g.x + g.halfW
-  const gy0 = g.y
-  const gy1 = g.y + g.h
-  const gCx = g.x + g.halfW - g.rake * g.h // raked top-front corner
-  const gDx = g.x + 0.34 - g.rake * g.h
-  const gEx = g.x - 0.42
+  // Door glass, traced world-clockwise (reverse of the mesh shape): raked
+  // front parallel to the A-pillar, flat top, vertical rear edge.
+  const { rearX, frontX, bottomY: gB, topY: gT } = DOOR_GLASS
+  const ftX = frontX - SEAM_RAKE * (gT - gB)
+  const gLen = Math.hypot(ftX - frontX, gT - gB)
+  const gUx = (ftX - frontX) / gLen
+  const gUy = (gT - gB) / gLen
+  const rB2 = 0.03
+  const rT2 = 0.05
   const glass =
-    `M ${P(gx0, gy0)} L ${P(gx0, gy1 - 0.08)} Q ${P(gx0, gy1)} ${P(gEx, gy1)} ` +
-    `L ${P(gDx, gy1)} Q ${P(gCx - 0.1, gy1)} ${P(gCx, gy1)} L ${P(gx1, gy0)} Z `
+    `M ${P(rearX + rB2, gB)} Q ${P(rearX, gB)} ${P(rearX, gB + rB2)} ` +
+    `L ${P(rearX, gT - rT2)} Q ${P(rearX, gT)} ${P(rearX + rT2, gT)} ` +
+    `L ${P(ftX - rT2, gT)} Q ${P(ftX, gT)} ${P(ftX - gUx * rT2, gT - gUy * rT2)} ` +
+    `L ${P(frontX + gUx * rB2, gB + gUy * rB2)} Q ${P(frontX, gB)} ${P(frontX - rB2, gB)} Z `
 
   // The cab-door shut lines are carved as slits — the crevice is a gap the
   // film tucks into on a real wrap. No other hardware carves: the sides
   // composite per-pixel ('blending'), so the proud mirror, handle and door
   // track draw over the livery on their own — hardware remounted over vinyl.
-  const seams = DOOR_SEAMS.map((s) => clipRoundedRect(P, R, sweep, { ...s, r: 0.006 })).join('')
-  return (outline + seams + (overWindows ? '' : glass)).trim()
+  const seams = DOOR_SEAMS.map((s) => clipRoundedRect(P, R, sweep, { ...s, r: 0.002 })).join('')
+  // The raked front seam: a fixed-order parallelogram — the CSS x mirror
+  // flips outline and hole winding together, so one point order serves
+  // both sides.
+  const rh = RAKED_SEAM.half
+  const rTopX = rakedSeamX(RAKED_SEAM.topY)
+  const raked =
+    `M ${P(rTopX - rh, RAKED_SEAM.topY)} L ${P(rTopX + rh, RAKED_SEAM.topY)} ` +
+    `L ${P(RAKED_SEAM.bottomX + rh, RAKED_SEAM.bottomY)} L ${P(RAKED_SEAM.bottomX - rh, RAKED_SEAM.bottomY)} Z `
+  return (outline + seams + raked + (overWindows ? '' : glass)).trim()
 }
 
 /**
@@ -440,8 +464,17 @@ export function Van({
     if (!fullWrap) return null
     const build = (overGlass: boolean, mirroredSide: boolean) => {
       const s = vanProfileShape()
-      if (!overGlass) s.holes.push(doorGlassHolePath())
-      for (const seam of DOOR_SEAMS) s.holes.push(roundedHolePath(seam.minX, seam.minY, seam.maxX, seam.maxY, 0.006))
+      if (!overGlass) s.holes.push(doorGlassShape())
+      for (const seam of DOOR_SEAMS) s.holes.push(roundedHolePath(seam.minX, seam.minY, seam.maxX, seam.maxY, 0.002))
+      const rakedHole = new THREE.Path()
+      const rh = RAKED_SEAM.half
+      const rTopX = rakedSeamX(RAKED_SEAM.topY)
+      rakedHole.moveTo(rTopX - rh, RAKED_SEAM.topY)
+      rakedHole.lineTo(rTopX + rh, RAKED_SEAM.topY)
+      rakedHole.lineTo(RAKED_SEAM.bottomX + rh, RAKED_SEAM.bottomY)
+      rakedHole.lineTo(RAKED_SEAM.bottomX - rh, RAKED_SEAM.bottomY)
+      rakedHole.closePath()
+      s.holes.push(rakedHole)
       const geometry = new THREE.ShapeGeometry(s, 16)
       geometry.translate(-FULL_WRAP.x, -FULL_WRAP.y, 0)
       if (mirroredSide) geometry.scale(-1, 1, 1)
@@ -496,22 +529,13 @@ export function Van({
     }
   }, [profile])
 
-  // Cab door glass: trapezoid with the leading edge slanted parallel to the
-  // A-pillar and a blacked-out sail area, like the references.
-  const doorGlassGeometry = React.useMemo(() => {
-    const rake = 0.486 // dx per unit dy of the windshield slope
-    const h = 0.56
-    const shape = new THREE.Shape()
-    shape.moveTo(-0.5, 0)
-    shape.lineTo(0.5, 0)
-    shape.lineTo(0.5 - rake * h, h)
-    shape.quadraticCurveTo(0.5 - rake * h - 0.1, h, 0.34 - rake * h, h)
-    shape.lineTo(-0.42, h)
-    shape.quadraticCurveTo(-0.5, h, -0.5, h - 0.08)
-    shape.closePath()
-    const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.02, bevelEnabled: false })
-    return geometry
-  }, [])
+  // Cab door glass: raked front parallel to the A-pillar, flat top and a
+  // vertical rear edge with rounded corners, like the references. Built in
+  // world side-elevation coords from the same shape as the wrap carve.
+  const doorGlassGeometry = React.useMemo(
+    () => new THREE.ExtrudeGeometry(doorGlassShape(), { depth: 0.02, bevelEnabled: false }),
+    []
+  )
 
   React.useEffect(() => {
     return () => {
@@ -569,15 +593,16 @@ export function Van({
         const base =
           side === 1 ? body.width / 2 - (covered ? 0.018 : 0.01) : -body.width / 2 + (covered ? 0.002 : -0.01)
         return (
-          <mesh key={side} geometry={doorGlassGeometry} position={[1.52, 0.24, base]}>
+          <mesh key={side} geometry={doorGlassGeometry} position={[0, 0, base]}>
             {glassMaterial}
           </mesh>
         )
       })}
 
-      {/* cab door handles, ~1 m above the ground on both sides */}
+      {/* cab door handles, just under the window sill near the rear edge —
+          where the references mount them */}
       {[1, -1].map((side) => (
-        <RoundedBox key={side} args={[0.162, 0.029, 0.022]} radius={0.01} position={[1.2, -0.26, side * 0.982]}>
+        <RoundedBox key={side} args={[0.162, 0.029, 0.022]} radius={0.01} position={[1.26, 0.12, side * 0.982]}>
           {trimMaterial}
         </RoundedBox>
       ))}
@@ -589,19 +614,32 @@ export function Van({
           the blending occluder matching holes), so the crevice reads
           through any livery. Each strip is a hair wider/taller than its
           slit so no background ever peeks through the carve edge. */}
-      {[1, -1].map((side) => (
-        <group key={side}>
-          {DOOR_SEAMS.map((s) => (
+      {[1, -1].map((side) => {
+        const rTopX = rakedSeamX(RAKED_SEAM.topY)
+        const rakedLen = Math.hypot(RAKED_SEAM.bottomX - rTopX, RAKED_SEAM.topY - RAKED_SEAM.bottomY)
+        const rakedAngle = Math.atan2(RAKED_SEAM.topY - RAKED_SEAM.bottomY, rTopX - RAKED_SEAM.bottomX)
+        return (
+          <group key={side}>
+            {DOOR_SEAMS.map((s) => (
+              <mesh
+                key={`${s.minX}${s.minY}`}
+                position={[(s.minX + s.maxX) / 2, (s.minY + s.maxY) / 2, side * 0.9715]}
+              >
+                <boxGeometry args={[s.maxX - s.minX + 0.008, s.maxY - s.minY + 0.008, 0.01]} />
+                <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
+              </mesh>
+            ))}
+            {/* raked front seam strip, rotated along the A-pillar slope */}
             <mesh
-              key={`${s.minX}${s.minY}`}
-              position={[(s.minX + s.maxX) / 2, (s.minY + s.maxY) / 2, side * 0.9715]}
+              position={[(rTopX + RAKED_SEAM.bottomX) / 2, (RAKED_SEAM.topY + RAKED_SEAM.bottomY) / 2, side * 0.9715]}
+              rotation-z={rakedAngle}
             >
-              <boxGeometry args={[s.maxX - s.minX + 0.01, s.maxY - s.minY + 0.01, 0.01]} />
+              <boxGeometry args={[rakedLen + 0.008, RAKED_SEAM.half * 2 + 0.008, 0.01]} />
               <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
             </mesh>
-          ))}
-        </group>
-      ))}
+          </group>
+        )
+      })}
 
       {/* curb-side sliding-door track groove, from behind the door to the
           rear quarter — above the panel wrap's top edge (y 1.10), and held

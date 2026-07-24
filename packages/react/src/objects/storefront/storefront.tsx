@@ -104,6 +104,9 @@ export function Storefront({
 
   const corniceY = fascia.y + fascia.height / 2 + 0.05
   const riserTop = -standHeight + riser.height
+  // Corner pilasters end AT the pavement — no leg stubs lifting the shop.
+  const postTop = fascia.y + fascia.height / 4 + 0.35
+  const cornerPost = { height: postTop + standHeight, y: (postTop - standHeight) / 2 }
   const windowH = win.top - riserTop
   const frontZ = body.depth / 2
   // front window glazing extent (the door bay sits to its right)
@@ -149,7 +152,7 @@ export function Storefront({
           <meshPhysicalMaterial {...paint} />
         </RoundedBox>
         {([1, -1] as const).map((s) => (
-          <RoundedBox key={s} args={[0.16, fascia.y - riserTop + fascia.height / 2 + riser.height + 0.4, 0.14]} radius={0.015} position={[s * (faceLen / 2 - 0.08), (fascia.y + -standHeight) / 2 + 0.15, faceDist + 0.02]}>
+          <RoundedBox key={s} args={[0.16, cornerPost.height, 0.14]} radius={0.015} position={[s * (faceLen / 2 - 0.08), cornerPost.y, faceDist + 0.02]}>
             <meshPhysicalMaterial {...paint} />
           </RoundedBox>
         ))}
@@ -237,7 +240,7 @@ export function Storefront({
         <meshPhysicalMaterial {...paint} />
       </RoundedBox>
       {([1, -1] as const).map((s) => (
-        <RoundedBox key={s} args={[0.16, fascia.y - riserTop + fascia.height / 2 + riser.height + 0.4, 0.14]} radius={0.015} position={[s * (body.width / 2 - 0.08), (fascia.y + -standHeight) / 2 + 0.15, frontZ + 0.02]}>
+        <RoundedBox key={s} args={[0.16, cornerPost.height, 0.14]} radius={0.015} position={[s * (body.width / 2 - 0.08), cornerPost.y, frontZ + 0.02]}>
           <meshPhysicalMaterial {...paint} />
         </RoundedBox>
       ))}

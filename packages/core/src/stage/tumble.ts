@@ -52,6 +52,22 @@ export class TumbleOrbit {
     this.pendingPitch += dy
   }
 
+  /**
+   * Pan the camera and target together in the view plane — the standard
+   * middle/right-drag behavior: the scene follows the cursor. Deltas are in
+   * CSS px; world units per px derive from the target distance and fov.
+   */
+  pan(camera: THREE.Camera, deltaX: number, deltaY: number, viewportHeight: number): void {
+    this.offset.copy(camera.position).sub(this.target)
+    const fov = (camera as THREE.PerspectiveCamera).fov ?? 40
+    const worldPerPx = (2 * this.offset.length() * Math.tan((fov * Math.PI) / 360)) / viewportHeight
+    this.right.crossVectors(camera.up, this.offset).normalize()
+    this.target.addScaledVector(this.right, -deltaX * worldPerPx)
+    this.target.addScaledVector(camera.up, deltaY * worldPerPx)
+    camera.position.copy(this.target).add(this.offset)
+    camera.lookAt(this.target)
+  }
+
   /** Multiply the camera's distance to the target by `factor` (clamped). */
   zoomBy(camera: THREE.Camera, factor: number): void {
     this.offset.copy(camera.position).sub(this.target)
