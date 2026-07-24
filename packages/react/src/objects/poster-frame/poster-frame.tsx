@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
-import { POSTER_FRAME } from '@area-mockups/core'
+import { POSTER_FRAME, posterFrameSpec, type PosterFrameSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -11,6 +11,12 @@ type GroupProps = ThreeElements['group']
 export interface PosterFrameProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Poster art — any React node. It fills the visible opening, full bleed. */
   children?: React.ReactNode
+  /**
+   * Physical sheet size in millimeters, e.g. `{ width: 610, height: 914 }`
+   * for 24" x 36" or `{ width: 594, height: 841 }` for A1. Defaults to the
+   * 457 x 610 mm (18" x 24") poster.
+   */
+  size?: PosterFrameSize
   /** Frame molding color. */
   color?: string
   /** Mount the art behind a 2.5" gallery matboard instead of full bleed. */
@@ -48,6 +54,7 @@ export interface PosterFrameProps extends Omit<GroupProps, 'children' | 'color'>
  */
 export function PosterFrame({
   children,
+  size,
   color = '#22262e',
   mat = false,
   matColor = '#f6f3ec',
@@ -60,7 +67,10 @@ export function PosterFrame({
   screenStyle,
   ...groupProps
 }: PosterFrameProps) {
-  const { poster, opening, frame, recess, matWidth } = POSTER_FRAME
+  const { poster, opening, frame, recess, matWidth } = React.useMemo(
+    () => (size ? posterFrameSpec(size) : POSTER_FRAME),
+    [size?.width, size?.height]
+  )
   const frameRef = React.useRef<THREE.Mesh>(null!)
   const backingRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(frameRef, backingRef)

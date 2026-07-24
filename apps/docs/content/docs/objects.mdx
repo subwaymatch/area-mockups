@@ -23,8 +23,8 @@ product dimensions — no GLB files, no hosting, no pop-in.
 | Product box | `ProductBox` | 190×265×55 mm retail carton | all six panels | 480×669 front |
 | Roll-up banner | `RollupBanner` | 850×2000 mm stand | banner graphic | 420×988 |
 | Billboard | `Billboard` | 14'×48' highway bulletin | vinyl face | 1200×350 |
-| City bus | `Bus` | 12.2×3.2×2.6 m transit bus | king-size ads both sides + tail ad + LED sign | 960×200 ad |
-| Cargo van | `Van` | 5.9×2.55×2.05 m panel van | wrap panels both sides + rear doors | 900×368 |
+| City bus | `Bus` | 12.2×3.2×2.6 m transit bus | king-size ads both sides + tail ad + LED sign, or full wraps (`coverage="full"`) | 960×200 ad |
+| Cargo van | `Van` | 5.9×2.55×2.05 m panel van | wrap panels both sides + rear doors, or full wraps (`coverage="full"`) | 900×368 |
 | Bus shelter | `BusShelter` | ~4.3×2.5×1.45 m shelter | backlit 6-sheet, both faces | 480×709 each |
 | Greeting card | `GreetingCard` | 127×178 mm folded A7 | covers + inside spread (4 faces) | 380×533 each |
 | Vinyl record | `VinylRecord` | 313 mm jacket + 302 mm LP | cover + back + both circular labels | 520×520 cover |
@@ -77,7 +77,7 @@ Several objects host more than one surface:
   panel sits under a lock-rod overlay like a real wrap.
 - **`MailerBox`** prints the top, front and end panels, with the packing
   tape overlaid on your print.
-- **`Storefront`** pairs the fascia sign (`children`) with a `windowPoster`
+- **`Storefront`** pairs the fascia sign (`children`) with live `windows`
   in the display glazing.
 - **`CustomBox`** prints all six faces of any-size rectangular boxes at one
   shared dpi.

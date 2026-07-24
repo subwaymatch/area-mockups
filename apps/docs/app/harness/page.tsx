@@ -3,14 +3,21 @@
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
+  BusMockup,
+  BusShelterMockup,
   FlipMockup,
   FoldMockup,
+  IDCardMockup,
   Laptop,
   type LaptopVariant,
+  MagazineMockup,
   MockupCanvas,
   MonitorMockup,
+  StorefrontMockup,
   Tablet,
   type TabletVariant,
+  TVSetMockup,
+  VanMockup,
   Watch,
   type WatchVariant,
 } from 'area-mockups'
@@ -21,11 +28,18 @@ import {
  * high-resolution frames for model-vs-photo comparisons.
  *
  * Params:
- *   device      tablet | monitor | flip            (default tablet)
+ *   device      tablet | monitor | flip | fold | watch | laptop
+ *               | bus | van | shelter | tv | idcard | store
+ *               | magazine (default tablet)
  *   variant     device variant id                  (tablet only)
  *   colorway    retail colorway id                 | color=#hex overrides
  *   orientation portrait | landscape               (tablet)
  *   open        1 | 0                              (flip)
+ *   coverage    panel | full                       (bus, van)
+ *   over        1 | 0 — wrap over the glass        (bus, default 1)
+ *   sign        LED text; '|' splits pages         (bus destination sign)
+ *   arrivals    LED text; '|' splits board rows    (shelter)
+ *   arrivalsBack LED text for the board's back     (shelter; defaults to mirror)
  *   rx, ry      device rotation in degrees         (default 0, 0)
  *   dist        camera distance in world units     (default per device)
  *   cy          camera height                      (default 0)
@@ -48,6 +62,8 @@ function HarnessScene() {
   const screen =
     params.get('screen') === 'dark' ? (
       <div style={{ width: '100%', height: '100%', background: '#000' }} />
+    ) : params.get('screen') === 'light' ? (
+      <div style={{ width: '100%', height: '100%', background: '#dfe3e8' }} />
     ) : (
       <div
         style={{
@@ -58,6 +74,142 @@ function HarnessScene() {
         }}
       />
     )
+
+  if (device === 'bus') {
+    const dist = Number(params.get('dist') ?? 11.8)
+    const sign = params.get('sign')
+    return (
+      <BusMockup
+        coverage={params.get('coverage') === 'full' ? 'full' : 'panel'}
+        wrapOverWindows={params.get('over') !== '0'}
+        color={color}
+        destinationSign={sign ? (sign.includes('|') ? sign.split('|') : sign) : undefined}
+        streetSideAd={screen}
+        rearAd={screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </BusMockup>
+    )
+  }
+
+  if (device === 'van') {
+    const dist = Number(params.get('dist') ?? 10.6)
+    return (
+      <VanMockup
+        coverage={params.get('coverage') === 'full' ? 'full' : 'panel'}
+        color={color}
+        streetSide={screen}
+        rear={screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </VanMockup>
+    )
+  }
+
+  if (device === 'shelter') {
+    const dist = Number(params.get('dist') ?? 11)
+    const arrivals = params.get('arrivals')
+    const arrivalsBack = params.get('arrivalsBack')
+    return (
+      <BusShelterMockup
+        arrivals={arrivals ? (arrivals.includes('|') ? arrivals.split('|') : arrivals) : undefined}
+        arrivalsBack={arrivalsBack ? (arrivalsBack.includes('|') ? arrivalsBack.split('|') : arrivalsBack) : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </BusShelterMockup>
+    )
+  }
+
+  if (device === 'tv') {
+    const dist = Number(params.get('dist') ?? 11.6)
+    return (
+      <TVSetMockup
+        size={params.get('inches') ? Number(params.get('inches')) : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </TVSetMockup>
+    )
+  }
+
+  if (device === 'store') {
+    const dist = Number(params.get('dist') ?? 12)
+    return (
+      <StorefrontMockup
+        windows={{ frontLeft: screen, frontRight: screen, door: screen, left: screen, right: screen, rear: screen }}
+        leftSign={screen}
+        rightSign={screen}
+        rearSign={screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </StorefrontMockup>
+    )
+  }
+
+  if (device === 'magazine') {
+    const dist = Number(params.get('dist') ?? 8.2)
+    return (
+      <MagazineMockup
+        glossy={params.get('glossy') === '1'}
+        back={params.get('back') === '1' ? screen : undefined}
+        spine={params.get('spine') === '0' ? undefined : screen}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </MagazineMockup>
+    )
+  }
+
+  if (device === 'idcard') {
+    const dist = Number(params.get('dist') ?? 6)
+    return (
+      <IDCardMockup
+        back={params.get('back') === '1' ? screen : undefined}
+        interactive={false}
+        dragToRotate={false}
+        controls={controls}
+        camera={{ position: [0, cy, dist], fov: 40 }}
+        shadows={shadows}
+        deviceProps={{ rotation: [rx, ry, 0] }}
+      >
+        {screen}
+      </IDCardMockup>
+    )
+  }
 
   if (device === 'monitor') {
     const dist = Number(params.get('dist') ?? 9.4)

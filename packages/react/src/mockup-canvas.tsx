@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Canvas, useFrame, useThree, type CanvasProps } from '@react-three/fiber'
 import { ContactShadows, Environment, Lightformer } from '@react-three/drei'
 import { TumbleControls, type TumbleControlsHandle } from './tumble-controls'
+import { BLENDING_CANVAS_Z } from './screen/device-screen'
 import {
   CONTACT_SHADOW,
   DEFAULT_CAMERA_FOV,
@@ -164,6 +165,22 @@ export function MockupCanvas({
     controlsRef.current?.zoomBy(factor)
   }
 
+  // Zoom readout: 100% is wherever the camera started; halving the orbit
+  // distance reads 200%. Fed by TumbleControls whenever the distance
+  // settles on a new value (buttons, wheel and pinch alike).
+  const [zoomPercent, setZoomPercent] = React.useState(100)
+  const baseDistance = React.useRef<number | null>(null)
+  const handleDistanceChange = React.useCallback((distance: number) => {
+    if (baseDistance.current === null) baseDistance.current = distance
+    const percent = Math.round((baseDistance.current / distance) * 100)
+    setZoomPercent((previous) => (previous === percent ? previous : percent))
+  }, [])
+
+  // Above the raised blending canvas (see BLENDING_CANVAS_Z) — a plain
+  // low z-index leaves the buttons visible through the transparent canvas
+  // but unclickable on devices using per-pixel screen compositing.
+  const overlayZ = BLENDING_CANVAS_Z + 10
+
   const canvas = (
     <Canvas
       className={className}
@@ -209,6 +226,7 @@ export function MockupCanvas({
           freeRotation={freeRotation}
           minDistance={orbitRange.min}
           maxDistance={orbitRange.max}
+          onDistanceChange={zoom ? handleDistanceChange : undefined}
         />
       )}
     </Canvas>
@@ -235,7 +253,7 @@ export function MockupCanvas({
     >
       {canvas}
       {fullscreen && (
-        <div style={{ position: 'absolute', right: 10, top: 10, zIndex: 30 }}>
+        <div style={{ position: 'absolute', right: 10, top: 10, zIndex: overlayZ }}>
           <button
             type="button"
             aria-label={isFullscreen ? 'Exit full screen' : 'View full screen'}
@@ -257,12 +275,25 @@ export function MockupCanvas({
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
-            zIndex: 30,
+            zIndex: overlayZ,
           }}
         >
           <button type="button" aria-label="Zoom in" style={OVERLAY_BUTTON_STYLE} onClick={() => zoomBy(0.8)}>
             +
           </button>
+          <div
+            aria-label="Zoom level"
+            style={{
+              alignSelf: 'center',
+              padding: '2px 0',
+              font: '600 10px/1 var(--font-mono, monospace)',
+              color: '#7c8492',
+              textAlign: 'center',
+              userSelect: 'none',
+            }}
+          >
+            {zoomPercent}%
+          </div>
           <button type="button" aria-label="Zoom out" style={OVERLAY_BUTTON_STYLE} onClick={() => zoomBy(1.25)}>
             −
           </button>

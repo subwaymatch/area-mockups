@@ -11,6 +11,7 @@ import {
   UsbC,
   EdgeSocket,
   cutGeometry,
+  mixedRoundedRectShape,
   stadiumCutter,
   holeCutter,
   USB_CUT_DEPTH,
@@ -43,7 +44,9 @@ export interface FlipProps extends Omit<GroupProps, 'children' | 'color'> {
    * Flex Mode pose: the halves pivot around the hinge line while the spine's
    * curved housing rolls into the gap between them, and your content bends
    * across the fold — e.g. `openAngle={100}` for the classic half-open
-   * standing pose. At intermediate angles the main display is composited
+   * standing pose. The pose is continuous from nearly shut to nearly flat;
+   * only ~0° snaps to the dedicated folded pose and ~177°+ to the
+   * flat-open one. At intermediate angles the main display is composited
    * from two planes, so stateful screen content is best kept simple.
    */
   openAngle?: number
@@ -147,9 +150,11 @@ export function Flip({
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#4a4f59'
   // Resolve the pose: an explicit fold angle wins over the boolean; the
   // extremes snap to the dedicated flat-open / folded-shut paths so the
-  // default renders are pixel-identical to before.
+  // default renders are pixel-identical to before. The flex rig pivots on
+  // the display surface, so the pose is continuous all the way down —
+  // only ~0° itself snaps to the dedicated folded pose.
   const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
-  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 3 ? 'closed' : 'flex'
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle < 0.5 ? 'closed' : 'flex'
   const isOpenFace = mode !== 'closed'
   const state = isOpenFace ? spec.open : spec.closed
   const { display } = state
@@ -160,6 +165,13 @@ export function Flip({
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const lowerBodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef, lowerBodyRef)
+  // Screens occlude against OTHER registered bodies only — see the fold's
+  // matching note: self-hits at oblique angles black out a visible display,
+  // and the backface culler already covers every behind-the-device view.
+  const otherOccludeRefs = React.useMemo(
+    () => occludeRefs.filter((ref) => ref !== bodyRef && ref !== lowerBodyRef),
+    [occludeRefs]
+  )
 
   const openBody = spec.open.body
   const half = spec.closed.body
@@ -189,27 +201,59 @@ export function Flip({
       ),
     [half, spec.bottomEdge]
   )
-  // Flex pose lower half: the same slab with the free-edge kit machined into
-  // its own bottom edge (the open-plane orientation, unlike the folded stack
-  // where that edge faces up).
+  // Flex pose halves: like the closed slabs but with nearly square corners
+  // along the fold edge (the display bends there — the real halves run
+  // straight into the hinge), so the two stay tight at the crease instead
+  // of opening rounded-corner gaps. The lower one also machines the
+  // free-edge kit into its own bottom edge (the open-plane orientation,
+  // unlike the folded stack where that edge faces up).
+  const flexSlab = React.useCallback(
+    (foldEdge: 'top' | 'bottom') => {
+      const rFree = half.radius - half.bevel
+      const rFold = 0.01
+      const corners =
+        foldEdge === 'bottom'
+          ? { tl: rFree, tr: rFree, br: rFold, bl: rFold }
+          : { tl: rFold, tr: rFold, br: rFree, bl: rFree }
+      const shape = mixedRoundedRectShape(
+        half.width - half.bevel * 2,
+        half.height - half.bevel * 2,
+        corners
+      )
+      const core = half.depth - half.bevel * 2
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: core,
+        bevelEnabled: true,
+        bevelThickness: half.bevel,
+        bevelSize: half.bevel,
+        bevelSegments: 4,
+        curveSegments: 16,
+      })
+      g.translate(0, 0, -core / 2)
+      return g
+    },
+    [half]
+  )
+  const flexUpperGeometry = React.useMemo(
+    () => (mode === 'flex' ? flexSlab('bottom') : null),
+    [mode, flexSlab]
+  )
   const flexLowerGeometry = React.useMemo(
     () =>
       mode === 'flex'
-        ? cutGeometry(
-            slabGeometry(half.width, half.height, half.radius, half.depth, half.bevel),
-            freeEdgeCutters(spec.bottomEdge, -half.height / 2)
-          )
+        ? cutGeometry(flexSlab('top'), freeEdgeCutters(spec.bottomEdge, -half.height / 2))
         : null,
-    [mode, half, spec.bottomEdge]
+    [mode, flexSlab, half, spec.bottomEdge]
   )
   React.useEffect(
     () => () => {
       openGeometry.dispose()
       halfGeometry.dispose()
       rearHalfGeometry.dispose()
+      flexUpperGeometry?.dispose()
       flexLowerGeometry?.dispose()
     },
-    [openGeometry, halfGeometry, rearHalfGeometry, flexLowerGeometry]
+    [openGeometry, halfGeometry, rearHalfGeometry, flexUpperGeometry, flexLowerGeometry]
   )
 
   const coverGlassGeometry = React.useMemo(
@@ -363,20 +407,30 @@ export function Flip({
     )
   }
 
-  // The rust-toned hinge band capping the folded bottom, with its engraving.
+  // The hinge spine capping the folded bottom: a horizontal capsule whose
+  // radius spans the WHOLE folded stack, so its crown is tangent to both
+  // the cover-screen face and the back face — the smooth rolled bottom of
+  // the retail teardrop hinge, sealing the stack's underside instead of
+  // reading as a thin separate rod — with the SAMSUNG engraving on its
+  // crown.
+  // A hair inside the stack's outer faces so the near-tangent surfaces
+  // never coincide (which would shimmer along the touch line).
+  const stackR = half.depth + spec.closed.gap / 2 - 0.002
   const hingeBand = (y: number) => (
     <group position={[0, y, 0]}>
-      <RoundedBox
-        args={[openBody.width - 0.03, spec.hinge.overhang + 0.05, spec.hinge.width]}
-        radius={Math.min(0.032, spec.hinge.width / 2 - 0.004)}
-      >
-        <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.4} />
-      </RoundedBox>
-      <mesh
-        geometry={hingeLogoGeometry}
-        rotation-x={Math.PI / 2}
-        position-y={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
-      >
+      <mesh rotation-z={Math.PI / 2}>
+        <capsuleGeometry args={[stackR, openBody.width - 0.03 - stackR * 2, 12, 32]} />
+        <meshPhysicalMaterial color={frameColor} metalness={0.75} roughness={0.36} />
+      </mesh>
+      {/* hairline seams where the roll meets the two faces — without them
+          the hinge bottom reads as one featureless pill */}
+      {([1, -1] as const).map((s) => (
+        <mesh key={s} position={[0, 0, s * (stackR + 0.0028)]}>
+          <boxGeometry args={[openBody.width - 0.03 - stackR, 0.012, 0.0012]} />
+          <meshStandardMaterial color="#101216" transparent opacity={0.55} roughness={0.7} />
+        </mesh>
+      ))}
+      <mesh geometry={hingeLogoGeometry} rotation-x={Math.PI / 2} position-y={-stackR - 0.002}>
         <meshPhysicalMaterial
           transparent
           opacity={0.45}
@@ -443,7 +497,7 @@ export function Flip({
       background={screenBackground}
       interactive={interactive}
       dragToRotate={dragToRotate}
-      occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+      occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
       screenStyle={screenStyle}
       overlay={
         mode === 'open' && punchHole ? (
@@ -484,14 +538,28 @@ export function Flip({
     // Armor FlexHinge spine is a separate rigid body: a cylinder segment the
     // halves' back shells progressively cover as the device opens.
     const alpha = ((180 - angle) / 2) * (Math.PI / 180)
-    const pz = openBody.depth / 2 - 0.015
+    // Pivot ON the display surface: the two half-screens then meet exactly
+    // at the crease at every angle — nearly shut included — instead of
+    // interpenetrating (crossed DOM planes glitch near 0°).
+    const pz = openBody.depth / 2 + 0.006
     const halfH = half.height
-    // Spine housing: radius ≈ the real 6.85 mm exterior curve, spanning the
-    // rails; only the back wedge between the two tilted halves is drawn.
-    const spineR = 0.175
-    const spineLen = openBody.width - 0.2
-    const wedge = 2 * alpha + 0.5
-    const spineTheta = Math.PI - wedge / 2
+    // Below ~26° the whole rig glides into the folded pose's canonical
+    // placement — fold the assembly forward around the hinge, half-turn it
+    // upright in-plane, re-center — converging exactly where the dedicated
+    // closed pose renders, so the ~0° swap never jumps. Identity above 26°.
+    const w = THREE.MathUtils.smoothstep(26 - angle, 0, 26)
+    // Spine housing: a cylinder segment tangent to both halves' back shells.
+    // The halves pivot on the display's neutral plane, so their back faces
+    // stay a constant `spineR` from the axis at every angle — the exposed
+    // wedge spans exactly ±alpha and meets each back edge seamlessly, from
+    // nearly-shut to nearly-flat, like the real teardrop hinge.
+    // Run the spine and its caps essentially edge to edge — the halves'
+    // fold-side corners are square now, so a shorter spine would show the
+    // V's interior past its ends at shallow angles (the detached-pill read).
+    const spineR = pz + half.depth / 2
+    const spineLen = openBody.width - 0.03
+    const wedge = 2 * alpha
+    const spineTheta = Math.PI - alpha
     // Screen halves: the fold splits the panel at the hinge line; each plane
     // shows its half of one shared virtual viewport via a clipped wrapper.
     const r = display.radius
@@ -516,7 +584,7 @@ export function Flip({
           background={screenBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
           overlay={
             <>
@@ -557,11 +625,19 @@ export function Flip({
 
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="flex" rotation-z={landscape ? Math.PI / 2 : 0}>
+          {/* convergence chain: re-center → half-turn upright in-plane
+              around the folding compact's center → fold the assembly
+              forward around the hinge line — all weighted by `w` */}
+          <group position={[0, (halfH / 2) * w, -pz * w]}>
+          <group position={[0, -halfH / 2, pz]} rotation-z={Math.PI * w}>
+          <group position={[0, halfH / 2, -pz]}>
+          <group position={[0, 0, pz]} rotation-x={alpha * w}>
+          <group position={[0, 0, -pz]}>
           {/* upper (cover) half folds toward the viewer around the hinge */}
           <group position={[0, 0, pz]} rotation-x={alpha}>
             <group position={[0, halfH / 2, -pz]}>
-              <mesh ref={bodyRef} geometry={halfGeometry}>
+              <mesh ref={bodyRef} geometry={flexUpperGeometry ?? halfGeometry}>
                 <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.32} />
               </mesh>
               <mesh geometry={coverGlassGeometry} rotation-y={Math.PI} position-z={-half.depth / 2 - 0.002}>
@@ -591,32 +667,40 @@ export function Flip({
 
           {/* the spine housing rolling into the wedge between the halves —
               frame-colored but glossier than the satin rails, with the
-              tone-on-tone SAMSUNG engraving centered on the band face */}
+              tone-on-tone SAMSUNG engraving centered on the band face while
+              the exposed wedge is wide enough to carry it */}
           <group position={[0, 0, pz]}>
             <mesh rotation-z={Math.PI / 2}>
               <cylinderGeometry args={[spineR, spineR, spineLen, 48, 1, true, spineTheta, wedge]} />
               <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.22} clearcoat={0.4} side={THREE.DoubleSide} />
             </mesh>
-            <mesh geometry={hingeLogoGeometry} rotation-y={Math.PI} position={[0, 0, -spineR - 0.003]}>
-              <meshPhysicalMaterial
-                transparent
-                opacity={0.45}
-                color="#33363c"
-                metalness={0.7}
-                roughness={0.35}
-                polygonOffset
-                polygonOffsetFactor={-1}
-              />
-            </mesh>
-            {/* dark neutral end-cap wedges between the converging rails */}
+            {2 * spineR * Math.sin(alpha) > spec.hinge.emboss.length * 0.155 + 0.05 && (
+              <mesh geometry={hingeLogoGeometry} rotation-y={Math.PI} position={[0, 0, -spineR - 0.002]}>
+                <meshPhysicalMaterial
+                  transparent
+                  opacity={0.45}
+                  color="#33363c"
+                  metalness={0.7}
+                  roughness={0.35}
+                  polygonOffset
+                  polygonOffsetFactor={-1}
+                />
+              </mesh>
+            )}
+            {/* frame-metal sector caps closing the fold's V at both ends */}
             {([1, -1] as const).map((s) => (
               <mesh key={s} rotation-y={s * (Math.PI / 2)} position={[s * (spineLen / 2 + 0.004), 0, 0]}>
                 {/* local theta 0 lands on world -z (the wedge center) for the
                     +x cap and on +z for the -x cap — start each accordingly */}
-                <circleGeometry args={[spineR * 0.98, 32, s === 1 ? -wedge / 2 : Math.PI - wedge / 2, wedge]} />
-                <meshPhysicalMaterial color="#26282d" metalness={0.5} roughness={0.4} side={THREE.DoubleSide} />
+                <circleGeometry args={[spineR * 0.995, 32, s === 1 ? -wedge / 2 : Math.PI - wedge / 2, wedge]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.7} roughness={0.38} side={THREE.DoubleSide} />
               </mesh>
             ))}
+          </group>
+          </group>
+          </group>
+          </group>
+          </group>
           </group>
         </group>
       </group>
@@ -626,7 +710,7 @@ export function Flip({
   if (mode === 'open') {
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="open" rotation-z={landscape ? Math.PI / 2 : 0}>
           {/* chassis */}
           <mesh ref={bodyRef} geometry={openGeometry}>
             <meshPhysicalMaterial color={frameColor} metalness={0.85} roughness={0.32} />
@@ -691,7 +775,7 @@ export function Flip({
 
   return (
     <group {...groupProps}>
-      <group rotation-z={landscape ? Math.PI / 2 : 0}>
+      <group key="closed" rotation-z={landscape ? Math.PI / 2 : 0}>
         {/* front half (cover screen + cameras) and rear half, with the air gap */}
         <group position-z={halfZ}>
           <mesh ref={bodyRef} geometry={halfGeometry}>
@@ -713,8 +797,9 @@ export function Flip({
         {/* the lower half's edge kit lands on the TOP edge when folded */}
         <group position-z={-halfZ}>{freeEdgeKit(half.height / 2)}</group>
 
-        {/* hinge band capping the bottom */}
-        {hingeBand(stackBottom - spec.hinge.overhang / 2 - 0.006)}
+        {/* hinge spine capping the bottom — crown reaching the scan's
+            overhang below the stack */}
+        {hingeBand(stackBottom - spec.hinge.overhang + stackR)}
 
         {endSeams([half.height / 2 - spec.endSeamInset], half.depth)}
       </group>

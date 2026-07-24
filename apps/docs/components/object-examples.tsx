@@ -44,6 +44,8 @@ import {
 } from 'area-mockups'
 import { LazyScene } from './lazy-scene'
 import { withPreviewControls } from './preview-controls'
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock'
+import { DEMO_SOURCES } from '../lib/demo-sources.generated'
 import {
   ArrivalsBoardArt,
   BadgeBackArt,
@@ -55,6 +57,7 @@ import {
   BagArt,
   BannerArt,
   MagazineBackArt,
+  MagazineSpineArt,
   MailerBottomArt,
   MailerEndArt,
   BillboardAdArt,
@@ -129,6 +132,105 @@ function FullSideLivery() {
       <div style={{ position: 'absolute', top: 118, left: 58, fontSize: 25, fontWeight: 600, opacity: 0.88 }}>
         Small-group trips into the high country · ridgeline.example
       </div>
+    </div>
+  )
+}
+
+/**
+ * Full-bleed transit-wrap livery for the bus's `coverage="full"` demo — a
+ * long 4.2:1 canvas. The color field and type deliberately run across the
+ * passenger-window band (real wraps use perforated film there), while the
+ * carved doors and driver's window punch through it.
+ */
+function BusFullLivery() {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        background: 'linear-gradient(100deg, #14375c 0%, #1d5d8f 46%, #2fa3a0 100%)',
+        color: '#eefbf7',
+        fontFamily: 'inherit',
+      }}
+    >
+      <svg
+        viewBox="0 0 1920 455"
+        preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+        aria-hidden
+      >
+        <path d="M0 455 L0 330 C 320 240 560 400 880 320 C 1200 240 1440 380 1920 260 L1920 455 Z" fill="rgba(9, 26, 40, 0.45)" />
+        <path d="M0 300 C 320 210 560 370 880 290 C 1200 210 1440 350 1920 230" fill="none" stroke="#7fe3d2" strokeWidth="9" />
+        <circle cx="1620" cy="120" r="62" fill="#f4c944" />
+      </svg>
+      <div style={{ position: 'absolute', top: 60, left: 90, fontSize: 96, fontWeight: 800, letterSpacing: -3, lineHeight: 1 }}>
+        CLEANER AIR <span style={{ color: '#8ff0da' }}>FOR ALL</span>
+      </div>
+      <div style={{ position: 'absolute', top: 175, left: 94, fontSize: 30, fontWeight: 600, opacity: 0.9 }}>
+        Every ride is zero-emission · transit.example/electric
+      </div>
+    </div>
+  )
+}
+
+/** Matching tail wrap for the bus's full-coverage demo. */
+function BusTailLivery() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        background: 'linear-gradient(160deg, #1d5d8f 0%, #14375c 100%)',
+        color: '#eefbf7',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 40, fontWeight: 800, letterSpacing: -1 }}>ZERO EMISSION</div>
+      <div style={{ fontSize: 18, fontWeight: 600, opacity: 0.85 }}>transit.example/electric</div>
+      <div style={{ width: '52%', height: 8, background: '#7fe3d2', borderRadius: 4 }} />
+    </div>
+  )
+}
+
+/**
+ * Chroma-key fill for the "mockup-able areas" example on each API page:
+ * broadcast green with the surface's prop name printed across it, so users
+ * can see exactly where each prop's content lands (and what stays 3D).
+ */
+function ChromaSurface({ label }: { label: string }) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        background: '#00b140',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        containerType: 'size',
+        overflow: 'hidden',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: 'ui-monospace, monospace',
+          fontWeight: 700,
+          fontSize: 'min(11cqw, 34cqh)',
+          color: '#063d1e',
+          letterSpacing: '0.05em',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {label}
+      </span>
     </div>
   )
 }
@@ -374,6 +476,11 @@ const DEMOS: Record<string, React.ReactNode> = {
       <MagazineCoverArt />
     </MagazineMockup>
   ),
+  'magazine-spine': (
+    <MagazineMockup spine={<MagazineSpineArt />} back={<MagazineBackArt />} deviceProps={{ rotation: [0, 0.95, 0] }}>
+      <MagazineCoverArt />
+    </MagazineMockup>
+  ),
   'magazine-stock': (
     <MagazineMockup pageColor="#efeadd" backColor="#101319" float deviceProps={{ rotation: [0, 0.3, 0] }}>
       <MiniCover title="Monochrome, issue 12" from="#20242c" to="#0b0d12" />
@@ -397,6 +504,14 @@ const DEMOS: Record<string, React.ReactNode> = {
     <BrochureMockup paperColor="#e9e4d8" float deviceProps={{ rotation: [0, 0.25, 0] }}>
       <BrochureFrontArt />
     </BrochureMockup>
+  ),
+  'brochure-both-sides': (
+    <BrochureMockup
+      panels={[<BrochureFrontArt key="f" />, <BrochureTrailsArt key="t" />, <BrochureVisitArt key="v" />]}
+      backPanels={[<BrochureTrailsArt key="bf" />, <BrochureVisitArt key="bt" />, <BrochureFrontArt key="bv" />]}
+      autoRotate
+      autoRotateSpeed={0.8}
+    />
   ),
 
   // ---- Business card -----------------------------------------------------
@@ -478,6 +593,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       coverage="full"
       streetSide={<FullSideLivery />}
       rear={<VanRearArt />}
+      licensePlate="RGL 4×4"
       deviceProps={{ rotation: [0, -0.42, 0] }}
     >
       <FullSideLivery />
@@ -518,9 +634,34 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Bus --------------------------------------------------------------------
   'bus-basic': (
-    <BusMockup destinationSign={<DestinationArt />} deviceProps={{ rotation: [0, 0.35, 0] }}>
+    <BusMockup
+      destinationSign={['42 DOWNTOWN', 'VIA 5TH AVE']}
+      deviceProps={{ rotation: [0, 0.35, 0] }}
+    >
       <BusAdArt />
     </BusMockup>
+  ),
+  'bus-full': (
+    <BusMockup
+      coverage="full"
+      destinationSign={['12 EASTBROOK', 'VIA HARBOR FRONT']}
+      streetSideAd={<BusFullLivery />}
+      rearAd={<BusTailLivery />}
+      deviceProps={{ rotation: [0, 0.42, 0] }}
+    >
+      <BusFullLivery />
+    </BusMockup>
+  ),
+  'bus-full-clear': (
+    <BusMockup
+      coverage="full"
+      wrapOverWindows={false}
+      destinationSign="7 CROSSTOWN"
+      curbSideAd={<BusFullLivery />}
+      streetSideAd={<BusFullLivery />}
+      rearAd={<BusTailLivery />}
+      deviceProps={{ rotation: [0, 0.42, 0] }}
+    />
   ),
   'bus-rear': (
     <BusMockup
@@ -533,7 +674,13 @@ const DEMOS: Record<string, React.ReactNode> = {
     </BusMockup>
   ),
   'bus-livery': (
-    <BusMockup color="#1d4433" adBackground="#f4c534" autoRotate autoRotateSpeed={0.6} destinationSign={<DestinationArt />}>
+    <BusMockup
+      color="#1d4433"
+      adBackground="#f4c534"
+      autoRotate
+      autoRotateSpeed={0.6}
+      destinationSign="42 GREENWAY · NEXT STOP CANAL ST · EXACT FARE PLEASE"
+    >
       <BusAdArt />
     </BusMockup>
   ),
@@ -572,10 +719,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   'banner-pair': (
     <MockupCanvas camera={{ position: [0, 0.4, 9.8], fov: 40 }} shadowY={-2.05}>
       <group position={[0, 0.14, 0]}>
-        <RollupBanner position={[-1.55, 0, -0.4]} rotation={[0, 0.3, 0]}>
+        <RollupBanner position={[-1.75, 0, -0.4]} rotation={[0, 0.3, 0]}>
           <BannerArt />
         </RollupBanner>
-        <RollupBanner color="#31343a" position={[1.55, 0, 0]} rotation={[0, -0.15, 0]}>
+        {/* the wide 1000×2000 stand via `size` — the cassette resizes with it */}
+        <RollupBanner size={{ width: 1000 }} color="#31343a" position={[1.55, 0, 0]} rotation={[0, -0.15, 0]}>
           <BannerArt />
         </RollupBanner>
       </group>
@@ -584,7 +732,10 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Bus shelter ---------------------------------------------------------------
   'shelter-basic': (
-    <BusShelterMockup arrivals={<ArrivalsBoardArt />} deviceProps={{ rotation: [0, -0.55, 0] }}>
+    <BusShelterMockup
+      arrivals={['12  Harbor Loop      2 min', '4X  Union Sq Express  7 min', '31  Larchmont        12 min']}
+      deviceProps={{ rotation: [0, -0.55, 0] }}
+    >
       <PosterArt />
     </BusShelterMockup>
   ),
@@ -663,12 +814,31 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Storefront ---------------------------------------------------------------------
   'storefront-basic': (
-    <StorefrontMockup windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <StorefrontMockup windows={{ frontLeft: <StorePosterArt />, frontRight: <StorePosterArt /> }} deviceProps={{ rotation: [0, -0.25, 0] }}>
       <StoreSignArt />
     </StorefrontMockup>
   ),
   'storefront-paint': (
-    <StorefrontMockup color="#5c2330" wallColor="#6d6258" windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <StorefrontMockup color="#5c2330" windows={{ frontLeft: <StorePosterArt />, door: <StorePosterArt /> }} deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <StoreSignArt />
+    </StorefrontMockup>
+  ),
+  'storefront-around': (
+    <StorefrontMockup
+      windows={{
+        frontLeft: <StorePosterArt />,
+        frontRight: <StorePosterArt />,
+        door: <StorePosterArt />,
+        left: <StorePosterArt />,
+        right: <StorePosterArt />,
+        rear: <StorePosterArt />,
+      }}
+      leftSign={<StoreSignArt />}
+      rightSign={<StoreSignArt />}
+      rearSign={<StoreSignArt />}
+      autoRotate
+      autoRotateSpeed={1.2}
+    >
       <StoreSignArt />
     </StorefrontMockup>
   ),
@@ -790,6 +960,241 @@ const DEMOS: Record<string, React.ReactNode> = {
       <GalaxyWatchFace />
     </WatchMockup>
   ),
+
+  // ---- Chroma surface maps: every mockup-able area in chroma green -----------
+  'chroma-phone': (
+    <PhoneMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </PhoneMockup>
+  ),
+  'chroma-iphone': (
+    <IPhoneMockup deviceProps={{ rotation: [0, 0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </IPhoneMockup>
+  ),
+  'chroma-laptop': (
+    <LaptopMockup deviceProps={{ rotation: [0.05, -0.35, 0] }}>
+      <ChromaSurface label="children" />
+    </LaptopMockup>
+  ),
+  'chroma-tablet': (
+    <TabletMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </TabletMockup>
+  ),
+  'chroma-watch': (
+    <WatchMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+      <ChromaSurface label="children" />
+    </WatchMockup>
+  ),
+  'chroma-monitor': (
+    <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </MonitorMockup>
+  ),
+  'chroma-fold': (
+    <FoldMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </FoldMockup>
+  ),
+  'chroma-flip': (
+    <FlipMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+      <ChromaSurface label="children" />
+    </FlipMockup>
+  ),
+  'chroma-tv': (
+    <TVSetMockup deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <ChromaSurface label="children" />
+    </TVSetMockup>
+  ),
+  'chroma-book': (
+    <BookMockup back={<ChromaSurface label="back" />} spine={<ChromaSurface label="spine" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </BookMockup>
+  ),
+  'chroma-magazine': (
+    <MagazineMockup back={<ChromaSurface label="back" />} spine={<ChromaSurface label="spine" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </MagazineMockup>
+  ),
+  'chroma-brochure': (
+    <BrochureMockup
+      panels={[<ChromaSurface key="0" label="panels[0]" />, <ChromaSurface key="1" label="panels[1]" />, <ChromaSurface key="2" label="panels[2]" />]}
+      backPanels={[<ChromaSurface key="0" label="backPanels[0]" />, <ChromaSurface key="1" label="backPanels[1]" />, <ChromaSurface key="2" label="backPanels[2]" />]}
+      autoRotate
+      autoRotateSpeed={0.8}
+    />
+  ),
+  'chroma-card': (
+    <BusinessCardMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </BusinessCardMockup>
+  ),
+  'chroma-poster': (
+    <PosterFrameMockup deviceProps={{ rotation: [0, -0.2, 0] }}>
+      <ChromaSurface label="children" />
+    </PosterFrameMockup>
+  ),
+  'chroma-billboard': (
+    <BillboardMockup deviceProps={{ rotation: [0, -0.15, 0] }}>
+      <ChromaSurface label="children" />
+    </BillboardMockup>
+  ),
+  'chroma-van': (
+    <VanMockup
+      coverage="full"
+      streetSide={<ChromaSurface label="streetSide" />}
+      rear={<ChromaSurface label="rear" />}
+      licensePlate={<ChromaSurface label="licensePlate" />}
+      autoRotate
+      autoRotateSpeed={0.6}
+    >
+      <ChromaSurface label="curbSide" />
+    </VanMockup>
+  ),
+  'chroma-id-card': (
+    <IDCardMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </IDCardMockup>
+  ),
+  'chroma-bus': (
+    <BusMockup
+      coverage="full"
+      streetSideAd={<ChromaSurface label="streetSideAd" />}
+      rearAd={<ChromaSurface label="rearAd" />}
+      destinationSign={<ChromaSurface label="destinationSign" />}
+      autoRotate
+      autoRotateSpeed={0.6}
+    >
+      <ChromaSurface label="curbSideAd" />
+    </BusMockup>
+  ),
+  'chroma-box': (
+    <ProductBoxMockup
+      side={<ChromaSurface label="side" />}
+      left={<ChromaSurface label="left" />}
+      top={<ChromaSurface label="top" />}
+      bottom={<ChromaSurface label="bottom" />}
+      back={<ChromaSurface label="back" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </ProductBoxMockup>
+  ),
+  'chroma-banner': (
+    <RollupBannerMockup deviceProps={{ rotation: [0, 0.2, 0] }}>
+      <ChromaSurface label="children" />
+    </RollupBannerMockup>
+  ),
+  'chroma-shelter': (
+    <BusShelterMockup
+      inner={<ChromaSurface label="inner" />}
+      arrivals={<ChromaSurface label="arrivals" />}
+      arrivalsBack={<ChromaSurface label="arrivalsBack" />}
+      deviceProps={{ rotation: [0, -0.55, 0] }}
+    >
+      <ChromaSurface label="children" />
+    </BusShelterMockup>
+  ),
+  'chroma-greeting': (
+    <GreetingCardMockup
+      backCover={<ChromaSurface label="backCover" />}
+      insideLeft={<ChromaSurface label="insideLeft" />}
+      insideRight={<ChromaSurface label="insideRight" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </GreetingCardMockup>
+  ),
+  'chroma-vinyl': (
+    <VinylRecordMockup
+      back={<ChromaSurface label="back" />}
+      label={<ChromaSurface label="label" />}
+      backLabel={<ChromaSurface label="backLabel" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </VinylRecordMockup>
+  ),
+  'chroma-a-frame': (
+    <AFrameSignMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </AFrameSignMockup>
+  ),
+  'chroma-dooh': (
+    <DOOHTotemMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.7}>
+      <ChromaSurface label="children" />
+    </DOOHTotemMockup>
+  ),
+  'chroma-storefront': (
+    <StorefrontMockup
+      windows={{
+        frontLeft: <ChromaSurface label="windows.frontLeft" />,
+        frontRight: <ChromaSurface label="windows.frontRight" />,
+        door: <ChromaSurface label="windows.door" />,
+        left: <ChromaSurface label="windows.left" />,
+        right: <ChromaSurface label="windows.right" />,
+        rear: <ChromaSurface label="windows.rear" />,
+      }}
+      leftSign={<ChromaSurface label="leftSign" />}
+      rightSign={<ChromaSurface label="rightSign" />}
+      rearSign={<ChromaSurface label="rearSign" />}
+      autoRotate
+      autoRotateSpeed={0.7}
+    >
+      <ChromaSurface label="children" />
+    </StorefrontMockup>
+  ),
+  'chroma-semi': (
+    <SemiTrailerMockup
+      streetSide={<ChromaSurface label="streetSide" />}
+      rear={<ChromaSurface label="rear" />}
+      autoRotate
+      autoRotateSpeed={0.6}
+    >
+      <ChromaSurface label="children" />
+    </SemiTrailerMockup>
+  ),
+  'chroma-mailer': (
+    <MailerBoxMockup
+      front={<ChromaSurface label="front" />}
+      back={<ChromaSurface label="back" />}
+      side={<ChromaSurface label="side" />}
+      left={<ChromaSurface label="left" />}
+      bottom={<ChromaSurface label="bottom" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </MailerBoxMockup>
+  ),
+  'chroma-bag': (
+    <ShoppingBagMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </ShoppingBagMockup>
+  ),
+  'chroma-custom-panel': (
+    <CustomPanelMockup size={{ width: 600, height: 400 }} back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+      <ChromaSurface label="children" />
+    </CustomPanelMockup>
+  ),
+  'chroma-custom-box': (
+    <CustomBoxMockup
+      size={{ width: 300, height: 220, depth: 160 }}
+      back={<ChromaSurface label="back" />}
+      left={<ChromaSurface label="left" />}
+      right={<ChromaSurface label="right" />}
+      top={<ChromaSurface label="top" />}
+      bottom={<ChromaSurface label="bottom" />}
+      autoRotate
+      autoRotateSpeed={0.8}
+    >
+      <ChromaSurface label="children" />
+    </CustomBoxMockup>
+  ),
 }
 
 /**
@@ -810,9 +1215,23 @@ export function ObjectDemo({
 }) {
   const scene = DEMOS[demo]
   if (!scene) return <p>Unknown demo: {demo}</p>
+  const sources = DEMO_SOURCES[demo]
   return (
-    <div className={`object-demo${checker ? ' object-demo--checker' : ''}`} style={{ height }}>
-      <LazyScene>{withPreviewControls(scene)}</LazyScene>
-    </div>
+    <>
+      <div className={`object-demo${checker ? ' object-demo--checker' : ''}`} style={{ height }}>
+        <LazyScene>{withPreviewControls(scene)}</LazyScene>
+      </div>
+      {sources && (
+        <details className="object-demo-source">
+          <summary>View the full TSX behind this demo</summary>
+          {sources.map((part) => (
+            <div key={part.name} className="object-demo-source-part">
+              {part.name !== 'Demo' && <p className="object-demo-source-name">{part.name}</p>}
+              <DynamicCodeBlock lang="tsx" code={part.code} />
+            </div>
+          ))}
+        </details>
+      )}
+    </>
   )
 }

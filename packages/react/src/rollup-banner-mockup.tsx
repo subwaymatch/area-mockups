@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { RollupBanner, type RollupBannerProps } from './objects/rollup-banner/rollup-banner'
-import { ROLLUP_BANNER } from '@area-mockups/core'
+import { ROLLUP_BANNER, rollupBannerSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   RollupBannerProps,
+  | 'size'
   | 'color'
   | 'graphicBackground'
   | 'resolution'
@@ -44,6 +45,7 @@ const STAGE_OFFSET_Y = 0.14
  */
 export function RollupBannerMockup({
   children,
+  size,
   color,
   graphicBackground,
   resolution,
@@ -57,6 +59,7 @@ export function RollupBannerMockup({
 }: RollupBannerMockupProps) {
   const object = (
     <RollupBanner
+      size={size}
       color={color}
       graphicBackground={graphicBackground}
       resolution={resolution}
@@ -71,7 +74,7 @@ export function RollupBannerMockup({
   )
 
   // The cassette defines the floor; ground the shadow just under it.
-  const floorY = STAGE_OFFSET_Y - ROLLUP_BANNER.standHeight
+  const floorY = STAGE_OFFSET_Y - (size ? rollupBannerSpec(size) : ROLLUP_BANNER).standHeight
   const shadowY = canvasProps.shadowY ?? (float ? floorY - 0.25 : floorY - 0.02)
 
   return (

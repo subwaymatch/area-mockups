@@ -1,7 +1,7 @@
 import * as React from 'react'
 import type * as THREE from 'three'
 import type { ThreeElements } from '@react-three/fiber'
-import { BROCHURE } from '@area-mockups/core'
+import { BROCHURE, brochureSpec, type BrochureSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
 
@@ -21,6 +21,12 @@ export interface BrochureProps extends Omit<GroupProps, 'children' | 'color'> {
    * undefined show bare `paperColor` stock.
    */
   backPanels?: [React.ReactNode?, React.ReactNode?, React.ReactNode?]
+  /**
+   * One panel's physical size in millimeters, e.g.
+   * `{ width: 99, height: 210 }` for an A4 tri-fold. Defaults to the US
+   * letter Z-fold panel (93 x 216 mm).
+   */
+  size?: BrochureSize
   /** Zig-zag fold angle in degrees. `0` lays the sheet out flat. */
   foldAngle?: number
   /** Paper color of the panel backs and edges. */
@@ -55,6 +61,7 @@ export function Brochure({
   children,
   panels,
   backPanels,
+  size,
   foldAngle = BROCHURE.foldAngle,
   paperColor = '#f5f4f0',
   panelBackground = '#ffffff',
@@ -65,7 +72,10 @@ export function Brochure({
   screenStyle,
   ...groupProps
 }: BrochureProps) {
-  const { panel } = BROCHURE
+  const { panel } = React.useMemo(
+    () => (size ? brochureSpec(size) : BROCHURE),
+    [size?.width, size?.height]
+  )
   const refs = [
     React.useRef<THREE.Mesh>(null!),
     React.useRef<THREE.Mesh>(null!),

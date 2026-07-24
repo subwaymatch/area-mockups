@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { MAGAZINE } from '@area-mockups/core'
+import { MAGAZINE, magazineSpec, type MagazineSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -12,13 +12,30 @@ type GroupProps = ThreeElements['group']
 export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Cover art — any React node. It fills the whole front cover, full bleed. */
   children?: React.ReactNode
-  /** Back cover design — full bleed, with the same glossy stock sheen. */
+  /** Back cover design — full bleed, on the same cover stock. */
   back?: React.ReactNode
+  /**
+   * Spine print — the narrow bound-edge strip where magazines carry the
+   * title and issue number. Content is rotated to read top-to-bottom like
+   * a real shelf spine: your DOM's left edge lands at the spine's top and
+   * its top edge faces the front cover.
+   */
+  spine?: React.ReactNode
+  /**
+   * Physical trim size in millimeters, e.g. `{ width: 210, height: 297 }`
+   * for A4 or `{ thickness: 12 }` for a thick issue. Defaults to the
+   * 216 x 279 x 6 mm US letter trim.
+   */
+  size?: MagazineSize
   /** Paper color of the trimmed page edges. */
   pageColor?: string
   /** Back cover color (the unprinted default is a light stock gray). */
   backColor?: string
-  /** Glossy cover stock: a soft diagonal sheen over the cover art. */
+  /**
+   * Glossy cover stock: a soft diagonal sheen over the cover art and a
+   * clearcoat on the spine and back. Off by default — the default stock
+   * is matte paper, flat under any light.
+   */
   glossy?: boolean
   /** CSS background painted behind your cover content. */
   coverBackground?: string
@@ -40,17 +57,20 @@ export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
 
 /**
  * A procedurally built perfect-bound magazine: a thin letter-trim page block
- * with visible paper edges, a flat glued spine, and live full-bleed glossy
- * front and back covers. No 3D asset files are loaded.
+ * with visible paper edges, a flat glued spine, and live full-bleed front
+ * and back covers on matte stock (opt into `glossy` for a sheen). No 3D
+ * asset files are loaded.
  *
  * Must be rendered inside a react-three-fiber `<Canvas>` (or `<MockupCanvas>`).
  */
 export function Magazine({
   children,
   back,
+  spine,
+  size,
   pageColor = '#fbfaf7',
   backColor = '#e9e7e2',
-  glossy = true,
+  glossy = false,
   coverBackground = '#ffffff',
   resolution = MAGAZINE.resolution,
   interactive = true,
@@ -59,9 +79,26 @@ export function Magazine({
   screenStyle,
   ...groupProps
 }: MagazineProps) {
-  const { body, cover } = MAGAZINE
+  const { body, cover } = React.useMemo(
+    () => (size ? magazineSpec(size) : MAGAZINE),
+    [size?.width, size?.height, size?.thickness]
+  )
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
+  // Screens occlude against OTHER registered bodies only — the page block
+  // is convex, so the backface culler already covers every view it could
+  // block itself, and own-body ray grazes would false-hide the thin spine
+  // strip at the shallow angles a spine is naturally viewed from.
+  const otherOccludeRefs = React.useMemo(() => occludeRefs.filter((ref) => ref !== bodyRef), [occludeRefs])
+
+  // The spine and back share one cover-stock finish: matte by default
+  // (rough, no clearcoat — flat under any light, like uncoated paper),
+  // or the coated gloss look when `glossy` is on.
+  const coverStockMaterial = glossy ? (
+    <meshPhysicalMaterial color={backColor} metalness={0} roughness={0.35} clearcoat={0.5} />
+  ) : (
+    <meshPhysicalMaterial color={backColor} metalness={0} roughness={0.72} />
+  )
 
   const glossOverlay = glossy ? (
     <div
@@ -95,20 +132,20 @@ export function Magazine({
         <meshPhysicalMaterial color={pageColor} metalness={0} roughness={0.9} />
       </RoundedBox>
 
-      {/* perfect-bound spine: the glossy cover stock wraps only the bound
-          edge, trimmed flush with the block on the other sides (the hair of
+      {/* perfect-bound spine: the cover stock wraps only the bound edge,
+          trimmed flush with the block on the other sides (the hair of
           offset just avoids z-fighting with the page block faces) */}
       <RoundedBox
         args={[0.016, body.height - 0.002, body.thickness + 0.001]}
         radius={0.004}
         position-x={-body.width / 2}
       >
-        <meshPhysicalMaterial color={backColor} metalness={0} roughness={0.35} clearcoat={0.5} />
+        {coverStockMaterial}
       </RoundedBox>
 
-      {/* back cover, a touch glossier than the page edges */}
+      {/* back cover, on the same stock as the spine */}
       <mesh geometry={backGeometry} rotation-y={Math.PI} position-z={-body.thickness / 2 - 0.002}>
-        <meshPhysicalMaterial color={backColor} metalness={0} roughness={0.35} clearcoat={0.5} />
+        {coverStockMaterial}
       </mesh>
 
       {/* the live cover: real DOM, CSS3D-transformed onto the front */}
@@ -121,7 +158,7 @@ export function Magazine({
         background={coverBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}
-        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+        occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
         screenStyle={screenStyle}
         overlay={glossOverlay}
       >
@@ -140,11 +177,35 @@ export function Magazine({
           background={coverBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
           overlay={glossOverlay}
         >
           {back}
+        </DeviceScreen>
+      )}
+
+      {/* live spine: the bound edge's narrow strip, rotated so content
+          reads top-to-bottom like a real shelf spine — DOM left lands at
+          the spine's top, DOM top faces the front cover. Rendered at 3x
+          the cover dpi: at print scale the strip is only a few mm tall,
+          and small type needs the extra pixels to stay crisp. */}
+      {spine != null && (
+        <DeviceScreen
+          width={body.height - 0.008}
+          height={body.thickness - 0.004}
+          radius={0.006}
+          resolution={Math.round(resolution * 3 * ((body.height - 0.008) / cover.width))}
+          position={[-body.width / 2 - 0.01, 0, 0]}
+          rotation={[0, -Math.PI / 2, -Math.PI / 2]}
+          background={coverBackground}
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+          overlay={glossOverlay}
+        >
+          {spine}
         </DeviceScreen>
       )}
     </group>

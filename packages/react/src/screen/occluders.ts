@@ -104,6 +104,8 @@ export function createScreenOcclusionTester(): (
   const localRay = new THREE.Ray()
   const inverse = new THREE.Matrix4()
   const hitPoint = new THREE.Vector3()
+  const localHit = new THREE.Vector3()
+  const anchorInverse = new THREE.Matrix4()
   const raycaster = new THREE.Raycaster()
   const intersections: THREE.Intersection[] = []
   const SAMPLES: readonly [number, number][] = [
@@ -113,7 +115,16 @@ export function createScreenOcclusionTester(): (
     [-0.35, 0.35],
     [0.35, 0.35],
   ]
+  // Hits this close to the screen's own plane never count as blocking: at
+  // near-edge-on views the sample rays run almost parallel to the display
+  // and graze the device's own bezel rim or a hinge spine tangent to the
+  // plane — hiding a screen that is plainly visible. A real blocker (a
+  // roof, another device's body) stands well off the plane.
+  const PLANE_EPS = 0.02
   return (anchor, width, height, occluders, camera) => {
+    anchorInverse.copy(anchor.matrixWorld).invert()
+    const blockedAt = (point: THREE.Vector3) =>
+      Math.abs(localHit.copy(point).applyMatrix4(anchorInverse).z) > PLANE_EPS
     for (const [sx, sy] of SAMPLES) {
       sample.set(sx * width, sy * height, 0)
       anchor.localToWorld(sample)
@@ -134,12 +145,16 @@ export function createScreenOcclusionTester(): (
           const hit = bvh.raycastFirst(localRay, THREE.DoubleSide)
           if (hit) {
             hitPoint.copy(hit.point).applyMatrix4(mesh.matrixWorld)
-            if (hitPoint.distanceTo(raycaster.ray.origin) < distance - 0.02) return true
+            if (hitPoint.distanceTo(raycaster.ray.origin) < distance - 0.02 && blockedAt(hitPoint)) {
+              return true
+            }
           }
         } else {
           intersections.length = 0
           mesh.raycast(raycaster, intersections)
-          if (intersections.length > 0) return true
+          for (const intersection of intersections) {
+            if (blockedAt(intersection.point)) return true
+          }
         }
       }
     }

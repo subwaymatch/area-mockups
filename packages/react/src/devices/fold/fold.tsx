@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
 import { FOLD_COLORWAYS, findColorway, FOLD_VARIANTS, type FoldVariant } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
@@ -11,6 +10,7 @@ import {
   UsbC,
   EdgeSocket,
   cutGeometry,
+  mixedRoundedRectShape,
   stadiumCutter,
   holeCutter,
   USB_CUT_DEPTH,
@@ -43,7 +43,9 @@ export interface FoldProps extends Omit<GroupProps, 'children' | 'color'> {
    * Flex Mode book pose: the panels pivot around the hinge line, the spine's
    * flat band (with its SAMSUNG engraving) bisects the fold, and your
    * content bends across the crease — e.g. `openAngle={110}` for the
-   * half-open standing pose. At intermediate angles the inner display is
+   * half-open standing pose. The pose is continuous from nearly shut to
+   * nearly flat; only ~0° snaps to the dedicated folded pose and ~177°+
+   * to the flat-open one. At intermediate angles the inner display is
    * composited from two planes, so stateful screen content is best kept
    * simple.
    */
@@ -135,9 +137,11 @@ export function Fold({
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#54585f'
   // Resolve the pose: an explicit fold angle wins over the boolean; the
   // extremes snap to the dedicated flat-open / folded-shut paths so the
-  // default renders are pixel-identical to before.
+  // default renders are pixel-identical to before. The flex rig pivots on
+  // the display surface, so the pose is continuous all the way down —
+  // only ~0° itself snaps to the dedicated folded pose.
   const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
-  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 3 ? 'closed' : 'flex'
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle < 0.5 ? 'closed' : 'flex'
   const isOpenFace = mode !== 'closed'
   const state = isOpenFace ? spec.open : spec.closed
   const cam = isOpenFace ? spec.rearCamera.open : spec.rearCamera.closed
@@ -149,6 +153,16 @@ export function Fold({
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const rearRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef, rearRef)
+  // This device's screens occlude against OTHER registered bodies only. The
+  // backface culler already hides a screen the camera can't face, and at
+  // oblique views the sample rays graze our own slabs (or cross the crease
+  // into the sibling half), hiding a display that is mostly visible — the
+  // all-black main screen at side-on angles. Own shells stay registered so
+  // they still occlude every other mockup in the scene.
+  const otherOccludeRefs = React.useMemo(
+    () => occludeRefs.filter((ref) => ref !== bodyRef && ref !== rearRef),
+    [occludeRefs]
+  )
 
   // The folded stack: body.depth spans both slabs plus the crevice between them.
   const gap = spec.closed.gap
@@ -187,7 +201,10 @@ export function Fold({
   }, [spec.closed.body, spec.bottomEdge.closed, halfDepth])
 
   // Flex pose panels: the open slab split at the hinge line, each half
-  // machining only the bottom-edge openings that live on its side.
+  // machining only the bottom-edge openings that live on its side. The
+  // fold-side corners are nearly square (the display bends there — the real
+  // panels run straight into the hinge), so the two panels stay tight at
+  // the crease instead of opening rounded-corner gaps.
   const flexGeometries = React.useMemo(() => {
     if (mode !== 'flex') return null
     const b = spec.open.body
@@ -207,9 +224,29 @@ export function Fold({
           items.push(holeCutter(m.r, 0.05).translate(localX(m.x), bottom, 0))
       return items
     }
+    const panelSlab = (foldSide: -1 | 1) => {
+      const rFree = b.radius - b.bevel
+      const rFold = 0.008
+      const corners =
+        foldSide === 1
+          ? { tl: rFree, tr: rFold, br: rFold, bl: rFree }
+          : { tl: rFold, tr: rFree, br: rFree, bl: rFold }
+      const shape = mixedRoundedRectShape(hw - b.bevel * 2, b.height - b.bevel * 2, corners)
+      const core = b.depth - b.bevel * 2
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: core,
+        bevelEnabled: true,
+        bevelThickness: b.bevel,
+        bevelSize: b.bevel,
+        bevelSegments: 4,
+        curveSegments: 16,
+      })
+      g.translate(0, 0, -core / 2)
+      return g
+    }
     return {
-      left: cutGeometry(slabGeometry(hw, b.height, b.radius, b.depth, b.bevel), cutters(-1)),
-      right: cutGeometry(slabGeometry(hw, b.height, b.radius, b.depth, b.bevel), cutters(1)),
+      left: cutGeometry(panelSlab(1), cutters(-1)),
+      right: cutGeometry(panelSlab(-1), cutters(1)),
       back: new THREE.ShapeGeometry(
         roundedRectShape(hw - 0.05, b.height - 0.05, Math.max(0.02, b.radius - 0.025)),
         16
@@ -449,7 +486,7 @@ export function Fold({
       background={screenBackground}
       interactive={interactive}
       dragToRotate={dragToRotate}
-      occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+      occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
       screenStyle={screenStyle}
       overlay={
         <>
@@ -464,17 +501,43 @@ export function Fold({
 
   if (mode === 'flex' && flexGeometries) {
     // Each panel pivots around a shared virtual axis at the fold line, at the
-    // inner display's neutral plane. The Armor FlexHinge's flat spine band
-    // bisects the fold: a satin plate whose exposed width grows as the book
-    // closes, edged by thin polished rails, carrying the vertical SAMSUNG
-    // engraving — end-capped by dark wedges filling the V at the top and
-    // bottom edges, like the retail hinge.
+    // inner display's neutral plane. Because both back faces stay a constant
+    // distance from that axis at every angle, the Armor FlexHinge spine is
+    // modeled as a cylinder segment of exactly that radius: it stays tangent
+    // to both halves' back shells from nearly-shut to nearly-flat, wrapping
+    // the fold like the real teardrop hinge — no seams, no detached band.
     const alpha = ((180 - angle) / 2) * (Math.PI / 180)
     const b = spec.open.body
     const hw = b.width / 2
-    const pz = b.depth / 2 - 0.012
-    const bandHalf = b.depth * Math.sin(alpha)
-    const bandZ = -b.depth * Math.cos(alpha) + pz
+    // Pivot ON the display surface: the two half-screens then meet exactly
+    // at the crease at every angle — nearly shut included — instead of
+    // interpenetrating (crossed DOM planes glitch near 0°).
+    const pz = b.depth / 2 + 0.006
+    // Below ~26° the whole rig glides into the folded pose's canonical
+    // placement — a quarter-turn of the assembly around the vertical hinge
+    // line plus re-centering onto the spine edge — converging exactly
+    // where the dedicated closed pose renders, so the ~0° swap never
+    // jumps. Identity above 26°.
+    const w = THREE.MathUtils.smoothstep(26 - angle, 0, 26)
+    // Tangent radius: pivot plane to the back face. The exposed arc spans
+    // ±alpha around straight-back, meeting each half at its back corner.
+    // Run the spine and its caps essentially edge to edge — the panels'
+    // fold-side corners are square now, so a shorter spine would show the
+    // V's interior past its ends at shallow angles (the detached-pill read).
+    const spineR = pz + b.depth / 2
+    const spineH = b.height - 0.03
+    const capT = 0.05
+    // The vertical SAMSUNG engraving fits only while the exposed band is
+    // wider than the wordmark; flatter than that the spine has retracted.
+    const showEmboss = 2 * spineR * Math.sin(alpha) > spec.hinge.emboss.length * 0.155 + 0.06
+    // Sector filling the V at each end: center at the axis, arc radius
+    // `spineR`, spanning the same ±alpha — the exact cross-section of the
+    // fold's opening (shape v runs toward the back; world z = pz − v).
+    const capSector = new THREE.Shape()
+    capSector.moveTo(0, 0)
+    capSector.lineTo(-spineR * Math.sin(alpha), spineR * Math.cos(alpha))
+    capSector.absarc(0, 0, spineR, Math.PI / 2 + alpha, Math.PI / 2 - alpha, true)
+    capSector.closePath()
     const r = display.radius
     const halfScreen = (side: 'left' | 'right') => {
       const left = side === 'left'
@@ -497,7 +560,7 @@ export function Fold({
           background={screenBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
         >
           <div
@@ -519,7 +582,12 @@ export function Fold({
 
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="flex" rotation-z={landscape ? Math.PI / 2 : 0}>
+          {/* convergence chain: re-center onto the spine edge → quarter-turn
+              the assembly around the vertical hinge line — weighted by `w` */}
+          <group position={[(-hw / 2) * w, 0, -pz * w]}>
+          <group position={[0, 0, pz]} rotation-y={alpha * w}>
+          <group position={[0, 0, -pz]}>
           {/* left (cover-screen) panel folds toward the viewer */}
           <group position={[0, 0, pz]} rotation-y={alpha}>
             <group position={[-hw / 2, 0, -pz]}>
@@ -597,44 +665,44 @@ export function Fold({
             </group>
           </group>
 
-          {/* the spine band bisecting the fold */}
+          {/* the spine wrapping the fold: a cylinder segment tangent to both
+              back shells, its exposed arc growing as the book closes — plus
+              sector end caps closing the V at the top and bottom edges, and
+              the vertical SAMSUNG engraving while the band is wide enough */}
           <group position={[0, 0, pz]}>
-            <mesh rotation-y={Math.PI} position-z={bandZ - pz - 0.003}>
-              <planeGeometry args={[bandHalf * 2 + 0.03, b.height - 0.24]} />
-              <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.42} side={THREE.DoubleSide} />
+            <mesh>
+              <cylinderGeometry
+                args={[spineR, spineR, spineH, 48, 1, true, Math.PI - alpha, 2 * alpha]}
+              />
+              <meshPhysicalMaterial
+                color={frameColor}
+                metalness={0.85}
+                roughness={0.3}
+                side={THREE.DoubleSide}
+              />
             </mesh>
             {([1, -1] as const).map((s) => (
-              <RoundedBox
+              <mesh
                 key={s}
-                args={[0.022, b.height - 0.24, 0.016]}
-                radius={0.007}
-                position={[s * (bandHalf + 0.005), 0, bandZ - pz + 0.002]}
-                rotation-y={s * -alpha}
+                position={[0, s === 1 ? spineH / 2 - capT : -spineH / 2, 0]}
+                rotation-x={-Math.PI / 2}
               >
-                <meshPhysicalMaterial color={frameColor} metalness={0.9} roughness={0.26} />
-              </RoundedBox>
+                <extrudeGeometry args={[capSector, { depth: capT, bevelEnabled: false, curveSegments: 24 }]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.4} />
+              </mesh>
             ))}
-            <mesh
-              geometry={spineLogoGeometry}
-              rotation={[0, Math.PI, Math.PI / 2]}
-              position-z={bandZ - pz - 0.006}
-            >
-              {spineLogoMaterial}
-            </mesh>
-            {/* dark wedges filling the V at the top and bottom edges */}
-            {([1, -1] as const).map((s) => {
-              const wedgeShape = new THREE.Shape()
-              wedgeShape.moveTo(0, 0.01)
-              wedgeShape.lineTo(-(bandHalf + 0.012), -(b.depth * Math.cos(alpha)) + 0.01)
-              wedgeShape.lineTo(bandHalf + 0.012, -(b.depth * Math.cos(alpha)) + 0.01)
-              wedgeShape.closePath()
-              return (
-                <mesh key={s} position={[0, s * (b.height / 2 - 0.02), 0]} rotation-x={-Math.PI / 2}>
-                  <extrudeGeometry args={[wedgeShape, { depth: 0.028, bevelEnabled: false }]} />
-                  <meshPhysicalMaterial color="#1c1e23" metalness={0.5} roughness={0.45} />
-                </mesh>
-              )
-            })}
+            {showEmboss && (
+              <mesh
+                geometry={spineLogoGeometry}
+                rotation={[0, Math.PI, Math.PI / 2]}
+                position-z={-spineR - 0.002}
+              >
+                {spineLogoMaterial}
+              </mesh>
+            )}
+          </group>
+          </group>
+          </group>
           </group>
         </group>
       </group>
@@ -644,7 +712,7 @@ export function Fold({
   if (mode === 'open') {
     return (
       <group {...groupProps}>
-        <group rotation-z={landscape ? Math.PI / 2 : 0}>
+        <group key="open" rotation-z={landscape ? Math.PI / 2 : 0}>
           {/* chassis */}
           <mesh ref={bodyRef} geometry={openGeometry}>
             {chassisMaterial}
@@ -733,7 +801,7 @@ export function Fold({
 
   return (
     <group {...groupProps}>
-      <group rotation-z={landscape ? Math.PI / 2 : 0}>
+      <group key="closed" rotation-z={landscape ? Math.PI / 2 : 0}>
         {/* front (cover) slab — carries the cover screen and the speaker slot */}
         <group position-z={halfZ}>
           <mesh ref={bodyRef} geometry={frontHalfGeometry}>
@@ -777,20 +845,41 @@ export function Fold({
           />
         </group>
 
-        {/* the flat hinge band capping the left edge, bridging the crevice,
-            with the vertical SAMSUNG emboss */}
-        <group position={[-body.width / 2 - spec.hinge.overhang / 2, 0, 0]}>
-          <RoundedBox args={[spec.hinge.overhang + 0.05, body.height - 0.02, spec.hinge.width]} radius={0.024}>
-            <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.38} />
-          </RoundedBox>
-          <mesh
-            geometry={spineLogoGeometry}
-            rotation={[0, -Math.PI / 2, Math.PI / 2]}
-            position-x={-(spec.hinge.overhang + 0.05) / 2 - 0.002}
-          >
-            {spineLogoMaterial}
-          </mesh>
-        </group>
+        {/* the hinge spine capping the left edge: a vertical capsule whose
+            radius spans the WHOLE folded stack, so its crown is tangent to
+            both the front and back faces — the smooth book spine of the
+            retail device, sealing the crevice at the hinge edge instead of
+            reading as a thin separate rod — with the vertical SAMSUNG
+            emboss on its crown */}
+        {(() => {
+          // A hair inside the stack's outer faces so the near-tangent
+          // surfaces never coincide (which would shimmer along the line).
+          const spineR = spec.closed.body.depth / 2 - 0.002
+          const spineLen = body.height - 0.02 - spineR * 2
+          return (
+            <group position={[-body.width / 2 - spec.hinge.overhang + spineR, 0, 0]}>
+              <mesh>
+                <capsuleGeometry args={[spineR, spineLen, 12, 32]} />
+                <meshPhysicalMaterial color={frameColor} metalness={0.8} roughness={0.34} />
+              </mesh>
+              {/* hairline seams where the spine's roll meets the two faces —
+                  without them the hinge side reads as one featureless pill */}
+              {([1, -1] as const).map((s) => (
+                <mesh key={s} position={[0, 0, s * (spineR + 0.0028)]}>
+                  <boxGeometry args={[0.012, spineLen + spineR, 0.0012]} />
+                  <meshStandardMaterial color="#101216" transparent opacity={0.55} roughness={0.7} />
+                </mesh>
+              ))}
+              <mesh
+                geometry={spineLogoGeometry}
+                rotation={[0, -Math.PI / 2, Math.PI / 2]}
+                position-x={-spineR - 0.002}
+              >
+                {spineLogoMaterial}
+              </mesh>
+            </group>
+          )
+        })()}
       </group>
     </group>
   )

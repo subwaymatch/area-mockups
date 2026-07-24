@@ -15,16 +15,36 @@
 /** World units per millimeter for the brochure. */
 export const BROCHURE_MM = 1 / 60
 
-export const BROCHURE = {
-  /** One folded panel. Content you pass per panel maps onto this rect. */
-  panel: { width: 1.552, height: 3.598, thickness: 0.0075, radius: 0.008 },
-  /** Number of panels in the fold. */
-  panels: 3,
-  /** Default zig-zag fold angle in degrees (0 would be a flat unfolded sheet). */
-  foldAngle: 24,
-  /** Default CSS px width of one virtual panel. */
-  resolution: 360,
-} as const
+/** Physical panel size overrides in millimeters. */
+export interface BrochureSize {
+  /** One folded panel's width. Default 93.1 mm (a letter sheet / 3). */
+  width?: number
+  /** Panel height. Default 215.9 mm (letter). */
+  height?: number
+}
 
-/** Panel aspect ratio (height / width). */
+/**
+ * Build a brochure spec for any panel size (millimeters). The default is a
+ * US letter Z-fold (three equal 93 x 216 mm panels); pass e.g.
+ * `{ width: 99, height: 210 }` for an A4 tri-fold.
+ */
+export function brochureSpec({ width = 93.1, height = 215.9 }: BrochureSize = {}) {
+  return {
+    /** One folded panel. Content you pass per panel maps onto this rect. */
+    panel: { width: width * BROCHURE_MM, height: height * BROCHURE_MM, thickness: 0.0075, radius: 0.008 },
+    /** Number of panels in the fold. */
+    panels: 3,
+    /** Default zig-zag fold angle in degrees (0 would be a flat unfolded sheet). */
+    foldAngle: 24,
+    /** Default CSS px width of one virtual panel. */
+    resolution: 360,
+  }
+}
+
+export type BrochureSpec = ReturnType<typeof brochureSpec>
+
+/** The default US letter Z-fold. */
+export const BROCHURE: BrochureSpec = brochureSpec()
+
+/** Panel aspect ratio (height / width) of the default sheet. */
 export const BROCHURE_PANEL_ASPECT = BROCHURE.panel.height / BROCHURE.panel.width

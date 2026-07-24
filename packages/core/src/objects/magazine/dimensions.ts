@@ -13,15 +13,38 @@
 /** World units per millimeter for the magazine. */
 export const MAGAZINE_MM = 1 / 66
 
-export const MAGAZINE = {
-  /** Trimmed page block — real guillotine cuts are near-square, so the edge
-   * rounding is just enough to catch a highlight. */
-  body: { width: 3.273, height: 4.227, thickness: 0.091, radius: 0.003 },
-  /** Cover art area (the whole front). Content you pass as children maps onto this rect. */
-  cover: { width: 3.273, height: 4.227, radius: 0.008 },
-  /** Default CSS px width of the virtual cover. */
-  resolution: 480,
-} as const
+/** Physical trim size overrides in millimeters. */
+export interface MagazineSize {
+  /** Trim width. Default 216 mm (US letter). */
+  width?: number
+  /** Trim height. Default 279 mm. */
+  height?: number
+  /** Page-block thickness. Default 6 mm (~100 pages). */
+  thickness?: number
+}
 
-/** Cover aspect ratio (height / width). */
+/**
+ * Build a magazine spec for any trim size (millimeters). The default is the
+ * US letter-trim monthly; pass e.g. `{ width: 210, height: 297 }` for A4.
+ */
+export function magazineSpec({ width = 216, height = 279, thickness = 6 }: MagazineSize = {}) {
+  const w = width * MAGAZINE_MM
+  const h = height * MAGAZINE_MM
+  return {
+    /** Trimmed page block — real guillotine cuts are near-square, so the edge
+     * rounding is just enough to catch a highlight. */
+    body: { width: w, height: h, thickness: thickness * MAGAZINE_MM, radius: 0.003 },
+    /** Cover art area (the whole front). Content you pass as children maps onto this rect. */
+    cover: { width: w, height: h, radius: 0.008 },
+    /** Default CSS px width of the virtual cover. */
+    resolution: 480,
+  }
+}
+
+export type MagazineSpec = ReturnType<typeof magazineSpec>
+
+/** The default US letter-trim monthly (216 x 279 x 6 mm). */
+export const MAGAZINE: MagazineSpec = magazineSpec()
+
+/** Cover aspect ratio (height / width) of the default trim. */
 export const MAGAZINE_COVER_ASPECT = MAGAZINE.cover.height / MAGAZINE.cover.width

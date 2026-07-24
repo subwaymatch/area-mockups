@@ -28,7 +28,10 @@ export function BookCoverArt() {
     >
       <div style={{ border: '1px solid #b89b5e', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '36px 20px 28px' }}>
         <div style={{ fontSize: 11, letterSpacing: 4, color: '#b89b5e' }}>A NOVEL</div>
-        <h1 style={{ fontSize: 44, lineHeight: 1.15, fontWeight: 500, margin: '26px 0 0' }}>
+        {/* explicit color: the docs site's global heading styles would
+            otherwise override the cover's inherited cream and render the
+            title near-black on the navy jacket */}
+        <h1 style={{ fontSize: 44, lineHeight: 1.15, fontWeight: 500, margin: '26px 0 0', color: '#e8dcc0' }}>
           The Atlas of Quiet Places
         </h1>
         <svg width="86" height="86" viewBox="0 0 86 86" style={{ margin: 'auto 0' }} aria-hidden>
@@ -78,6 +81,33 @@ export function MagazineCoverArt() {
   )
 }
 
+/**
+ * Spine strip matching the cover — the DOM's left edge lands at the
+ * spine's TOP, so this row reads top-to-bottom on the shelf.
+ */
+export function MagazineSpineArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 26px',
+        background: 'linear-gradient(90deg, #8f1d4e 0%, #e6453a 55%, #ff7a3c 100%)',
+        color: '#fff7ef',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 24,
+      }}
+    >
+      <div style={{ fontSize: 23, fontWeight: 800, letterSpacing: 1, whiteSpace: 'nowrap' }}>AREA</div>
+      <div style={{ fontSize: 14, letterSpacing: 5, opacity: 0.85, whiteSpace: 'nowrap' }}>THE DESIGN QUARTERLY · PRINT IS A LIVE SURFACE NOW</div>
+      <div style={{ fontSize: 14, letterSpacing: 2, whiteSpace: 'nowrap' }}>NO. 07 — JUL 2026</div>
+    </div>
+  )
+}
+
 /** Tri-fold panel 1 — the front. */
 export function BrochureFrontArt() {
   return (
@@ -98,7 +128,7 @@ export function BrochureFrontArt() {
         <path d="M0 40 L22 12 L34 26 L52 4 L70 30 L82 18 L100 40" fill="none" stroke="#e8b64c" strokeWidth="2" strokeLinejoin="round" />
         <circle cx="78" cy="8" r="5" fill="#f0ead6" />
       </svg>
-      <h2 style={{ fontSize: 34, lineHeight: 1.05, margin: '14px 0 8px', fontWeight: 700 }}>
+      <h2 style={{ fontSize: 34, lineHeight: 1.05, margin: '14px 0 8px', fontWeight: 700, color: '#f0ead6' }}>
         Trail Guide
       </h2>
       <div style={{ fontSize: 12, opacity: 0.85 }}>2026 season · free map inside</div>
@@ -345,7 +375,18 @@ export function BadgeFrontArt() {
         <div style={{ fontSize: 20, fontWeight: 700 }}>Yuna Park</div>
         <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Product Designer</div>
       </div>
-      <div style={{ marginTop: 'auto', padding: '0 20px 16px', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#6b7280' }}>
+      <div style={{ margin: '20px 20px 0', padding: '10px 14px', borderRadius: 10, background: '#f2f4f7', display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 6, fontSize: 11 }}>
+        <span style={{ color: '#6b7280' }}>Dept</span>
+        <span style={{ fontWeight: 600, textAlign: 'right' }}>Design</span>
+        <span style={{ color: '#6b7280' }}>Access</span>
+        <span style={{ fontWeight: 600, textAlign: 'right' }}>L3 · All floors</span>
+      </div>
+      <svg width="150" height="24" viewBox="0 0 150 24" aria-hidden style={{ margin: 'auto auto 10px', paddingTop: 14 }}>
+        {Array.from({ length: 34 }, (_, i) => (
+          <rect key={i} x={i * 4.4} y={0} width={i % 3 === 0 ? 2.8 : 1.4} height={24} fill="#161a20" />
+        ))}
+      </svg>
+      <div style={{ padding: '0 20px 16px', display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#6b7280' }}>
         <span>ID 0042</span>
         <span>EXP 08/27</span>
       </div>
@@ -878,6 +919,39 @@ export function StorePosterArt() {
       </div>
       <div style={{ fontSize: 26, fontWeight: 800, color: '#b0532f', margin: '10px 0 auto' }}>30% off</div>
       <div style={{ fontSize: 9, letterSpacing: 2, marginBottom: 4 }}>EVERYTHING IN STORE</div>
+    </div>
+  )
+}
+
+/** Storefront wall mural — hand-painted-ad look for the brick elevations. */
+export function StoreMuralArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: 28,
+        background: '#223a2e',
+        color: '#f3ead9',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: 10,
+        border: '6px solid #e8c476',
+      }}
+    >
+      <div style={{ fontSize: 13, letterSpacing: 5, color: '#a8b8a0' }}>PARCEL &amp; PINE</div>
+      <div style={{ fontFamily: serif, fontSize: 54, lineHeight: 1.05 }}>
+        Good goods,
+        <br />
+        every day.
+      </div>
+      <div style={{ fontSize: 14, letterSpacing: 3, color: '#e8c476', marginTop: 6 }}>
+        CORNER OF 5TH &amp; MAIN
+      </div>
     </div>
   )
 }

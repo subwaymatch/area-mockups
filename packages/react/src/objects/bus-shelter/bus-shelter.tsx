@@ -5,6 +5,7 @@ import type { ThreeElements } from '@react-three/fiber'
 import { BUS_SHELTER } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { useScreenOccluders } from '../../screen/occluders'
+import { LEDText, isLedText } from '../../led-text'
 
 type GroupProps = ThreeElements['group']
 
@@ -15,9 +16,18 @@ export interface BusShelterProps extends Omit<GroupProps, 'children' | 'color'> 
   inner?: React.ReactNode
   /**
    * Live RTPI arrivals display hanging under the roof — bus times, service
-   * alerts, anything. Renders on a dark board facing the street.
+   * alerts, anything. Renders on a dark board facing the street. Pass an
+   * array of strings for the built-in dot-matrix LED board (one row per
+   * arrival, rows scroll when they overflow), a single string for a one-line
+   * message — or any React node for full custom control.
    */
-  arrivals?: React.ReactNode
+  arrivals?: React.ReactNode | string | string[]
+  /**
+   * The waiting-area face of the arrivals board. By default it mirrors
+   * `arrivals` — set this (text, string array or a custom node) to show
+   * different content on the back.
+   */
+  arrivalsBack?: React.ReactNode | string | string[]
   /** Street-furniture steel color (roof, posts, frames, bench). */
   color?: string
   /** CSS background painted behind the poster content (backlit white). */
@@ -53,6 +63,7 @@ export function BusShelter({
   children,
   inner,
   arrivals,
+  arrivalsBack,
   color = '#2f333a',
   posterBackground = '#ffffff',
   resolution = BUS_SHELTER.resolution,
@@ -64,7 +75,30 @@ export function BusShelter({
 }: BusShelterProps) {
   const { body, roof, backGlass, post, bench, lightbox, poster, flag, display, standHeight } = BUS_SHELTER
   const boxRef = React.useRef<THREE.Mesh>(null!)
-  const occludeRefs = useScreenOccluders(boxRef)
+  // The roof and the arrivals board's housing must occlude too — without
+  // them the live poster and LED board composite straight through the roof
+  // when the shelter is seen from above.
+  const roofRef = React.useRef<THREE.Mesh>(null!)
+  const boardRef = React.useRef<THREE.Mesh>(null!)
+  const occludeRefs = useScreenOccluders(boxRef, roofRef, boardRef)
+
+  // Plain strings become the built-in LED arrivals board — an array is one
+  // row per arrival; custom nodes pass straight through.
+  const toBoard = (content: React.ReactNode | string | string[]) =>
+    isLedText(content) ? (
+      <LEDText
+        text={content}
+        mode={typeof content === 'string' ? 'auto' : 'rows'}
+        align="left"
+        background="#0b0c0e"
+        dotSize={3}
+      />
+    ) : (
+      content
+    )
+  const board = toBoard(arrivals)
+  // The waiting-area face mirrors the street face unless overridden.
+  const backBoard = arrivalsBack === undefined ? board : toBoard(arrivalsBack)
 
   const glassMaterial = (
     <meshPhysicalMaterial
@@ -97,7 +131,7 @@ export function BusShelter({
   return (
     <group {...groupProps}>
       {/* flat roof slab */}
-      <RoundedBox args={[roof.width, roof.thickness, roof.depth]} radius={0.03} position={[0, roofY, 0]}>
+      <RoundedBox ref={roofRef} args={[roof.width, roof.thickness, roof.depth]} radius={0.03} position={[0, roofY, 0]}>
         <meshPhysicalMaterial {...steel} />
       </RoundedBox>
 
@@ -156,7 +190,7 @@ export function BusShelter({
       </group>
 
       {/* RTPI arrivals display hanging under the roof near the front edge */}
-      {arrivals != null && (
+      {board != null && (
         <group position={[display.x, roofY - roof.thickness / 2 - display.drop - display.height / 2 - 0.05, body.depth / 2 - 0.3]}>
           {([1, -1] as const).map((s) => (
             <mesh key={s} position={[s * (display.width / 2 - 0.12), display.height / 2 + 0.05 + display.drop / 2, 0]}>
@@ -164,7 +198,7 @@ export function BusShelter({
               <meshPhysicalMaterial {...steel} />
             </mesh>
           ))}
-          <RoundedBox args={[display.width + 0.09, display.height + 0.09, 0.09]} radius={0.02}>
+          <RoundedBox ref={boardRef} args={[display.width + 0.09, display.height + 0.09, 0.09]} radius={0.02}>
             <meshPhysicalMaterial color="#1c1e22" metalness={0.4} roughness={0.5} />
           </RoundedBox>
           <DeviceScreen
@@ -176,11 +210,33 @@ export function BusShelter({
             background="#0b0c0e"
             interactive={interactive}
             dragToRotate={dragToRotate}
-            occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+            // Per-pixel blending: the hanging board sits INSIDE the shelter,
+            // so pillars, glass frames and the roof edge cross in front of it
+            // at many angles — raycast's all-or-nothing hide either blanks
+            // the whole board or lets the LED text pierce a thin pillar.
+            occlude={occlude === false ? undefined : 'blending'}
             screenStyle={screenStyle}
           >
-            {arrivals}
+            {board}
           </DeviceScreen>
+          {/* the waiting-area face — mirrors the street face by default */}
+          {backBoard != null && (
+            <DeviceScreen
+              width={display.width}
+              height={display.height}
+              radius={0.01}
+              resolution={display.resolution}
+              position={[0, 0, -0.049]}
+              rotation={[0, Math.PI, 0]}
+              background="#0b0c0e"
+              interactive={interactive}
+              dragToRotate={dragToRotate}
+              occlude={occlude === false ? undefined : 'blending'}
+              screenStyle={screenStyle}
+            >
+              {backBoard}
+            </DeviceScreen>
+          )}
         </group>
       )}
 

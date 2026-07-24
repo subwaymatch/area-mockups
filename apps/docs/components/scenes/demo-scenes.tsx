@@ -709,7 +709,7 @@ export default function DemoScenes() {
           </>
         }
       >
-        <StorefrontMockup windowPoster={<StorePosterArt />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+        <StorefrontMockup windows={{ frontLeft: <StorePosterArt />, frontRight: <StorePosterArt /> }} deviceProps={{ rotation: [0, -0.25, 0] }}>
           <StoreSignArt />
         </StorefrontMockup>
       </DemoCard>

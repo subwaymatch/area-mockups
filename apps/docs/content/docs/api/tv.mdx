@@ -1,13 +1,22 @@
 ---
-title: TV (65-inch)
-description: A 65-inch flat-screen on blade feet with a live 1920x1080 display.
+title: TV (32–98 inch)
+description: A flat-screen TV sized in inches, on real splayed feet, with a live 1920x1080 display.
 ---
 
-`<TVSet>` and `<TVSetMockup>` render a modern 65" flat-screen: a
-near-bezel-less 16:9 panel with a subtle off-state gloss, thin edges with a
-shallow electronics bulge low on the back, and two splayed blade feet. The
+`<TVSet>` and `<TVSetMockup>` render a modern flat-screen (65" by default,
+any diagonal from 32" to 98" via `size`): a near-bezel-less 16:9 panel with
+a subtle off-state gloss, thin edges with a shallow electronics bulge low
+on the back, a recessed rear input bay (HDMI ×3, USB ×2, LAN, optical
+audio, antenna coax) and two slim feet near the ends — each a pair of
+wide-splayed struts, the shallow Λ stance of current retail stands
+(referenced from LG UT8000 / Samsung DU7200-class product photos). The
 screen is a live 1920×1080 DOM surface — full desktop layouts, showreels,
 and `<video>` all apply.
+
+Sizing follows real product ranges rather than uniform scaling: the panel
+scales with the diagonal, while the bezels, cabinet depth, ports and feet
+keep hardware dimensions — the feet hold a near-constant inset from the
+panel ends and grow only mildly across the range.
 
 <ObjectDemo demo="tv-basic" checker />
 
@@ -23,9 +32,18 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `size` | `number` | `65` | Diagonal in inches, clamped to 32–98. Panel scales; bezels, ports and feet follow real product ratios. |
 | `color` | `string` | `'#15171b'` | Enclosure colorway (frame, back, feet). |
 | `resolution` | `number` | `1920` | Virtual display width; 1920 gives 1920×1080. |
 
 There is no `orientation` prop; it lives on a media stand.
 
 ## Example
+
+## Mockup-able areas
+
+Every live surface filled with chroma green, labeled with the prop that
+feeds it — the fastest way to see exactly where your content lands and
+what stays 3D hardware.
+
+<ObjectDemo demo="chroma-tv" />

@@ -95,8 +95,11 @@ export interface FoldSpec {
 const FOLD7: FoldSpec = {
   closed: {
     body: { width: 1.942, height: 4.321, depth: 0.241, radius: 0.081, bevel: 0.018 },
-    // Scan: the folded halves sit 1.3 mm apart — the crevice along the rails.
-    gap: 0.035,
+    // A hairline seam between the folded halves. (The scan measured 1.3 mm
+    // of air, but with the slabs' edge bevels that renders as a deep V
+    // groove from the side — the retail device reads closed-flush, so the
+    // model keeps just enough gap to draw the seam line.)
+    gap: 0.012,
     // 65.98 x 153.03 mm cover panel, centered, sharp scan-true corners.
     display: { width: 1.8, height: 4.174, radius: 0.06 },
     punchHole: { radius: 0.053, offsetY: 0.127 },
@@ -140,7 +143,10 @@ const FOLD7: FoldSpec = {
     { y: 0.775, length: 0.507 },
     { y: 0.177, length: 0.354 },
   ],
-  buttonProfile: { protrusion: 0.012, thickness: 0.082 },
+  // Slim ~1.8 mm key strips — the rail is much thicker than the keys, with
+  // clear frame above and below them (product photography), not pills
+  // filling the edge.
+  buttonProfile: { protrusion: 0.01, thickness: 0.05 },
   // Spine channel 6.1 mm wide; folded it caps the left edge, 1.1 mm proud,
   // with the vertical 16.7 mm SAMSUNG emboss at mid-height.
   hinge: { width: 0.166, overhang: 0.03, emboss: { length: 0.456 } },

@@ -9,6 +9,7 @@ type InheritedObjectProps = Pick<
   | 'streetSide'
   | 'rear'
   | 'color'
+  | 'skirtColor'
   | 'wrapBackground'
   | 'resolution'
   | 'interactive'
@@ -43,6 +44,7 @@ export function SemiTrailerMockup({
   streetSide,
   rear,
   color,
+  skirtColor,
   wrapBackground,
   resolution,
   interactive,
@@ -58,6 +60,7 @@ export function SemiTrailerMockup({
       streetSide={streetSide}
       rear={rear}
       color={color}
+      skirtColor={skirtColor}
       wrapBackground={wrapBackground}
       resolution={resolution}
       interactive={interactive}

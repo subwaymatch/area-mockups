@@ -1,13 +1,20 @@
 /**
- * Storefront object dimensions — a single-unit shop façade.
+ * Storefront object dimensions — a free-standing single-story corner shop.
  *
  * Proportions follow the classic high-street shopfront: a 6 m frontage,
- * 4.2 m to the parapet — painted timber surround, 600 mm stall riser, big
- * display window with a mullion, glazed door on the right, and the fascia
- * sign band above the glazing. Normalized to ~1100 mm per world unit so the
- * façade is 5.45 units wide.
+ * ~4.4 m deep, with the parapet just above the cornice (~3.1 m) so the
+ * painted shopfront composition IS the whole elevation — no masonry band.
+ * Normalized to ~1100 mm per world unit so the façade is 5.45 units wide.
  *
- * Live surfaces: the fascia sign (`children`) and a window poster.
+ * All four elevations are glazed shopfront compositions:
+ * - front (+Z): display windows, transom lights, fascia sign, glazed door;
+ * - the other three sides (+X, −X, −Z): the same composition without the
+ *   door — windows only — each carrying its own live fascia sign.
+ *
+ * Live surfaces: the four fascia signs (front `children` plus
+ * left/right/rear), both front display bays, the glazed door leaf and the
+ * center pane of each other elevation — every elevation is mockup-able
+ * (the roof is not).
  *
  * This is pure, renderer-agnostic data: the 3D model consumes it today and a
  * future 2D (CSS/SVG) renderer can consume the same numbers.
@@ -17,21 +24,25 @@
 export const STOREFRONT_MM = 1 / 1100
 
 export const STOREFRONT = {
-  /** Overall façade: width (x), height (y), wall depth (z). */
-  body: { width: 5.455, height: 3.818, depth: 0.26 },
+  /** Overall building: width (x), height (y), depth (z). */
+  body: { width: 5.455, height: 2.85, depth: 4.0 },
   /** Fascia sign band (~550 mm) sitting directly above the window head. */
-  fascia: { height: 0.5, y: 0.57 },
-  /** Live sign area inset in the fascia. Content (`children`) maps here. */
+  fascia: { height: 0.5, y: 1.054 },
+  /** Live sign area inset in the front fascia. Content (`children`) maps here. */
   sign: { width: 4.9, height: 0.41, radius: 0.01 },
-  /** Stall riser under the display window. */
+  /** Live sign areas on the side fascias (elevations along the depth). */
+  sideSign: { width: 3.45, height: 0.41, radius: 0.01 },
+  /** Live sign area on the rear fascia (same frontage as the front). */
+  rearSign: { width: 4.9, height: 0.41, radius: 0.01 },
+  /** Stall riser under the display windows, all round. */
   riser: { height: 0.545 },
-  /** Display window band between riser and fascia (door bay on the right). */
-  window: { top: 0.32, doorX: 1.6, doorWidth: 0.909, mullionX: -0.65 },
-  /** Live A1-class window poster, pasted on the left glass bay at eye level. */
-  poster: { width: 0.62, height: 0.88, x: -1.7, y: -0.62, radius: 0.006 },
-  /** Distance from the façade center down to the pavement. */
-  standHeight: 3.818 / 2,
-  /** Default CSS px width of the virtual fascia sign. */
+  /** Display window band between riser and fascia (door bay on the front right). */
+  window: { top: 0.804, doorX: 1.6, doorWidth: 0.909, mullionX: -0.65 },
+  /** Flat roof cap overhanging the parapet line. */
+  roof: { thickness: 0.07, overhang: 0.03 },
+  /** Distance from the building center down to the pavement. */
+  standHeight: 2.85 / 2,
+  /** Default CSS px width of the virtual fascia signs. */
   resolution: 800,
 } as const
 

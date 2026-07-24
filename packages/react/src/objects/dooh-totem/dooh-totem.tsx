@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import type { ThreeElements } from '@react-three/fiber'
-import { DOOH_TOTEM } from '@area-mockups/core'
+import { DOOH_TOTEM, doohTotemSpec, type DoohTotemSize } from '@area-mockups/core'
 import { DeviceScreen } from '../../screen/device-screen'
 import { roundedRectShape } from '@area-mockups/core'
 import { useScreenOccluders } from '../../screen/occluders'
@@ -14,6 +14,13 @@ export interface DOOHTotemProps extends Omit<GroupProps, 'children' | 'color'> {
   children?: React.ReactNode
   /** Creative on the back (−Z) display — real totems are double-sided. */
   back?: React.ReactNode
+  /**
+   * Physical enclosure size in millimeters, e.g.
+   * `{ width: 1100, height: 2500 }` for a slimmer kiosk. Defaults to the
+   * 1300 x 2800 mm digital 6-sheet class; the display scales with the
+   * cabinet.
+   */
+  size?: DoohTotemSize
   /** Enclosure colorway (street-furniture dark gray by default). */
   color?: string
   /** CSS background painted behind your screen content. */
@@ -48,6 +55,7 @@ export interface DOOHTotemProps extends Omit<GroupProps, 'children' | 'color'> {
 export function DOOHTotem({
   children,
   back,
+  size,
   color = '#2f333a',
   screenBackground = '#000000',
   resolution = DOOH_TOTEM.resolution,
@@ -57,7 +65,10 @@ export function DOOHTotem({
   screenStyle,
   ...groupProps
 }: DOOHTotemProps) {
-  const { body, glass, display, plinth, louvre, standHeight } = DOOH_TOTEM
+  const { body, glass, display, plinth, louvre, standHeight } = React.useMemo(
+    () => (size ? doohTotemSpec(size) : DOOH_TOTEM),
+    [size?.width, size?.height]
+  )
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
 

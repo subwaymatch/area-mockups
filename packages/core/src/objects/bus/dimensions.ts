@@ -60,6 +60,12 @@ export const BUS = {
   /** Passenger window band (both sides) — nearly half the body height. */
   windowBand: { y: 0.079, height: 0.66, frontX: 2.35, backX: -3.02 },
   /**
+   * Driver's window on the street side (−Z), right behind the A-pillar —
+   * same height and sill line as the passenger band, like the sliding
+   * driver's glass on real low-floor buses.
+   */
+  driverWindow: { x: 2.73, width: 0.6, y: 0.079, height: 0.66 },
+  /**
    * Curb-side doors: two-leaf full-glass slabs whose glass drops to ~350 mm
    * above the ground — the low-floor entry these buses are known for.
    */
@@ -76,12 +82,21 @@ export const BUS = {
   ad: { width: 1.925, height: 0.401, x: 0.2, y: -0.47, radius: 0.012 },
   /** Live tail ad (21" x 70" = 533 x 1778 mm) on the engine door. */
   rearAd: { width: 0.936, height: 0.281, y: -0.28, radius: 0.012 },
+  /**
+   * Full-coverage rear wrap (`coverage="full"`): the whole tail between the
+   * bumper and the roof dome, out to the corner bevels — engine louvers and
+   * the rear window get covered like a real tail wrap; each taillight lamp
+   * is carved out individually.
+   */
+  rearFull: { width: 1.32, height: 1.16, y: 0.18, radius: 0.02 },
   /** Rear window above the engine bay. */
   rearWindow: { width: 0.95, height: 0.44, y: 0.5 },
   /** Live LED destination sign inside the dark upper fascia band. */
   destination: { width: 1.105, height: 0.174, y: 0.56 },
   /** Default CSS px width of the virtual ad panel. */
   resolution: 960,
+  /** Default CSS px width of the full-coverage side wrap (`coverage="full"`). */
+  fullResolution: 1920,
 } as const
 
 /** Ad panel aspect ratio (height / width) — the 30x144 king size. */

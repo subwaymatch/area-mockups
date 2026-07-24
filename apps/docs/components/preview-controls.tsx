@@ -2,14 +2,37 @@
 
 import * as React from 'react'
 import {
+  AFrameSignMockup,
+  BillboardMockup,
+  BookMockup,
+  BrochureMockup,
+  BusMockup,
+  BusShelterMockup,
+  BusinessCardMockup,
+  CustomBoxMockup,
+  CustomPanelMockup,
+  DOOHTotemMockup,
   FlipMockup,
   FoldMockup,
+  GreetingCardMockup,
+  IDCardMockup,
   IPhoneMockup,
   LaptopMockup,
+  MagazineMockup,
+  MailerBoxMockup,
   MockupCanvas,
   MonitorMockup,
   PhoneMockup,
+  PosterFrameMockup,
+  ProductBoxMockup,
+  RollupBannerMockup,
+  SemiTrailerMockup,
+  ShoppingBagMockup,
+  StorefrontMockup,
+  TVSetMockup,
   TabletMockup,
+  VanMockup,
+  VinylRecordMockup,
   WatchMockup,
   FLIP_COLORWAYS,
   FOLD_COLORWAYS,
@@ -61,6 +84,25 @@ function injectProps(node: React.ReactNode, props: Record<string, unknown>): Rea
   return React.cloneElement(node as React.ReactElement<Record<string, unknown>>, props)
 }
 
+/**
+ * A generic extra control bound to one public prop: color swatches,
+ * boolean toggles, enum selects, numeric sliders and free-text inputs.
+ * Together with the shared variant/colorway/orientation/angle controls
+ * this makes every non-content prop of every mockup drivable from the bar.
+ */
+interface ExtraControl {
+  prop: string
+  label: string
+  kind: 'color' | 'toggle' | 'select' | 'range' | 'text'
+  options?: { value: string; label: string }[]
+  min?: number
+  max?: number
+  step?: number
+  /** Starting value when the demo doesn't set the prop itself. */
+  fallback?: string | number | boolean
+  placeholder?: string
+}
+
 interface DeviceControlSpec {
   variants?: { value: string; label: string }[]
   catalogs?: Record<string, Colorway[]>
@@ -71,7 +113,15 @@ interface DeviceControlSpec {
   /** Watch band color picker. */
   band?: boolean
   float?: boolean
+  /** Hide the shared body-color picker (objects list their own color extras). */
+  bodyColor?: boolean
+  extras?: ExtraControl[]
 }
+
+const COVERAGE_OPTIONS = [
+  { value: 'panel', label: 'panel' },
+  { value: 'full', label: 'full wrap' },
+]
 
 function specFor(el: React.ReactElement): DeviceControlSpec | null {
   switch (el.type) {
@@ -130,6 +180,10 @@ function specFor(el: React.ReactElement): DeviceControlSpec | null {
         orientation: true,
         openAngle: { min: 0, max: 180, fallback: 180 },
         float: true,
+        extras: [
+          { prop: 'frameColor', label: 'frame', kind: 'color' },
+          { prop: 'punchHole', label: 'punch hole', kind: 'toggle', fallback: true },
+        ],
       }
     case FlipMockup:
       return {
@@ -137,6 +191,10 @@ function specFor(el: React.ReactElement): DeviceControlSpec | null {
         orientation: true,
         openAngle: { min: 0, max: 180, fallback: 180 },
         float: true,
+        extras: [
+          { prop: 'frameColor', label: 'frame', kind: 'color' },
+          { prop: 'punchHole', label: 'punch hole', kind: 'toggle', fallback: true },
+        ],
       }
     case WatchMockup:
       return {
@@ -150,6 +208,151 @@ function specFor(el: React.ReactElement): DeviceControlSpec | null {
       }
     case MonitorMockup:
       return { catalog: MONITOR_COLORWAYS, float: false }
+    case BusMockup:
+      return {
+        float: false,
+        extras: [
+          { prop: 'coverage', label: 'coverage', kind: 'select', options: COVERAGE_OPTIONS, fallback: 'panel' },
+          { prop: 'wrapOverWindows', label: 'over glass', kind: 'toggle', fallback: true },
+          { prop: 'destinationSign', label: 'sign', kind: 'text', placeholder: 'LED sign…' },
+          { prop: 'adBackground', label: 'ad bg', kind: 'color' },
+        ],
+      }
+    case VanMockup:
+      return {
+        float: false,
+        extras: [
+          { prop: 'coverage', label: 'coverage', kind: 'select', options: COVERAGE_OPTIONS, fallback: 'panel' },
+          { prop: 'wrapOverWindows', label: 'over glass', kind: 'toggle', fallback: false },
+          { prop: 'licensePlate', label: 'plate', kind: 'text', placeholder: 'plate…' },
+          { prop: 'wrapBackground', label: 'wrap bg', kind: 'color' },
+        ],
+      }
+    case SemiTrailerMockup:
+      return {
+        float: false,
+        extras: [
+          { prop: 'skirtColor', label: 'skirt', kind: 'color' },
+          { prop: 'wrapBackground', label: 'wrap bg', kind: 'color' },
+        ],
+      }
+    case BusShelterMockup:
+      return {
+        float: false,
+        extras: [
+          { prop: 'arrivals', label: 'arrivals', kind: 'text', placeholder: 'LED arrivals…' },
+          { prop: 'posterBackground', label: 'poster bg', kind: 'color' },
+        ],
+      }
+    case TVSetMockup:
+      return {
+        float: false,
+        extras: [{ prop: 'size', label: 'inches', kind: 'range', min: 32, max: 98, step: 1, fallback: 65 }],
+      }
+    case StorefrontMockup:
+      return { float: false, extras: [{ prop: 'faceBackground', label: 'face bg', kind: 'color' }] }
+    case MagazineMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'glossy', label: 'glossy', kind: 'toggle', fallback: false },
+          { prop: 'pageColor', label: 'pages', kind: 'color' },
+          { prop: 'backColor', label: 'back', kind: 'color' },
+        ],
+      }
+    case IDCardMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'lanyardColor', label: 'lanyard', kind: 'color' },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case BillboardMockup:
+      return { float: false, extras: [{ prop: 'faceBackground', label: 'face bg', kind: 'color' }] }
+    case BookMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'pageColor', label: 'pages', kind: 'color' },
+          { prop: 'coverBackground', label: 'cover bg', kind: 'color' },
+        ],
+      }
+    case BrochureMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'foldAngle', label: 'fold', kind: 'range', min: 0, max: 60, step: 1, fallback: 24 },
+          { prop: 'paperColor', label: 'paper', kind: 'color' },
+        ],
+      }
+    case BusinessCardMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'edgeColor', label: 'edge', kind: 'color' },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case CustomBoxMockup:
+    case ProductBoxMockup:
+      return { float: true, extras: [{ prop: 'faceBackground', label: 'face bg', kind: 'color' }] }
+    case CustomPanelMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'cornerRadius', label: 'corner', kind: 'range', min: 0, max: 20, step: 1, fallback: 2 },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case DOOHTotemMockup:
+      return { float: false }
+    case GreetingCardMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'openAngle', label: 'open', kind: 'range', min: 20, max: 150, step: 1, fallback: 65 },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case MailerBoxMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'tapeColor', label: 'tape', kind: 'color' },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case PosterFrameMockup:
+      return {
+        float: false,
+        extras: [
+          { prop: 'mat', label: 'mat', kind: 'toggle', fallback: false },
+          { prop: 'matColor', label: 'mat color', kind: 'color' },
+          { prop: 'glazing', label: 'glazing', kind: 'toggle', fallback: true },
+          { prop: 'posterBackground', label: 'poster bg', kind: 'color' },
+        ],
+      }
+    case RollupBannerMockup:
+      return { float: false, extras: [{ prop: 'graphicBackground', label: 'graphic bg', kind: 'color' }] }
+    case ShoppingBagMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'handleColor', label: 'handles', kind: 'color' },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case VinylRecordMockup:
+      return {
+        float: true,
+        extras: [
+          { prop: 'vinylColor', label: 'vinyl', kind: 'color' },
+          { prop: 'faceBackground', label: 'face bg', kind: 'color' },
+        ],
+      }
+    case AFrameSignMockup:
+      return { float: false, extras: [{ prop: 'faceBackground', label: 'face bg', kind: 'color' }] }
     case MockupCanvas:
     default:
       return null

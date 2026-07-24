@@ -20,25 +20,34 @@ export const ID_CARD = {
   /** Slot punch (a real 14x3 mm stadium hole), centerline ~5.5 mm below the top edge. */
   slot: { width: 0.44, height: 0.095, centerY: 2.675 / 2 - 0.172 },
   /**
-   * Printable face. It stops just below the slot-punch strip — like a real
-   * badge, the design keeps clear of the punch — so the clip hardware never
-   * overlaps the live DOM area. Content maps onto this rect on both sides.
+   * Printable face: the WHOLE card, edge to edge — like a real full-bleed
+   * badge print, the design runs under the punch strip too. The renderer
+   * carves the slot punch out of the live area (same stadium hole as the
+   * 3D card), so content maps onto this rect on both sides minus the slot.
    */
-  face: { width: 1.687, height: 2.235, radius: 0.1, offsetY: -0.22 },
+  face: { width: 1.687, height: 2.675, radius: 0.1, offsetY: 0 },
   /**
-   * Hardware chain, bottom to top exactly as on real lanyards: an elongated
-   * trigger snap hook whose nose wire threads the slot, the swivel barrel,
-   * the flat D-shaped eye clamped by the barrel, and the sheet-metal crimp
-   * that captures the folded strap ends through the eye.
+   * Hardware chain, bottom to top exactly as on real lanyards: the classic
+   * FLAT stamped-steel swivel J-hook (an open ring segment closed by a thin
+   * spring gate) hanging pierced THROUGH the slot — its plane perpendicular
+   * to the card, the lower band crossing inside the punched opening and the
+   * ring window swallowing the punch strip — then the stem and swivel
+   * barrel above it, and the sheet-metal crimp that captures the folded
+   * strap ends. Reference: the standard "metal swivel J hook clip" used on
+   * nearly every retail lanyard — flat polished steel, not wire.
    */
   hook: {
-    hookRadius: 0.15,
-    /** Vertical stretch turning the wire circle into the J-hook profile. */
-    hookScaleY: 1.9,
-    hookTube: 0.034,
-    barrel: { radius: 0.09, height: 0.24 },
-    eye: { radius: 0.11, scaleX: 1.4, tube: 0.03 },
-    crimp: { width: 0.5, height: 0.26, depth: 0.07 },
+    /** Ring segment of the J: outer/inner radii of the flat stamped hook. */
+    outerR: 0.168,
+    innerR: 0.112,
+    /** Stamped-steel thickness. */
+    depth: 0.022,
+    /** Mouth opening (degrees, CCW from +x): the gap the gate spans. */
+    mouthStart: 12,
+    mouthEnd: 74,
+    stem: { width: 0.068, height: 0.17 },
+    barrel: { radius: 0.07, height: 0.18, collar: 0.095 },
+    crimp: { width: 0.44, height: 0.24, depth: 0.062 },
   },
   /** Woven strap halves rising from the crimp in a hanging ~30° V. */
   strap: { width: 0.47, thickness: 0.022, length: 2.6, spreadAngle: 0.26, backTilt: 0.1 },

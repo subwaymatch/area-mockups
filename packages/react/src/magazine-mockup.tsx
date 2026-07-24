@@ -1,12 +1,14 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Magazine, type MagazineProps } from './objects/magazine/magazine'
-import { MAGAZINE } from '@area-mockups/core'
+import { MAGAZINE, magazineSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   MagazineProps,
   | 'back'
+  | 'spine'
+  | 'size'
   | 'pageColor'
   | 'backColor'
   | 'glossy'
@@ -42,6 +44,8 @@ export interface MagazineMockupProps
 export function MagazineMockup({
   children,
   back,
+  spine,
+  size,
   pageColor,
   backColor,
   glossy,
@@ -58,6 +62,8 @@ export function MagazineMockup({
   const object = (
     <Magazine
       back={back}
+      spine={spine}
+      size={size}
       pageColor={pageColor}
       backColor={backColor}
       glossy={glossy}
@@ -73,7 +79,7 @@ export function MagazineMockup({
     </Magazine>
   )
 
-  const half = MAGAZINE.body.height / 2
+  const half = (size ? magazineSpec(size) : MAGAZINE).body.height / 2
   const shadowY = canvasProps.shadowY ?? (float ? -(half + 0.3) : -(half + 0.05))
 
   return (

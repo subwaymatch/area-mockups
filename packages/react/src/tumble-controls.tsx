@@ -23,6 +23,11 @@ export interface TumbleControlsProps {
   freeRotation?: boolean
   minDistance?: number
   maxDistance?: number
+  /**
+   * Called whenever the camera's orbit distance settles on a new value
+   * (wheel, pinch or the +/− buttons) — drives the zoom readout.
+   */
+  onDistanceChange?: (distance: number) => void
 }
 
 /**
@@ -42,6 +47,7 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
       freeRotation = false,
       minDistance,
       maxDistance,
+      onDistanceChange,
     },
     ref
   ) {
@@ -68,10 +74,18 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
     React.useEffect(() => {
       const element = gl.domElement
       const pointers = new Map<number, { x: number; y: number }>()
+      const panPointers = new Set<number>()
       let pinchDistance = 0
 
       const onPointerDown = (event: PointerEvent) => {
-        if (!enabled || (event.pointerType === 'mouse' && event.button !== 0)) return
+        if (!enabled) return
+        if (event.pointerType === 'mouse' && event.button !== 0) {
+          // Middle or right drag pans (the common CAD/OrbitControls split);
+          // preventDefault stops Windows' middle-click autoscroll.
+          if (event.button !== 1 && event.button !== 2) return
+          event.preventDefault()
+          panPointers.add(event.pointerId)
+        }
         pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
         if (pointers.size === 2) {
           const [a, b] = [...pointers.values()]
@@ -91,6 +105,10 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
         const dy = event.clientY - previous.y
         pointers.set(event.pointerId, { x: event.clientX, y: event.clientY })
 
+        if (panPointers.has(event.pointerId)) {
+          orbit.pan(camera, dx, dy, element.clientHeight || 1)
+          return
+        }
         if (pointers.size === 1) {
           const height = element.clientHeight || 1
           // Negative dy: dragging down carries the device's front face down
@@ -107,7 +125,13 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
 
       const onPointerEnd = (event: PointerEvent) => {
         pointers.delete(event.pointerId)
+        panPointers.delete(event.pointerId)
         pinchDistance = 0
+      }
+
+      // Right-drag pans; the browser context menu would swallow the gesture.
+      const onContextMenu = (event: Event) => {
+        if (enabled) event.preventDefault()
       }
 
       const onWheel = (event: WheelEvent) => {
@@ -122,6 +146,7 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
       element.addEventListener('pointercancel', onPointerEnd)
       element.addEventListener('pointerleave', onPointerEnd)
       element.addEventListener('wheel', onWheel, { passive: false })
+      element.addEventListener('contextmenu', onContextMenu)
       return () => {
         element.removeEventListener('pointerdown', onPointerDown)
         element.removeEventListener('pointermove', onPointerMove)
@@ -129,6 +154,7 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
         element.removeEventListener('pointercancel', onPointerEnd)
         element.removeEventListener('pointerleave', onPointerEnd)
         element.removeEventListener('wheel', onWheel)
+        element.removeEventListener('contextmenu', onContextMenu)
       }
     }, [gl, enabled, zoom, orbit, camera])
 
@@ -136,9 +162,19 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
     // drei's <Html transform> positions the DOM screens in its own useFrame,
     // and if the camera moves after that, the live screens visibly trail the
     // WebGL body by one frame during fast drags.
+    const lastDistance = React.useRef(0)
     useFrame((_, delta) => {
       const step = autoRotate ? tumbleAutoRotateStep(delta, autoRotateSpeed) : 0
       orbit.update(camera, step)
+      if (onDistanceChange) {
+        // The orbit keeps the stage center as its target, so the camera's
+        // length IS the zoom distance. Report only real changes (>0.2%).
+        const distance = camera.position.length()
+        if (Math.abs(distance - lastDistance.current) > distance * 0.002) {
+          lastDistance.current = distance
+          onDistanceChange(distance)
+        }
+      }
     }, -1)
 
     return null

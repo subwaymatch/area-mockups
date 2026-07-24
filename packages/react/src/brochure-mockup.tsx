@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { MockupCanvas, type MockupCanvasProps } from './mockup-canvas'
 import { Brochure, type BrochureProps } from './objects/brochure/brochure'
-import { BROCHURE } from '@area-mockups/core'
+import { BROCHURE, brochureSpec } from '@area-mockups/core'
 import { FloatGroup } from './float-group'
 
 type InheritedObjectProps = Pick<
   BrochureProps,
   | 'panels'
   | 'backPanels'
+  | 'size'
   | 'foldAngle'
   | 'paperColor'
   | 'panelBackground'
@@ -41,6 +42,7 @@ export function BrochureMockup({
   children,
   panels,
   backPanels,
+  size,
   foldAngle,
   paperColor,
   panelBackground,
@@ -57,6 +59,7 @@ export function BrochureMockup({
     <Brochure
       panels={panels}
       backPanels={backPanels}
+      size={size}
       foldAngle={foldAngle}
       paperColor={paperColor}
       panelBackground={panelBackground}
@@ -71,7 +74,7 @@ export function BrochureMockup({
     </Brochure>
   )
 
-  const half = BROCHURE.panel.height / 2
+  const half = (size ? brochureSpec(size) : BROCHURE).panel.height / 2
   const shadowY = canvasProps.shadowY ?? (float ? -(half + 0.3) : -(half + 0.02))
 
   return (

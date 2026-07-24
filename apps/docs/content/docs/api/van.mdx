@@ -6,10 +6,12 @@ description: A wrap-ready cargo van with a live livery panel on the cargo side.
 `<Van>` and `<VanMockup>` render a generic Euro-style cargo van (a
 Transit/Sprinter-class silhouette, no brand): the shell is the side profile —
 clamshell hood, cowl break, raked windshield, high roof, wheel-arch cutouts —
-extruded across the width, with wheels, A-pillar-raked door glass, a wide
-slatted grille between headlights under the hood line, a license-plate
-recess, a slim wrap-around bumper band, mirrors on long arms and hand-height
-taillights added on. The flat cargo side carries a
+extruded across the width, with six-lug steel wheels, A-pillar-raked door
+glass, parked windshield wipers, cab-door shut lines, a sliding-door entry
+step, pressed roof ribs, a stub antenna, a wide slatted grille between
+headlights under the hood line, fog recesses in the bumper corners,
+license-plate recesses front and rear, barn-door hinges, mirrors on long
+arms and hand-height taillights added on. The flat cargo side carries a
 live 900×368 vinyl-wrap panel for your livery. The mockup grounds the wheels
 on a virtual road plane.
 
@@ -27,33 +29,46 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
+| `curbSide` | `ReactNode` | - | Livery for the curb-side (+Z) panel — the named alternative to `children` (wins when both are set). |
 | `streetSide` | `ReactNode` | - | Livery for the street-side (−Z) wrap panel. |
-| `rear` | `ReactNode` | - | Livery for the rear-door panel, between the taillight clusters. |
+| `rear` | `ReactNode` | - | Livery for the rear doors: the between-the-taillights panel, or the whole barn-door face with `coverage="full"`. |
 | `color` | `string` | `'#eef0f2'` | Body paint. Wrap fleets are usually white. |
 | `wrapBackground` | `string` | `'#ffffff'` | CSS background behind your wrap content. |
-| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` covers the entire side elevation and carves out the wheel arches, door glass, handle, mirror mount and door track, so the 3D hardware shows through the livery. |
+| `wrapOverWindows` | `boolean \| { curbSide?, streetSide? }` | `false` | Whether a full wrap runs over the cab door glass (perforated-film full-print look) or the glass stays clear and carved out (default — door glass is operational). |
+| `licensePlate` | `ReactNode \| string` | - | Front and rear plates. A string renders the built-in plate face; a node renders as-is. |
+| `coverage` | `'panel' \| 'full'` | `'panel'` | `'full'` covers the entire side elevations AND the whole rear face — door edge to door edge — carving out the wheel arches and door glass, while the proud hardware (mirrors, handles, door track, cab-door shut lines) draws on top of the livery via per-pixel depth compositing, like hardware remounted over the vinyl. On the rear, every taillight lamp, the third brake light and the hinge knuckles are carved to a slim install margin. Both coverages keep the barn-door shut line visible through the wrap. |
 | `resolution` | `number` | `900` panel · `1360` full | Virtual side-wrap width in CSS px; the rear panel shares its dpi. |
 
 `children` is the curb-side (+Z) panel; with the default `coverage="panel"`
 all three panels sit clear of the wheel arches, lights and cab glass. Rotate
 the group to pose the van; the panels stay live at any angle.
 
+## Mockup-able areas
+
+Every live surface filled with chroma green, labeled with the prop that
+feeds it — the fastest way to see exactly where your content lands and
+what stays 3D hardware.
+
+<ObjectDemo demo="chroma-van" />
+
 ## More examples
 
 ### Full-coverage wrap with carve-outs
 
-`coverage="full"` stretches the live panel across the entire side elevation —
-rockers to roofline, tail to nose. The panel is real DOM composited over the
-WebGL canvas, so a CSS `clip-path` (computed from the same dimension spec the
-geometry is built from) carves the body outline, wheel arches, door glass,
-handle, mirror mount and door track out of it — the 3D wheels, windows and
-hardware show through your livery, and pointer events over the carved regions
-fall through to the orbit controls.
+`coverage="full"` stretches the live panels across the entire side elevation
+— rockers to roofline, tail to nose — and across the whole barn-door rear
+face. A CSS `clip-path` (computed from the same dimension spec the geometry
+is built from) carves the body outline, wheel arches, door glass and rear
+taillight clusters out of the live panels, and the sides composite per-pixel
+against a depth occluder shaped like that clip — so the wheels and glass
+show through the carves while the proud hardware (mirrors, door handles,
+the sliding-door track, the cab-door shut lines) draws over your livery,
+the way remounted hardware sits on real vinyl.
 
 <ObjectDemo demo="van-full" />
 
 ```tsx
-<VanMockup coverage="full" streetSide={<FullLivery />} deviceProps={{ rotation: [0, -0.42, 0] }}>
+<VanMockup coverage="full" streetSide={<FullLivery />} rear={<RearLivery />} deviceProps={{ rotation: [0, -0.42, 0] }}>
   <FullLivery />
 </VanMockup>
 ```

@@ -1,18 +1,24 @@
 ---
 title: Storefront
-description: A high-street shopfront with a live fascia sign and window poster.
+description: A free-standing corner shop with live surfaces on all four elevations.
 ---
 
-`<Storefront>` and `<StorefrontMockup>` render a classic single-unit shop
-façade: painted timber surround with cornice and pilasters, a 600 mm stall
-riser, big display glazing with a mullion, a glazed door on the right — and
-two live surfaces: the fascia sign band (5390×451 mm) above the glazing and
-an A1-class poster pasted inside the left window bay.
+`<Storefront>` and `<StorefrontMockup>` render a free-standing single-story
+corner shop: four glazed shopfront elevations under a capped flat roof,
+the parapet sitting just above the cornice so the painted composition IS
+the whole building. The front is the classic high-street shopfront —
+painted timber surround with cornice and pilasters, a 600 mm stall riser,
+big display glazing with a mullion, a glazed door on the right. The other
+three elevations repeat the same composition without the door — windows
+only — and each carries its own live fascia sign. Every big pane is a
+mockup surface too: both front display bays, the glazed door leaf and the
+wide center pane of each other elevation, via the `windows` prop. Ten
+live surfaces in all (the roof stays hardware).
 
 <ObjectDemo demo="storefront-basic" checker />
 
 ```tsx
-<StorefrontMockup windowPoster={<YourPoster />} deviceProps={{ rotation: [0, -0.25, 0] }}>
+<StorefrontMockup windows={{ frontLeft: <YourPoster />, frontRight: <YourPoster /> }} deviceProps={{ rotation: [0, -0.25, 0] }}>
   <YourSign />
 </StorefrontMockup>
 ```
@@ -23,23 +29,59 @@ Beyond the [shared screen props](/docs/screen-content):
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `windowPoster` | `ReactNode` | - | Poster displayed inside the left window bay. |
-| `color` | `string` | `'#2e4638'` | Shopfront paint: fascia surround, frames, door, stall riser. |
-| `wallColor` | `string` | `'#8d7a6a'` | Masonry above and around the shopfront. |
+| `windows` | `object` | - | Live window graphics: `frontLeft` / `frontRight` (the display bays either side of the front mullion), `door` (the glazed door leaf), and `left` / `right` / `rear` (the wide center pane of each other elevation). |
+| `leftSign` | `ReactNode` | - | Fascia sign on the left elevation (−X as you face the shop). |
+| `rightSign` | `ReactNode` | - | Fascia sign on the right elevation (+X as you face the shop). |
+| `rearSign` | `ReactNode` | - | Fascia sign on the rear elevation (−Z). |
+| `color` | `string` | `'#2e4638'` | Shopfront paint: fascia surrounds, frames, door, stall risers. |
 | `faceBackground` | `string` | `'#ffffff'` | CSS background behind sign and poster content. |
-| `resolution` | `number` | `800` | Virtual fascia sign width in CSS px. The window poster is a fixed 420 px wide. |
+| `resolution` | `number` | `800` | Virtual fascia sign width in CSS px. Window panes use fixed widths (~420–480 px). |
 
 The pavement sits `STOREFRONT.standHeight` below the origin — the mockup
 grounds the shadow there automatically.
 
+## Mockup-able areas
+
+Every live surface filled with chroma green, labeled with the prop that
+feeds it — the fastest way to see exactly where your content lands and
+what stays 3D hardware.
+
+<ObjectDemo demo="chroma-storefront" />
+
 ## More examples
+
+### All four elevations, orbiting
+
+A fascia sign on every side and every pane dressed — spin the block to
+walk around it.
+
+<ObjectDemo demo="storefront-around" />
+
+```tsx
+<StorefrontMockup
+  windows={{
+    frontLeft: <YourWindow />,
+    frontRight: <YourWindow />,
+    door: <YourWindow />,
+    left: <YourWindow />,
+    right: <YourWindow />,
+    rear: <YourWindow />,
+  }}
+  leftSign={<YourSign />}
+  rightSign={<YourSign />}
+  rearSign={<YourSign />}
+  autoRotate
+>
+  <YourSign />
+</StorefrontMockup>
+```
 
 ### Oxblood paint, three-quarter view
 
 <ObjectDemo demo="storefront-paint" />
 
 ```tsx
-<StorefrontMockup color="#5c2330" wallColor="#6d6258" windowPoster={<YourPoster />} deviceProps={{ rotation: [0, 0.3, 0] }}>
+<StorefrontMockup color="#5c2330" windows={{ frontLeft: <YourWindow />, door: <YourWindow /> }} deviceProps={{ rotation: [0, 0.3, 0] }}>
   <YourSign />
 </StorefrontMockup>
 ```
