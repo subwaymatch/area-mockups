@@ -143,7 +143,10 @@ const FOLD7: FoldSpec = {
     { y: 0.775, length: 0.507 },
     { y: 0.177, length: 0.354 },
   ],
-  buttonProfile: { protrusion: 0.012, thickness: 0.082 },
+  // Slim ~1.8 mm key strips — the rail is much thicker than the keys, with
+  // clear frame above and below them (product photography), not pills
+  // filling the edge.
+  buttonProfile: { protrusion: 0.01, thickness: 0.05 },
   // Spine channel 6.1 mm wide; folded it caps the left edge, 1.1 mm proud,
   // with the vertical 16.7 mm SAMSUNG emboss at mid-height.
   hinge: { width: 0.166, overhang: 0.03, emboss: { length: 0.456 } },

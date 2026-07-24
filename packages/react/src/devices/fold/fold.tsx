@@ -43,9 +43,9 @@ export interface FoldProps extends Omit<GroupProps, 'children' | 'color'> {
    * Flex Mode book pose: the panels pivot around the hinge line, the spine's
    * flat band (with its SAMSUNG engraving) bisects the fold, and your
    * content bends across the crease — e.g. `openAngle={110}` for the
-   * half-open standing pose. Angles below ~15° snap to the fully folded
-   * pose (like the real hinge, which springs shut from there) and above
-   * ~177° to the flat-open one. At intermediate angles the inner display is
+   * half-open standing pose. The pose is continuous from nearly shut to
+   * nearly flat; only ~0° snaps to the dedicated folded pose and ~177°+
+   * to the flat-open one. At intermediate angles the inner display is
    * composited from two planes, so stateful screen content is best kept
    * simple.
    */
@@ -137,12 +137,11 @@ export function Fold({
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#54585f'
   // Resolve the pose: an explicit fold angle wins over the boolean; the
   // extremes snap to the dedicated flat-open / folded-shut paths so the
-  // default renders are pixel-identical to before. Below 15° the flex
-  // rig's panels read as two detached slabs (the spine hides behind them),
-  // so that whole range clips to the folded pose — the real hinge snaps
-  // shut from there anyway.
+  // default renders are pixel-identical to before. The flex rig pivots on
+  // the display surface, so the pose is continuous all the way down —
+  // only ~0° itself snaps to the dedicated folded pose.
   const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
-  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 15 ? 'closed' : 'flex'
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle < 0.5 ? 'closed' : 'flex'
   const isOpenFace = mode !== 'closed'
   const state = isOpenFace ? spec.open : spec.closed
   const cam = isOpenFace ? spec.rearCamera.open : spec.rearCamera.closed
@@ -500,7 +499,10 @@ export function Fold({
     const alpha = ((180 - angle) / 2) * (Math.PI / 180)
     const b = spec.open.body
     const hw = b.width / 2
-    const pz = b.depth / 2 - 0.012
+    // Pivot ON the display surface: the two half-screens then meet exactly
+    // at the crease at every angle — nearly shut included — instead of
+    // interpenetrating (crossed DOM planes glitch near 0°).
+    const pz = b.depth / 2 + 0.006
     // Tangent radius: pivot plane to the back face. The exposed arc spans
     // ±alpha around straight-back, meeting each half at its back corner.
     // Run the spine and its caps essentially edge to edge — the panels'

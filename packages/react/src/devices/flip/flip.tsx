@@ -44,8 +44,8 @@ export interface FlipProps extends Omit<GroupProps, 'children' | 'color'> {
    * Flex Mode pose: the halves pivot around the hinge line while the spine's
    * curved housing rolls into the gap between them, and your content bends
    * across the fold — e.g. `openAngle={100}` for the classic half-open
-   * standing pose. Angles below ~15° snap to the folded-shut pose (like the
-   * real hinge, which springs closed from there) and above ~177° to the
+   * standing pose. The pose is continuous from nearly shut to nearly flat;
+   * only ~0° snaps to the dedicated folded pose and ~177°+ to the
    * flat-open one. At intermediate angles the main display is composited
    * from two planes, so stateful screen content is best kept simple.
    */
@@ -150,12 +150,11 @@ export function Flip({
   const frameColor = frameColorProp ?? retail?.frameColor ?? '#4a4f59'
   // Resolve the pose: an explicit fold angle wins over the boolean; the
   // extremes snap to the dedicated flat-open / folded-shut paths so the
-  // default renders are pixel-identical to before. Below 15° the flex
-  // rig's halves read as two detached slabs (the spine hides behind them),
-  // so that whole range clips to the folded pose — the real hinge snaps
-  // shut from there anyway.
+  // default renders are pixel-identical to before. The flex rig pivots on
+  // the display surface, so the pose is continuous all the way down —
+  // only ~0° itself snaps to the dedicated folded pose.
   const angle = openAngle === undefined ? (open ? 180 : 0) : Math.max(0, Math.min(180, openAngle))
-  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle <= 15 ? 'closed' : 'flex'
+  const mode: 'open' | 'closed' | 'flex' = angle >= 177 ? 'open' : angle < 0.5 ? 'closed' : 'flex'
   const isOpenFace = mode !== 'closed'
   const state = isOpenFace ? spec.open : spec.closed
   const { display } = state
@@ -532,7 +531,10 @@ export function Flip({
     // Armor FlexHinge spine is a separate rigid body: a cylinder segment the
     // halves' back shells progressively cover as the device opens.
     const alpha = ((180 - angle) / 2) * (Math.PI / 180)
-    const pz = openBody.depth / 2 - 0.015
+    // Pivot ON the display surface: the two half-screens then meet exactly
+    // at the crease at every angle — nearly shut included — instead of
+    // interpenetrating (crossed DOM planes glitch near 0°).
+    const pz = openBody.depth / 2 + 0.006
     const halfH = half.height
     // Spine housing: a cylinder segment tangent to both halves' back shells.
     // The halves pivot on the display's neutral plane, so their back faces
