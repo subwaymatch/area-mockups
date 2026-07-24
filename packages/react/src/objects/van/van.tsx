@@ -69,6 +69,39 @@ function vanProfileShape(): THREE.Shape {
   return s
 }
 
+/**
+ * Cab-door shut-line slits, in world units on the side elevation: A-pillar
+ * seam (stopped just above the front wheel arch, which reaches y −0.47 at
+ * that x), B-pillar seam (stopped short of the door glass at y 0.24), and
+ * the sill seam between them (clear of both the B-slit and the arch's
+ * front edge at x 1.467). Every full wrap carves these — a real crevice is
+ * a GAP the film tucks into, never a ridge over it — and the blending
+ * occluder opens matching holes so the recessed seam meshes show through.
+ * The rects never touch each other or the glass carve: overlapping holes
+ * cancel back to filled under the nonzero rule.
+ */
+const DOOR_SEAMS = [
+  { minX: 2.052, maxX: 2.068, minY: -0.47, maxY: 0.26 },
+  { minX: 1.022, maxX: 1.038, minY: -0.86, maxY: 0.234 },
+  { minX: 1.042, maxX: 1.462, minY: -0.865, maxY: -0.849 },
+] as const
+
+/** Rounded-rect hole path (world coords) matching one wrap-clip carve. */
+function roundedHolePath(minX: number, minY: number, maxX: number, maxY: number, r: number): THREE.Path {
+  const p = new THREE.Path()
+  p.moveTo(minX + r, minY)
+  p.lineTo(maxX - r, minY)
+  p.quadraticCurveTo(maxX, minY, maxX, minY + r)
+  p.lineTo(maxX, maxY - r)
+  p.quadraticCurveTo(maxX, maxY, maxX - r, maxY)
+  p.lineTo(minX + r, maxY)
+  p.quadraticCurveTo(minX, maxY, minX, maxY - r)
+  p.lineTo(minX, minY + r)
+  p.quadraticCurveTo(minX, minY, minX + r, minY)
+  p.closePath()
+  return p
+}
+
 /** The cab door glass trapezoid as a hole path (world coords). */
 function doorGlassHolePath(): THREE.Path {
   const g = SIDE_CUTOUTS.doorGlass
@@ -144,10 +177,12 @@ function buildFullWrapClip(pxPerUnit: number, mirrored: boolean, overWindows: bo
     `M ${P(gx0, gy0)} L ${P(gx0, gy1 - 0.08)} Q ${P(gx0, gy1)} ${P(gEx, gy1)} ` +
     `L ${P(gDx, gy1)} Q ${P(gCx - 0.1, gy1)} ${P(gCx, gy1)} L ${P(gx1, gy0)} Z `
 
-  // No hardware carves: the full-coverage sides composite per-pixel
-  // ('blending'), so the proud mirror, handle, door track and hinges draw
-  // over the livery on their own — like hardware remounted over the vinyl.
-  return (outline + (overWindows ? '' : glass)).trim()
+  // The cab-door shut lines are carved as slits — the crevice is a gap the
+  // film tucks into on a real wrap. No other hardware carves: the sides
+  // composite per-pixel ('blending'), so the proud mirror, handle and door
+  // track draw over the livery on their own — hardware remounted over vinyl.
+  const seams = DOOR_SEAMS.map((s) => clipRoundedRect(P, R, sweep, { ...s, r: 0.006 })).join('')
+  return (outline + seams + (overWindows ? '' : glass)).trim()
 }
 
 /**
@@ -401,6 +436,7 @@ export function Van({
     const build = (overGlass: boolean, mirroredSide: boolean) => {
       const s = vanProfileShape()
       if (!overGlass) s.holes.push(doorGlassHolePath())
+      for (const seam of DOOR_SEAMS) s.holes.push(roundedHolePath(seam.minX, seam.minY, seam.maxX, seam.maxY, 0.006))
       const geometry = new THREE.ShapeGeometry(s, 16)
       geometry.translate(-FULL_WRAP.x, -FULL_WRAP.y, 0)
       if (mirroredSide) geometry.scale(-1, 1, 1)
@@ -542,23 +578,23 @@ export function Van({
       ))}
 
       {/* cab-door shut lines, both sides: the A-pillar seam, the B-pillar
-          seam and the sill seam joining them along the door bottom — one
-          continuous gap outlining the door leaf like the rear barn-door
-          crevice. Held proud of the full wrap's DOM plane, so per-pixel
-          blending draws the gap over any livery (a real wrap tucks into
-          the shut line, the crevice always reads). */}
+          seam and the sill seam joining them (`DOOR_SEAMS`) — recessed dark
+          strips sunk to the body surface, a GAP like the rear barn-door
+          crevice, never a ridge. The full wrap carves matching slits (and
+          the blending occluder matching holes), so the crevice reads
+          through any livery. Each strip is a hair wider/taller than its
+          slit so no background ever peeks through the carve edge. */}
       {[1, -1].map((side) => (
         <group key={side}>
-          {[2.06, 1.03].map((x) => (
-            <mesh key={x} position={[x, -0.3, side * 0.986]}>
-              <boxGeometry args={[0.012, 1.12, 0.018]} />
+          {DOOR_SEAMS.map((s) => (
+            <mesh
+              key={`${s.minX}${s.minY}`}
+              position={[(s.minX + s.maxX) / 2, (s.minY + s.maxY) / 2, side * 0.9715]}
+            >
+              <boxGeometry args={[s.maxX - s.minX + 0.01, s.maxY - s.minY + 0.01, 0.01]} />
               <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
             </mesh>
           ))}
-          <mesh position={[1.545, -0.857, side * 0.986]}>
-            <boxGeometry args={[1.042, 0.012, 0.018]} />
-            <meshPhysicalMaterial color="#191b1f" metalness={0.2} roughness={0.8} />
-          </mesh>
         </group>
       ))}
 

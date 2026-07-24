@@ -23,6 +23,11 @@ export interface TumbleControlsProps {
   freeRotation?: boolean
   minDistance?: number
   maxDistance?: number
+  /**
+   * Called whenever the camera's orbit distance settles on a new value
+   * (wheel, pinch or the +/− buttons) — drives the zoom readout.
+   */
+  onDistanceChange?: (distance: number) => void
 }
 
 /**
@@ -42,6 +47,7 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
       freeRotation = false,
       minDistance,
       maxDistance,
+      onDistanceChange,
     },
     ref
   ) {
@@ -136,9 +142,19 @@ export const TumbleControls = React.forwardRef<TumbleControlsHandle, TumbleContr
     // drei's <Html transform> positions the DOM screens in its own useFrame,
     // and if the camera moves after that, the live screens visibly trail the
     // WebGL body by one frame during fast drags.
+    const lastDistance = React.useRef(0)
     useFrame((_, delta) => {
       const step = autoRotate ? tumbleAutoRotateStep(delta, autoRotateSpeed) : 0
       orbit.update(camera, step)
+      if (onDistanceChange) {
+        // The orbit keeps the stage center as its target, so the camera's
+        // length IS the zoom distance. Report only real changes (>0.2%).
+        const distance = camera.position.length()
+        if (Math.abs(distance - lastDistance.current) > distance * 0.002) {
+          lastDistance.current = distance
+          onDistanceChange(distance)
+        }
+      }
     }, -1)
 
     return null

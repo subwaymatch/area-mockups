@@ -17,6 +17,8 @@ export interface SemiTrailerProps extends Omit<GroupProps, 'children' | 'color'>
   rear?: React.ReactNode
   /** Box paint. Wrap trailers are usually white. */
   color?: string
+  /** Side-skirt paint. Defaults to the box `color`. */
+  skirtColor?: string
   /** CSS background painted behind your wrap content. */
   wrapBackground?: string
   /** CSS pixel width of the virtual side panel. The rear shares its dpi. */
@@ -51,6 +53,7 @@ export function SemiTrailer({
   streetSide,
   rear,
   color = '#eef0f2',
+  skirtColor,
   wrapBackground = '#ffffff',
   resolution = SEMI_TRAILER.resolution,
   interactive = true,
@@ -99,10 +102,12 @@ export function SemiTrailer({
         <cylinderGeometry args={[0.0102, 0.0102, 0.032, 12]} />
         <meshPhysicalMaterial {...steel} />
       </mesh>
+      {/* aero side skirts: thin composite panels (~12 mm), paintable
+          separately from the box */}
       {([1, -1] as const).map((s) => (
         <mesh key={s} position={[0.1, floorY - 0.24, s * (body.width / 2 - 0.03)]}>
-          <boxGeometry args={[3.2, 0.36, 0.025]} />
-          <meshPhysicalMaterial color={color} metalness={0.3} roughness={0.5} />
+          <boxGeometry args={[3.2, 0.36, 0.012]} />
+          <meshPhysicalMaterial color={skirtColor ?? color} metalness={0.3} roughness={0.5} />
         </mesh>
       ))}
 

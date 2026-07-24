@@ -165,6 +165,13 @@ export function Flip({
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const lowerBodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef, lowerBodyRef)
+  // Screens occlude against OTHER registered bodies only — see the fold's
+  // matching note: self-hits at oblique angles black out a visible display,
+  // and the backface culler already covers every behind-the-device view.
+  const otherOccludeRefs = React.useMemo(
+    () => occludeRefs.filter((ref) => ref !== bodyRef && ref !== lowerBodyRef),
+    [occludeRefs]
+  )
 
   const openBody = spec.open.body
   const half = spec.closed.body
@@ -490,7 +497,7 @@ export function Flip({
       background={screenBackground}
       interactive={interactive}
       dragToRotate={dragToRotate}
-      occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+      occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
       screenStyle={screenStyle}
       overlay={
         mode === 'open' && punchHole ? (
@@ -577,7 +584,7 @@ export function Flip({
           background={screenBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
           overlay={
             <>

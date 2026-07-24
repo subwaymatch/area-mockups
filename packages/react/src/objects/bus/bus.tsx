@@ -654,14 +654,14 @@ export function Bus({
       <RoundedBox
         args={[0.05, rearWindow.height, rearWindow.width]}
         radius={0.03}
-        position={[-3.21, rearWindow.y, 0]}
+        position={[-3.198, rearWindow.y, 0]}
       >
         {glassMaterial}
       </RoundedBox>
-      <RoundedBox args={[0.04, 0.1, 0.5]} radius={0.015} position={[-3.22, 0.77, 0]}>
+      <RoundedBox args={[0.03, 0.1, 0.5]} radius={0.012} position={[-3.206, 0.77, 0]}>
         <meshPhysicalMaterial color="#0a0a08" metalness={0.2} roughness={0.3} clearcoat={1} />
       </RoundedBox>
-      <RoundedBox args={[0.05, 0.22, 0.9]} radius={0.02} position={[-3.21, 0.05, 0]}>
+      <RoundedBox args={[0.05, 0.22, 0.9]} radius={0.02} position={[-3.198, 0.05, 0]}>
         <meshPhysicalMaterial color="#1d2025" metalness={0.3} roughness={0.6} />
       </RoundedBox>
       {[1, -1].map((side) =>
@@ -672,11 +672,13 @@ export function Bus({
             { y: 0.02, color: '#f2a33c', emissive: '#ffb340' },
           ] as const
         ).map(({ y, color: lampColor, emissive }) => (
-          // Slim lens pucks: rooted in the tail face, ending just ~5 mm proud
-          // of the full-wrap plane (x -3.245) — through the carved holes the
-          // lamps read mounted ON the livery without jutting like knobs.
-          <mesh key={`${side}${y}`} rotation-z={Math.PI / 2} position={[-3.227, y, side * 0.56]}>
-            <cylinderGeometry args={[0.045, 0.045, 0.045, 20]} />
+          // Slim lens pucks: rooted in the tail face, ending just ~7 mm proud
+          // of the full-wrap plane (x -3.229) — through the carved holes the
+          // lamps read mounted ON the livery without jutting like knobs. The
+          // whole tail stack (window, sign box, louvers) sits within ~23 mm
+          // of the face so the wrap plane can hug the body this closely.
+          <mesh key={`${side}${y}`} rotation-z={Math.PI / 2} position={[-3.218, y, side * 0.56]}>
+            <cylinderGeometry args={[0.045, 0.045, 0.036, 20]} />
             <meshPhysicalMaterial
               color={lampColor}
               emissive={emissive}
@@ -768,7 +770,7 @@ export function Bus({
           height={rearSpec.height}
           radius={rearSpec.radius}
           resolution={rearResolution}
-          position={[-body.length / 2 - (fullWrap ? 0.045 : 0.028), rearSpec.y, 0]}
+          position={[-body.length / 2 - (fullWrap ? 0.029 : 0.028), rearSpec.y, 0]}
           rotation={[0, -Math.PI / 2, 0]}
           background={adBackground}
           interactive={interactive}

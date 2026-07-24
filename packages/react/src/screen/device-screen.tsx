@@ -16,6 +16,31 @@ import { createScreenOcclusionTester } from './occluders'
 
 export type { ScreenRadius }
 
+/**
+ * Every DeviceScreen passes this zIndexRange to drei's <Html>: raycast and
+ * unoccluded screens layer in [10, 5], blending screens in [4, 0].
+ */
+const SCREEN_Z_RANGE: [number, number] = [10, 0]
+
+/**
+ * The z-index drei raises the WebGL canvas to while any 'blending' screen
+ * is live (zIndexRange[0] / 2 — OUR range, not drei's default) — blending
+ * screen DOM stacks below the canvas, raycast screen DOM above it. Page UI
+ * overlaid on the canvas (zoom / fullscreen buttons) must stack above the
+ * whole band, or the transparent canvas shows the buttons through itself
+ * while eating their clicks.
+ */
+export const BLENDING_CANVAS_Z = Math.floor(SCREEN_Z_RANGE[0] / 2)
+
+// Staggered retry thresholds for the drei <Html> mount race (see below):
+// screens created back-to-back get different frame counts, so their
+// remounts land in separate commits instead of re-racing each other.
+let retryPhase = 0
+function nextRetryThreshold(): number {
+  retryPhase = (retryPhase + 1) % 5
+  return 6 + retryPhase * 3
+}
+
 export interface DeviceScreenProps {
   /** Active display size in world units. */
   width: number
@@ -105,7 +130,7 @@ export function DeviceScreen({
   // compositing (proud hardware vanishes under the wrap DOM). Re-assert
   // the blending canvas config from the frame loop so it always wins,
   // whatever the mount order.
-  const blendingCanvasZ = String(Math.floor(16777271 / 2)) // drei's default zIndexRange[0] / 2
+  const blendingCanvasZ = String(BLENDING_CANVAS_Z)
 
   // Tap-vs-drag handoff: presses stay with the content, real drags are
   // replayed on the canvas so the orbit controls take over the gesture.
@@ -119,6 +144,12 @@ export function DeviceScreen({
   // screen pierce through chassis edges and neighboring devices.
   const anchorRef = React.useRef<Group>(null!)
   const contentRef = React.useRef<HTMLDivElement>(null!)
+  // Retry epoch + bookkeeping for the drei <Html> mount race (see the
+  // frame loop): bumping the epoch re-commits the <Html> subtree, which
+  // re-runs drei's dependency-less render effect on its existing root.
+  const [, setHtmlEpoch] = React.useState(0)
+  const retryState = React.useRef({ frames: 0, retries: 0 })
+  const retryThreshold = React.useMemo(nextRetryThreshold, [])
   const cullBackface = React.useMemo(() => createBackfaceCuller(), [])
   const occlusionBlocked = React.useMemo(() => createScreenOcclusionTester(), [])
   const occludeMeshes = Array.isArray(occlude) ? occlude : undefined
@@ -128,6 +159,26 @@ export function DeviceScreen({
       if (canvas.zIndex !== blendingCanvasZ) canvas.zIndex = blendingCanvasZ
       if (canvas.position !== 'absolute') canvas.position = 'absolute'
       if (canvas.pointerEvents !== 'auto') canvas.pointerEvents = 'auto'
+    }
+    // Self-healing for a drei <Html> mount race: Html renders its DOM
+    // through its own nested ReactDOM root, and when several screens mount
+    // in the same busy commit, all but the first can lose that root's
+    // initial flush and stay empty shells forever — a whole side of a bus,
+    // or nine of the store's ten panes, simply never appear. drei's render
+    // effect has no dependency array, so ANY re-commit of the <Html>
+    // subtree calls root.render() again on the existing root and lands the
+    // lost content. If our content div hasn't materialized after a few
+    // frames, bump a state to force that re-commit (staggered so retrying
+    // screens don't all re-race in one commit).
+    if (!contentRef.current) {
+      const retry = retryState.current
+      if (retry.retries < 8 && ++retry.frames >= retryThreshold) {
+        retry.frames = 0
+        retry.retries += 1
+        setHtmlEpoch((epoch) => epoch + 1)
+      }
+    } else {
+      retryState.current.frames = 0
     }
     if (!anchorRef.current || !contentRef.current) return
     const content = contentRef.current
@@ -166,7 +217,7 @@ export function DeviceScreen({
           ) : undefined
         }
         distanceFactor={screenDistanceFactor(width, resolution)}
-        zIndexRange={[10, 0]}
+        zIndexRange={SCREEN_Z_RANGE}
         wrapperClass={screenLayerClass(dragToRotate)}
         // Keep drei's inner transform div from hit-testing: pointer handling
         // lives on the content div alone (visible + interactive → auto,

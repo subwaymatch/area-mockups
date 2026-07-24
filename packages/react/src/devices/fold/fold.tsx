@@ -153,6 +153,16 @@ export function Fold({
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const rearRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef, rearRef)
+  // This device's screens occlude against OTHER registered bodies only. The
+  // backface culler already hides a screen the camera can't face, and at
+  // oblique views the sample rays graze our own slabs (or cross the crease
+  // into the sibling half), hiding a display that is mostly visible — the
+  // all-black main screen at side-on angles. Own shells stay registered so
+  // they still occlude every other mockup in the scene.
+  const otherOccludeRefs = React.useMemo(
+    () => occludeRefs.filter((ref) => ref !== bodyRef && ref !== rearRef),
+    [occludeRefs]
+  )
 
   // The folded stack: body.depth spans both slabs plus the crevice between them.
   const gap = spec.closed.gap
@@ -476,7 +486,7 @@ export function Fold({
       background={screenBackground}
       interactive={interactive}
       dragToRotate={dragToRotate}
-      occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+      occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
       screenStyle={screenStyle}
       overlay={
         <>
@@ -550,7 +560,7 @@ export function Fold({
           background={screenBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
         >
           <div
