@@ -57,6 +57,7 @@ import {
   BagArt,
   BannerArt,
   MagazineBackArt,
+  MagazineSpineArt,
   MailerBottomArt,
   MailerEndArt,
   BillboardAdArt,
@@ -472,6 +473,11 @@ const DEMOS: Record<string, React.ReactNode> = {
   ),
   'magazine-back': (
     <MagazineMockup autoRotate autoRotateSpeed={1.2} back={<MagazineBackArt />} deviceProps={{ rotation: [0, 2.6, 0] }}>
+      <MagazineCoverArt />
+    </MagazineMockup>
+  ),
+  'magazine-spine': (
+    <MagazineMockup spine={<MagazineSpineArt />} back={<MagazineBackArt />} deviceProps={{ rotation: [0, 0.95, 0] }}>
       <MagazineCoverArt />
     </MagazineMockup>
   ),
@@ -1007,7 +1013,7 @@ const DEMOS: Record<string, React.ReactNode> = {
     </BookMockup>
   ),
   'chroma-magazine': (
-    <MagazineMockup back={<ChromaSurface label="back" />} autoRotate autoRotateSpeed={0.8}>
+    <MagazineMockup back={<ChromaSurface label="back" />} spine={<ChromaSurface label="spine" />} autoRotate autoRotateSpeed={0.8}>
       <ChromaSurface label="children" />
     </MagazineMockup>
   ),

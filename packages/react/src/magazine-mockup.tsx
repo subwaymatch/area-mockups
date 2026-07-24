@@ -7,6 +7,7 @@ import { FloatGroup } from './float-group'
 type InheritedObjectProps = Pick<
   MagazineProps,
   | 'back'
+  | 'spine'
   | 'size'
   | 'pageColor'
   | 'backColor'
@@ -43,6 +44,7 @@ export interface MagazineMockupProps
 export function MagazineMockup({
   children,
   back,
+  spine,
   size,
   pageColor,
   backColor,
@@ -60,6 +62,7 @@ export function MagazineMockup({
   const object = (
     <Magazine
       back={back}
+      spine={spine}
       size={size}
       pageColor={pageColor}
       backColor={backColor}

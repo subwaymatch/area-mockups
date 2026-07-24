@@ -181,6 +181,7 @@ function HarnessScene() {
       <MagazineMockup
         glossy={params.get('glossy') === '1'}
         back={params.get('back') === '1' ? screen : undefined}
+        spine={params.get('spine') === '0' ? undefined : screen}
         interactive={false}
         dragToRotate={false}
         controls={controls}

@@ -15,6 +15,13 @@ export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
   /** Back cover design — full bleed, on the same cover stock. */
   back?: React.ReactNode
   /**
+   * Spine print — the narrow bound-edge strip where magazines carry the
+   * title and issue number. Content is rotated to read top-to-bottom like
+   * a real shelf spine: your DOM's left edge lands at the spine's top and
+   * its top edge faces the front cover.
+   */
+  spine?: React.ReactNode
+  /**
    * Physical trim size in millimeters, e.g. `{ width: 210, height: 297 }`
    * for A4 or `{ thickness: 12 }` for a thick issue. Defaults to the
    * 216 x 279 x 6 mm US letter trim.
@@ -59,6 +66,7 @@ export interface MagazineProps extends Omit<GroupProps, 'children' | 'color'> {
 export function Magazine({
   children,
   back,
+  spine,
   size,
   pageColor = '#fbfaf7',
   backColor = '#e9e7e2',
@@ -77,6 +85,11 @@ export function Magazine({
   )
   const bodyRef = React.useRef<THREE.Mesh>(null!)
   const occludeRefs = useScreenOccluders(bodyRef)
+  // Screens occlude against OTHER registered bodies only — the page block
+  // is convex, so the backface culler already covers every view it could
+  // block itself, and own-body ray grazes would false-hide the thin spine
+  // strip at the shallow angles a spine is naturally viewed from.
+  const otherOccludeRefs = React.useMemo(() => occludeRefs.filter((ref) => ref !== bodyRef), [occludeRefs])
 
   // The spine and back share one cover-stock finish: matte by default
   // (rough, no clearcoat — flat under any light, like uncoated paper),
@@ -145,7 +158,7 @@ export function Magazine({
         background={coverBackground}
         interactive={interactive}
         dragToRotate={dragToRotate}
-        occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+        occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
         screenStyle={screenStyle}
         overlay={glossOverlay}
       >
@@ -164,11 +177,35 @@ export function Magazine({
           background={coverBackground}
           interactive={interactive}
           dragToRotate={dragToRotate}
-          occlude={occlude === true ? occludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
           screenStyle={screenStyle}
           overlay={glossOverlay}
         >
           {back}
+        </DeviceScreen>
+      )}
+
+      {/* live spine: the bound edge's narrow strip, rotated so content
+          reads top-to-bottom like a real shelf spine — DOM left lands at
+          the spine's top, DOM top faces the front cover. Rendered at 3x
+          the cover dpi: at print scale the strip is only a few mm tall,
+          and small type needs the extra pixels to stay crisp. */}
+      {spine != null && (
+        <DeviceScreen
+          width={body.height - 0.008}
+          height={body.thickness - 0.004}
+          radius={0.006}
+          resolution={Math.round(resolution * 3 * ((body.height - 0.008) / cover.width))}
+          position={[-body.width / 2 - 0.01, 0, 0]}
+          rotation={[0, -Math.PI / 2, -Math.PI / 2]}
+          background={coverBackground}
+          interactive={interactive}
+          dragToRotate={dragToRotate}
+          occlude={occlude === true ? otherOccludeRefs : occlude === 'blending' ? 'blending' : undefined}
+          screenStyle={screenStyle}
+          overlay={glossOverlay}
+        >
+          {spine}
         </DeviceScreen>
       )}
     </group>

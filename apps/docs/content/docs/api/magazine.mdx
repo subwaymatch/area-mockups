@@ -6,7 +6,9 @@ description: A perfect-bound monthly on matte stock with live front and back cov
 `<Magazine>` and `<MagazineMockup>` render a 216×279 mm letter-trim,
 perfect-bound magazine: a thin page block with crisp trimmed paper edges on
 the three open sides, the cover stock wrapping the bound spine, and live
-480×620 DOM front and back covers. The stock is matte paper by default —
+480×620 DOM front and back covers. The spine itself is a live surface too —
+the narrow strip where magazines carry the title and issue number, reading
+top-to-bottom like a shelf spine. The stock is matte paper by default —
 flat under any light; opt into `glossy` for the coated look with a soft
 diagonal sheen.
 
@@ -27,6 +29,7 @@ Beyond the [shared screen props](/docs/screen-content):
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `back` | `ReactNode` | - | Back cover design — full bleed, same stock finish. |
+| `spine` | `ReactNode` | - | Spine print — the bound-edge strip. Content is rotated to read top-to-bottom like a real shelf spine (your DOM's left edge lands at the spine's top), and renders at 3× the cover dpi so small type stays crisp. |
 | `size` | `{ width?, height?, thickness? }` | `216×279×6` | Physical trim in mm — e.g. `{ width: 210, height: 297 }` for A4, `{ thickness: 12 }` for a thick issue. |
 | `pageColor` | `string` | `'#fbfaf7'` | Paper color of the trimmed page edges. |
 | `backColor` | `string` | `'#e9e7e2'` | Back cover and spine-wrap color. |
@@ -52,6 +55,19 @@ Magazines sell their back page — `back` prints it, full bleed.
 
 ```tsx
 <MagazineMockup autoRotate back={<BackCoverAd />}>
+  <YourCoverArt />
+</MagazineMockup>
+```
+
+### The spine
+
+Title and issue number on the bound edge — `spine` prints the strip,
+reading top-to-bottom like a real shelf spine.
+
+<ObjectDemo demo="magazine-spine" />
+
+```tsx
+<MagazineMockup spine={<YourSpineStrip />} back={<BackCoverAd />} deviceProps={{ rotation: [0, 0.95, 0] }}>
   <YourCoverArt />
 </MagazineMockup>
 ```

@@ -81,6 +81,33 @@ export function MagazineCoverArt() {
   )
 }
 
+/**
+ * Spine strip matching the cover — the DOM's left edge lands at the
+ * spine's TOP, so this row reads top-to-bottom on the shelf.
+ */
+export function MagazineSpineArt() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        padding: '0 26px',
+        background: 'linear-gradient(90deg, #8f1d4e 0%, #e6453a 55%, #ff7a3c 100%)',
+        color: '#fff7ef',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 24,
+      }}
+    >
+      <div style={{ fontSize: 23, fontWeight: 800, letterSpacing: 1, whiteSpace: 'nowrap' }}>AREA</div>
+      <div style={{ fontSize: 14, letterSpacing: 5, opacity: 0.85, whiteSpace: 'nowrap' }}>THE DESIGN QUARTERLY · PRINT IS A LIVE SURFACE NOW</div>
+      <div style={{ fontSize: 14, letterSpacing: 2, whiteSpace: 'nowrap' }}>NO. 07 — JUL 2026</div>
+    </div>
+  )
+}
+
 /** Tri-fold panel 1 — the front. */
 export function BrochureFrontArt() {
   return (
