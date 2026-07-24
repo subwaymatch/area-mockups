@@ -267,7 +267,7 @@ function MiniCover({ title, from, to }: { title: string; from: string; to: strin
 const DEMOS: Record<string, React.ReactNode> = {
   // ---- Phone (Galaxy) -----------------------------------------------------
   'phone-basic': (
-    <PhoneMockup color="#15171d" frameColor="#4d5260" deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <PhoneMockup color="#15171d" frameColor="#4d5260" rotation={[0, -0.25, 0]}>
       <TapCounter />
     </PhoneMockup>
   ),
@@ -282,19 +282,19 @@ const DEMOS: Record<string, React.ReactNode> = {
     </PhoneMockup>
   ),
   'phone-s26': (
-    <PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <PhoneMockup variant="s26" color="#6f6791" frameColor="#5a5478" rotation={[0, -0.3, 0]}>
       <MusicPlayer />
     </PhoneMockup>
   ),
   'phone-s26ultra': (
-    <PhoneMockup variant="s26ultra" color="#a9bdce" frameColor="#c2ccd7" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <PhoneMockup variant="s26ultra" color="#a9bdce" frameColor="#c2ccd7" rotation={[0, -0.3, 0]}>
       <MusicPlayer />
     </PhoneMockup>
   ),
 
   // ---- Fold (Galaxy Z Fold 7) ---------------------------------------------
   'fold-open': (
-    <FoldMockup color="#c9ccce" frameColor="#b9bcbe" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <FoldMockup color="#c9ccce" frameColor="#b9bcbe" rotation={[0, -0.3, 0]}>
       <DesktopScreen />
     </FoldMockup>
   ),
@@ -304,14 +304,14 @@ const DEMOS: Record<string, React.ReactNode> = {
     </FoldMockup>
   ),
   'fold-flex': (
-    <FoldMockup openAngle={110} colorway="blueshadow" deviceProps={{ rotation: [0, -0.35, 0] }}>
+    <FoldMockup openAngle={110} colorway="blueshadow" rotation={[0, -0.35, 0]}>
       <DesktopScreen />
     </FoldMockup>
   ),
 
   // ---- Flip (Galaxy Z Flip 7) -----------------------------------------------
   'flip-open': (
-    <FlipMockup color="#e5502e" frameColor="#f06a45" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <FlipMockup color="#e5502e" frameColor="#f06a45" rotation={[0, -0.3, 0]}>
       <MusicPlayer />
     </FlipMockup>
   ),
@@ -321,24 +321,24 @@ const DEMOS: Record<string, React.ReactNode> = {
     </FlipMockup>
   ),
   'flip-flex': (
-    <FlipMockup openAngle={100} colorway="blueshadow" camera={{ position: [0, 1.6, 7.2], fov: 40 }} deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <FlipMockup openAngle={100} colorway="blueshadow" camera={{ position: [0, 1.6, 7.2], fov: 40 }} rotation={[0, -0.25, 0]}>
       <MusicPlayer />
     </FlipMockup>
   ),
 
   // ---- IPhone ---------------------------------------------------------------
   'iphone-17': (
-    <IPhoneMockup variant="17" color="#cfc4e6" frameColor="#b9aed3" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <IPhoneMockup variant="17" color="#cfc4e6" frameColor="#b9aed3" rotation={[0, -0.3, 0]}>
       <MusicPlayer />
     </IPhoneMockup>
   ),
   'iphone-pro': (
-    <IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" deviceProps={{ rotation: [0, 0.25, 0] }}>
+    <IPhoneMockup variant="pro" color="#c96b34" frameColor="#b25c2a" rotation={[0, 0.25, 0]}>
       <MusicPlayer />
     </IPhoneMockup>
   ),
   'iphone-promax': (
-    <IPhoneMockup variant="promax" color="#2b3a55" frameColor="#3d4d6b" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <IPhoneMockup variant="promax" color="#2b3a55" frameColor="#3d4d6b" rotation={[0, -0.3, 0]}>
       <MusicPlayer />
     </IPhoneMockup>
   ),
@@ -360,66 +360,66 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Laptop -----------------------------------------------------------------
   'laptop-basic': (
-    <LaptopMockup color="#aec6d9" deviceProps={{ rotation: [0, -0.35, 0] }}>
+    <LaptopMockup color="#aec6d9" rotation={[0, -0.35, 0]}>
       <DesktopScreen />
     </LaptopMockup>
   ),
   'laptop-midnight': (
-    <LaptopMockup color="#2e3642" openAngle={100} float deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <LaptopMockup color="#2e3642" openAngle={100} float rotation={[0, 0.3, 0]}>
       <DesktopScreen />
     </LaptopMockup>
   ),
   'laptop-pro14': (
-    <LaptopMockup variant="pro14" color="#4a484b" deviceProps={{ rotation: [0, -0.35, 0] }}>
+    <LaptopMockup variant="pro14" color="#4a484b" rotation={[0, -0.35, 0]}>
       <DesktopScreen />
     </LaptopMockup>
   ),
   'laptop-air15': (
-    <LaptopMockup variant="air15" colorway="skyblue" deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <LaptopMockup variant="air15" colorway="skyblue" rotation={[0, 0.3, 0]}>
       <DesktopScreen />
     </LaptopMockup>
   ),
   'laptop-pro16': (
-    <LaptopMockup variant="pro16" colorway="spaceblack" deviceProps={{ rotation: [0, -0.35, 0] }}>
+    <LaptopMockup variant="pro16" colorway="spaceblack" rotation={[0, -0.35, 0]}>
       <DesktopScreen />
     </LaptopMockup>
   ),
 
   // ---- Tablet -------------------------------------------------------------------
   'tablet-landscape': (
-    <TabletMockup orientation="landscape" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup orientation="landscape" rotation={[0, -0.3, 0]}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-ipadpro11': (
-    <TabletMockup variant="ipadpro11" colorway="silver" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="ipadpro11" colorway="silver" rotation={[0, -0.3, 0]}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-ipadair13': (
-    <TabletMockup variant="ipadair13" colorway="starlight" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="ipadair13" colorway="starlight" rotation={[0, -0.3, 0]}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-ipad11': (
-    <TabletMockup variant="ipad11" colorway="blue" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="ipad11" colorway="blue" rotation={[0, -0.3, 0]}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-tabs11': (
-    <TabletMockup variant="tabs11" colorway="gray" deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup variant="tabs11" colorway="gray" rotation={[0, -0.3, 0]}>
       <DesktopScreen />
     </TabletMockup>
   ),
   'tablet-ultra': (
-    <TabletMockup variant="tabs11ultra" colorway="gray" float deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <TabletMockup variant="tabs11ultra" colorway="gray" float rotation={[0, 0.3, 0]}>
       <MusicPlayer />
     </TabletMockup>
   ),
 
   // ---- Monitor --------------------------------------------------------------------
   'monitor-basic': (
-    <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <MonitorMockup rotation={[0, -0.25, 0]}>
       <DesktopScreen />
     </MonitorMockup>
   ),
@@ -431,7 +431,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Book -------------------------------------------------------------
   'book-basic': (
-    <BookMockup color="#16324a" deviceProps={{ rotation: [0, 0.35, 0] }}>
+    <BookMockup color="#16324a" rotation={[0, 0.35, 0]}>
       <BookCoverArt />
     </BookMockup>
   ),
@@ -467,22 +467,22 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Magazine ----------------------------------------------------------
   'magazine-basic': (
-    <MagazineMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <MagazineMockup rotation={[0, -0.3, 0]}>
       <MagazineCoverArt />
     </MagazineMockup>
   ),
   'magazine-back': (
-    <MagazineMockup autoRotate autoRotateSpeed={1.2} back={<MagazineBackArt />} deviceProps={{ rotation: [0, 2.6, 0] }}>
+    <MagazineMockup autoRotate autoRotateSpeed={1.2} back={<MagazineBackArt />} rotation={[0, 2.6, 0]}>
       <MagazineCoverArt />
     </MagazineMockup>
   ),
   'magazine-spine': (
-    <MagazineMockup spine={<MagazineSpineArt />} back={<MagazineBackArt />} deviceProps={{ rotation: [0, 0.95, 0] }}>
+    <MagazineMockup spine={<MagazineSpineArt />} back={<MagazineBackArt />} rotation={[0, 0.95, 0]}>
       <MagazineCoverArt />
     </MagazineMockup>
   ),
   'magazine-stock': (
-    <MagazineMockup pageColor="#efeadd" backColor="#101319" float deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <MagazineMockup pageColor="#efeadd" backColor="#101319" float rotation={[0, 0.3, 0]}>
       <MiniCover title="Monochrome, issue 12" from="#20242c" to="#0b0d12" />
     </MagazineMockup>
   ),
@@ -491,7 +491,7 @@ const DEMOS: Record<string, React.ReactNode> = {
   'brochure-panels': (
     <BrochureMockup
       panels={[<BrochureFrontArt key="f" />, <BrochureTrailsArt key="t" />, <BrochureVisitArt key="v" />]}
-      deviceProps={{ rotation: [0, -0.12, 0] }}
+      rotation={[0, -0.12, 0]}
     />
   ),
   'brochure-flat': (
@@ -501,7 +501,7 @@ const DEMOS: Record<string, React.ReactNode> = {
     />
   ),
   'brochure-single': (
-    <BrochureMockup paperColor="#e9e4d8" float deviceProps={{ rotation: [0, 0.25, 0] }}>
+    <BrochureMockup paperColor="#e9e4d8" float rotation={[0, 0.25, 0]}>
       <BrochureFrontArt />
     </BrochureMockup>
   ),
@@ -516,7 +516,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Business card -----------------------------------------------------
   'card-basic': (
-    <BusinessCardMockup float deviceProps={{ rotation: [-0.1, -0.35, 0] }}>
+    <BusinessCardMockup float rotation={[-0.1, -0.35, 0]}>
       <CardFrontArt />
     </BusinessCardMockup>
   ),
@@ -538,12 +538,12 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Poster frame --------------------------------------------------------
   'poster-basic': (
-    <PosterFrameMockup deviceProps={{ rotation: [0, 0.25, 0] }}>
+    <PosterFrameMockup rotation={[0, 0.25, 0]}>
       <PosterArt />
     </PosterFrameMockup>
   ),
   'poster-oak': (
-    <PosterFrameMockup color="#b98d5f" posterBackground="#f7f2e8" float deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <PosterFrameMockup color="#b98d5f" posterBackground="#f7f2e8" float rotation={[0, -0.25, 0]}>
       <MiniCover title="Form & Counterform" from="#e6dccb" to="#cdbb92" />
     </PosterFrameMockup>
   ),
@@ -560,7 +560,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Billboard -----------------------------------------------------------
   'billboard-basic': (
-    <BillboardMockup deviceProps={{ rotation: [0, -0.18, 0] }}>
+    <BillboardMockup rotation={[0, -0.18, 0]}>
       <BillboardAdArt />
     </BillboardMockup>
   ),
@@ -579,12 +579,12 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Van -------------------------------------------------------------------
   'van-basic': (
-    <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+    <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} rotation={[0, -0.5, 0]}>
       <VanLiveryArt />
     </VanMockup>
   ),
   'van-rear': (
-    <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} deviceProps={{ rotation: [0, 2.25, 0] }}>
+    <VanMockup streetSide={<VanLiveryArt />} rear={<VanRearArt />} rotation={[0, 2.25, 0]}>
       <VanLiveryArt />
     </VanMockup>
   ),
@@ -594,13 +594,13 @@ const DEMOS: Record<string, React.ReactNode> = {
       streetSide={<FullSideLivery />}
       rear={<VanRearArt />}
       licensePlate="RGL 4×4"
-      deviceProps={{ rotation: [0, -0.42, 0] }}
+      rotation={[0, -0.42, 0]}
     >
       <FullSideLivery />
     </VanMockup>
   ),
   'van-paint': (
-    <VanMockup color="#1d4433" wrapBackground="#1d4433" autoRotate deviceProps={{ rotation: [0, 0.6, 0] }}>
+    <VanMockup color="#1d4433" wrapBackground="#1d4433" autoRotate rotation={[0, 0.6, 0]}>
       <div
         style={{
           width: '100%',
@@ -622,7 +622,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- ID card ------------------------------------------------------------------
   'idcard-basic': (
-    <IDCardMockup float deviceProps={{ rotation: [0, -0.25, 0.04] }}>
+    <IDCardMockup float rotation={[0, -0.25, 0.04]}>
       <BadgeFrontArt />
     </IDCardMockup>
   ),
@@ -636,7 +636,7 @@ const DEMOS: Record<string, React.ReactNode> = {
   'bus-basic': (
     <BusMockup
       destinationSign={['42 DOWNTOWN', 'VIA 5TH AVE']}
-      deviceProps={{ rotation: [0, 0.35, 0] }}
+      rotation={[0, 0.35, 0]}
     >
       <BusAdArt />
     </BusMockup>
@@ -647,7 +647,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       destinationSign={['12 EASTBROOK', 'VIA HARBOR FRONT']}
       streetSideAd={<BusFullLivery />}
       rearAd={<BusTailLivery />}
-      deviceProps={{ rotation: [0, 0.42, 0] }}
+      rotation={[0, 0.42, 0]}
     >
       <BusFullLivery />
     </BusMockup>
@@ -660,7 +660,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       curbSideAd={<BusFullLivery />}
       streetSideAd={<BusFullLivery />}
       rearAd={<BusTailLivery />}
-      deviceProps={{ rotation: [0, 0.42, 0] }}
+      rotation={[0, 0.42, 0]}
     />
   ),
   'bus-rear': (
@@ -668,7 +668,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       streetSideAd={<BusAdArt />}
       rearAd={<BusAdArt />}
       destinationSign={<DestinationArt />}
-      deviceProps={{ rotation: [0, 2.35, 0] }}
+      rotation={[0, 2.35, 0]}
     >
       <BusAdArt />
     </BusMockup>
@@ -687,7 +687,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Product box ---------------------------------------------------------------
   'box-basic': (
-    <ProductBoxMockup side={<BoxSideArt />} top={<BoxTopArt />} deviceProps={{ rotation: [0, -0.5, 0] }}>
+    <ProductBoxMockup side={<BoxSideArt />} top={<BoxTopArt />} rotation={[0, -0.5, 0]}>
       <BoxFrontArt />
     </ProductBoxMockup>
   ),
@@ -712,7 +712,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Roll-up banner ---------------------------------------------------------------
   'banner-basic': (
-    <RollupBannerMockup deviceProps={{ rotation: [0, 0.18, 0] }}>
+    <RollupBannerMockup rotation={[0, 0.18, 0]}>
       <BannerArt />
     </RollupBannerMockup>
   ),
@@ -734,20 +734,20 @@ const DEMOS: Record<string, React.ReactNode> = {
   'shelter-basic': (
     <BusShelterMockup
       arrivals={['12  Harbor Loop      2 min', '4X  Union Sq Express  7 min', '31  Larchmont        12 min']}
-      deviceProps={{ rotation: [0, -0.55, 0] }}
+      rotation={[0, -0.55, 0]}
     >
       <PosterArt />
     </BusShelterMockup>
   ),
   'shelter-night': (
-    <BusShelterMockup color="#22262c" background="#0b0d12" deviceProps={{ rotation: [0, -0.75, 0] }} inner={<PosterArt />} arrivals={<ArrivalsBoardArt />}>
+    <BusShelterMockup color="#22262c" background="#0b0d12" rotation={[0, -0.75, 0]} inner={<PosterArt />} arrivals={<ArrivalsBoardArt />}>
       <PosterArt />
     </BusShelterMockup>
   ),
 
   // ---- Greeting card ---------------------------------------------------------------
   'greeting-basic': (
-    <GreetingCardMockup float deviceProps={{ rotation: [0, -0.82, 0] }}>
+    <GreetingCardMockup float rotation={[0, -0.82, 0]}>
       <GreetingCoverArt />
     </GreetingCardMockup>
   ),
@@ -765,7 +765,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Vinyl record ---------------------------------------------------------------
   'vinyl-basic': (
-    <VinylRecordMockup label={<VinylLabelArt />} deviceProps={{ rotation: [0, -0.2, 0] }}>
+    <VinylRecordMockup label={<VinylLabelArt />} rotation={[0, -0.2, 0]}>
       <VinylCoverArt />
     </VinylRecordMockup>
   ),
@@ -788,14 +788,14 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- TV ---------------------------------------------------------------------------
   'tv-basic': (
-    <TVSetMockup deviceProps={{ rotation: [0, -0.22, 0] }}>
+    <TVSetMockup rotation={[0, -0.22, 0]}>
       <TVShowArt />
     </TVSetMockup>
   ),
 
   // ---- A-frame sign -----------------------------------------------------------------
   'aframe-basic': (
-    <AFrameSignMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <AFrameSignMockup rotation={[0, -0.3, 0]}>
       <ChalkMenuArt />
     </AFrameSignMockup>
   ),
@@ -807,19 +807,19 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- DOOH totem ---------------------------------------------------------------------
   'totem-basic': (
-    <DOOHTotemMockup back={<BannerArt />} deviceProps={{ rotation: [0, -0.18, 0] }}>
+    <DOOHTotemMockup back={<BannerArt />} rotation={[0, -0.18, 0]}>
       <BannerArt />
     </DOOHTotemMockup>
   ),
 
   // ---- Storefront ---------------------------------------------------------------------
   'storefront-basic': (
-    <StorefrontMockup windows={{ frontLeft: <StorePosterArt />, frontRight: <StorePosterArt /> }} deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <StorefrontMockup windows={{ frontLeft: <StorePosterArt />, frontRight: <StorePosterArt /> }} rotation={[0, -0.25, 0]}>
       <StoreSignArt />
     </StorefrontMockup>
   ),
   'storefront-paint': (
-    <StorefrontMockup color="#5c2330" windows={{ frontLeft: <StorePosterArt />, door: <StorePosterArt /> }} deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <StorefrontMockup color="#5c2330" windows={{ frontLeft: <StorePosterArt />, door: <StorePosterArt /> }} rotation={[0, 0.3, 0]}>
       <StoreSignArt />
     </StorefrontMockup>
   ),
@@ -845,7 +845,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Semi trailer ---------------------------------------------------------------------
   'trailer-basic': (
-    <SemiTrailerMockup deviceProps={{ rotation: [0, -0.35, 0] }}>
+    <SemiTrailerMockup rotation={[0, -0.35, 0]}>
       <TrailerWrapArt />
     </SemiTrailerMockup>
   ),
@@ -862,7 +862,7 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Mailer box ---------------------------------------------------------------------
   'mailer-basic': (
-    <MailerBoxMockup front={<BoxPanelArt />} deviceProps={{ rotation: [0, 0.5, 0] }}>
+    <MailerBoxMockup front={<BoxPanelArt />} rotation={[0, 0.5, 0]}>
       <BoxLidArt />
     </MailerBoxMockup>
   ),
@@ -875,7 +875,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       side={<MailerEndArt />}
       left={<MailerEndArt />}
       bottom={<MailerBottomArt />}
-      deviceProps={{ rotation: [0, 0.5, 0] }}
+      rotation={[0, 0.5, 0]}
     >
       <BoxLidArt />
     </MailerBoxMockup>
@@ -886,13 +886,13 @@ const DEMOS: Record<string, React.ReactNode> = {
       color="#e8e4dd"
       tapeColor="rgba(210, 205, 196, 0.9)"
       camera={{ position: [0, 3.2, 6.6], fov: 40 }}
-      deviceProps={{ rotation: [0, -0.4, 0] }}
+      rotation={[0, -0.4, 0]}
     />
   ),
 
   // ---- Shopping bag ---------------------------------------------------------------------
   'bag-basic': (
-    <ShoppingBagMockup deviceProps={{ rotation: [0, 0.35, 0] }}>
+    <ShoppingBagMockup rotation={[0, 0.35, 0]}>
       <BagArt />
     </ShoppingBagMockup>
   ),
@@ -917,12 +917,12 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Custom sizes ---------------------------------------------------------------------
   'custom-panel-basic': (
-    <CustomPanelMockup size={{ width: 600, height: 900, thickness: 5 }} deviceProps={{ rotation: [0, 0.25, 0] }}>
+    <CustomPanelMockup size={{ width: 600, height: 900, thickness: 5 }} rotation={[0, 0.25, 0]}>
       <PosterArt />
     </CustomPanelMockup>
   ),
   'custom-panel-wide': (
-    <CustomPanelMockup size={{ width: 2400, height: 800, thickness: 12 }} color="#20242b" float deviceProps={{ rotation: [0, -0.2, 0] }}>
+    <CustomPanelMockup size={{ width: 2400, height: 800, thickness: 12 }} color="#20242b" float rotation={[0, -0.2, 0]}>
       <TrailerWrapArt />
     </CustomPanelMockup>
   ),
@@ -933,7 +933,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       right={<BoxSideArt />}
       top={<BoxTopArt />}
       back={<BoxFrontArt />}
-      deviceProps={{ rotation: [0, -0.45, 0] }}
+      rotation={[0, -0.45, 0]}
     >
       <BoxFrontArt />
     </CustomBoxMockup>
@@ -943,7 +943,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       size={{ width: 300, height: 60, depth: 300 }}
       top={<BoxLidArt />}
       camera={{ position: [0, 2.6, 7.0], fov: 40 }}
-      deviceProps={{ rotation: [0, 0.4, 0] }}
+      rotation={[0, 0.4, 0]}
     >
       <BoxPanelArt />
     </CustomBoxMockup>
@@ -951,59 +951,59 @@ const DEMOS: Record<string, React.ReactNode> = {
 
   // ---- Watch ------------------------------------------------------------------
   'watch-band': (
-    <WatchMockup float color="#1c1d21" bandColor="#33415c" deviceProps={{ rotation: [0, -0.35, 0] }}>
+    <WatchMockup float color="#1c1d21" bandColor="#33415c" rotation={[0, -0.35, 0]}>
       <WatchFace />
     </WatchMockup>
   ),
   'watch-galaxy': (
-    <WatchMockup variant="watch8" color="#33363c" bandColor="#23252a" float deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <WatchMockup variant="watch8" color="#33363c" bandColor="#23252a" float rotation={[0, 0.3, 0]}>
       <GalaxyWatchFace />
     </WatchMockup>
   ),
 
   // ---- Chroma surface maps: every mockup-able area in chroma green -----------
   'chroma-phone': (
-    <PhoneMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <PhoneMockup rotation={[0, -0.3, 0]}>
       <ChromaSurface label="children" />
     </PhoneMockup>
   ),
   'chroma-iphone': (
-    <IPhoneMockup deviceProps={{ rotation: [0, 0.3, 0] }}>
+    <IPhoneMockup rotation={[0, 0.3, 0]}>
       <ChromaSurface label="children" />
     </IPhoneMockup>
   ),
   'chroma-laptop': (
-    <LaptopMockup deviceProps={{ rotation: [0.05, -0.35, 0] }}>
+    <LaptopMockup rotation={[0.05, -0.35, 0]}>
       <ChromaSurface label="children" />
     </LaptopMockup>
   ),
   'chroma-tablet': (
-    <TabletMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <TabletMockup rotation={[0, -0.3, 0]}>
       <ChromaSurface label="children" />
     </TabletMockup>
   ),
   'chroma-watch': (
-    <WatchMockup deviceProps={{ rotation: [0, -0.3, 0] }}>
+    <WatchMockup rotation={[0, -0.3, 0]}>
       <ChromaSurface label="children" />
     </WatchMockup>
   ),
   'chroma-monitor': (
-    <MonitorMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <MonitorMockup rotation={[0, -0.25, 0]}>
       <ChromaSurface label="children" />
     </MonitorMockup>
   ),
   'chroma-fold': (
-    <FoldMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <FoldMockup rotation={[0, -0.25, 0]}>
       <ChromaSurface label="children" />
     </FoldMockup>
   ),
   'chroma-flip': (
-    <FlipMockup deviceProps={{ rotation: [0, -0.25, 0] }}>
+    <FlipMockup rotation={[0, -0.25, 0]}>
       <ChromaSurface label="children" />
     </FlipMockup>
   ),
   'chroma-tv': (
-    <TVSetMockup deviceProps={{ rotation: [0, -0.2, 0] }}>
+    <TVSetMockup rotation={[0, -0.2, 0]}>
       <ChromaSurface label="children" />
     </TVSetMockup>
   ),
@@ -1031,12 +1031,12 @@ const DEMOS: Record<string, React.ReactNode> = {
     </BusinessCardMockup>
   ),
   'chroma-poster': (
-    <PosterFrameMockup deviceProps={{ rotation: [0, -0.2, 0] }}>
+    <PosterFrameMockup rotation={[0, -0.2, 0]}>
       <ChromaSurface label="children" />
     </PosterFrameMockup>
   ),
   'chroma-billboard': (
-    <BillboardMockup deviceProps={{ rotation: [0, -0.15, 0] }}>
+    <BillboardMockup rotation={[0, -0.15, 0]}>
       <ChromaSurface label="children" />
     </BillboardMockup>
   ),
@@ -1083,7 +1083,7 @@ const DEMOS: Record<string, React.ReactNode> = {
     </ProductBoxMockup>
   ),
   'chroma-banner': (
-    <RollupBannerMockup deviceProps={{ rotation: [0, 0.2, 0] }}>
+    <RollupBannerMockup rotation={[0, 0.2, 0]}>
       <ChromaSurface label="children" />
     </RollupBannerMockup>
   ),
@@ -1092,7 +1092,7 @@ const DEMOS: Record<string, React.ReactNode> = {
       inner={<ChromaSurface label="inner" />}
       arrivals={<ChromaSurface label="arrivals" />}
       arrivalsBack={<ChromaSurface label="arrivalsBack" />}
-      deviceProps={{ rotation: [0, -0.55, 0] }}
+      rotation={[0, -0.55, 0]}
     >
       <ChromaSurface label="children" />
     </BusShelterMockup>
